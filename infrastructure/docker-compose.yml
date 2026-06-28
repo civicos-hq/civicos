@@ -1,0 +1,50 @@
+version: "3.9"
+
+# Local development stack — Postgres, Redis, NATS
+# Run: docker compose -f infrastructure/docker-compose.yml up -d
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: civicos_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: civicos
+      POSTGRES_PASSWORD: civicos
+      POSTGRES_DB: civicos
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U civicos"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: civicos_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  nats:
+    image: nats:2-alpine
+    container_name: civicos_nats
+    restart: unless-stopped
+    ports:
+      - "4222:4222"   # Client connections
+      - "8222:8222"   # HTTP monitoring
+    command: ["--http_port", "8222"]
+
+volumes:
+  postgres_data:
+  redis_data:

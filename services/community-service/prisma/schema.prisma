@@ -1,0 +1,121 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum IssueStatus {
+  OPEN
+  UNDER_REVIEW
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum IssueCategory {
+  INFRASTRUCTURE
+  HEALTH
+  EDUCATION
+  SECURITY
+  ENVIRONMENT
+  UTILITIES
+  TRANSPORT
+  OTHER
+}
+
+enum PetitionStatus {
+  DRAFT
+  ACTIVE
+  CLOSED
+  SUCCESSFUL
+}
+
+model Community {
+  id          String  @id @default(uuid())
+  name        String
+  slug        String  @unique
+  description String?
+  state       String
+  lga         String
+  country     String  @default("Nigeria")
+  logoUrl     String?
+  createdById String
+
+  issues    Issue[]
+  petitions Petition[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+}
+
+model Issue {
+  id           String        @id @default(uuid())
+  title        String
+  description  String
+  category     IssueCategory @default(OTHER)
+  status       IssueStatus   @default(OPEN)
+  location     String?
+  imageUrls    String[]
+  upvoteCount  Int           @default(0)
+  communityId  String
+  reportedById String
+
+  community Community      @relation(fields: [communityId], references: [id])
+  comments  IssueComment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([communityId])
+  @@index([status])
+}
+
+model IssueComment {
+  id                 String  @id @default(uuid())
+  content            String
+  issueId            String
+  authorId           String
+  isOfficialResponse Boolean @default(false)
+
+  issue Issue @relation(fields: [issueId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([issueId])
+}
+
+model Petition {
+  id          String         @id @default(uuid())
+  title       String
+  description String
+  goal        Int
+  status      PetitionStatus @default(DRAFT)
+  deadline    DateTime?
+  communityId String
+  createdById String
+
+  community  Community           @relation(fields: [communityId], references: [id])
+  signatures PetitionSignature[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([communityId])
+}
+
+model PetitionSignature {
+  id         String @id @default(uuid())
+  petitionId String
+  userId     String
+
+  petition Petition @relation(fields: [petitionId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([petitionId, userId])
+}
