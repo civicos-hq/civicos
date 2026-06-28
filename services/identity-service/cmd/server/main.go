@@ -39,8 +39,8 @@ func main() {
 		c.JSON(200, gin.H{"status": "ok", "service": "identity-service"})
 	})
 
-	// Auth routes
-	authGroup := r.Group("/api/auth")
+	// Auth routes — /v1/auth/... so the gateway can strip /api and forward correctly
+	authGroup := r.Group("/v1/auth")
 	authHandler.RegisterRoutes(authGroup, middleware.JWTAuth(cfg))
 
 	addr := fmt.Sprintf(":%d", cfg.Port)

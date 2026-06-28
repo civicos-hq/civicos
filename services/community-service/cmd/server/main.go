@@ -11,15 +11,15 @@ import (
 	"github.com/civicos/community-service/pkg/database"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	_ = godotenv.Load()
-
+	// config.Load() handles godotenv internally
 	cfg := config.Load()
 
 	db := database.Connect(cfg.DatabaseURL)
+
+	// Run migrations explicitly here so it's clear what this service owns
 	if err := db.AutoMigrate(
 		&domain.Community{},
 		&domain.Issue{},

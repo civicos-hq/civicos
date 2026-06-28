@@ -3,21 +3,20 @@ package config
 import (
 	"fmt"
 	"os"
-	"strconv"
 
 	"github.com/joho/godotenv"
 )
 
 type Config struct {
-	Port       int
+	Port        string
 	DatabaseURL string
-	JWTSecret  string
+	JWTSecret   string
 }
 
 func Load() *Config {
 	_ = godotenv.Load()
 	cfg := &Config{
-		Port:        getInt("COMMUNITY_SERVICE_PORT", 3002),
+		Port:        getStr("COMMUNITY_SERVICE_PORT", "3002"),
 		DatabaseURL: require("DATABASE_URL"),
 		JWTSecret:   require("JWT_SECRET"),
 	}
@@ -29,15 +28,15 @@ func Load() *Config {
 
 func require(key string) string {
 	v := os.Getenv(key)
-	if v == "" { fatalf("missing required env var: %s", key) }
+	if v == "" {
+		fatalf("missing required env var: %s", key)
+	}
 	return v
 }
 
-func getInt(key string, fallback int) int {
+func getStr(key, fallback string) string {
 	if v := os.Getenv(key); v != "" {
-		n, err := strconv.Atoi(v)
-		if err != nil { fatalf("env var %s must be an integer", key) }
-		return n
+		return v
 	}
 	return fallback
 }
