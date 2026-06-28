@@ -24,6 +24,14 @@
 # ─── Monorepo tooling ─────────────────────────────────────────────────────────
 .turbo
 
+# ─── Go ───────────────────────────────────────────────────────────────────────
+**/tmp/
+**/vendor/
+# compiled binaries (service names)
+services/*/identity-service
+services/*/community-service
+services/*/api-gateway
+
 # ─── Prisma ───────────────────────────────────────────────────────────────────
 **/prisma/generated
 **/*.db

@@ -23,13 +23,13 @@ All product, architecture, and engineering decisions are driven by five document
 ## Repository structure
 
 ```
-civicos-v2/
+civicos/
 ├── apps/
 │   └── web/                  # React + Vite + TypeScript frontend (port 5173)
 ├── services/
-│   ├── api-gateway/          # NestJS gateway — routes requests to services (port 3000)
-│   ├── identity-service/     # NestJS — auth, users, JWT (port 3001)
-│   └── community-service/    # NestJS — communities, issues, petitions (port 3002)
+│   ├── api-gateway/          # Go — reverse proxy, JWT validation (port 3000)
+│   ├── identity-service/     # Go — auth, users, JWT (port 3001)
+│   └── community-service/    # Go — communities, issues, petitions (port 3002)
 ├── packages/
 │   ├── types/                # Shared TypeScript interfaces & enums (@civicos/types)
 │   ├── config/               # Env validation via zod (@civicos/config)
@@ -42,28 +42,43 @@ civicos-v2/
 └── CLAUDE.md                 # This file
 ```
 
+Each Go service follows the layout:
+```
+service/
+├── cmd/server/main.go        # Entry point — wires DI, starts Gin
+├── internal/
+│   ├── domain/models.go      # GORM models + enums
+│   ├── middleware/auth.go    # JWT middleware
+│   └── <feature>/            # repository.go, service.go, handler.go
+└── pkg/
+    ├── config/config.go      # Env loading + validation
+    ├── database/postgres.go  # GORM connection + AutoMigrate
+    └── response/response.go  # Success/Error helpers
+```
+
 ## Tech stack
 
 - **Frontend**: React 18, Vite, TypeScript, Tailwind CSS, TanStack Query, React Router v6
-- **Backend**: NestJS + TypeScript (all services)
-- **ORM**: Prisma (PostgreSQL)
-- **Cache**: Redis
+- **Backend**: Go 1.22 — Gin (HTTP), GORM (ORM), golang-jwt/jwt/v5 (auth)
+- **Database**: PostgreSQL 16 (GORM AutoMigrate)
+- **Cache**: Redis 7
 - **Messaging**: NATS
-- **Monorepo**: pnpm workspaces + Turborepo
-- **Package manager**: pnpm
+- **Hot reload**: Air (`air` CLI, `.air.toml` per service)
+- **Monorepo**: pnpm workspaces + Turborepo (frontend/packages only)
+- **Package manager**: pnpm (frontend), Go modules (backend)
 
-## Engineering rules (from Engineering Playbook)
+## Engineering rules
 
-1. **Dependency injection always** — never `new Repository()` inside a service. Use NestJS DI.
-2. **No `any`** — TypeScript strict mode is on. Use `unknown` or explicit types.
-3. **UUIDs** — all entity IDs are UUIDs (`@default(uuid())` in Prisma). Never expose sequential IDs.
-4. **Validate at boundaries** — use `class-validator` DTOs in NestJS. Never trust raw input.
-5. **Single responsibility** — each class/service does one thing. `AuthService` does not send emails.
-6. **Conventional commits** — `feat:`, `fix:`, `chore:`, `docs:`, `test:`, `ci:` — Husky enforces this.
-7. **Files under 300 lines** — if a file grows past 500, consider splitting it.
-8. **Store timestamps in UTC** — convert to local time only in the UI.
-9. **Error codes, not raw messages** — return `{ code: "ISSUE_NOT_FOUND", message: "..." }` from services.
-10. **Log for operators** — include requestId, userId, executionTime. Never log passwords or tokens.
+1. **Dependency injection always** — `NewRepository(db)` → `NewService(repo)` → `NewHandler(svc)` in `main.go`. Never instantiate inside a struct.
+2. **No stringly-typed IDs** — all entity IDs are UUIDs (`uuid.New().String()`). Never use sequential integers.
+3. **Validate at boundaries** — use `binding:"required"` tags on input structs. Never trust raw request data.
+4. **Single responsibility** — each file does one thing. `auth/service.go` does not touch HTTP.
+5. **Conventional commits** — `feat:`, `fix:`, `chore:`, `docs:`, `test:`, `ci:` — Husky enforces this.
+6. **Files under 300 lines** — if a file grows past 500, consider splitting it.
+7. **Store timestamps in UTC** — convert to local time only in the UI.
+8. **Error codes, not raw messages** — return `{ code: "ISSUE_NOT_FOUND", message: "..." }` from all services.
+9. **Log for operators** — include service name, route, status. Never log passwords or tokens.
+10. **PasswordHash never serialised** — use `json:"-"` on any sensitive field.
 
 ## Domain model (key entities)
 
@@ -79,21 +94,35 @@ All types are in `packages/types/src/index.ts`.
 ## MVP build order
 
 1. ✅ Monorepo scaffold
-2. 🔲 Identity Service — register, login, refresh, /me
-3. 🔲 Community Service — create community, join, report issue
-4. 🔲 Frontend auth flow — register, login, dashboard shell
-5. 🔲 Issue reporting UI + API
-6. 🔲 Representative pages
-7. 🔲 Notifications
-8. 🔲 Petitions
+2. ✅ Identity Service — register, login, refresh, /me (Go)
+3. ✅ Community Service — communities, issues (Go)
+4. ✅ API Gateway — reverse proxy, JWT validation (Go)
+5. 🔲 Frontend auth flow — register, login, dashboard shell
+6. 🔲 Issue reporting UI + API
+7. 🔲 Representative pages
+8. 🔲 Notifications
+9. 🔲 Petitions
 
 ## Running locally
 
 ```bash
-pnpm install
-cp .env.example .env          # fill in JWT_SECRET at minimum
+# 1. Start infrastructure
 docker compose -f infrastructure/docker-compose.yml up -d
-pnpm --filter identity-service db:migrate
-pnpm --filter community-service db:migrate
+
+# 2. Install frontend/packages deps
+pnpm install
+
+# 3. Copy env and fill in JWT_SECRET (min 32 chars)
+cp .env.example .env
+
+# 4. Start Go services (each in a separate terminal, requires `air` installed)
+cd services/identity-service && air
+cd services/community-service && air
+cd services/api-gateway && air
+
+# 5. Start frontend
 pnpm dev
+
+# Install air for hot reload (one-time):
+go install github.com/air-verse/air@latest
 ```
