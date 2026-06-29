@@ -3,6 +3,8 @@ package discover
 import (
 	"net/http"
 	"sort"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/civicos/community-service/internal/domain"
@@ -26,6 +28,14 @@ const (
 const (
 	perTierLimit = 12
 	totalLimit   = 40
+
+	// When filtering to a single tier we lift the per-entity cap so pagination
+	// has room to walk. For dataset sizes this app expects in the near term,
+	// in-memory filtering is fine — at real scale we'd push the tier filter
+	// into SQL using a community_id IN (...) clause.
+	flatScanLimit  = 1000
+	defaultPageSize = 20
+	maxPageSize     = 50
 )
 
 // FeedItem is what the API returns: a discriminated union of issue/petition
@@ -64,20 +74,49 @@ func (h *Handler) feed(c *gin.Context) {
 	// The user's communityId is held in identity-service, not the JWT, so we
 	// trust the caller to pass it as a query param. Empty = no personalization,
 	// everything falls to TierCountry sorted by recency.
-	items, err := h.svc.Feed(c.Query("communityId"))
+	tier := Tier(strings.ToUpper(c.Query("tier")))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", strconv.Itoa(defaultPageSize)))
+	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
+	if limit <= 0 {
+		limit = defaultPageSize
+	}
+	if limit > maxPageSize {
+		limit = maxPageSize
+	}
+	if offset < 0 {
+		offset = 0
+	}
+
+	result, err := h.svc.Feed(c.Query("communityId"), tier, limit, offset)
 	if err != nil {
 		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to load feed")
 		return
 	}
-	response.Success(c, http.StatusOK, gin.H{"items": items})
+	response.Success(c, http.StatusOK, gin.H{
+		"items":      result.Items,
+		"nextOffset": result.NextOffset,
+	})
 }
 
-// Feed returns up to totalLimit items ranked by proximity tier and recency.
-// userCommunityID may be empty — in that case all items fall into TierCountry.
-func (s *Service) Feed(userCommunityID string) ([]FeedItem, error) {
+// FeedResult is the paginated wrapper returned by Service.Feed.
+type FeedResult struct {
+	Items      []FeedItem `json:"items"`
+	NextOffset *int       `json:"nextOffset,omitempty"`
+}
+
+// Feed returns items ranked by proximity tier and recency.
+//
+// - When tierFilter is empty, the response is the curated grouped view: top
+//   results per tier up to totalLimit, no pagination cursor.
+// - When tierFilter is set, items are filtered to that tier and paginated via
+//   offset/limit, with NextOffset != nil when more items exist.
+//
+// userCommunityID may be empty — in that case base is nil and every item
+// resolves to TierCountry.
+func (s *Service) Feed(userCommunityID string, tierFilter Tier, limit, offset int) (FeedResult, error) {
 	communities, err := s.loadCommunities()
 	if err != nil {
-		return nil, err
+		return FeedResult{}, err
 	}
 
 	var base *domain.Community
@@ -87,20 +126,26 @@ func (s *Service) Feed(userCommunityID string) ([]FeedItem, error) {
 		}
 	}
 
-	issues, err := s.recentIssues()
-	if err != nil {
-		return nil, err
-	}
-	petitions, err := s.recentPetitions()
-	if err != nil {
-		return nil, err
+	// When tier filtering, lift the SQL cap so pagination has headroom.
+	scanLimit := 200
+	if tierFilter != "" {
+		scanLimit = flatScanLimit
 	}
 
-	out := make([]FeedItem, 0, len(issues)+len(petitions))
+	issues, err := s.recentIssues(scanLimit)
+	if err != nil {
+		return FeedResult{}, err
+	}
+	petitions, err := s.recentPetitions(scanLimit)
+	if err != nil {
+		return FeedResult{}, err
+	}
+
+	all := make([]FeedItem, 0, len(issues)+len(petitions))
 	for i := range issues {
 		issue := issues[i]
 		comm := communities[issue.CommunityID]
-		out = append(out, FeedItem{
+		all = append(all, FeedItem{
 			Kind:        "issue",
 			Tier:        tierFor(base, comm),
 			CreatedAt:   issue.CreatedAt,
@@ -112,7 +157,7 @@ func (s *Service) Feed(userCommunityID string) ([]FeedItem, error) {
 	for i := range petitions {
 		p := petitions[i]
 		comm := communities[p.CommunityID]
-		out = append(out, FeedItem{
+		all = append(all, FeedItem{
 			Kind:        "petition",
 			Tier:        tierFor(base, comm),
 			CreatedAt:   p.CreatedAt,
@@ -123,15 +168,43 @@ func (s *Service) Feed(userCommunityID string) ([]FeedItem, error) {
 	}
 
 	// Sort: tier rank ascending, then newest first within each tier.
-	sort.SliceStable(out, func(i, j int) bool {
-		ri, rj := tierRank(out[i].Tier), tierRank(out[j].Tier)
+	sort.SliceStable(all, func(i, j int) bool {
+		ri, rj := tierRank(all[i].Tier), tierRank(all[j].Tier)
 		if ri != rj {
 			return ri < rj
 		}
-		return out[i].CreatedAt.After(out[j].CreatedAt)
+		return all[i].CreatedAt.After(all[j].CreatedAt)
 	})
 
-	return capByTier(out, perTierLimit, totalLimit), nil
+	if tierFilter == "" {
+		// Curated grouped view — no pagination cursor.
+		return FeedResult{Items: capByTier(all, perTierLimit, totalLimit)}, nil
+	}
+
+	// Single-tier flat view with offset/limit pagination.
+	filtered := make([]FeedItem, 0, len(all))
+	for _, it := range all {
+		if it.Tier == tierFilter {
+			filtered = append(filtered, it)
+		}
+	}
+
+	start := offset
+	if start > len(filtered) {
+		start = len(filtered)
+	}
+	end := start + limit
+	if end > len(filtered) {
+		end = len(filtered)
+	}
+	page := filtered[start:end]
+
+	var next *int
+	if end < len(filtered) {
+		v := end
+		next = &v
+	}
+	return FeedResult{Items: page, NextOffset: next}, nil
 }
 
 func (s *Service) loadCommunities() (map[string]*domain.Community, error) {
@@ -146,17 +219,15 @@ func (s *Service) loadCommunities() (map[string]*domain.Community, error) {
 	return out, nil
 }
 
-func (s *Service) recentIssues() ([]domain.Issue, error) {
+func (s *Service) recentIssues(limit int) ([]domain.Issue, error) {
 	var list []domain.Issue
-	// Cap on the SQL side so even with thousands of items we ship a bounded
-	// payload back to the handler.
-	err := s.db.Order("created_at desc").Limit(200).Find(&list).Error
+	err := s.db.Order("created_at desc").Limit(limit).Find(&list).Error
 	return list, err
 }
 
-func (s *Service) recentPetitions() ([]domain.Petition, error) {
+func (s *Service) recentPetitions(limit int) ([]domain.Petition, error) {
 	var list []domain.Petition
-	err := s.db.Order("created_at desc").Limit(200).Find(&list).Error
+	err := s.db.Order("created_at desc").Limit(limit).Find(&list).Error
 	return list, err
 }
 
