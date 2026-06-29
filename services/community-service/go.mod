@@ -1,8 +1,3 @@
-module civicos/services/community-service
-
-go 1.20
-
-require github.com/gin-gonic/gin v1.9.0
 module github.com/civicos/community-service
 
 go 1.22

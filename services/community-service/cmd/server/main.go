@@ -1,32 +1,6 @@
 package main
 
 import (
-    "log"
-    "os"
-
-    "github.com/gin-gonic/gin"
-)
-
-func main() {
-    port := os.Getenv("PORT")
-    if port == "" {
-        port = "3002"
-    }
-
-    r := gin.Default()
-
-    r.GET("/health", func(c *gin.Context) {
-        c.JSON(200, gin.H{"status": "ok", "service": "community-service"})
-    })
-
-    log.Printf("starting community-service on :%s\n", port)
-    if err := r.Run(":" + port); err != nil {
-        log.Fatal(err)
-    }
-}
-package main
-
-import (
 	"log"
 
 	"github.com/civicos/community-service/internal/communities"
@@ -40,12 +14,9 @@ import (
 )
 
 func main() {
-	// config.Load() handles godotenv internally
 	cfg := config.Load()
-
 	db := database.Connect(cfg.DatabaseURL)
 
-	// Run migrations explicitly here so it's clear what this service owns
 	if err := db.AutoMigrate(
 		&domain.Community{},
 		&domain.Issue{},
@@ -56,7 +27,6 @@ func main() {
 		log.Fatalf("migration failed: %v", err)
 	}
 
-	// Dependency injection
 	communityRepo := communities.NewRepository(db)
 	communitySvc := communities.NewService(communityRepo)
 	communityHandler := communities.NewHandler(communitySvc)

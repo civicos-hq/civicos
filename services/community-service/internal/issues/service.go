@@ -9,16 +9,24 @@ import (
 	"gorm.io/gorm"
 )
 
-type Service struct{ repo *Repository }
+type IssueStore interface {
+	FindAll(communityID, status string) ([]domain.Issue, error)
+	FindByID(id string) (*domain.Issue, error)
+	Create(issue *domain.Issue) error
+	IncrementUpvote(id string) error
+	UpdateStatus(id string, status domain.IssueStatus) error
+}
 
-func NewService(repo *Repository) *Service { return &Service{repo: repo} }
+type Service struct{ repo IssueStore }
+
+func NewService(repo IssueStore) *Service { return &Service{repo: repo} }
 
 type CreateInput struct {
-	Title       string              `json:"title" binding:"required,min=5"`
-	Description string              `json:"description" binding:"required,min=10"`
+	Title       string               `json:"title" binding:"required,min=5"`
+	Description string               `json:"description" binding:"required,min=10"`
 	Category    domain.IssueCategory `json:"category" binding:"required"`
-	CommunityID string              `json:"communityId" binding:"required"`
-	Location    *string             `json:"location"`
+	CommunityID string               `json:"communityId" binding:"required"`
+	Location    *string              `json:"location"`
 }
 
 type AppError struct {
@@ -26,6 +34,7 @@ type AppError struct {
 	Message string
 	Status  int
 }
+
 func (e *AppError) Error() string { return e.Message }
 
 func (s *Service) List(communityID, status string) ([]domain.Issue, error) {

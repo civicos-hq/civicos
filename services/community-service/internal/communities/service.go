@@ -9,9 +9,15 @@ import (
 	"gorm.io/gorm"
 )
 
-type Service struct{ repo *Repository }
+type CommunityStore interface {
+	FindAll() ([]domain.Community, error)
+	FindByID(id string) (*domain.Community, error)
+	Create(c *domain.Community) error
+}
 
-func NewService(repo *Repository) *Service { return &Service{repo: repo} }
+type Service struct{ repo CommunityStore }
+
+func NewService(repo CommunityStore) *Service { return &Service{repo: repo} }
 
 type CreateInput struct {
 	Name        string  `json:"name" binding:"required,min=2"`
@@ -51,4 +57,5 @@ type AppError struct {
 	Message string
 	Status  int
 }
+
 func (e *AppError) Error() string { return e.Message }
