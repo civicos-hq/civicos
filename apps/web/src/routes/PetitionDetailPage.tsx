@@ -1,9 +1,12 @@
-import { Link, useParams } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@civicos/ui';
 import { PetitionStatus, type ApiResponse, type Community, type Petition } from '@civicos/types';
-import { api, uploadUrl } from '../lib/api';
+import { api } from '../lib/api';
 import { CommentsSection } from '../components/civic/CommentsSection';
+import { ImageGallery } from '../components/ImageLightbox';
+import { ShareButton } from '../components/ShareButton';
 
 const STATUS_LABEL: Record<PetitionStatus, string> = {
   [PetitionStatus.DRAFT]: 'Draft',
@@ -40,11 +43,23 @@ function useCommunities() {
   });
 }
 
+function daysUntil(iso: string): number {
+  return Math.max(0, Math.ceil((new Date(iso).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+}
+
 export function PetitionDetailPage() {
   const { id = '' } = useParams<{ id: string }>();
   const queryClient = useQueryClient();
   const petitionQuery = usePetition(id);
   const communitiesQuery = useCommunities();
+  const location = useLocation();
+  const commentsRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (location.hash === '#comments' && commentsRef.current) {
+      commentsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [location.hash, petitionQuery.isLoading]);
 
   const signMutation = useMutation({
     mutationFn: async () => {
@@ -78,6 +93,7 @@ export function PetitionDetailPage() {
   const progress = Math.min(100, Math.round((petition.signatureCount / petition.goal) * 100));
   const createdAt = new Date(petition.createdAt).toLocaleDateString();
   const deadlineLabel = petition.deadline ? new Date(petition.deadline).toLocaleDateString() : null;
+  const daysLeft = petition.deadline ? daysUntil(petition.deadline) : null;
   const canSign = petition.status === PetitionStatus.ACTIVE;
 
   return (
@@ -98,11 +114,14 @@ export function PetitionDetailPage() {
               {community ? ` · ${community.name}, ${community.lga}` : ''}
             </p>
           </div>
-          <span
-            className={`rounded-full px-3 py-1 text-xs font-semibold ${STATUS_TONE[petition.status]}`}
-          >
-            {STATUS_LABEL[petition.status]}
-          </span>
+          <div className="flex items-center gap-2">
+            <span
+              className={`rounded-full px-3 py-1 text-xs font-semibold ${STATUS_TONE[petition.status]}`}
+            >
+              {STATUS_LABEL[petition.status]}
+            </span>
+            <ShareButton title={petition.title} />
+          </div>
         </div>
       </header>
 
@@ -114,23 +133,7 @@ export function PetitionDetailPage() {
       {petition.imageUrls && petition.imageUrls.length > 0 && (
         <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-slate-900">Photos</h2>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-            {petition.imageUrls.map((filename) => (
-              <a
-                key={filename}
-                href={uploadUrl(filename)}
-                target="_blank"
-                rel="noreferrer"
-                className="block overflow-hidden rounded-xl ring-1 ring-slate-200 transition hover:ring-civic-400"
-              >
-                <img
-                  src={uploadUrl(filename)}
-                  alt="Petition photo"
-                  className="h-40 w-full object-cover"
-                />
-              </a>
-            ))}
-          </div>
+          <ImageGallery filenames={petition.imageUrls} alt="Petition photo" />
         </article>
       )}
 
@@ -147,7 +150,26 @@ export function PetitionDetailPage() {
               </span>
             </p>
           </div>
-          {deadlineLabel && <p className="text-sm text-slate-500">Deadline: {deadlineLabel}</p>}
+          {deadlineLabel && (
+            <p className="text-sm text-slate-500">
+              Deadline: <span className="font-medium text-slate-700">{deadlineLabel}</span>
+              {daysLeft !== null && (
+                <span
+                  className={
+                    daysLeft <= 3
+                      ? 'ml-2 font-semibold text-rose-600'
+                      : daysLeft <= 14
+                        ? 'ml-2 font-semibold text-amber-600'
+                        : 'ml-2 text-slate-500'
+                  }
+                >
+                  {daysLeft === 0
+                    ? '· Ends today'
+                    : `· ${daysLeft} day${daysLeft === 1 ? '' : 's'} left`}
+                </span>
+              )}
+            </p>
+          )}
         </div>
 
         <div className="mt-4 h-2.5 rounded-full bg-slate-100">
@@ -175,7 +197,9 @@ export function PetitionDetailPage() {
         )}
       </article>
 
-      <CommentsSection entityType="petitions" entityId={petition.id} />
+      <div id="comments" ref={commentsRef}>
+        <CommentsSection entityType="petitions" entityId={petition.id} />
+      </div>
     </section>
   );
 }

@@ -30,6 +30,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth, requireRole gin.Hand
 	rg.GET("", h.list)
 	rg.GET("/:id", h.get)
 	rg.POST("", auth, requireRole, h.create)
+	rg.PATCH("/:id", auth, requireRole, h.update)
 	rg.POST("/:id/follow", auth, h.follow)
 	rg.DELETE("/:id/follow", auth, h.unfollow)
 	rg.GET("/:id/comments", h.listComments)
@@ -92,6 +93,25 @@ func (h *Handler) followedIDs(c *gin.Context) {
 	response.Success(c, http.StatusOK, gin.H{"representativeIds": ids})
 }
 
+func (h *Handler) update(c *gin.Context) {
+	var input UpdateInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", err.Error())
+		return
+	}
+	item, err := h.svc.Update(c.Param("id"), input)
+	if err != nil {
+		var appErr *AppError
+		if errors.As(err, &appErr) {
+			response.Error(c, appErr.Status, appErr.Code, appErr.Message)
+			return
+		}
+		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to update representative")
+		return
+	}
+	response.Success(c, http.StatusOK, gin.H{"representative": item})
+}
+
 func (h *Handler) create(c *gin.Context) {
 	var input CreateInput
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -152,7 +172,7 @@ func (h *Handler) addComment(c *gin.Context) {
 			if ferr != nil {
 				log.Printf("notify rep response: fetch followers: %v", ferr)
 			} else {
-				link := "/representatives/" + repID
+				link := "/representatives/" + repID + "#comments"
 				body := name + " responded on " + rep.Name + "'s page."
 				for _, fid := range followers {
 					if fid == userID.(string) {

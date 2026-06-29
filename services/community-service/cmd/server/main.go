@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/civicos/community-service/internal/communities"
+	"github.com/civicos/community-service/internal/discover"
 	"github.com/civicos/community-service/internal/domain"
 	"github.com/civicos/community-service/internal/issues"
 	"github.com/civicos/community-service/internal/middleware"
@@ -64,6 +65,9 @@ func main() {
 	searchSvc := search.NewService(db)
 	searchHandler := search.NewHandler(searchSvc)
 
+	discoverSvc := discover.NewService(db)
+	discoverHandler := discover.NewHandler(discoverSvc)
+
 	if err := os.MkdirAll(uploadsDir, 0o755); err != nil {
 		log.Fatalf("could not create uploads dir: %v", err)
 	}
@@ -93,6 +97,7 @@ func main() {
 	repHandler.RegisterMeRoutes(v1.Group("/me"), authMiddleware)
 	notificationHandler.RegisterRoutes(v1.Group("/notifications"), authMiddleware)
 	searchHandler.RegisterRoutes(v1.Group("/search"))
+	discoverHandler.RegisterRoutes(v1.Group("/discover"), authMiddleware)
 	uploadsHandler.RegisterRoutes(v1.Group("/uploads"), authMiddleware)
 
 	addr := ":" + cfg.Port

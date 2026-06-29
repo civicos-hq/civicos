@@ -13,6 +13,7 @@ type RepresentativeStore interface {
 	FindAll(communityID string) ([]domain.Representative, error)
 	FindByID(id string) (*domain.Representative, error)
 	Create(rep *domain.Representative) error
+	Update(id string, updates map[string]any) error
 	AddFollow(repID, userID string) error
 	RemoveFollow(repID, userID string) error
 	FindFollowedIDs(userID string) ([]string, error)
@@ -109,6 +110,69 @@ func (s *Service) Create(input CreateInput, createdByID string) (*domain.Represe
 
 type CommentInput struct {
 	Content string `json:"content" binding:"required,min=1,max=2000"`
+}
+
+// UpdateInput uses pointer fields so the handler can distinguish "leave
+// unchanged" (nil) from "clear it" (pointer to empty string).
+type UpdateInput struct {
+	Name         *string `json:"name" binding:"omitempty,min=2"`
+	Title        *string `json:"title"`
+	Position     *string `json:"position"`
+	Constituency *string `json:"constituency"`
+	Party        *string `json:"party"`
+	Bio          *string `json:"bio"`
+	AvatarURL    *string `json:"avatarUrl"`
+	Email        *string `json:"email" binding:"omitempty,email"`
+	Phone        *string `json:"phone"`
+	Website      *string `json:"website" binding:"omitempty,url"`
+}
+
+func (s *Service) Update(id string, input UpdateInput) (*domain.Representative, error) {
+	updates := map[string]any{}
+	if input.Name != nil {
+		updates["name"] = *input.Name
+	}
+	if input.Title != nil {
+		updates["title"] = *input.Title
+	}
+	if input.Position != nil {
+		updates["position"] = *input.Position
+	}
+	if input.Constituency != nil {
+		updates["constituency"] = *input.Constituency
+	}
+	// For nullable string columns we want to allow clearing (empty string → NULL).
+	if input.Party != nil {
+		updates["party"] = nilIfEmpty(*input.Party)
+	}
+	if input.Bio != nil {
+		updates["bio"] = nilIfEmpty(*input.Bio)
+	}
+	if input.AvatarURL != nil {
+		updates["avatar_url"] = nilIfEmpty(*input.AvatarURL)
+	}
+	if input.Email != nil {
+		updates["email"] = nilIfEmpty(*input.Email)
+	}
+	if input.Phone != nil {
+		updates["phone"] = nilIfEmpty(*input.Phone)
+	}
+	if input.Website != nil {
+		updates["website"] = nilIfEmpty(*input.Website)
+	}
+	if len(updates) > 0 {
+		if err := s.repo.Update(id, updates); err != nil {
+			return nil, err
+		}
+	}
+	return s.Get(id)
+}
+
+func nilIfEmpty(v string) any {
+	if v == "" {
+		return nil
+	}
+	return v
 }
 
 func (s *Service) ListComments(repID string) ([]domain.RepresentativeComment, error) {

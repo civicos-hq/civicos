@@ -1,8 +1,9 @@
-import { AlertCircle, Bell, FileText, Home, LogOut, User, Users } from 'lucide-react';
+import { AlertCircle, Bell, Compass, FileText, Home, LogOut, User, Users } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useUnreadCount } from '../../hooks/useNotifications';
 
 const navItems = [
+  { to: '/discover', label: 'Discover', icon: Compass },
   { to: '/community', label: 'Community', icon: Home },
   { to: '/issues', label: 'Issues', icon: AlertCircle },
   { to: '/petitions', label: 'Petitions', icon: FileText },

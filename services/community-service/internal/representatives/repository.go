@@ -31,6 +31,13 @@ func (r *Repository) Create(rep *domain.Representative) error {
 	return r.db.Create(rep).Error
 }
 
+func (r *Repository) Update(id string, updates map[string]any) error {
+	if len(updates) == 0 {
+		return nil
+	}
+	return r.db.Model(&domain.Representative{}).Where("id = ?", id).Updates(updates).Error
+}
+
 // AddFollow inserts a follow row and bumps the rep's follower_count. Idempotent.
 func (r *Repository) AddFollow(repID, userID string) error {
 	return r.db.Transaction(func(tx *gorm.DB) error {

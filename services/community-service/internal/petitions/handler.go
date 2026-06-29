@@ -104,7 +104,7 @@ func (h *Handler) addComment(c *gin.Context) {
 
 	if h.notifier != nil {
 		if p, gerr := h.svc.Get(petitionID); gerr == nil && p.CreatedByID != "" && p.CreatedByID != userID.(string) {
-			link := "/petitions/" + petitionID
+			link := "/petitions/" + petitionID + "#comments"
 			if nerr := h.notifier.Emit(
 				p.CreatedByID,
 				domain.NotificationPetitionUpdate,

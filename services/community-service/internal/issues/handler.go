@@ -116,7 +116,7 @@ func (h *Handler) addComment(c *gin.Context) {
 
 	if h.notifier != nil {
 		if issue, gerr := h.svc.Get(issueID); gerr == nil && issue.ReportedByID != "" && issue.ReportedByID != userID.(string) {
-			link := "/issues/" + issueID
+			link := "/issues/" + issueID + "#comments"
 			if nerr := h.notifier.Emit(
 				issue.ReportedByID,
 				domain.NotificationIssueUpdate,

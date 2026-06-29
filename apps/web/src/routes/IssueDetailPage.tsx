@@ -1,15 +1,35 @@
-import { Link, useParams } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@civicos/ui';
 import {
   IssueCategory,
   IssueStatus,
+  UserRole,
   type ApiResponse,
   type Community,
   type Issue,
 } from '@civicos/types';
-import { api, uploadUrl } from '../lib/api';
+import { api } from '../lib/api';
 import { CommentsSection } from '../components/civic/CommentsSection';
+import { ImageGallery } from '../components/ImageLightbox';
+import { ShareButton } from '../components/ShareButton';
+import { useMe } from '../hooks/useMe';
+
+const STAFF_ROLES = new Set<UserRole>([
+  UserRole.REPRESENTATIVE,
+  UserRole.GOVERNMENT_ADMIN,
+  UserRole.PLATFORM_ADMIN,
+  UserRole.NGO,
+  UserRole.MODERATOR,
+]);
+
+const STATUS_FLOW: IssueStatus[] = [
+  IssueStatus.OPEN,
+  IssueStatus.UNDER_REVIEW,
+  IssueStatus.IN_PROGRESS,
+  IssueStatus.RESOLVED,
+];
 
 const CATEGORY_LABEL: Record<IssueCategory, string> = {
   [IssueCategory.INFRASTRUCTURE]: 'Infrastructure',
@@ -64,10 +84,31 @@ export function IssueDetailPage() {
   const queryClient = useQueryClient();
   const issueQuery = useIssue(id);
   const communitiesQuery = useCommunities();
+  const meQuery = useMe();
+  const location = useLocation();
+  const commentsRef = useRef<HTMLDivElement | null>(null);
+
+  // If the user arrived from a notification link like /issues/:id#comments,
+  // scroll to the discussion thread once the page is mounted.
+  useEffect(() => {
+    if (location.hash === '#comments' && commentsRef.current) {
+      commentsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [location.hash, issueQuery.isLoading]);
 
   const upvoteMutation = useMutation({
     mutationFn: async () => {
       await api.post(`/api/v1/issues/${id}/upvote`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['issue', id] });
+      queryClient.invalidateQueries({ queryKey: ['issues'] });
+    },
+  });
+
+  const statusMutation = useMutation({
+    mutationFn: async (status: IssueStatus) => {
+      await api.patch(`/api/v1/issues/${id}/status`, { status });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['issue', id] });
@@ -93,6 +134,7 @@ export function IssueDetailPage() {
   const issue = issueQuery.data;
   const community = communitiesQuery.data?.find((c) => c.id === issue.communityId);
   const reportedAt = new Date(issue.createdAt).toLocaleString();
+  const isStaff = meQuery.data?.role ? STAFF_ROLES.has(meQuery.data.role) : false;
 
   return (
     <section className="space-y-6">
@@ -112,12 +154,43 @@ export function IssueDetailPage() {
               {community ? ` · ${community.name}, ${community.lga}` : ''}
             </p>
           </div>
-          <span
-            className={`rounded-full px-3 py-1 text-xs font-semibold ${STATUS_TONE[issue.status]}`}
-          >
-            {STATUS_LABEL[issue.status]}
-          </span>
+          <div className="flex items-center gap-2">
+            <span
+              className={`rounded-full px-3 py-1 text-xs font-semibold ${STATUS_TONE[issue.status]}`}
+            >
+              {STATUS_LABEL[issue.status]}
+            </span>
+            <ShareButton title={issue.title} />
+          </div>
         </div>
+
+        <StatusTimeline current={issue.status} />
+
+        {isStaff && (
+          <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4">
+            <p className="mr-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Update status
+            </p>
+            {(Object.keys(STATUS_LABEL) as IssueStatus[]).map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => statusMutation.mutate(s)}
+                disabled={statusMutation.isPending || s === issue.status}
+                className={
+                  s === issue.status
+                    ? `rounded-full px-3 py-1 text-xs font-semibold ${STATUS_TONE[s]} opacity-60`
+                    : 'rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 hover:border-civic-300 hover:text-civic-700 disabled:opacity-50'
+                }
+              >
+                {STATUS_LABEL[s]}
+              </button>
+            ))}
+            {statusMutation.isError && (
+              <span className="text-xs text-red-600">Could not update.</span>
+            )}
+          </div>
+        )}
       </header>
 
       <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -136,23 +209,7 @@ export function IssueDetailPage() {
       {issue.imageUrls && issue.imageUrls.length > 0 && (
         <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-slate-900">Photos</h2>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-            {issue.imageUrls.map((filename) => (
-              <a
-                key={filename}
-                href={uploadUrl(filename)}
-                target="_blank"
-                rel="noreferrer"
-                className="block overflow-hidden rounded-xl ring-1 ring-slate-200 transition hover:ring-civic-400"
-              >
-                <img
-                  src={uploadUrl(filename)}
-                  alt="Issue photo"
-                  className="h-40 w-full object-cover"
-                />
-              </a>
-            ))}
-          </div>
+          <ImageGallery filenames={issue.imageUrls} alt="Issue photo" />
         </article>
       )}
 
@@ -173,7 +230,52 @@ export function IssueDetailPage() {
         </Button>
       </article>
 
-      <CommentsSection entityType="issues" entityId={issue.id} />
+      <div id="comments" ref={commentsRef}>
+        <CommentsSection entityType="issues" entityId={issue.id} />
+      </div>
     </section>
+  );
+}
+
+function StatusTimeline({ current }: { current: IssueStatus }) {
+  if (current === IssueStatus.CLOSED) {
+    return (
+      <p className="mt-5 text-xs italic text-slate-500">
+        This issue was closed without resolution.
+      </p>
+    );
+  }
+  const activeIdx = STATUS_FLOW.indexOf(current);
+  return (
+    <ol className="mt-5 flex flex-wrap items-center gap-3 text-xs">
+      {STATUS_FLOW.map((s, i) => {
+        const reached = i <= activeIdx;
+        const isActive = i === activeIdx;
+        return (
+          <li key={s} className="flex items-center gap-2">
+            <span
+              className={
+                isActive
+                  ? 'flex h-6 w-6 items-center justify-center rounded-full bg-civic-700 text-[10px] font-bold text-white ring-4 ring-civic-100'
+                  : reached
+                    ? 'flex h-6 w-6 items-center justify-center rounded-full bg-civic-600 text-[10px] font-bold text-white'
+                    : 'flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 bg-white text-[10px] font-bold text-slate-400'
+              }
+            >
+              {i + 1}
+            </span>
+            <span className={reached ? 'font-semibold text-slate-900' : 'text-slate-400'}>
+              {STATUS_LABEL[s]}
+            </span>
+            {i < STATUS_FLOW.length - 1 && (
+              <span
+                className={reached ? 'h-px w-6 bg-civic-600' : 'h-px w-6 bg-slate-200'}
+                aria-hidden="true"
+              />
+            )}
+          </li>
+        );
+      })}
+    </ol>
   );
 }

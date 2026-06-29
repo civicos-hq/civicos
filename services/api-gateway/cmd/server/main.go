@@ -88,6 +88,7 @@ func main() {
 	r.GET("/api/v1/representatives", communityProxy)
 	r.GET("/api/v1/representatives/:id", communityProxy)
 	r.POST("/api/v1/representatives", authMiddleware, communityProxy)
+	r.PATCH("/api/v1/representatives/:id", authMiddleware, communityProxy)
 	r.POST("/api/v1/representatives/:id/follow", authMiddleware, communityProxy)
 	r.DELETE("/api/v1/representatives/:id/follow", authMiddleware, communityProxy)
 	r.GET("/api/v1/representatives/:id/comments", communityProxy)
@@ -100,6 +101,9 @@ func main() {
 
 	// Search
 	r.GET("/api/v1/search", communityProxy)
+
+	// Discover
+	r.GET("/api/v1/discover/feed", authMiddleware, communityProxy)
 
 	// Notifications
 	notificationsStream := proxy.NewStreamingProxy(cfg.CommunityServiceURL, "/api")

@@ -1,6 +1,7 @@
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { DashboardLayout } from './components/layout/DashboardLayout';
 import { CommunityPage } from './routes/CommunityPage';
+import { DiscoverPage } from './routes/DiscoverPage';
 import { IssueDetailPage } from './routes/IssueDetailPage';
 import { IssuesPage } from './routes/IssuesPage';
 import { LoginPage } from './routes/LoginPage';
@@ -25,7 +26,7 @@ function RequireAuth() {
 
 function PublicOnly() {
   if (hasAccessToken()) {
-    return <Navigate to="/community" replace />;
+    return <Navigate to="/discover" replace />;
   }
   return <Outlet />;
 }
@@ -42,6 +43,7 @@ export default function App() {
       {/* Authenticated */}
       <Route element={<RequireAuth />}>
         <Route element={<DashboardLayout />}>
+          <Route path="/discover" element={<DiscoverPage />} />
           <Route path="/community" element={<CommunityPage />} />
           <Route path="/issues" element={<IssuesPage />} />
           <Route path="/issues/:id" element={<IssueDetailPage />} />
@@ -57,11 +59,11 @@ export default function App() {
       {/* Default */}
       <Route
         path="/"
-        element={<Navigate to={hasAccessToken() ? '/community' : '/login'} replace />}
+        element={<Navigate to={hasAccessToken() ? '/discover' : '/login'} replace />}
       />
       <Route
         path="*"
-        element={<Navigate to={hasAccessToken() ? '/community' : '/login'} replace />}
+        element={<Navigate to={hasAccessToken() ? '/discover' : '/login'} replace />}
       />
     </Routes>
   );
