@@ -8,6 +8,7 @@ import (
 	"github.com/civicos/community-service/internal/domain"
 	"github.com/civicos/community-service/internal/issues"
 	"github.com/civicos/community-service/internal/middleware"
+	"github.com/civicos/community-service/internal/notifications"
 	"github.com/civicos/community-service/internal/petitions"
 	"github.com/civicos/community-service/internal/representatives"
 	"github.com/civicos/community-service/internal/uploads"
@@ -32,9 +33,14 @@ func main() {
 		&domain.PetitionComment{},
 		&domain.Representative{},
 		&domain.RepresentativeFollower{},
+		&domain.Notification{},
 	); err != nil {
 		log.Fatalf("migration failed: %v", err)
 	}
+
+	notificationRepo := notifications.NewRepository(db)
+	notificationSvc := notifications.NewService(notificationRepo)
+	notificationHandler := notifications.NewHandler(notificationSvc)
 
 	communityRepo := communities.NewRepository(db)
 	communitySvc := communities.NewService(communityRepo)
@@ -42,11 +48,11 @@ func main() {
 
 	issueRepo := issues.NewRepository(db)
 	issueSvc := issues.NewService(issueRepo)
-	issueHandler := issues.NewHandler(issueSvc)
+	issueHandler := issues.NewHandler(issueSvc, notificationSvc)
 
 	petitionRepo := petitions.NewRepository(db)
 	petitionSvc := petitions.NewService(petitionRepo)
-	petitionHandler := petitions.NewHandler(petitionSvc)
+	petitionHandler := petitions.NewHandler(petitionSvc, notificationSvc)
 
 	repRepo := representatives.NewRepository(db)
 	repSvc := representatives.NewService(repRepo)
@@ -79,6 +85,7 @@ func main() {
 	petitionHandler.RegisterRoutes(v1.Group("/petitions"), authMiddleware)
 	repHandler.RegisterRoutes(v1.Group("/representatives"), authMiddleware, requireAdminRole)
 	repHandler.RegisterMeRoutes(v1.Group("/me"), authMiddleware)
+	notificationHandler.RegisterRoutes(v1.Group("/notifications"), authMiddleware)
 	uploadsHandler.RegisterRoutes(v1.Group("/uploads"), authMiddleware)
 
 	addr := ":" + cfg.Port

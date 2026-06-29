@@ -2,6 +2,7 @@ package issues
 
 import (
 	"errors"
+	"log"
 	"net/http"
 
 	"github.com/civicos/community-service/internal/domain"
@@ -9,9 +10,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Handler struct{ svc *Service }
+// Notifier is the minimal interface this package needs to emit notifications.
+// notifications.Service satisfies it without an import cycle.
+type Notifier interface {
+	Emit(userID string, t domain.NotificationType, title, body string, linkURL *string) error
+}
 
-func NewHandler(svc *Service) *Handler { return &Handler{svc: svc} }
+type Handler struct {
+	svc      *Service
+	notifier Notifier
+}
+
+func NewHandler(svc *Service, notifier Notifier) *Handler {
+	return &Handler{svc: svc, notifier: notifier}
+}
 
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth gin.HandlerFunc) {
 	rg.GET("", h.list)
@@ -95,11 +107,28 @@ func (h *Handler) addComment(c *gin.Context) {
 	if role == "" {
 		role = "CITIZEN"
 	}
-	item, err := h.svc.AddComment(c.Param("id"), userID.(string), name, role, input.Content)
+	issueID := c.Param("id")
+	item, err := h.svc.AddComment(issueID, userID.(string), name, role, input.Content)
 	if err != nil {
 		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to add comment")
 		return
 	}
+
+	if h.notifier != nil {
+		if issue, gerr := h.svc.Get(issueID); gerr == nil && issue.ReportedByID != "" && issue.ReportedByID != userID.(string) {
+			link := "/issues/" + issueID
+			if nerr := h.notifier.Emit(
+				issue.ReportedByID,
+				domain.NotificationIssueUpdate,
+				"New comment on your issue",
+				name+" commented on \""+issue.Title+"\"",
+				&link,
+			); nerr != nil {
+				log.Printf("notify issue comment: %v", nerr)
+			}
+		}
+	}
+
 	response.Success(c, http.StatusCreated, gin.H{"comment": item})
 }
 
@@ -111,9 +140,27 @@ func (h *Handler) updateStatus(c *gin.Context) {
 		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", err.Error())
 		return
 	}
-	if err := h.svc.UpdateStatus(c.Param("id"), body.Status); err != nil {
+	issueID := c.Param("id")
+	if err := h.svc.UpdateStatus(issueID, body.Status); err != nil {
 		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to update status")
 		return
 	}
+
+	if h.notifier != nil {
+		actorID, _ := c.Get("userID")
+		if issue, gerr := h.svc.Get(issueID); gerr == nil && issue.ReportedByID != "" && issue.ReportedByID != actorID {
+			link := "/issues/" + issueID
+			if nerr := h.notifier.Emit(
+				issue.ReportedByID,
+				domain.NotificationIssueUpdate,
+				"Issue status updated",
+				"\""+issue.Title+"\" is now "+string(body.Status),
+				&link,
+			); nerr != nil {
+				log.Printf("notify issue status: %v", nerr)
+			}
+		}
+	}
+
 	response.Success(c, http.StatusOK, gin.H{"updated": true})
 }

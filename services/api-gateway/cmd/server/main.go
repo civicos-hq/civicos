@@ -95,6 +95,12 @@ func main() {
 	r.POST("/api/v1/uploads", authMiddleware, communityProxy)
 	r.GET("/api/v1/uploads/:filename", communityProxy)
 
+	// Notifications
+	r.GET("/api/v1/notifications", authMiddleware, communityProxy)
+	r.GET("/api/v1/notifications/unread-count", authMiddleware, communityProxy)
+	r.PATCH("/api/v1/notifications/:id/read", authMiddleware, communityProxy)
+	r.POST("/api/v1/notifications/read-all", authMiddleware, communityProxy)
+
 	// Handle unmatched OPTIONS requests with CORS headers
 	r.NoRoute(func(c *gin.Context) {
 		if c.Request.Method == "OPTIONS" {

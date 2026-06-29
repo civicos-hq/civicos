@@ -5,6 +5,7 @@ import "time"
 type IssueStatus string
 type IssueCategory string
 type PetitionStatus string
+type NotificationType string
 
 const (
 	IssueStatusOpen        IssueStatus = "OPEN"
@@ -26,7 +27,24 @@ const (
 	PetitionActive     PetitionStatus = "ACTIVE"
 	PetitionClosed     PetitionStatus = "CLOSED"
 	PetitionSuccessful PetitionStatus = "SUCCESSFUL"
+
+	NotificationIssueUpdate            NotificationType = "ISSUE_UPDATE"
+	NotificationPetitionUpdate         NotificationType = "PETITION_UPDATE"
+	NotificationRepresentativeResponse NotificationType = "REPRESENTATIVE_RESPONSE"
+	NotificationCommunityUpdate        NotificationType = "COMMUNITY_UPDATE"
+	NotificationSystem                 NotificationType = "SYSTEM"
 )
+
+type Notification struct {
+	ID        string           `gorm:"type:uuid;primaryKey" json:"id"`
+	Type      NotificationType `gorm:"type:varchar(40);not null" json:"type"`
+	Title     string           `gorm:"not null" json:"title"`
+	Body      string           `gorm:"not null" json:"body"`
+	Read      bool             `gorm:"default:false;index" json:"read"`
+	LinkURL   *string          `json:"linkUrl,omitempty"`
+	UserID    string           `gorm:"not null;index" json:"userId"`
+	CreatedAt time.Time        `json:"createdAt"`
+}
 
 type Community struct {
 	ID          string     `gorm:"type:uuid;primaryKey" json:"id"`

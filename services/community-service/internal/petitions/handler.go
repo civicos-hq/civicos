@@ -1,15 +1,26 @@
 package petitions
 
 import (
+	"log"
 	"net/http"
 
+	"github.com/civicos/community-service/internal/domain"
 	"github.com/civicos/community-service/pkg/response"
 	"github.com/gin-gonic/gin"
 )
 
-type Handler struct{ svc *Service }
+type Notifier interface {
+	Emit(userID string, t domain.NotificationType, title, body string, linkURL *string) error
+}
 
-func NewHandler(svc *Service) *Handler { return &Handler{svc: svc} }
+type Handler struct {
+	svc      *Service
+	notifier Notifier
+}
+
+func NewHandler(svc *Service, notifier Notifier) *Handler {
+	return &Handler{svc: svc, notifier: notifier}
+}
 
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth gin.HandlerFunc) {
 	rg.GET("", h.list)
@@ -83,11 +94,28 @@ func (h *Handler) addComment(c *gin.Context) {
 	if role == "" {
 		role = "CITIZEN"
 	}
-	item, err := h.svc.AddComment(c.Param("id"), userID.(string), name, role, input.Content)
+	petitionID := c.Param("id")
+	item, err := h.svc.AddComment(petitionID, userID.(string), name, role, input.Content)
 	if err != nil {
 		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to add comment")
 		return
 	}
+
+	if h.notifier != nil {
+		if p, gerr := h.svc.Get(petitionID); gerr == nil && p.CreatedByID != "" && p.CreatedByID != userID.(string) {
+			link := "/petitions/" + petitionID
+			if nerr := h.notifier.Emit(
+				p.CreatedByID,
+				domain.NotificationPetitionUpdate,
+				"New comment on your petition",
+				name+" commented on \""+p.Title+"\"",
+				&link,
+			); nerr != nil {
+				log.Printf("notify petition comment: %v", nerr)
+			}
+		}
+	}
+
 	response.Success(c, http.StatusCreated, gin.H{"comment": item})
 }
 
