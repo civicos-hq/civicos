@@ -53,6 +53,7 @@ type Issue struct {
 	Location     *string        `json:"location,omitempty"`
 	ImageURLs    []string       `gorm:"type:jsonb;serializer:json" json:"imageUrls"`
 	UpvoteCount  int            `gorm:"default:0" json:"upvoteCount"`
+	CommentCount int            `gorm:"default:0" json:"commentCount"`
 	CommunityID  string         `gorm:"not null;index" json:"communityId"`
 	ReportedByID string         `gorm:"not null" json:"reportedById"`
 	Comments     []IssueComment `gorm:"foreignKey:IssueID" json:"-"`
@@ -65,6 +66,19 @@ type IssueComment struct {
 	Content            string    `gorm:"not null" json:"content"`
 	IssueID            string    `gorm:"not null;index" json:"issueId"`
 	AuthorID           string    `gorm:"not null" json:"authorId"`
+	AuthorName         string    `gorm:"not null" json:"authorName"`
+	AuthorRole         string    `gorm:"not null" json:"authorRole"`
+	IsOfficialResponse bool      `gorm:"default:false" json:"isOfficialResponse"`
+	CreatedAt          time.Time `json:"createdAt"`
+}
+
+type PetitionComment struct {
+	ID                 string    `gorm:"type:uuid;primaryKey" json:"id"`
+	Content            string    `gorm:"not null" json:"content"`
+	PetitionID         string    `gorm:"not null;index" json:"petitionId"`
+	AuthorID           string    `gorm:"not null" json:"authorId"`
+	AuthorName         string    `gorm:"not null" json:"authorName"`
+	AuthorRole         string    `gorm:"not null" json:"authorRole"`
 	IsOfficialResponse bool      `gorm:"default:false" json:"isOfficialResponse"`
 	CreatedAt          time.Time `json:"createdAt"`
 }
@@ -75,6 +89,7 @@ type Petition struct {
 	Description    string         `gorm:"not null" json:"description"`
 	Goal           int            `gorm:"not null" json:"goal"`
 	SignatureCount int            `gorm:"default:0" json:"signatureCount"`
+	CommentCount   int            `gorm:"default:0" json:"commentCount"`
 	Status         PetitionStatus `gorm:"type:varchar(30);default:'DRAFT'" json:"status"`
 	Deadline       *time.Time     `json:"deadline,omitempty"`
 	ImageURLs      []string       `gorm:"type:jsonb;serializer:json" json:"imageUrls"`

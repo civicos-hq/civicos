@@ -9,6 +9,7 @@ import {
   type Issue,
 } from '@civicos/types';
 import { api, uploadUrl } from '../lib/api';
+import { CommentsSection } from '../components/civic/CommentsSection';
 
 const CATEGORY_LABEL: Record<IssueCategory, string> = {
   [IssueCategory.INFRASTRUCTURE]: 'Infrastructure',
@@ -171,6 +172,8 @@ export function IssueDetailPage() {
           ▲ Upvote
         </Button>
       </article>
+
+      <CommentsSection entityType="issues" entityId={issue.id} />
     </section>
   );
 }

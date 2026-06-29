@@ -36,6 +36,22 @@ func (r *Repository) Create(p *domain.Petition) error {
 	return r.db.Create(p).Error
 }
 
+func (r *Repository) ListComments(petitionID string) ([]domain.PetitionComment, error) {
+	var list []domain.PetitionComment
+	return list, r.db.Where("petition_id = ?", petitionID).
+		Order("created_at asc").Find(&list).Error
+}
+
+func (r *Repository) AddComment(comment *domain.PetitionComment) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(comment).Error; err != nil {
+			return err
+		}
+		return tx.Model(&domain.Petition{}).Where("id = ?", comment.PetitionID).
+			UpdateColumn("comment_count", gorm.Expr("comment_count + 1")).Error
+	})
+}
+
 func (r *Repository) AddSignature(petitionID, userID string) error {
 	// Use transaction to ensure unique signature and count consistency
 	return r.db.Transaction(func(tx *gorm.DB) error {

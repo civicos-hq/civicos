@@ -72,12 +72,16 @@ func main() {
 	r.POST("/api/v1/issues", authMiddleware, communityProxy)
 	r.POST("/api/v1/issues/:id/upvote", authMiddleware, communityProxy)
 	r.PATCH("/api/v1/issues/:id/status", authMiddleware, communityProxy)
+	r.GET("/api/v1/issues/:id/comments", communityProxy)
+	r.POST("/api/v1/issues/:id/comments", authMiddleware, communityProxy)
 
 	// Petitions
 	r.GET("/api/v1/petitions", communityProxy)
 	r.GET("/api/v1/petitions/:id", communityProxy)
 	r.POST("/api/v1/petitions", authMiddleware, communityProxy)
 	r.POST("/api/v1/petitions/:id/sign", authMiddleware, communityProxy)
+	r.GET("/api/v1/petitions/:id/comments", communityProxy)
+	r.POST("/api/v1/petitions/:id/comments", authMiddleware, communityProxy)
 
 	// Representatives
 	r.GET("/api/v1/representatives", communityProxy)

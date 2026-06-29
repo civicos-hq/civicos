@@ -125,15 +125,16 @@ export function PetitionsPage() {
                   />
                 </div>
 
-                <div className="mt-4 flex items-center justify-between text-sm">
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-sm">
                   <span className="rounded-full bg-civic-50 px-2.5 py-1 font-semibold text-civic-700">
                     {progress}% complete
                   </span>
-                  {days !== null && (
-                    <span className="text-slate-500">
-                      {days === 0 ? 'Ends today' : `${days} day${days === 1 ? '' : 's'} left`}
-                    </span>
-                  )}
+                  <span className="text-slate-500">
+                    {petition.commentCount} {petition.commentCount === 1 ? 'comment' : 'comments'}
+                    {days !== null
+                      ? ` · ${days === 0 ? 'Ends today' : `${days} day${days === 1 ? '' : 's'} left`}`
+                      : ''}
+                  </span>
                 </div>
               </Link>
             );

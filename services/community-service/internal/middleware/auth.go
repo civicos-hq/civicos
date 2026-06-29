@@ -14,6 +14,7 @@ import (
 type Claims struct {
 	UserID string `json:"sub"`
 	Email  string `json:"email"`
+	Name   string `json:"name"`
 	Role   string `json:"role"`
 	jwt.RegisteredClaims
 }
@@ -44,6 +45,7 @@ func JWTAuth(cfg *config.Config) gin.HandlerFunc {
 		}
 
 		c.Set("userID", claims.UserID)
+		c.Set("userName", claims.Name)
 		c.Set("userRole", claims.Role)
 		c.Next()
 	}

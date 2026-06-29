@@ -49,6 +49,7 @@ type TokenPair struct {
 type AuthClaims struct {
 	UserID string          `json:"sub"`
 	Email  string          `json:"email"`
+	Name   string          `json:"name"`
 	Role   domain.UserRole `json:"role"`
 	jwt.RegisteredClaims
 }
@@ -143,6 +144,7 @@ func (s *Service) signTokens(user *domain.User) (*TokenPair, error) {
 	accessClaims := AuthClaims{
 		UserID: user.ID,
 		Email:  user.Email,
+		Name:   user.Name,
 		Role:   user.Role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(accessExpiry),
@@ -158,6 +160,7 @@ func (s *Service) signTokens(user *domain.User) (*TokenPair, error) {
 	refreshClaims := AuthClaims{
 		UserID: user.ID,
 		Email:  user.Email,
+		Name:   user.Name,
 		Role:   user.Role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(refreshExpiry),

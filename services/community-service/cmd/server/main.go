@@ -29,6 +29,7 @@ func main() {
 		&domain.IssueComment{},
 		&domain.Petition{},
 		&domain.PetitionSignature{},
+		&domain.PetitionComment{},
 		&domain.Representative{},
 		&domain.RepresentativeFollower{},
 	); err != nil {

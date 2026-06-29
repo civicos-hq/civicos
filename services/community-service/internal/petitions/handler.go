@@ -16,6 +16,8 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth gin.HandlerFunc) {
 	rg.GET("/:id", h.get)
 	rg.POST("", auth, h.create)
 	rg.POST("/:id/sign", auth, h.sign)
+	rg.GET("/:id/comments", h.listComments)
+	rg.POST("/:id/comments", auth, h.addComment)
 }
 
 func (h *Handler) list(c *gin.Context) {
@@ -53,6 +55,40 @@ func (h *Handler) create(c *gin.Context) {
 		return
 	}
 	response.Success(c, http.StatusCreated, gin.H{"petition": item})
+}
+
+func (h *Handler) listComments(c *gin.Context) {
+	items, err := h.svc.ListComments(c.Param("id"))
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to fetch comments")
+		return
+	}
+	response.Success(c, http.StatusOK, gin.H{"comments": items})
+}
+
+func (h *Handler) addComment(c *gin.Context) {
+	var input CommentInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", err.Error())
+		return
+	}
+	userID, _ := c.Get("userID")
+	userName, _ := c.Get("userName")
+	userRole, _ := c.Get("userRole")
+	name, _ := userName.(string)
+	role, _ := userRole.(string)
+	if name == "" {
+		name = "Anonymous"
+	}
+	if role == "" {
+		role = "CITIZEN"
+	}
+	item, err := h.svc.AddComment(c.Param("id"), userID.(string), name, role, input.Content)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to add comment")
+		return
+	}
+	response.Success(c, http.StatusCreated, gin.H{"comment": item})
 }
 
 func (h *Handler) sign(c *gin.Context) {

@@ -117,6 +117,7 @@ export interface Petition {
   description: string;
   goal: number;
   signatureCount: number;
+  commentCount: number;
   status: PetitionStatus;
   deadline?: ISODateTime;
   imageUrls: string[];
@@ -125,6 +126,24 @@ export interface Petition {
   createdBy?: Pick<User, 'id' | 'name' | 'avatarUrl'>;
   createdAt: ISODateTime;
   updatedAt: ISODateTime;
+}
+
+export interface Comment {
+  id: UUID;
+  content: string;
+  authorId: UUID;
+  authorName: string;
+  authorRole: UserRole;
+  isOfficialResponse: boolean;
+  createdAt: ISODateTime;
+}
+
+export interface IssueComment extends Comment {
+  issueId: UUID;
+}
+
+export interface PetitionComment extends Comment {
+  petitionId: UUID;
 }
 
 export interface Notification {

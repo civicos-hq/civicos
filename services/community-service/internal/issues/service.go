@@ -15,6 +15,17 @@ type IssueStore interface {
 	Create(issue *domain.Issue) error
 	IncrementUpvote(id string) error
 	UpdateStatus(id string, status domain.IssueStatus) error
+	ListComments(issueID string) ([]domain.IssueComment, error)
+	AddComment(comment *domain.IssueComment) error
+}
+
+// OfficialRoles is the set of roles whose comments are flagged as official responses.
+var OfficialRoles = map[string]bool{
+	"REPRESENTATIVE":   true,
+	"GOVERNMENT_ADMIN": true,
+	"PLATFORM_ADMIN":   true,
+	"NGO":              true,
+	"MODERATOR":        true,
 }
 
 type Service struct{ repo IssueStore }
@@ -75,4 +86,25 @@ func (s *Service) Upvote(id string) error {
 
 func (s *Service) UpdateStatus(id string, status domain.IssueStatus) error {
 	return s.repo.UpdateStatus(id, status)
+}
+
+func (s *Service) ListComments(issueID string) ([]domain.IssueComment, error) {
+	return s.repo.ListComments(issueID)
+}
+
+type CommentInput struct {
+	Content string `json:"content" binding:"required,min=1,max=2000"`
+}
+
+func (s *Service) AddComment(issueID, authorID, authorName, authorRole, content string) (*domain.IssueComment, error) {
+	comment := &domain.IssueComment{
+		ID:                 uuid.New().String(),
+		Content:            content,
+		IssueID:            issueID,
+		AuthorID:           authorID,
+		AuthorName:         authorName,
+		AuthorRole:         authorRole,
+		IsOfficialResponse: OfficialRoles[authorRole],
+	}
+	return comment, s.repo.AddComment(comment)
 }

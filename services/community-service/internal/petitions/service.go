@@ -13,6 +13,17 @@ type PetitionStore interface {
 	FindByID(id string) (*domain.Petition, error)
 	Create(p *domain.Petition) error
 	AddSignature(petitionID, userID string) error
+	ListComments(petitionID string) ([]domain.PetitionComment, error)
+	AddComment(comment *domain.PetitionComment) error
+}
+
+// OfficialRoles is the set of roles whose comments are flagged as official responses.
+var OfficialRoles = map[string]bool{
+	"REPRESENTATIVE":   true,
+	"GOVERNMENT_ADMIN": true,
+	"PLATFORM_ADMIN":   true,
+	"NGO":              true,
+	"MODERATOR":        true,
 }
 
 type Service struct{ repo PetitionStore }
@@ -67,6 +78,27 @@ func (s *Service) Create(input CreateInput, createdByID string) (*domain.Petitio
 		return nil, err
 	}
 	return p, nil
+}
+
+func (s *Service) ListComments(petitionID string) ([]domain.PetitionComment, error) {
+	return s.repo.ListComments(petitionID)
+}
+
+type CommentInput struct {
+	Content string `json:"content" binding:"required,min=1,max=2000"`
+}
+
+func (s *Service) AddComment(petitionID, authorID, authorName, authorRole, content string) (*domain.PetitionComment, error) {
+	comment := &domain.PetitionComment{
+		ID:                 uuid.New().String(),
+		Content:            content,
+		PetitionID:         petitionID,
+		AuthorID:           authorID,
+		AuthorName:         authorName,
+		AuthorRole:         authorRole,
+		IsOfficialResponse: OfficialRoles[authorRole],
+	}
+	return comment, s.repo.AddComment(comment)
 }
 
 func (s *Service) Sign(petitionID, userID string) error {

@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@civicos/ui';
 import { PetitionStatus, type ApiResponse, type Community, type Petition } from '@civicos/types';
 import { api, uploadUrl } from '../lib/api';
+import { CommentsSection } from '../components/civic/CommentsSection';
 
 const STATUS_LABEL: Record<PetitionStatus, string> = {
   [PetitionStatus.DRAFT]: 'Draft',
@@ -173,6 +174,8 @@ export function PetitionDetailPage() {
           <p className="mt-3 text-sm text-red-600">Could not sign. Please try again.</p>
         )}
       </article>
+
+      <CommentsSection entityType="petitions" entityId={petition.id} />
     </section>
   );
 }

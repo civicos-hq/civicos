@@ -158,7 +158,10 @@ export function IssuesPage() {
                       <p className="text-sm font-semibold text-slate-900">
                         {issue.upvoteCount} upvotes
                       </p>
-                      <p className="text-xs text-slate-500">{STATUS_LABEL[issue.status]}</p>
+                      <p className="text-xs text-slate-500">
+                        {issue.commentCount} {issue.commentCount === 1 ? 'comment' : 'comments'} ·{' '}
+                        {STATUS_LABEL[issue.status]}
+                      </p>
                     </div>
                   </div>
                 </Link>
