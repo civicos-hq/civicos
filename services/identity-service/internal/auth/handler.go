@@ -21,6 +21,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, authMiddleware gin.Handler
 	rg.POST("/login", h.login)
 	rg.POST("/refresh", h.refresh)
 	rg.GET("/me", authMiddleware, h.me)
+	rg.PATCH("/me", authMiddleware, h.updateMe)
 	rg.POST("/me/community", authMiddleware, h.joinCommunity)
 }
 
@@ -83,6 +84,25 @@ func (h *Handler) me(c *gin.Context) {
 	user, err := h.service.GetMe(userID.(string))
 	if err != nil {
 		response.Error(c, http.StatusNotFound, "USER_NOT_FOUND", "User not found")
+		return
+	}
+	response.Success(c, http.StatusOK, gin.H{"user": user})
+}
+
+func (h *Handler) updateMe(c *gin.Context) {
+	var input UpdateProfileInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", err.Error())
+		return
+	}
+	userID, _ := c.Get("userID")
+	user, err := h.service.UpdateProfile(userID.(string), input)
+	if err != nil {
+		if err.Error() == "EMAIL_ALREADY_IN_USE" {
+			response.Error(c, http.StatusConflict, "EMAIL_ALREADY_IN_USE", "This email is already registered")
+			return
+		}
+		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to update profile")
 		return
 	}
 	response.Success(c, http.StatusOK, gin.H{"user": user})

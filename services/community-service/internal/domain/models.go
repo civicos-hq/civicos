@@ -90,6 +90,17 @@ type IssueComment struct {
 	CreatedAt          time.Time `json:"createdAt"`
 }
 
+type RepresentativeComment struct {
+	ID                 string    `gorm:"type:uuid;primaryKey" json:"id"`
+	Content            string    `gorm:"not null" json:"content"`
+	RepresentativeID   string    `gorm:"not null;index" json:"representativeId"`
+	AuthorID           string    `gorm:"not null" json:"authorId"`
+	AuthorName         string    `gorm:"not null" json:"authorName"`
+	AuthorRole         string    `gorm:"not null" json:"authorRole"`
+	IsOfficialResponse bool      `gorm:"default:false" json:"isOfficialResponse"`
+	CreatedAt          time.Time `json:"createdAt"`
+}
+
 type PetitionComment struct {
 	ID                 string    `gorm:"type:uuid;primaryKey" json:"id"`
 	Content            string    `gorm:"not null" json:"content"`
@@ -132,18 +143,22 @@ type RepresentativeFollower struct {
 }
 
 type Representative struct {
-	ID             string    `gorm:"type:uuid;primaryKey" json:"id"`
-	Name           string    `gorm:"not null" json:"name"`
-	Title          string    `gorm:"not null" json:"title"`
-	Position       string    `gorm:"not null" json:"position"`
-	Constituency   string    `gorm:"not null" json:"constituency"`
-	Party          *string   `json:"party,omitempty"`
-	Bio            *string   `json:"bio,omitempty"`
-	AvatarURL      *string   `json:"avatarUrl,omitempty"`
-	CommunityID    string    `gorm:"not null;index" json:"communityId"`
-	ResponseRate   int       `gorm:"default:0" json:"responseRate"`
-	FollowerCount  int       `gorm:"default:0" json:"followerCount"`
-	CreatedByID    string    `gorm:"not null" json:"createdById"`
-	CreatedAt      time.Time `json:"createdAt"`
-	UpdatedAt      time.Time `json:"updatedAt"`
+	ID            string    `gorm:"type:uuid;primaryKey" json:"id"`
+	Name          string    `gorm:"not null" json:"name"`
+	Title         string    `gorm:"not null" json:"title"`
+	Position      string    `gorm:"not null" json:"position"`
+	Constituency  string    `gorm:"not null" json:"constituency"`
+	Party         *string   `json:"party,omitempty"`
+	Bio           *string   `json:"bio,omitempty"`
+	AvatarURL     *string   `json:"avatarUrl,omitempty"`
+	Email         *string   `json:"email,omitempty"`
+	Phone         *string   `json:"phone,omitempty"`
+	Website       *string   `json:"website,omitempty"`
+	CommunityID   string    `gorm:"not null;index" json:"communityId"`
+	ResponseRate  int       `gorm:"default:0" json:"responseRate"`
+	FollowerCount int       `gorm:"default:0" json:"followerCount"`
+	CommentCount  int       `gorm:"default:0" json:"commentCount"`
+	CreatedByID   string    `gorm:"not null" json:"createdById"`
+	CreatedAt     time.Time `json:"createdAt"`
+	UpdatedAt     time.Time `json:"updatedAt"`
 }

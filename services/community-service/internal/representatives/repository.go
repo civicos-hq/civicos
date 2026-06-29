@@ -81,3 +81,29 @@ func (r *Repository) FindFollowedIDs(userID string) ([]string, error) {
 		Pluck("representative_id", &ids).Error
 	return ids, err
 }
+
+// FindFollowerIDs returns the user IDs following the given rep — used when
+// fanning out notifications for official responses.
+func (r *Repository) FindFollowerIDs(repID string) ([]string, error) {
+	var ids []string
+	err := r.db.Model(&domain.RepresentativeFollower{}).
+		Where("representative_id = ?", repID).
+		Pluck("user_id", &ids).Error
+	return ids, err
+}
+
+func (r *Repository) ListComments(repID string) ([]domain.RepresentativeComment, error) {
+	var list []domain.RepresentativeComment
+	return list, r.db.Where("representative_id = ?", repID).
+		Order("created_at asc").Find(&list).Error
+}
+
+func (r *Repository) AddComment(comment *domain.RepresentativeComment) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(comment).Error; err != nil {
+			return err
+		}
+		return tx.Model(&domain.Representative{}).Where("id = ?", comment.RepresentativeID).
+			UpdateColumn("comment_count", gorm.Expr("comment_count + 1")).Error
+	})
+}

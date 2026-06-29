@@ -58,6 +58,7 @@ func main() {
 	r.POST("/api/v1/auth/login", identityPublic)
 	r.POST("/api/v1/auth/refresh", identityPublic)
 	r.GET("/api/v1/auth/me", authMiddleware, identityProtected)
+	r.PATCH("/api/v1/auth/me", authMiddleware, identityProtected)
 	r.POST("/api/v1/auth/me/community", authMiddleware, identityProtected)
 
 	// --- Community Service ---
@@ -89,11 +90,16 @@ func main() {
 	r.POST("/api/v1/representatives", authMiddleware, communityProxy)
 	r.POST("/api/v1/representatives/:id/follow", authMiddleware, communityProxy)
 	r.DELETE("/api/v1/representatives/:id/follow", authMiddleware, communityProxy)
+	r.GET("/api/v1/representatives/:id/comments", communityProxy)
+	r.POST("/api/v1/representatives/:id/comments", authMiddleware, communityProxy)
 	r.GET("/api/v1/me/follows/representatives", authMiddleware, communityProxy)
 
 	// Uploads (POST is auth-protected; GET is public so images render in <img>)
 	r.POST("/api/v1/uploads", authMiddleware, communityProxy)
 	r.GET("/api/v1/uploads/:filename", communityProxy)
+
+	// Search
+	r.GET("/api/v1/search", communityProxy)
 
 	// Notifications
 	notificationsStream := proxy.NewStreamingProxy(cfg.CommunityServiceURL, "/api")

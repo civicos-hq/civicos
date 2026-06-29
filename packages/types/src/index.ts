@@ -86,9 +86,13 @@ export interface Representative {
   party?: string;
   bio?: string;
   avatarUrl?: string;
+  email?: string;
+  phone?: string;
+  website?: string;
   communityId: UUID;
   responseRate: number;
   followerCount: number;
+  commentCount: number;
   createdById: UUID;
   createdAt: ISODateTime;
   updatedAt: ISODateTime;
@@ -144,6 +148,10 @@ export interface IssueComment extends Comment {
 
 export interface PetitionComment extends Comment {
   petitionId: UUID;
+}
+
+export interface RepresentativeComment extends Comment {
+  representativeId: UUID;
 }
 
 export interface Notification {

@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Input } from '@civicos/ui';
@@ -6,6 +6,7 @@ import { UserRole, type ApiResponse, type Representative } from '@civicos/types'
 import { api, uploadImage, uploadUrl } from '../lib/api';
 import { useMe } from '../hooks/useMe';
 import { useFollowedReps } from '../hooks/useFollowedReps';
+import { Modal } from '../components/Modal';
 
 const ADMIN_ROLES = new Set<UserRole>([
   UserRole.GOVERNMENT_ADMIN,
@@ -188,51 +189,6 @@ export function Avatar({ name, src, size = 64 }: { name: string; src?: string; s
   );
 }
 
-// ─── Modal shell ──────────────────────────────────────────────────────────────
-
-function Modal({
-  title,
-  onClose,
-  children,
-}: {
-  title: string;
-  onClose: () => void;
-  children: ReactNode;
-}) {
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4"
-      onClick={onClose}
-    >
-      <div
-        className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-start justify-between gap-4">
-          <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
-          <button
-            type="button"
-            className="text-slate-400 hover:text-slate-600"
-            onClick={onClose}
-            aria-label="Close"
-          >
-            ✕
-          </button>
-        </div>
-        <div className="mt-4">{children}</div>
-      </div>
-    </div>
-  );
-}
-
 // ─── New Representative ───────────────────────────────────────────────────────
 
 function NewRepresentativeModal({
@@ -249,6 +205,9 @@ function NewRepresentativeModal({
   const [constituency, setConstituency] = useState('');
   const [party, setParty] = useState('');
   const [bio, setBio] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [website, setWebsite] = useState('');
   const [avatar, setAvatar] = useState<File | null>(null);
   const [error, setError] = useState('');
 
@@ -282,6 +241,9 @@ function NewRepresentativeModal({
         party: party.trim() || undefined,
         bio: bio.trim() || undefined,
         avatarUrl,
+        email: email.trim() || undefined,
+        phone: phone.trim() || undefined,
+        website: website.trim() || undefined,
       });
     },
     onSuccess: () => {
@@ -370,6 +332,37 @@ function NewRepresentativeModal({
             placeholder="A short bio for citizens to learn more."
           />
         </div>
+
+        <fieldset className="rounded-lg border border-slate-200 p-3">
+          <legend className="px-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Contact (optional)
+          </legend>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Input
+              label="Email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="rep@example.org"
+            />
+            <Input
+              label="Phone"
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="+234 800 000 0000"
+            />
+          </div>
+          <div className="mt-3">
+            <Input
+              label="Website"
+              type="url"
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
+              placeholder="https://representative.example.org"
+            />
+          </div>
+        </fieldset>
 
         {error && <p className="text-sm text-red-600">{error}</p>}
 

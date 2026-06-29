@@ -1,11 +1,17 @@
 import { useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@civicos/ui';
-import type { ApiResponse, IssueComment, PetitionComment, UserRole } from '@civicos/types';
+import type {
+  ApiResponse,
+  IssueComment,
+  PetitionComment,
+  RepresentativeComment,
+  UserRole,
+} from '@civicos/types';
 import { api } from '../../lib/api';
 
-type EntityType = 'issues' | 'petitions';
-type AnyComment = IssueComment | PetitionComment;
+type EntityType = 'issues' | 'petitions' | 'representatives';
+type AnyComment = IssueComment | PetitionComment | RepresentativeComment;
 
 const ROLE_LABEL: Partial<Record<UserRole, string>> = {
   CITIZEN: 'Citizen',

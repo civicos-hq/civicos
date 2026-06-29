@@ -16,6 +16,19 @@ type RepresentativeStore interface {
 	AddFollow(repID, userID string) error
 	RemoveFollow(repID, userID string) error
 	FindFollowedIDs(userID string) ([]string, error)
+	FindFollowerIDs(repID string) ([]string, error)
+	ListComments(repID string) ([]domain.RepresentativeComment, error)
+	AddComment(comment *domain.RepresentativeComment) error
+}
+
+// OfficialRoles is the set of roles whose comments are flagged as official
+// responses on a representative profile.
+var OfficialRoles = map[string]bool{
+	"REPRESENTATIVE":   true,
+	"GOVERNMENT_ADMIN": true,
+	"PLATFORM_ADMIN":   true,
+	"NGO":              true,
+	"MODERATOR":        true,
 }
 
 type Service struct{ repo RepresentativeStore }
@@ -31,6 +44,9 @@ type CreateInput struct {
 	Party        *string `json:"party"`
 	Bio          *string `json:"bio"`
 	AvatarURL    *string `json:"avatarUrl"`
+	Email        *string `json:"email" binding:"omitempty,email"`
+	Phone        *string `json:"phone"`
+	Website      *string `json:"website" binding:"omitempty,url"`
 }
 
 type AppError struct {
@@ -82,8 +98,43 @@ func (s *Service) Create(input CreateInput, createdByID string) (*domain.Represe
 		Party:        input.Party,
 		Bio:          input.Bio,
 		AvatarURL:    input.AvatarURL,
+		Email:        input.Email,
+		Phone:        input.Phone,
+		Website:      input.Website,
 		CommunityID:  input.CommunityID,
 		CreatedByID:  createdByID,
 	}
 	return rep, s.repo.Create(rep)
+}
+
+type CommentInput struct {
+	Content string `json:"content" binding:"required,min=1,max=2000"`
+}
+
+func (s *Service) ListComments(repID string) ([]domain.RepresentativeComment, error) {
+	return s.repo.ListComments(repID)
+}
+
+func (s *Service) AddComment(repID, authorID, authorName, authorRole, content string) (*domain.RepresentativeComment, error) {
+	comment := &domain.RepresentativeComment{
+		ID:                 uuid.New().String(),
+		Content:            content,
+		RepresentativeID:   repID,
+		AuthorID:           authorID,
+		AuthorName:         authorName,
+		AuthorRole:         authorRole,
+		IsOfficialResponse: OfficialRoles[authorRole],
+	}
+	return comment, s.repo.AddComment(comment)
+}
+
+func (s *Service) FollowerIDs(repID string) ([]string, error) {
+	ids, err := s.repo.FindFollowerIDs(repID)
+	if err != nil {
+		return nil, err
+	}
+	if ids == nil {
+		ids = []string{}
+	}
+	return ids, nil
 }

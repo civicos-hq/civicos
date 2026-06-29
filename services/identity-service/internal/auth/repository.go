@@ -40,3 +40,19 @@ func (r *Repository) Create(user *domain.User) error {
 func (r *Repository) UpdateCommunity(userID, communityID string) error {
 	return r.db.Model(&domain.User{}).Where("id = ?", userID).Update("community_id", communityID).Error
 }
+
+// UpdateProfile patches the user's name and/or email. Empty strings are
+// treated as "leave unchanged" so the caller can opt into partial updates.
+func (r *Repository) UpdateProfile(userID, name, email string) error {
+	updates := map[string]any{}
+	if name != "" {
+		updates["name"] = name
+	}
+	if email != "" {
+		updates["email"] = email
+	}
+	if len(updates) == 0 {
+		return nil
+	}
+	return r.db.Model(&domain.User{}).Where("id = ?", userID).Updates(updates).Error
+}

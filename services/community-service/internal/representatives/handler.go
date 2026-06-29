@@ -2,15 +2,29 @@ package representatives
 
 import (
 	"errors"
+	"log"
 	"net/http"
 
+	"github.com/civicos/community-service/internal/domain"
 	"github.com/civicos/community-service/pkg/response"
 	"github.com/gin-gonic/gin"
 )
 
-type Handler struct{ svc *Service }
+// Notifier is the minimal interface this package needs to emit notifications,
+// satisfied by notifications.Service. Import via interface to avoid an import
+// cycle.
+type Notifier interface {
+	Emit(userID string, t domain.NotificationType, title, body string, linkURL *string) error
+}
 
-func NewHandler(svc *Service) *Handler { return &Handler{svc: svc} }
+type Handler struct {
+	svc      *Service
+	notifier Notifier
+}
+
+func NewHandler(svc *Service, notifier Notifier) *Handler {
+	return &Handler{svc: svc, notifier: notifier}
+}
 
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth, requireRole gin.HandlerFunc) {
 	rg.GET("", h.list)
@@ -18,6 +32,8 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth, requireRole gin.Hand
 	rg.POST("", auth, requireRole, h.create)
 	rg.POST("/:id/follow", auth, h.follow)
 	rg.DELETE("/:id/follow", auth, h.unfollow)
+	rg.GET("/:id/comments", h.listComments)
+	rg.POST("/:id/comments", auth, h.addComment)
 }
 
 // RegisterMeRoutes mounts user-scoped follow lookups under /me on the parent router.
@@ -89,4 +105,72 @@ func (h *Handler) create(c *gin.Context) {
 		return
 	}
 	response.Success(c, http.StatusCreated, gin.H{"representative": item})
+}
+
+func (h *Handler) listComments(c *gin.Context) {
+	items, err := h.svc.ListComments(c.Param("id"))
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to fetch comments")
+		return
+	}
+	response.Success(c, http.StatusOK, gin.H{"comments": items})
+}
+
+func (h *Handler) addComment(c *gin.Context) {
+	var input CommentInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", err.Error())
+		return
+	}
+
+	userID, _ := c.Get("userID")
+	userName, _ := c.Get("userName")
+	userRole, _ := c.Get("userRole")
+	name, _ := userName.(string)
+	role, _ := userRole.(string)
+	if name == "" {
+		name = "Anonymous"
+	}
+	if role == "" {
+		role = "CITIZEN"
+	}
+	repID := c.Param("id")
+
+	item, err := h.svc.AddComment(repID, userID.(string), name, role, input.Content)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to add comment")
+		return
+	}
+
+	// Fan out a notification to every follower (excluding the author) only on
+	// an official response — citizens don't get pinged for every other citizen
+	// posting on a rep's wall.
+	if h.notifier != nil && item.IsOfficialResponse {
+		rep, gerr := h.svc.Get(repID)
+		if gerr == nil {
+			followers, ferr := h.svc.FollowerIDs(repID)
+			if ferr != nil {
+				log.Printf("notify rep response: fetch followers: %v", ferr)
+			} else {
+				link := "/representatives/" + repID
+				body := name + " responded on " + rep.Name + "'s page."
+				for _, fid := range followers {
+					if fid == userID.(string) {
+						continue
+					}
+					if nerr := h.notifier.Emit(
+						fid,
+						domain.NotificationRepresentativeResponse,
+						"New response from "+rep.Name,
+						body,
+						&link,
+					); nerr != nil {
+						log.Printf("notify rep response: %v", nerr)
+					}
+				}
+			}
+		}
+	}
+
+	response.Success(c, http.StatusCreated, gin.H{"comment": item})
 }

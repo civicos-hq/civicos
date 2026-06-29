@@ -11,6 +11,7 @@ import (
 	"github.com/civicos/community-service/internal/notifications"
 	"github.com/civicos/community-service/internal/petitions"
 	"github.com/civicos/community-service/internal/representatives"
+	"github.com/civicos/community-service/internal/search"
 	"github.com/civicos/community-service/internal/uploads"
 	"github.com/civicos/community-service/pkg/config"
 	"github.com/civicos/community-service/pkg/database"
@@ -33,6 +34,7 @@ func main() {
 		&domain.PetitionComment{},
 		&domain.Representative{},
 		&domain.RepresentativeFollower{},
+		&domain.RepresentativeComment{},
 		&domain.Notification{},
 	); err != nil {
 		log.Fatalf("migration failed: %v", err)
@@ -57,7 +59,10 @@ func main() {
 
 	repRepo := representatives.NewRepository(db)
 	repSvc := representatives.NewService(repRepo)
-	repHandler := representatives.NewHandler(repSvc)
+	repHandler := representatives.NewHandler(repSvc, notificationSvc)
+
+	searchSvc := search.NewService(db)
+	searchHandler := search.NewHandler(searchSvc)
 
 	if err := os.MkdirAll(uploadsDir, 0o755); err != nil {
 		log.Fatalf("could not create uploads dir: %v", err)
@@ -87,6 +92,7 @@ func main() {
 	repHandler.RegisterRoutes(v1.Group("/representatives"), authMiddleware, requireAdminRole)
 	repHandler.RegisterMeRoutes(v1.Group("/me"), authMiddleware)
 	notificationHandler.RegisterRoutes(v1.Group("/notifications"), authMiddleware)
+	searchHandler.RegisterRoutes(v1.Group("/search"))
 	uploadsHandler.RegisterRoutes(v1.Group("/uploads"), authMiddleware)
 
 	addr := ":" + cfg.Port

@@ -18,6 +18,7 @@ type UserStore interface {
 	FindByID(id string) (*domain.User, error)
 	Create(user *domain.User) error
 	UpdateCommunity(userID, communityID string) error
+	UpdateProfile(userID, name, email string) error
 }
 
 type Service struct {
@@ -127,6 +128,42 @@ func (s *Service) GetMe(userID string) (*domain.PublicUser, error) {
 	}
 	public := user.ToPublic()
 	return &public, nil
+}
+
+// UpdateProfileInput uses pointers so the handler can distinguish "leave alone"
+// (nil) from "set to empty" — only fields the client actually sent are touched.
+type UpdateProfileInput struct {
+	Name  *string `json:"name" binding:"omitempty,min=2,max=100"`
+	Email *string `json:"email" binding:"omitempty,email"`
+}
+
+func (s *Service) UpdateProfile(userID string, input UpdateProfileInput) (*domain.PublicUser, error) {
+	if input.Name == nil && input.Email == nil {
+		return s.GetMe(userID)
+	}
+
+	if input.Email != nil {
+		existing, err := s.repo.FindByEmail(*input.Email)
+		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, err
+		}
+		if existing != nil && existing.ID != userID {
+			return nil, errors.New("EMAIL_ALREADY_IN_USE")
+		}
+	}
+
+	name := ""
+	if input.Name != nil {
+		name = *input.Name
+	}
+	email := ""
+	if input.Email != nil {
+		email = *input.Email
+	}
+	if err := s.repo.UpdateProfile(userID, name, email); err != nil {
+		return nil, err
+	}
+	return s.GetMe(userID)
 }
 
 func (s *Service) JoinCommunity(userID, communityID string) (*domain.PublicUser, error) {

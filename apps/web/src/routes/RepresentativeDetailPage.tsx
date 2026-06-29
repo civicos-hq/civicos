@@ -1,9 +1,11 @@
 import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { Mail, Phone, Globe } from 'lucide-react';
 import type { ApiResponse, Community, Representative } from '@civicos/types';
 import { api } from '../lib/api';
 import { useFollowedReps } from '../hooks/useFollowedReps';
 import { Avatar, FollowButton } from './RepresentativesPage';
+import { CommentsSection } from '../components/civic/CommentsSection';
 
 function useRepresentative(id: string) {
   return useQuery({
@@ -110,6 +112,65 @@ export function RepresentativeDetailPage() {
           <p className="mt-3 whitespace-pre-wrap text-sm text-slate-700">{rep.bio}</p>
         </article>
       )}
+
+      {(rep.email || rep.phone || rep.website) && (
+        <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-slate-900">Contact</h2>
+          <p className="mt-1 text-sm text-slate-500">
+            For private matters. For public questions, post below — replies are visible to everyone.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {rep.email && (
+              <ContactLink
+                href={`mailto:${rep.email}`}
+                icon={<Mail className="h-4 w-4" />}
+                label={rep.email}
+              />
+            )}
+            {rep.phone && (
+              <ContactLink
+                href={`tel:${rep.phone.replace(/\s+/g, '')}`}
+                icon={<Phone className="h-4 w-4" />}
+                label={rep.phone}
+              />
+            )}
+            {rep.website && (
+              <ContactLink
+                href={rep.website}
+                icon={<Globe className="h-4 w-4" />}
+                label={rep.website.replace(/^https?:\/\//, '')}
+                external
+              />
+            )}
+          </div>
+        </article>
+      )}
+
+      <CommentsSection entityType="representatives" entityId={rep.id} />
     </section>
+  );
+}
+
+function ContactLink({
+  href,
+  icon,
+  label,
+  external,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+  external?: boolean;
+}) {
+  return (
+    <a
+      href={href}
+      target={external ? '_blank' : undefined}
+      rel={external ? 'noopener noreferrer' : undefined}
+      className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm font-medium text-slate-700 hover:border-civic-300 hover:bg-civic-50 hover:text-civic-700"
+    >
+      <span className="text-slate-400">{icon}</span>
+      {label}
+    </a>
   );
 }
