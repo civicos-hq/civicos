@@ -1,6 +1,28 @@
 package issues
 
 import (
+    "net/http"
+
+    "github.com/gin-gonic/gin"
+)
+
+func RegisterRoutes(rg *gin.RouterGroup) {
+    rg.POST("/issues", createIssue)
+    rg.GET("/issues/:id", getIssue)
+}
+
+func createIssue(c *gin.Context) {
+    // TODO: implement create issue
+    c.JSON(http.StatusCreated, gin.H{"message": "create issue (stub)"})
+}
+
+func getIssue(c *gin.Context) {
+    // TODO: implement get issue
+    c.JSON(http.StatusOK, gin.H{"id": c.Param("id"), "title": "stub"})
+}
+package issues
+
+import (
 	"errors"
 	"net/http"
 

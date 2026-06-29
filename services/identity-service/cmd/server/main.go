@@ -13,18 +13,14 @@ import (
 )
 
 func main() {
-	// Load and validate config at startup — fail fast if anything is missing
 	cfg := config.Load()
 
-	// Connect to database and run auto-migrations
 	db := database.Connect(cfg.DatabaseURL)
 
-	// Wire up dependencies (manual DI — no magic, no global state)
 	authRepo := auth.NewRepository(db)
 	authSvc := auth.NewService(authRepo, cfg)
 	authHandler := auth.NewHandler(authSvc)
 
-	// HTTP router
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
@@ -34,12 +30,10 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	// Health check
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "ok", "service": "identity-service"})
 	})
 
-	// Auth routes — /v1/auth/... so the gateway can strip /api and forward correctly
 	authGroup := r.Group("/v1/auth")
 	authHandler.RegisterRoutes(authGroup, middleware.JWTAuth(cfg))
 

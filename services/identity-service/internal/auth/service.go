@@ -13,12 +13,18 @@ import (
 	"gorm.io/gorm"
 )
 
+type UserStore interface {
+	FindByEmail(email string) (*domain.User, error)
+	FindByID(id string) (*domain.User, error)
+	Create(user *domain.User) error
+}
+
 type Service struct {
-	repo *Repository
+	repo UserStore
 	cfg  *config.Config
 }
 
-func NewService(repo *Repository, cfg *config.Config) *Service {
+func NewService(repo UserStore, cfg *config.Config) *Service {
 	return &Service{repo: repo, cfg: cfg}
 }
 
@@ -40,9 +46,9 @@ type TokenPair struct {
 }
 
 type AuthClaims struct {
-	UserID string            `json:"sub"`
-	Email  string            `json:"email"`
-	Role   domain.UserRole   `json:"role"`
+	UserID string          `json:"sub"`
+	Email  string          `json:"email"`
+	Role   domain.UserRole `json:"role"`
 	jwt.RegisteredClaims
 }
 

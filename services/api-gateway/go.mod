@@ -1,3 +1,8 @@
+module civicos/services/api-gateway
+
+go 1.20
+
+require github.com/gin-gonic/gin v1.9.0
 module github.com/civicos/api-gateway
 
 go 1.22

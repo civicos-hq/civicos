@@ -9,24 +9,22 @@ import (
 )
 
 type Config struct {
-	Port               int
-	DatabaseURL        string
-	JWTSecret          string
-	JWTExpiresIn       string
+	Port                int
+	DatabaseURL         string
+	JWTSecret           string
+	JWTExpiresIn        string
 	JWTRefreshExpiresIn string
 }
 
 // Load validates and returns config from environment.
-// The app exits immediately if any required variable is missing.
 func Load() *Config {
-	// Load .env in development — ignored if file doesn't exist
 	_ = godotenv.Load()
 
 	cfg := &Config{
-		Port:               getInt("IDENTITY_SERVICE_PORT", 3001),
-		DatabaseURL:        require("DATABASE_URL"),
-		JWTSecret:          require("JWT_SECRET"),
-		JWTExpiresIn:       getStr("JWT_EXPIRES_IN", "7d"),
+		Port:                getInt("IDENTITY_SERVICE_PORT", 3001),
+		DatabaseURL:         require("DATABASE_URL"),
+		JWTSecret:           require("JWT_SECRET"),
+		JWTExpiresIn:        getStr("JWT_EXPIRES_IN", "7d"),
 		JWTRefreshExpiresIn: getStr("JWT_REFRESH_EXPIRES_IN", "30d"),
 	}
 

@@ -1,6 +1,32 @@
 package main
 
 import (
+    "log"
+    "os"
+
+    "github.com/gin-gonic/gin"
+)
+
+func main() {
+    port := os.Getenv("PORT")
+    if port == "" {
+        port = "3002"
+    }
+
+    r := gin.Default()
+
+    r.GET("/health", func(c *gin.Context) {
+        c.JSON(200, gin.H{"status": "ok", "service": "community-service"})
+    })
+
+    log.Printf("starting community-service on :%s\n", port)
+    if err := r.Run(":" + port); err != nil {
+        log.Fatal(err)
+    }
+}
+package main
+
+import (
 	"log"
 
 	"github.com/civicos/community-service/internal/communities"
