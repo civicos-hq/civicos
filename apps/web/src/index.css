@@ -421,10 +421,14 @@ button {
   }
 
   .dashboard-brand div,
-  .dashboard-link span,
+  .dashboard-link-label,
   .dashboard-footer-nav button,
   .dashboard-footer-nav a {
     font-size: 0;
+  }
+
+  .dashboard-link-badge {
+    display: none;
   }
 
   .dashboard-link {

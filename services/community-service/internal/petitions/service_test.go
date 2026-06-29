@@ -8,12 +8,17 @@ import (
 )
 
 type fakePetitionRepo struct {
-	items []domain.Petition
-	sigs  map[string]map[string]bool
+	items    []domain.Petition
+	sigs     map[string]map[string]bool
+	comments map[string][]domain.PetitionComment
 }
 
 func newFakePetitionRepo() *fakePetitionRepo {
-	return &fakePetitionRepo{items: []domain.Petition{}, sigs: map[string]map[string]bool{}}
+	return &fakePetitionRepo{
+		items:    []domain.Petition{},
+		sigs:     map[string]map[string]bool{},
+		comments: map[string][]domain.PetitionComment{},
+	}
 }
 
 func (f *fakePetitionRepo) FindAll(communityID, status string) ([]domain.Petition, error) {
@@ -45,22 +50,37 @@ func (f *fakePetitionRepo) Create(p *domain.Petition) error {
 	return nil
 }
 
-func (f *fakePetitionRepo) AddSignature(petitionID, userID string) error {
+func (f *fakePetitionRepo) AddSignature(petitionID, userID string) (bool, int, error) {
 	if f.sigs[petitionID] == nil {
 		f.sigs[petitionID] = map[string]bool{}
 	}
-	if f.sigs[petitionID][userID] {
-		return nil
-	}
-	f.sigs[petitionID][userID] = true
-	// increment count
 	for i := range f.items {
-		if f.items[i].ID == petitionID {
-			f.items[i].SignatureCount++
-			return nil
+		if f.items[i].ID != petitionID {
+			continue
+		}
+		if f.sigs[petitionID][userID] {
+			return false, f.items[i].SignatureCount, nil
+		}
+		f.sigs[petitionID][userID] = true
+		f.items[i].SignatureCount++
+		return true, f.items[i].SignatureCount, nil
+	}
+	return false, 0, gorm.ErrRecordNotFound
+}
+
+func (f *fakePetitionRepo) ListComments(petitionID string) ([]domain.PetitionComment, error) {
+	return f.comments[petitionID], nil
+}
+
+func (f *fakePetitionRepo) AddComment(comment *domain.PetitionComment) error {
+	f.comments[comment.PetitionID] = append(f.comments[comment.PetitionID], *comment)
+	for i := range f.items {
+		if f.items[i].ID == comment.PetitionID {
+			f.items[i].CommentCount++
+			break
 		}
 	}
-	return gorm.ErrRecordNotFound
+	return nil
 }
 
 func TestCreateAndSignPetition(t *testing.T) {
@@ -80,8 +100,12 @@ func TestCreateAndSignPetition(t *testing.T) {
 		t.Fatalf("unexpected title: %s", created.Title)
 	}
 
-	if err := svc.Sign(created.ID, "user-2"); err != nil {
+	res, err := svc.Sign(created.ID, "user-2")
+	if err != nil {
 		t.Fatalf("sign petition: %v", err)
+	}
+	if !res.Added || res.NewCount != 1 {
+		t.Fatalf("expected added=true count=1, got added=%v count=%d", res.Added, res.NewCount)
 	}
 
 	p, err := svc.Get(created.ID)

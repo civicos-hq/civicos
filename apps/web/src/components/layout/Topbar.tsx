@@ -1,7 +1,12 @@
 import { Bell, Search, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useUnreadCount } from '../../hooks/useNotifications';
 
 export function Topbar() {
+  const { data: unread = 0 } = useUnreadCount();
+  const hasUnread = unread > 0;
+  const label = unread > 99 ? '99+' : String(unread);
+
   return (
     <header className="dashboard-topbar">
       <div className="relative max-w-xl flex-1">
@@ -19,9 +24,17 @@ export function Topbar() {
       </div>
 
       <div className="ml-auto flex items-center gap-3 md:ml-0">
-        <Link to="/notifications" className="dashboard-icon-btn" aria-label="Open notifications">
+        <Link
+          to="/notifications"
+          className="dashboard-icon-btn relative"
+          aria-label={hasUnread ? `Open notifications (${unread} unread)` : 'Open notifications'}
+        >
           <Bell className="h-5 w-5" />
-          <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-rose-500" />
+          {hasUnread && (
+            <span className="absolute -right-1 -top-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold leading-none text-white">
+              {label}
+            </span>
+          )}
         </Link>
 
         <div className="dashboard-avatar" aria-hidden="true">

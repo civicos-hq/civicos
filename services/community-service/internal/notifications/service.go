@@ -13,9 +13,14 @@ type NotificationStore interface {
 	MarkAllRead(userID string) error
 }
 
-type Service struct{ repo NotificationStore }
+type Service struct {
+	repo NotificationStore
+	hub  *Hub
+}
 
-func NewService(repo NotificationStore) *Service { return &Service{repo: repo} }
+func NewService(repo NotificationStore, hub *Hub) *Service {
+	return &Service{repo: repo, hub: hub}
+}
 
 func (s *Service) List(userID string, limit int) ([]domain.Notification, error) {
 	return s.repo.ListByUser(userID, limit)
@@ -47,5 +52,11 @@ func (s *Service) Emit(userID string, t domain.NotificationType, title, body str
 		LinkURL: linkURL,
 		UserID:  userID,
 	}
-	return s.repo.Create(n)
+	if err := s.repo.Create(n); err != nil {
+		return err
+	}
+	if s.hub != nil {
+		s.hub.Publish(*n)
+	}
+	return nil
 }

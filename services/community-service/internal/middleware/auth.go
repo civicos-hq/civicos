@@ -21,14 +21,20 @@ type Claims struct {
 
 func JWTAuth(cfg *config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		var tokenStr string
 		header := c.GetHeader("Authorization")
-		if !strings.HasPrefix(header, "Bearer ") {
+		switch {
+		case strings.HasPrefix(header, "Bearer "):
+			tokenStr = strings.TrimPrefix(header, "Bearer ")
+		default:
+			// Fallback for clients that can't set headers (e.g. EventSource).
+			tokenStr = c.Query("access_token")
+		}
+		if tokenStr == "" {
 			response.Error(c, http.StatusUnauthorized, "UNAUTHORIZED", "Missing or malformed token")
 			c.Abort()
 			return
 		}
-
-		tokenStr := strings.TrimPrefix(header, "Bearer ")
 		claims := &Claims{}
 
 		token, err := jwt.ParseWithClaims(tokenStr, claims, func(t *jwt.Token) (any, error) {

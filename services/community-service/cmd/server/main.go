@@ -38,9 +38,10 @@ func main() {
 		log.Fatalf("migration failed: %v", err)
 	}
 
+	notificationHub := notifications.NewHub()
 	notificationRepo := notifications.NewRepository(db)
-	notificationSvc := notifications.NewService(notificationRepo)
-	notificationHandler := notifications.NewHandler(notificationSvc)
+	notificationSvc := notifications.NewService(notificationRepo, notificationHub)
+	notificationHandler := notifications.NewHandler(notificationSvc, notificationHub)
 
 	communityRepo := communities.NewRepository(db)
 	communitySvc := communities.NewService(communityRepo)

@@ -96,8 +96,10 @@ func main() {
 	r.GET("/api/v1/uploads/:filename", communityProxy)
 
 	// Notifications
+	notificationsStream := proxy.NewStreamingProxy(cfg.CommunityServiceURL, "/api")
 	r.GET("/api/v1/notifications", authMiddleware, communityProxy)
 	r.GET("/api/v1/notifications/unread-count", authMiddleware, communityProxy)
+	r.GET("/api/v1/notifications/stream", authMiddleware, notificationsStream)
 	r.PATCH("/api/v1/notifications/:id/read", authMiddleware, communityProxy)
 	r.POST("/api/v1/notifications/read-all", authMiddleware, communityProxy)
 

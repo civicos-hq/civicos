@@ -1,8 +1,11 @@
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
+import { useNotificationStream } from '../../hooks/useNotifications';
 
 export function DashboardLayout() {
+  useNotificationStream();
+
   return (
     <div className="dashboard-shell">
       <div className="dashboard-glow dashboard-glow-a" aria-hidden="true" />

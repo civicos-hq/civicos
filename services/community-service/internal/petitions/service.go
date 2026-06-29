@@ -12,7 +12,7 @@ type PetitionStore interface {
 	FindAll(communityID, status string) ([]domain.Petition, error)
 	FindByID(id string) (*domain.Petition, error)
 	Create(p *domain.Petition) error
-	AddSignature(petitionID, userID string) error
+	AddSignature(petitionID, userID string) (added bool, newCount int, err error)
 	ListComments(petitionID string) ([]domain.PetitionComment, error)
 	AddComment(comment *domain.PetitionComment) error
 }
@@ -101,11 +101,19 @@ func (s *Service) AddComment(petitionID, authorID, authorName, authorRole, conte
 	return comment, s.repo.AddComment(comment)
 }
 
-func (s *Service) Sign(petitionID, userID string) error {
-	if err := s.repo.AddSignature(petitionID, userID); err != nil {
-		return err
+// SignResult describes the outcome of a sign attempt, used by handlers to fire
+// notifications (e.g. milestone hits) without re-querying the database.
+type SignResult struct {
+	Added    bool
+	NewCount int
+}
+
+func (s *Service) Sign(petitionID, userID string) (SignResult, error) {
+	added, newCount, err := s.repo.AddSignature(petitionID, userID)
+	if err != nil {
+		return SignResult{}, err
 	}
-	return nil
+	return SignResult{Added: added, NewCount: newCount}, nil
 }
 
 type AppError struct {

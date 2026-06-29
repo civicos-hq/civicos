@@ -52,32 +52,40 @@ func (r *Repository) AddComment(comment *domain.PetitionComment) error {
 	})
 }
 
-func (r *Repository) AddSignature(petitionID, userID string) error {
-	// Use transaction to ensure unique signature and count consistency
-	return r.db.Transaction(func(tx *gorm.DB) error {
-		// Check if user already signed
+// AddSignature is idempotent. Returns added=true only when a new signature row
+// was actually created (so the caller can fire milestone notifications without
+// duplicating them on repeat sign attempts). newCount reflects the post-commit
+// signature_count for the petition.
+func (r *Repository) AddSignature(petitionID, userID string) (added bool, newCount int, err error) {
+	err = r.db.Transaction(func(tx *gorm.DB) error {
 		var sig domain.PetitionSignature
 		if err := tx.Where("petition_id = ? AND user_id = ?", petitionID, userID).First(&sig).Error; err == nil {
-			return nil // already signed
-		}
-		// Create signature
-		sig = domain.PetitionSignature{ID: uuid.New().String(), PetitionID: petitionID, UserID: userID, CreatedAt: time.Now()}
-		if err := tx.Create(&sig).Error; err != nil {
-			// If a concurrent transaction created the same signature between
-			// the existence check and create, the DB will return a unique
-			// constraint error. Treat that as idempotent and return nil.
-			if strings.Contains(strings.ToLower(err.Error()), "duplicate") || strings.Contains(strings.ToLower(err.Error()), "unique") {
-				return nil
+			added = false
+		} else {
+			sig = domain.PetitionSignature{ID: uuid.New().String(), PetitionID: petitionID, UserID: userID, CreatedAt: time.Now()}
+			if cerr := tx.Create(&sig).Error; cerr != nil {
+				if strings.Contains(strings.ToLower(cerr.Error()), "duplicate") || strings.Contains(strings.ToLower(cerr.Error()), "unique") {
+					added = false
+				} else {
+					return cerr
+				}
+			} else {
+				added = true
+				if uerr := tx.Model(&domain.Petition{}).Where("id = ?", petitionID).
+					UpdateColumn("signature_count", gorm.Expr("signature_count + 1")).Error; uerr != nil {
+					return uerr
+				}
 			}
-			return err
 		}
-		// Increment signature count
-		if err := tx.Model(&domain.Petition{}).Where("id = ?", petitionID).
-			UpdateColumn("signature_count", gorm.Expr("signature_count + 1")).Error; err != nil {
-			return err
+
+		var p domain.Petition
+		if perr := tx.Select("signature_count").Where("id = ?", petitionID).First(&p).Error; perr != nil {
+			return perr
 		}
+		newCount = p.SignatureCount
 		return nil
 	})
+	return added, newCount, err
 }
 
 // uuid returns a pseudo-UUID string using database-side generation when available.
