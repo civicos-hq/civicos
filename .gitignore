@@ -66,6 +66,7 @@ ehthumbs.db
 .idea/
 .vscode/settings.json
 .vscode/launch.json
+.claude/
 *.suo
 *.ntvs*
 *.njsproj

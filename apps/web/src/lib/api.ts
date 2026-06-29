@@ -27,3 +27,19 @@ api.interceptors.response.use(
 );
 
 export type { ApiResponse, ApiError };
+
+const apiBase = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+
+export function uploadUrl(filenameOrUrl: string): string {
+  if (/^https?:\/\//i.test(filenameOrUrl)) return filenameOrUrl;
+  return `${apiBase}/api/v1/uploads/${filenameOrUrl}`;
+}
+
+export async function uploadImage(file: File): Promise<string> {
+  const form = new FormData();
+  form.append('file', file);
+  const res = await api.post<ApiResponse<{ filename: string }>>('/api/v1/uploads', form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return res.data.data.filename;
+}

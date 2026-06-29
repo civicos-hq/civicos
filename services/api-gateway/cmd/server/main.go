@@ -6,7 +6,6 @@ import (
 	"github.com/civicos/api-gateway/internal/middleware"
 	"github.com/civicos/api-gateway/internal/proxy"
 	"github.com/civicos/api-gateway/pkg/config"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -18,12 +17,30 @@ func main() {
 
 	r := gin.New()
 	r.Use(gin.Logger(), gin.Recovery())
-	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
-		AllowCredentials: true,
-	}))
+
+	// Add CORS middleware that sets headers on all responses
+	r.Use(func(c *gin.Context) {
+		// Allow frontend origins
+		origin := c.Request.Header.Get("Origin")
+		if origin == "http://localhost:5173" || origin == "http://localhost:5174" {
+			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+			c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		} else if origin != "" {
+			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+			c.Writer.Header().Set("Access-Control-Allow-Credentials", "false")
+		}
+
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Authorization")
+		c.Writer.Header().Set("Access-Control-Max-Age", "86400")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	})
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "ok", "service": "api-gateway"})
@@ -41,6 +58,7 @@ func main() {
 	r.POST("/api/v1/auth/login", identityPublic)
 	r.POST("/api/v1/auth/refresh", identityPublic)
 	r.GET("/api/v1/auth/me", authMiddleware, identityProtected)
+	r.POST("/api/v1/auth/me/community", authMiddleware, identityProtected)
 
 	// --- Community Service ---
 	communityProxy := proxy.NewReverseProxy(cfg.CommunityServiceURL, "/api")
@@ -60,6 +78,27 @@ func main() {
 	r.GET("/api/v1/petitions/:id", communityProxy)
 	r.POST("/api/v1/petitions", authMiddleware, communityProxy)
 	r.POST("/api/v1/petitions/:id/sign", authMiddleware, communityProxy)
+
+	// Representatives
+	r.GET("/api/v1/representatives", communityProxy)
+	r.GET("/api/v1/representatives/:id", communityProxy)
+	r.POST("/api/v1/representatives", authMiddleware, communityProxy)
+	r.POST("/api/v1/representatives/:id/follow", authMiddleware, communityProxy)
+	r.DELETE("/api/v1/representatives/:id/follow", authMiddleware, communityProxy)
+	r.GET("/api/v1/me/follows/representatives", authMiddleware, communityProxy)
+
+	// Uploads (POST is auth-protected; GET is public so images render in <img>)
+	r.POST("/api/v1/uploads", authMiddleware, communityProxy)
+	r.GET("/api/v1/uploads/:filename", communityProxy)
+
+	// Handle unmatched OPTIONS requests with CORS headers
+	r.NoRoute(func(c *gin.Context) {
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+		c.JSON(404, gin.H{"error": "not found"})
+	})
 
 	addr := ":" + cfg.Port
 	log.Printf("api-gateway listening on %s", addr)

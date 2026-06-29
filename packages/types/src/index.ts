@@ -79,17 +79,19 @@ export interface Community {
 
 export interface Representative {
   id: UUID;
-  userId: UUID;
-  user?: Pick<User, 'id' | 'name' | 'email' | 'avatarUrl'>;
+  name: string;
   title: string;
   position: string;
   constituency: string;
   party?: string;
   bio?: string;
+  avatarUrl?: string;
   communityId: UUID;
   responseRate: number;
   followerCount: number;
+  createdById: UUID;
   createdAt: ISODateTime;
+  updatedAt: ISODateTime;
 }
 
 export interface Issue {
@@ -117,6 +119,7 @@ export interface Petition {
   signatureCount: number;
   status: PetitionStatus;
   deadline?: ISODateTime;
+  imageUrls: string[];
   communityId: UUID;
   createdById: UUID;
   createdBy?: Pick<User, 'id' | 'name' | 'avatarUrl'>;

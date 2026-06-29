@@ -17,6 +17,7 @@ type UserStore interface {
 	FindByEmail(email string) (*domain.User, error)
 	FindByID(id string) (*domain.User, error)
 	Create(user *domain.User) error
+	UpdateCommunity(userID, communityID string) error
 }
 
 type Service struct {
@@ -125,6 +126,13 @@ func (s *Service) GetMe(userID string) (*domain.PublicUser, error) {
 	}
 	public := user.ToPublic()
 	return &public, nil
+}
+
+func (s *Service) JoinCommunity(userID, communityID string) (*domain.PublicUser, error) {
+	if err := s.repo.UpdateCommunity(userID, communityID); err != nil {
+		return nil, err
+	}
+	return s.GetMe(userID)
 }
 
 // signTokens is the single place token pairs are issued — no duplicate logic.

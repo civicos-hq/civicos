@@ -48,3 +48,22 @@ func JWTAuth(cfg *config.Config) gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+// RequireRole returns a middleware that allows the request only if the
+// caller's role (from a prior JWTAuth) is in the allowed set.
+func RequireRole(allowed ...string) gin.HandlerFunc {
+	set := make(map[string]struct{}, len(allowed))
+	for _, r := range allowed {
+		set[r] = struct{}{}
+	}
+	return func(c *gin.Context) {
+		role, _ := c.Get("userRole")
+		roleStr, _ := role.(string)
+		if _, ok := set[roleStr]; !ok {
+			response.Error(c, http.StatusForbidden, "FORBIDDEN", "Your role is not permitted to perform this action")
+			c.Abort()
+			return
+		}
+		c.Next()
+	}
+}

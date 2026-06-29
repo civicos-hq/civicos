@@ -36,3 +36,7 @@ func (r *Repository) FindByID(id string) (*domain.User, error) {
 func (r *Repository) Create(user *domain.User) error {
 	return r.db.Create(user).Error
 }
+
+func (r *Repository) UpdateCommunity(userID, communityID string) error {
+	return r.db.Model(&domain.User{}).Where("id = ?", userID).Update("community_id", communityID).Error
+}

@@ -1,8 +1,387 @@
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
+import { Link } from 'react-router-dom';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Button, Input } from '@civicos/ui';
+import { UserRole, type ApiResponse, type Representative } from '@civicos/types';
+import { api, uploadImage, uploadUrl } from '../lib/api';
+import { useMe } from '../hooks/useMe';
+import { useFollowedReps } from '../hooks/useFollowedReps';
+
+const ADMIN_ROLES = new Set<UserRole>([
+  UserRole.GOVERNMENT_ADMIN,
+  UserRole.PLATFORM_ADMIN,
+  UserRole.NGO,
+]);
+
+function useRepresentatives(communityId?: string) {
+  return useQuery({
+    queryKey: ['representatives', communityId ?? 'all'],
+    queryFn: async () => {
+      const res = await api.get<ApiResponse<{ representatives: Representative[] }>>(
+        '/api/v1/representatives',
+        { params: communityId ? { communityId } : undefined },
+      );
+      return res.data.data.representatives;
+    },
+  });
+}
+
 export function RepresentativesPage() {
+  const meQuery = useMe();
+  const communityId = meQuery.data?.communityId;
+  const repsQuery = useRepresentatives(communityId);
+  const followsQuery = useFollowedReps();
+  const [isModalOpen, setModalOpen] = useState(false);
+
+  const reps = repsQuery.data ?? [];
+  const followedSet = followsQuery.data ?? new Set<string>();
+  const isAdmin = meQuery.data?.role ? ADMIN_ROLES.has(meQuery.data.role) : false;
+  const hasCommunity = Boolean(communityId);
+
   return (
-    <div>
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">Representatives</h1>
-      <p className="text-gray-500">Your elected representatives will appear here.</p>
+    <section className="space-y-6">
+      <header className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-civic-700">
+              Representative Board
+            </p>
+            <h1 className="mt-2 text-3xl font-semibold text-slate-900">
+              Who is accountable for what
+            </h1>
+            <p className="mt-3 text-sm text-slate-600">
+              Track elected officials in your community, their focus, and how quickly they respond.
+            </p>
+          </div>
+          {isAdmin && (
+            <Button size="sm" onClick={() => setModalOpen(true)} disabled={!hasCommunity}>
+              + New representative
+            </Button>
+          )}
+        </div>
+        {!meQuery.isLoading && !hasCommunity && (
+          <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
+            Join a community on the{' '}
+            <Link to="/community" className="font-semibold underline">
+              Community
+            </Link>{' '}
+            page to see your local representatives.
+          </p>
+        )}
+      </header>
+
+      {repsQuery.isLoading ? (
+        <p className="text-sm text-slate-500">Loading…</p>
+      ) : reps.length === 0 ? (
+        <article className="rounded-2xl border border-dashed border-slate-300 bg-white/60 p-8 text-center text-sm text-slate-500">
+          No representatives have been added for your community yet.
+        </article>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2">
+          {reps.map((rep) => (
+            <Link
+              key={rep.id}
+              to={`/representatives/${rep.id}`}
+              className="flex gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-civic-300"
+            >
+              <Avatar name={rep.name} src={rep.avatarUrl} />
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <h2 className="truncate text-lg font-semibold text-slate-900">
+                    {rep.title} {rep.name}
+                  </h2>
+                  <FollowButton representativeId={rep.id} isFollowing={followedSet.has(rep.id)} />
+                </div>
+                <p className="mt-1 text-sm text-slate-600">
+                  {rep.position} · {rep.constituency}
+                </p>
+                {rep.party && (
+                  <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-civic-700">
+                    {rep.party}
+                  </p>
+                )}
+                <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-500">
+                  <span>{rep.responseRate}% response rate</span>
+                  <span>·</span>
+                  <span>{rep.followerCount.toLocaleString()} followers</span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {isModalOpen && hasCommunity && communityId && (
+        <NewRepresentativeModal communityId={communityId} onClose={() => setModalOpen(false)} />
+      )}
+    </section>
+  );
+}
+
+// ─── Follow button ────────────────────────────────────────────────────────────
+
+export function FollowButton({
+  representativeId,
+  isFollowing,
+}: {
+  representativeId: string;
+  isFollowing: boolean;
+}) {
+  const queryClient = useQueryClient();
+  const toggle = useMutation({
+    mutationFn: async () => {
+      if (isFollowing) {
+        await api.delete(`/api/v1/representatives/${representativeId}/follow`);
+      } else {
+        await api.post(`/api/v1/representatives/${representativeId}/follow`);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['followedReps'] });
+      queryClient.invalidateQueries({ queryKey: ['representatives'] });
+      queryClient.invalidateQueries({ queryKey: ['representative', representativeId] });
+    },
+  });
+
+  return (
+    <Button
+      variant={isFollowing ? 'secondary' : 'primary'}
+      size="sm"
+      loading={toggle.isPending}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggle.mutate();
+      }}
+    >
+      {isFollowing ? '✓ Following' : '+ Follow'}
+    </Button>
+  );
+}
+
+// ─── Avatar ───────────────────────────────────────────────────────────────────
+
+export function Avatar({ name, src, size = 64 }: { name: string; src?: string; size?: number }) {
+  if (src) {
+    return (
+      <img
+        src={uploadUrl(src)}
+        alt={name}
+        className="flex-shrink-0 rounded-full object-cover ring-2 ring-slate-100"
+        style={{ width: size, height: size }}
+      />
+    );
+  }
+  const initials = name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase())
+    .join('');
+  return (
+    <div
+      className="flex flex-shrink-0 items-center justify-center rounded-full bg-civic-100 font-semibold text-civic-700 ring-2 ring-slate-100"
+      style={{ width: size, height: size, fontSize: Math.round(size / 2.8) }}
+    >
+      {initials || '?'}
     </div>
+  );
+}
+
+// ─── Modal shell ──────────────────────────────────────────────────────────────
+
+function Modal({
+  title,
+  onClose,
+  children,
+}: {
+  title: string;
+  onClose: () => void;
+  children: ReactNode;
+}) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between gap-4">
+          <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
+          <button
+            type="button"
+            className="text-slate-400 hover:text-slate-600"
+            onClick={onClose}
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="mt-4">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+// ─── New Representative ───────────────────────────────────────────────────────
+
+function NewRepresentativeModal({
+  communityId,
+  onClose,
+}: {
+  communityId: string;
+  onClose: () => void;
+}) {
+  const queryClient = useQueryClient();
+  const [name, setName] = useState('');
+  const [title, setTitle] = useState('Hon.');
+  const [position, setPosition] = useState('');
+  const [constituency, setConstituency] = useState('');
+  const [party, setParty] = useState('');
+  const [bio, setBio] = useState('');
+  const [avatar, setAvatar] = useState<File | null>(null);
+  const [error, setError] = useState('');
+
+  const preview = avatar ? URL.createObjectURL(avatar) : null;
+  useEffect(() => {
+    return () => {
+      if (preview) URL.revokeObjectURL(preview);
+    };
+  }, [preview]);
+
+  function onAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] ?? null;
+    e.target.value = '';
+    setError('');
+    if (file && file.size > 5 * 1024 * 1024) {
+      setError(`"${file.name}" is over 5MB.`);
+      return;
+    }
+    setAvatar(file);
+  }
+
+  const mutation = useMutation({
+    mutationFn: async () => {
+      const avatarUrl = avatar ? await uploadImage(avatar) : undefined;
+      await api.post('/api/v1/representatives', {
+        name,
+        title,
+        position,
+        constituency,
+        communityId,
+        party: party.trim() || undefined,
+        bio: bio.trim() || undefined,
+        avatarUrl,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['representatives'] });
+      onClose();
+    },
+    onError: () => setError('Could not create representative. Check your inputs and try again.'),
+  });
+
+  function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    setError('');
+    mutation.mutate();
+  }
+
+  return (
+    <Modal title="Add a representative" onClose={onClose}>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="flex items-center gap-4">
+          {preview ? (
+            <img
+              src={preview}
+              alt="Avatar preview"
+              className="h-16 w-16 rounded-full object-cover ring-2 ring-slate-100"
+            />
+          ) : (
+            <div className="h-16 w-16 rounded-full bg-slate-100 ring-2 ring-slate-100" />
+          )}
+          <label className="cursor-pointer text-sm font-semibold text-civic-700 hover:underline">
+            <input type="file" accept="image/*" className="hidden" onChange={onAvatarChange} />
+            {avatar ? 'Change photo' : 'Upload photo'}
+          </label>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-[100px,1fr]">
+          <Input
+            label="Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Hon."
+            required
+          />
+          <Input
+            label="Full name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Amina Yusuf"
+            required
+            minLength={2}
+          />
+        </div>
+
+        <Input
+          label="Position"
+          value={position}
+          onChange={(e) => setPosition(e.target.value)}
+          placeholder="Local Council Chair"
+          required
+        />
+        <div className="grid gap-4 md:grid-cols-2">
+          <Input
+            label="Constituency"
+            value={constituency}
+            onChange={(e) => setConstituency(e.target.value)}
+            placeholder="Lekki Phase 1"
+            required
+          />
+          <Input
+            label="Party (optional)"
+            value={party}
+            onChange={(e) => setParty(e.target.value)}
+            placeholder="PDP"
+          />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-700" htmlFor="bio">
+            Bio (optional)
+          </label>
+          <textarea
+            id="bio"
+            className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-civic-500"
+            rows={3}
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
+            placeholder="A short bio for citizens to learn more."
+          />
+        </div>
+
+        {error && <p className="text-sm text-red-600">{error}</p>}
+
+        <div className="flex justify-end gap-2 pt-2">
+          <Button type="button" variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="submit" loading={mutation.isPending}>
+            Add representative
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 }

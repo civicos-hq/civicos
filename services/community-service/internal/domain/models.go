@@ -51,7 +51,7 @@ type Issue struct {
 	Category     IssueCategory  `gorm:"type:varchar(30);default:'OTHER'" json:"category"`
 	Status       IssueStatus    `gorm:"type:varchar(30);default:'OPEN'" json:"status"`
 	Location     *string        `json:"location,omitempty"`
-	ImageURLs    []string       `gorm:"type:text[];serializer:json" json:"imageUrls"`
+	ImageURLs    []string       `gorm:"type:jsonb;serializer:json" json:"imageUrls"`
 	UpvoteCount  int            `gorm:"default:0" json:"upvoteCount"`
 	CommunityID  string         `gorm:"not null;index" json:"communityId"`
 	ReportedByID string         `gorm:"not null" json:"reportedById"`
@@ -77,6 +77,7 @@ type Petition struct {
 	SignatureCount int            `gorm:"default:0" json:"signatureCount"`
 	Status         PetitionStatus `gorm:"type:varchar(30);default:'DRAFT'" json:"status"`
 	Deadline       *time.Time     `json:"deadline,omitempty"`
+	ImageURLs      []string       `gorm:"type:jsonb;serializer:json" json:"imageUrls"`
 	CommunityID    string         `gorm:"not null;index" json:"communityId"`
 	CreatedByID    string         `gorm:"not null" json:"createdById"`
 	CreatedAt      time.Time      `json:"createdAt"`
@@ -88,4 +89,28 @@ type PetitionSignature struct {
 	PetitionID string    `gorm:"not null;uniqueIndex:idx_petition_user" json:"petitionId"`
 	UserID     string    `gorm:"not null;uniqueIndex:idx_petition_user" json:"userId"`
 	CreatedAt  time.Time `json:"createdAt"`
+}
+
+type RepresentativeFollower struct {
+	ID               string    `gorm:"type:uuid;primaryKey" json:"id"`
+	RepresentativeID string    `gorm:"not null;uniqueIndex:idx_rep_follower" json:"representativeId"`
+	UserID           string    `gorm:"not null;uniqueIndex:idx_rep_follower" json:"userId"`
+	CreatedAt        time.Time `json:"createdAt"`
+}
+
+type Representative struct {
+	ID             string    `gorm:"type:uuid;primaryKey" json:"id"`
+	Name           string    `gorm:"not null" json:"name"`
+	Title          string    `gorm:"not null" json:"title"`
+	Position       string    `gorm:"not null" json:"position"`
+	Constituency   string    `gorm:"not null" json:"constituency"`
+	Party          *string   `json:"party,omitempty"`
+	Bio            *string   `json:"bio,omitempty"`
+	AvatarURL      *string   `json:"avatarUrl,omitempty"`
+	CommunityID    string    `gorm:"not null;index" json:"communityId"`
+	ResponseRate   int       `gorm:"default:0" json:"responseRate"`
+	FollowerCount  int       `gorm:"default:0" json:"followerCount"`
+	CreatedByID    string    `gorm:"not null" json:"createdById"`
+	CreatedAt      time.Time `json:"createdAt"`
+	UpdatedAt      time.Time `json:"updatedAt"`
 }

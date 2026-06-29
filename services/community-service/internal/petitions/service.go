@@ -20,11 +20,12 @@ type Service struct{ repo PetitionStore }
 func NewService(repo PetitionStore) *Service { return &Service{repo: repo} }
 
 type CreateInput struct {
-	Title       string  `json:"title" binding:"required,min=5"`
-	Description string  `json:"description" binding:"required,min=10"`
-	Goal        int     `json:"goal" binding:"required,min=1"`
-	Deadline    *string `json:"deadline"`
-	CommunityID string  `json:"communityId" binding:"required"`
+	Title       string   `json:"title" binding:"required,min=5"`
+	Description string   `json:"description" binding:"required,min=10"`
+	Goal        int      `json:"goal" binding:"required,min=1"`
+	Deadline    *string  `json:"deadline"`
+	CommunityID string   `json:"communityId" binding:"required"`
+	ImageURLs   []string `json:"imageUrls"`
 }
 
 func (s *Service) List(communityID, status string) ([]domain.Petition, error) {
@@ -47,12 +48,18 @@ func (s *Service) Create(input CreateInput, createdByID string) (*domain.Petitio
 		}
 	}
 
+	images := input.ImageURLs
+	if images == nil {
+		images = []string{}
+	}
 	p := &domain.Petition{
 		ID:          uuid.New().String(),
 		Title:       input.Title,
 		Description: input.Description,
 		Goal:        input.Goal,
+		Status:      domain.PetitionActive,
 		Deadline:    deadlinePtr,
+		ImageURLs:   images,
 		CommunityID: input.CommunityID,
 		CreatedByID: createdByID,
 	}

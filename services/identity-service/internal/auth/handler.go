@@ -21,6 +21,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, authMiddleware gin.Handler
 	rg.POST("/login", h.login)
 	rg.POST("/refresh", h.refresh)
 	rg.GET("/me", authMiddleware, h.me)
+	rg.POST("/me/community", authMiddleware, h.joinCommunity)
 }
 
 func (h *Handler) register(c *gin.Context) {
@@ -82,6 +83,23 @@ func (h *Handler) me(c *gin.Context) {
 	user, err := h.service.GetMe(userID.(string))
 	if err != nil {
 		response.Error(c, http.StatusNotFound, "USER_NOT_FOUND", "User not found")
+		return
+	}
+	response.Success(c, http.StatusOK, gin.H{"user": user})
+}
+
+func (h *Handler) joinCommunity(c *gin.Context) {
+	var body struct {
+		CommunityID string `json:"communityId" binding:"required,uuid4"`
+	}
+	if err := c.ShouldBindJSON(&body); err != nil {
+		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", err.Error())
+		return
+	}
+	userID, _ := c.Get("userID")
+	user, err := h.service.JoinCommunity(userID.(string), body.CommunityID)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to join community")
 		return
 	}
 	response.Success(c, http.StatusOK, gin.H{"user": user})

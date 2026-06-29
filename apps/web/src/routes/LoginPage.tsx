@@ -1,22 +1,103 @@
-import { Link } from 'react-router-dom';
-import { Button, Input } from '@civicos/ui';
+import { useState, type FormEvent } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { api } from '../lib/api';
 
 export function LoginPage() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setErrorMessage('');
+    setIsSubmitting(true);
+
+    try {
+      const response = await api.post('/api/v1/auth/login', { email, password });
+      const accessToken = response.data?.data?.tokens?.accessToken;
+      const refreshToken = response.data?.data?.tokens?.refreshToken;
+
+      if (!accessToken) {
+        throw new Error('ACCESS_TOKEN_MISSING');
+      }
+
+      localStorage.setItem('accessToken', accessToken);
+      if (refreshToken) {
+        localStorage.setItem('refreshToken', refreshToken);
+      }
+
+      navigate('/community', { replace: true });
+    } catch {
+      setErrorMessage('Could not sign you in. Check your email and password and try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-sm rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
-        <h1 className="mb-1 text-2xl font-bold text-gray-900">Welcome back</h1>
-        <p className="mb-8 text-sm text-gray-500">Sign in to your CivicOS account</p>
-        <form className="space-y-4">
-          <Input id="email" type="email" label="Email" placeholder="you@example.com" />
-          <Input id="password" type="password" label="Password" placeholder="••••••••" />
-          <Button type="submit" className="w-full">Sign in</Button>
+    <section className="auth-shell">
+      <div className="auth-pulse auth-pulse-left" aria-hidden="true" />
+      <div className="auth-pulse auth-pulse-right" aria-hidden="true" />
+
+      <div className="auth-grid">
+        <aside className="auth-copy">
+          <p className="auth-eyebrow">CivicOS Access</p>
+          <h1 className="auth-title">Enter your civic command center.</h1>
+          <p className="auth-description">
+            Track community issues, sign petitions, and keep your representatives accountable from
+            one place.
+          </p>
+        </aside>
+
+        <form className="auth-card" onSubmit={onSubmit}>
+          <h2 className="auth-card-title">Sign in</h2>
+          <p className="auth-card-subtitle">Use your CivicOS credentials to continue.</p>
+
+          <label className="auth-label" htmlFor="email">
+            Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            className="auth-input"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            autoComplete="email"
+            required
+          />
+
+          <label className="auth-label" htmlFor="password">
+            Password
+          </label>
+          <input
+            id="password"
+            type="password"
+            className="auth-input"
+            placeholder="At least 8 characters"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            autoComplete="current-password"
+            required
+            minLength={8}
+          />
+
+          {errorMessage && <p className="auth-error">{errorMessage}</p>}
+
+          <button type="submit" className="auth-submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Signing in...' : 'Sign in'}
+          </button>
+
+          <p className="auth-footer">
+            No account yet?{' '}
+            <Link to="/register" className="auth-link">
+              Create one now
+            </Link>
+          </p>
         </form>
-        <p className="mt-6 text-center text-sm text-gray-500">
-          No account?{' '}
-          <Link to="/register" className="font-medium text-civic-600 hover:underline">Register</Link>
-        </p>
       </div>
-    </div>
+    </section>
   );
 }

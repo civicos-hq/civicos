@@ -2,17 +2,22 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/civicos/community-service/internal/communities"
 	"github.com/civicos/community-service/internal/domain"
 	"github.com/civicos/community-service/internal/issues"
 	"github.com/civicos/community-service/internal/middleware"
 	"github.com/civicos/community-service/internal/petitions"
+	"github.com/civicos/community-service/internal/representatives"
+	"github.com/civicos/community-service/internal/uploads"
 	"github.com/civicos/community-service/pkg/config"
 	"github.com/civicos/community-service/pkg/database"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
+
+const uploadsDir = "uploads"
 
 func main() {
 	cfg := config.Load()
@@ -24,6 +29,8 @@ func main() {
 		&domain.IssueComment{},
 		&domain.Petition{},
 		&domain.PetitionSignature{},
+		&domain.Representative{},
+		&domain.RepresentativeFollower{},
 	); err != nil {
 		log.Fatalf("migration failed: %v", err)
 	}
@@ -40,7 +47,17 @@ func main() {
 	petitionSvc := petitions.NewService(petitionRepo)
 	petitionHandler := petitions.NewHandler(petitionSvc)
 
+	repRepo := representatives.NewRepository(db)
+	repSvc := representatives.NewService(repRepo)
+	repHandler := representatives.NewHandler(repSvc)
+
+	if err := os.MkdirAll(uploadsDir, 0o755); err != nil {
+		log.Fatalf("could not create uploads dir: %v", err)
+	}
+	uploadsHandler := uploads.NewHandler(uploadsDir)
+
 	authMiddleware := middleware.JWTAuth(cfg)
+	requireAdminRole := middleware.RequireRole("GOVERNMENT_ADMIN", "PLATFORM_ADMIN", "NGO")
 
 	r := gin.New()
 	r.Use(gin.Logger(), gin.Recovery())
@@ -56,9 +73,12 @@ func main() {
 	})
 
 	v1 := r.Group("/v1")
-	communityHandler.RegisterRoutes(v1.Group("/communities"), authMiddleware)
+	communityHandler.RegisterRoutes(v1.Group("/communities"), authMiddleware, requireAdminRole)
 	issueHandler.RegisterRoutes(v1.Group("/issues"), authMiddleware)
 	petitionHandler.RegisterRoutes(v1.Group("/petitions"), authMiddleware)
+	repHandler.RegisterRoutes(v1.Group("/representatives"), authMiddleware, requireAdminRole)
+	repHandler.RegisterMeRoutes(v1.Group("/me"), authMiddleware)
+	uploadsHandler.RegisterRoutes(v1.Group("/uploads"), authMiddleware)
 
 	addr := ":" + cfg.Port
 	log.Printf("community-service listening on %s", addr)

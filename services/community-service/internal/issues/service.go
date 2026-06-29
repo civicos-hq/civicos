@@ -27,6 +27,7 @@ type CreateInput struct {
 	Category    domain.IssueCategory `json:"category" binding:"required"`
 	CommunityID string               `json:"communityId" binding:"required"`
 	Location    *string              `json:"location"`
+	ImageURLs   []string             `json:"imageUrls"`
 }
 
 type AppError struct {
@@ -50,6 +51,10 @@ func (s *Service) Get(id string) (*domain.Issue, error) {
 }
 
 func (s *Service) Create(input CreateInput, reportedByID string) (*domain.Issue, error) {
+	images := input.ImageURLs
+	if images == nil {
+		images = []string{}
+	}
 	issue := &domain.Issue{
 		ID:           uuid.New().String(),
 		Title:        input.Title,
@@ -57,7 +62,7 @@ func (s *Service) Create(input CreateInput, reportedByID string) (*domain.Issue,
 		Category:     input.Category,
 		Status:       domain.IssueStatusOpen,
 		Location:     input.Location,
-		ImageURLs:    []string{},
+		ImageURLs:    images,
 		CommunityID:  input.CommunityID,
 		ReportedByID: reportedByID,
 	}

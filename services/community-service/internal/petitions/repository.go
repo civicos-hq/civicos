@@ -1,6 +1,7 @@
 package petitions
 
 import (
+	"strings"
 	"time"
 
 	"github.com/civicos/community-service/internal/domain"
@@ -46,6 +47,12 @@ func (r *Repository) AddSignature(petitionID, userID string) error {
 		// Create signature
 		sig = domain.PetitionSignature{ID: uuid.New().String(), PetitionID: petitionID, UserID: userID, CreatedAt: time.Now()}
 		if err := tx.Create(&sig).Error; err != nil {
+			// If a concurrent transaction created the same signature between
+			// the existence check and create, the DB will return a unique
+			// constraint error. Treat that as idempotent and return nil.
+			if strings.Contains(strings.ToLower(err.Error()), "duplicate") || strings.Contains(strings.ToLower(err.Error()), "unique") {
+				return nil
+			}
 			return err
 		}
 		// Increment signature count
