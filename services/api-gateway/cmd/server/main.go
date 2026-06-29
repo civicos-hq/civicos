@@ -1,32 +1,6 @@
 package main
 
 import (
-    "log"
-    "os"
-
-    "github.com/gin-gonic/gin"
-)
-
-func main() {
-    port := os.Getenv("PORT")
-    if port == "" {
-        port = "3000"
-    }
-
-    r := gin.Default()
-
-    r.GET("/health", func(c *gin.Context) {
-        c.JSON(200, gin.H{"status": "ok", "service": "api-gateway"})
-    })
-
-    log.Printf("starting api-gateway on :%s\n", port)
-    if err := r.Run(":" + port); err != nil {
-        log.Fatal(err)
-    }
-}
-package main
-
-import (
 	"log"
 
 	"github.com/civicos/api-gateway/internal/middleware"
@@ -80,6 +54,12 @@ func main() {
 	r.POST("/api/v1/issues", authMiddleware, communityProxy)
 	r.POST("/api/v1/issues/:id/upvote", authMiddleware, communityProxy)
 	r.PATCH("/api/v1/issues/:id/status", authMiddleware, communityProxy)
+
+	// Petitions
+	r.GET("/api/v1/petitions", communityProxy)
+	r.GET("/api/v1/petitions/:id", communityProxy)
+	r.POST("/api/v1/petitions", authMiddleware, communityProxy)
+	r.POST("/api/v1/petitions/:id/sign", authMiddleware, communityProxy)
 
 	addr := ":" + cfg.Port
 	log.Printf("api-gateway listening on %s", addr)

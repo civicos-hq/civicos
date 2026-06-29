@@ -12,8 +12,12 @@ func NewRepository(db *gorm.DB) *Repository { return &Repository{db: db} }
 func (r *Repository) FindAll(communityID, status string) ([]domain.Issue, error) {
 	var list []domain.Issue
 	q := r.db.Order("created_at desc")
-	if communityID != "" { q = q.Where("community_id = ?", communityID) }
-	if status != "" { q = q.Where("status = ?", status) }
+	if communityID != "" {
+		q = q.Where("community_id = ?", communityID)
+	}
+	if status != "" {
+		q = q.Where("status = ?", status)
+	}
 	return list, q.Find(&list).Error
 }
 

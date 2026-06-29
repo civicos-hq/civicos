@@ -7,6 +7,7 @@ import (
 	"github.com/civicos/community-service/internal/domain"
 	"github.com/civicos/community-service/internal/issues"
 	"github.com/civicos/community-service/internal/middleware"
+	"github.com/civicos/community-service/internal/petitions"
 	"github.com/civicos/community-service/pkg/config"
 	"github.com/civicos/community-service/pkg/database"
 	"github.com/gin-contrib/cors"
@@ -35,6 +36,10 @@ func main() {
 	issueSvc := issues.NewService(issueRepo)
 	issueHandler := issues.NewHandler(issueSvc)
 
+	petitionRepo := petitions.NewRepository(db)
+	petitionSvc := petitions.NewService(petitionRepo)
+	petitionHandler := petitions.NewHandler(petitionSvc)
+
 	authMiddleware := middleware.JWTAuth(cfg)
 
 	r := gin.New()
@@ -53,6 +58,7 @@ func main() {
 	v1 := r.Group("/v1")
 	communityHandler.RegisterRoutes(v1.Group("/communities"), authMiddleware)
 	issueHandler.RegisterRoutes(v1.Group("/issues"), authMiddleware)
+	petitionHandler.RegisterRoutes(v1.Group("/petitions"), authMiddleware)
 
 	addr := ":" + cfg.Port
 	log.Printf("community-service listening on %s", addr)
