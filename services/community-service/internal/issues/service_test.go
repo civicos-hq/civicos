@@ -8,10 +8,11 @@ import (
 )
 
 type fakeIssueRepo struct {
-	items []domain.Issue
+	items    []domain.Issue
+	comments map[string][]domain.IssueComment
 }
 
-func (f *fakeIssueRepo) FindAll(communityID, status string) ([]domain.Issue, error) {
+func (f *fakeIssueRepo) FindAll(communityID, status, category string) ([]domain.Issue, error) {
 	var filtered []domain.Issue
 	for _, item := range f.items {
 		if communityID != "" && item.CommunityID != communityID {
@@ -20,9 +21,30 @@ func (f *fakeIssueRepo) FindAll(communityID, status string) ([]domain.Issue, err
 		if status != "" && string(item.Status) != status {
 			continue
 		}
+		if category != "" && string(item.Category) != category {
+			continue
+		}
 		filtered = append(filtered, item)
 	}
 	return filtered, nil
+}
+
+func (f *fakeIssueRepo) ListComments(issueID string) ([]domain.IssueComment, error) {
+	return f.comments[issueID], nil
+}
+
+func (f *fakeIssueRepo) AddComment(comment *domain.IssueComment) error {
+	if f.comments == nil {
+		f.comments = map[string][]domain.IssueComment{}
+	}
+	f.comments[comment.IssueID] = append(f.comments[comment.IssueID], *comment)
+	for i := range f.items {
+		if f.items[i].ID == comment.IssueID {
+			f.items[i].CommentCount++
+			break
+		}
+	}
+	return nil
 }
 
 func (f *fakeIssueRepo) FindByID(id string) (*domain.Issue, error) {

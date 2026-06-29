@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Input } from '@civicos/ui';
 import { IssueCategory, IssueStatus, type ApiResponse, type Issue } from '@civicos/types';
@@ -34,33 +34,76 @@ const LANES: { label: string; status: IssueStatus; tone: string }[] = [
   { label: 'Resolved', status: IssueStatus.RESOLVED, tone: 'bg-emerald-100 text-emerald-700' },
 ];
 
-function useIssues(communityId?: string) {
+type IssueSort = 'newest' | 'oldest' | 'upvotes' | 'comments';
+
+const SORT_OPTIONS: { value: IssueSort; label: string }[] = [
+  { value: 'newest', label: 'Newest' },
+  { value: 'oldest', label: 'Oldest' },
+  { value: 'upvotes', label: 'Most upvoted' },
+  { value: 'comments', label: 'Most discussed' },
+];
+
+function useIssues(communityId: string | undefined, status: string, category: string) {
   return useQuery({
-    queryKey: ['issues', communityId ?? 'all'],
+    queryKey: ['issues', communityId ?? 'all', status, category],
     queryFn: async () => {
-      const res = await api.get<ApiResponse<{ issues: Issue[] }>>('/api/v1/issues', {
-        params: communityId ? { communityId } : undefined,
-      });
+      const params: Record<string, string> = {};
+      if (communityId) params.communityId = communityId;
+      if (status) params.status = status;
+      if (category) params.category = category;
+      const res = await api.get<ApiResponse<{ issues: Issue[] }>>('/api/v1/issues', { params });
       return res.data.data.issues;
     },
   });
 }
 
+function sortIssues(issues: Issue[], sort: IssueSort): Issue[] {
+  const copy = [...issues];
+  switch (sort) {
+    case 'oldest':
+      return copy.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
+    case 'upvotes':
+      return copy.sort((a, b) => b.upvoteCount - a.upvoteCount);
+    case 'comments':
+      return copy.sort((a, b) => b.commentCount - a.commentCount);
+    case 'newest':
+    default:
+      return copy.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+  }
+}
+
 export function IssuesPage() {
   const meQuery = useMe();
   const communityId = meQuery.data?.communityId;
-  const issuesQuery = useIssues(communityId);
+  const [params, setParams] = useSearchParams();
+  const statusFilter = params.get('status') ?? '';
+  const categoryFilter = params.get('category') ?? '';
+  const sort = (params.get('sort') as IssueSort) || 'newest';
+
+  function setFilter(key: 'status' | 'category' | 'sort', value: string) {
+    const next = new URLSearchParams(params);
+    if (!value) next.delete(key);
+    else next.set(key, value);
+    setParams(next, { replace: true });
+  }
+
+  // Filtered list for the main grid.
+  const issuesQuery = useIssues(communityId, statusFilter, categoryFilter);
+  // Unfiltered baseline so the lane tiles always show the community-wide counts.
+  const baselineQuery = useIssues(communityId, '', '');
   const [isModalOpen, setModalOpen] = useState(false);
 
   const issues = issuesQuery.data ?? [];
+  const baseline = baselineQuery.data ?? [];
   const hasCommunity = Boolean(communityId);
+  const hasFilters = Boolean(statusFilter || categoryFilter);
 
   const lanes = LANES.map((lane) => ({
     ...lane,
-    count: issues.filter((i) => i.status === lane.status).length,
+    count: baseline.filter((i) => i.status === lane.status).length,
   }));
 
-  const recent = [...issues].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)).slice(0, 8);
+  const visible = sortIssues(issues, sort);
 
   return (
     <section className="space-y-6">
@@ -112,18 +155,87 @@ export function IssuesPage() {
       </div>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-900">Recent reports</h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-lg font-semibold text-slate-900">
+            {hasFilters ? 'Filtered reports' : 'Recent reports'}
+            <span className="ml-2 text-sm font-normal text-slate-500">({visible.length})</span>
+          </h2>
+          <div className="flex items-center gap-2">
+            {hasFilters && (
+              <button
+                type="button"
+                onClick={() => {
+                  const next = new URLSearchParams(params);
+                  next.delete('status');
+                  next.delete('category');
+                  setParams(next, { replace: true });
+                }}
+                className="text-xs font-semibold text-civic-700 hover:underline"
+              >
+                Clear filters
+              </button>
+            )}
+            <label className="text-xs font-semibold text-slate-500">
+              Sort
+              <select
+                value={sort}
+                onChange={(e) => setFilter('sort', e.target.value)}
+                className="ml-2 rounded-lg border border-slate-200 bg-white px-2 py-1 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-civic-500"
+              >
+                {SORT_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          <FilterPill
+            active={!statusFilter}
+            onClick={() => setFilter('status', '')}
+            label="All status"
+          />
+          {(Object.keys(STATUS_LABEL) as IssueStatus[]).map((s) => (
+            <FilterPill
+              key={s}
+              active={statusFilter === s}
+              onClick={() => setFilter('status', s)}
+              label={STATUS_LABEL[s]}
+            />
+          ))}
+        </div>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <FilterPill
+            active={!categoryFilter}
+            onClick={() => setFilter('category', '')}
+            label="All categories"
+          />
+          {(Object.keys(CATEGORY_LABEL) as IssueCategory[]).map((cat) => (
+            <FilterPill
+              key={cat}
+              active={categoryFilter === cat}
+              onClick={() => setFilter('category', cat)}
+              label={CATEGORY_LABEL[cat]}
+            />
+          ))}
+        </div>
+
         {issuesQuery.isLoading ? (
           <p className="mt-4 text-sm text-slate-500">Loading…</p>
-        ) : recent.length === 0 ? (
-          <p className="mt-4 text-sm text-slate-500">
-            {hasCommunity
-              ? 'No issues yet. Use the button above to report the first one.'
-              : 'Join a community to see local reports.'}
+        ) : visible.length === 0 ? (
+          <p className="mt-6 text-sm text-slate-500">
+            {hasFilters
+              ? 'No issues match the current filters.'
+              : hasCommunity
+                ? 'No issues yet. Use the button above to report the first one.'
+                : 'Join a community to see local reports.'}
           </p>
         ) : (
           <div className="mt-4 grid gap-3">
-            {recent.map((issue) => {
+            {visible.map((issue) => {
               const thumb = issue.imageUrls?.[0];
               const extra = (issue.imageUrls?.length ?? 0) - 1;
               return (
@@ -179,6 +291,30 @@ export function IssuesPage() {
 }
 
 // ─── Modal shell ──────────────────────────────────────────────────────────────
+
+function FilterPill({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={
+        active
+          ? 'rounded-full bg-civic-700 px-3 py-1 text-xs font-semibold text-white shadow-sm'
+          : 'rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 hover:border-civic-300 hover:text-civic-700'
+      }
+    >
+      {label}
+    </button>
+  );
+}
 
 function Modal({
   title,

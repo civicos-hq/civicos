@@ -9,7 +9,7 @@ type Repository struct{ db *gorm.DB }
 
 func NewRepository(db *gorm.DB) *Repository { return &Repository{db: db} }
 
-func (r *Repository) FindAll(communityID, status string) ([]domain.Issue, error) {
+func (r *Repository) FindAll(communityID, status, category string) ([]domain.Issue, error) {
 	var list []domain.Issue
 	q := r.db.Order("created_at desc")
 	if communityID != "" {
@@ -17,6 +17,9 @@ func (r *Repository) FindAll(communityID, status string) ([]domain.Issue, error)
 	}
 	if status != "" {
 		q = q.Where("status = ?", status)
+	}
+	if category != "" {
+		q = q.Where("category = ?", category)
 	}
 	return list, q.Find(&list).Error
 }

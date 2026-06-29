@@ -36,7 +36,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth gin.HandlerFunc) {
 }
 
 func (h *Handler) list(c *gin.Context) {
-	items, err := h.svc.List(c.Query("communityId"), c.Query("status"))
+	items, err := h.svc.List(c.Query("communityId"), c.Query("status"), c.Query("category"))
 	if err != nil {
 		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to fetch issues")
 		return

@@ -113,12 +113,12 @@ export function RepresentativeDetailPage() {
         </article>
       )}
 
-      {(rep.email || rep.phone || rep.website) && (
-        <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-900">Contact</h2>
-          <p className="mt-1 text-sm text-slate-500">
-            For private matters. For public questions, post below — replies are visible to everyone.
-          </p>
+      <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-semibold text-slate-900">Contact</h2>
+        <p className="mt-1 text-sm text-slate-500">
+          For private matters. For public questions, post below — replies are visible to everyone.
+        </p>
+        {rep.email || rep.phone || rep.website ? (
           <div className="mt-4 flex flex-wrap gap-2">
             {rep.email && (
               <ContactLink
@@ -143,8 +143,13 @@ export function RepresentativeDetailPage() {
               />
             )}
           </div>
-        </article>
-      )}
+        ) : (
+          <p className="mt-4 text-sm italic text-slate-500">
+            No direct contact details on file. Post a question below to reach this representative
+            publicly.
+          </p>
+        )}
+      </article>
 
       <CommentsSection entityType="representatives" entityId={rep.id} />
     </section>

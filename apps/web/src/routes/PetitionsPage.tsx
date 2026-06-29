@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Input } from '@civicos/ui';
 import { PetitionStatus, type ApiResponse, type Petition } from '@civicos/types';
@@ -23,16 +23,50 @@ const STATUS_TONE: Record<PetitionStatus, string> = {
   [PetitionStatus.SUCCESSFUL]: 'bg-emerald-100 text-emerald-700',
 };
 
-function usePetitions(communityId?: string) {
+type PetitionSort = 'newest' | 'oldest' | 'signatures' | 'deadline';
+
+const SORT_OPTIONS: { value: PetitionSort; label: string }[] = [
+  { value: 'newest', label: 'Newest' },
+  { value: 'oldest', label: 'Oldest' },
+  { value: 'signatures', label: 'Most signed' },
+  { value: 'deadline', label: 'Closing soon' },
+];
+
+function usePetitions(communityId: string | undefined, status: string) {
   return useQuery({
-    queryKey: ['petitions', communityId ?? 'all'],
+    queryKey: ['petitions', communityId ?? 'all', status],
     queryFn: async () => {
+      const params: Record<string, string> = {};
+      if (communityId) params.communityId = communityId;
+      if (status) params.status = status;
       const res = await api.get<ApiResponse<{ petitions: Petition[] }>>('/api/v1/petitions', {
-        params: communityId ? { communityId } : undefined,
+        params,
       });
       return res.data.data.petitions;
     },
   });
+}
+
+function sortPetitions(list: Petition[], sort: PetitionSort): Petition[] {
+  const copy = [...list];
+  switch (sort) {
+    case 'oldest':
+      return copy.sort((a, b) => (a.createdAt < b.createdAt ? -1 : 1));
+    case 'signatures':
+      return copy.sort((a, b) => b.signatureCount - a.signatureCount);
+    case 'deadline':
+      // Petitions with a deadline first, soonest first. No-deadline sink to bottom.
+      return copy.sort((a, b) => {
+        if (a.deadline && b.deadline)
+          return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
+        if (a.deadline) return -1;
+        if (b.deadline) return 1;
+        return 0;
+      });
+    case 'newest':
+    default:
+      return copy.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+  }
 }
 
 function daysUntil(deadlineISO?: string) {
@@ -44,12 +78,24 @@ function daysUntil(deadlineISO?: string) {
 export function PetitionsPage() {
   const meQuery = useMe();
   const communityId = meQuery.data?.communityId;
-  const petitionsQuery = usePetitions(communityId);
+  const [params, setParams] = useSearchParams();
+  const statusFilter = params.get('status') ?? '';
+  const sort = (params.get('sort') as PetitionSort) || 'newest';
+
+  function setFilter(key: 'status' | 'sort', value: string) {
+    const next = new URLSearchParams(params);
+    if (!value) next.delete(key);
+    else next.set(key, value);
+    setParams(next, { replace: true });
+  }
+
+  const petitionsQuery = usePetitions(communityId, statusFilter);
   const [isModalOpen, setModalOpen] = useState(false);
 
   const petitions = petitionsQuery.data ?? [];
   const hasCommunity = Boolean(communityId);
-  const featured = petitions.slice(0, 4);
+  const visible = sortPetitions(petitions, sort);
+  const hasFilter = Boolean(statusFilter);
 
   return (
     <section className="space-y-6">
@@ -83,17 +129,64 @@ export function PetitionsPage() {
         )}
       </header>
 
+      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap gap-2">
+            <FilterPill
+              active={!statusFilter}
+              onClick={() => setFilter('status', '')}
+              label="All"
+            />
+            {(Object.keys(STATUS_LABEL) as PetitionStatus[]).map((s) => (
+              <FilterPill
+                key={s}
+                active={statusFilter === s}
+                onClick={() => setFilter('status', s)}
+                label={STATUS_LABEL[s]}
+              />
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            {hasFilter && (
+              <button
+                type="button"
+                onClick={() => setFilter('status', '')}
+                className="text-xs font-semibold text-civic-700 hover:underline"
+              >
+                Clear
+              </button>
+            )}
+            <label className="text-xs font-semibold text-slate-500">
+              Sort
+              <select
+                value={sort}
+                onChange={(e) => setFilter('sort', e.target.value)}
+                className="ml-2 rounded-lg border border-slate-200 bg-white px-2 py-1 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-civic-500"
+              >
+                {SORT_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        </div>
+      </section>
+
       {petitionsQuery.isLoading ? (
         <p className="text-sm text-slate-500">Loading…</p>
-      ) : featured.length === 0 ? (
+      ) : visible.length === 0 ? (
         <article className="rounded-2xl border border-dashed border-slate-300 bg-white/60 p-8 text-center text-sm text-slate-500">
-          {hasCommunity
-            ? 'No petitions yet. Start the first one in your community.'
-            : 'Join a community to see local petitions.'}
+          {hasFilter
+            ? 'No petitions match the current filter.'
+            : hasCommunity
+              ? 'No petitions yet. Start the first one in your community.'
+              : 'Join a community to see local petitions.'}
         </article>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
-          {featured.map((petition) => {
+          {visible.map((petition) => {
             const progress = Math.min(
               100,
               Math.round((petition.signatureCount / petition.goal) * 100),
@@ -146,6 +239,30 @@ export function PetitionsPage() {
         <NewPetitionModal communityId={communityId} onClose={() => setModalOpen(false)} />
       )}
     </section>
+  );
+}
+
+function FilterPill({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={
+        active
+          ? 'rounded-full bg-civic-700 px-3 py-1 text-xs font-semibold text-white shadow-sm'
+          : 'rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 hover:border-civic-300 hover:text-civic-700'
+      }
+    >
+      {label}
+    </button>
   );
 }
 

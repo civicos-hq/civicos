@@ -10,7 +10,7 @@ import (
 )
 
 type IssueStore interface {
-	FindAll(communityID, status string) ([]domain.Issue, error)
+	FindAll(communityID, status, category string) ([]domain.Issue, error)
 	FindByID(id string) (*domain.Issue, error)
 	Create(issue *domain.Issue) error
 	IncrementUpvote(id string) error
@@ -49,8 +49,8 @@ type AppError struct {
 
 func (e *AppError) Error() string { return e.Message }
 
-func (s *Service) List(communityID, status string) ([]domain.Issue, error) {
-	return s.repo.FindAll(communityID, status)
+func (s *Service) List(communityID, status, category string) ([]domain.Issue, error) {
+	return s.repo.FindAll(communityID, status, category)
 }
 
 func (s *Service) Get(id string) (*domain.Issue, error) {
