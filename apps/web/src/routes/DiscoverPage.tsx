@@ -32,8 +32,15 @@ interface FeedResponse {
 }
 
 type TierFilter = Tier | 'ALL';
+type KindFilter = 'all' | 'issue' | 'petition';
 
 const PAGE_SIZE = 20;
+
+const KIND_LABEL: Record<KindFilter, string> = {
+  all: 'All types',
+  issue: 'Issues',
+  petition: 'Petitions',
+};
 
 const TIER_LABEL: Record<Tier, string> = {
   COMMUNITY: 'In your community',
@@ -52,12 +59,15 @@ const TIER_TONE: Record<Tier, string> = {
 const TIER_ORDER: Tier[] = ['COMMUNITY', 'LGA', 'STATE', 'COUNTRY'];
 
 // Grouped (all-tiers) view — single fetch, curated.
-function useGroupedFeed(communityId?: string) {
+function useGroupedFeed(communityId: string | undefined, kind: KindFilter) {
   return useQuery({
-    queryKey: ['discover-feed', 'grouped', communityId ?? 'anon'],
+    queryKey: ['discover-feed', 'grouped', communityId ?? 'anon', kind],
     queryFn: async () => {
       const res = await api.get<ApiResponse<FeedResponse>>('/api/v1/discover/feed', {
-        params: communityId ? { communityId } : undefined,
+        params: {
+          ...(communityId ? { communityId } : {}),
+          ...(kind !== 'all' ? { kind } : {}),
+        },
       });
       return res.data.data.items;
     },
@@ -66,9 +76,9 @@ function useGroupedFeed(communityId?: string) {
 }
 
 // Single-tier flat view — paginated via offset cursor.
-function useTierFeed(tier: Tier, communityId?: string) {
+function useTierFeed(tier: Tier, communityId: string | undefined, kind: KindFilter) {
   return useInfiniteQuery({
-    queryKey: ['discover-feed', 'tier', tier, communityId ?? 'anon'],
+    queryKey: ['discover-feed', 'tier', tier, communityId ?? 'anon', kind],
     queryFn: async ({ pageParam = 0 }) => {
       const res = await api.get<ApiResponse<FeedResponse>>('/api/v1/discover/feed', {
         params: {
@@ -76,6 +86,7 @@ function useTierFeed(tier: Tier, communityId?: string) {
           limit: PAGE_SIZE,
           offset: pageParam,
           ...(communityId ? { communityId } : {}),
+          ...(kind !== 'all' ? { kind } : {}),
         },
       });
       return res.data.data;
@@ -102,6 +113,7 @@ export function DiscoverPage() {
   const meQuery = useMe();
   const communityId = meQuery.data?.communityId;
   const [tier, setTier] = useState<TierFilter>('ALL');
+  const [kind, setKind] = useState<KindFilter>('all');
 
   return (
     <section className="space-y-6">
@@ -133,19 +145,29 @@ export function DiscoverPage() {
             />
           ))}
         </div>
+        <div className="mt-2 flex flex-wrap gap-2">
+          {(Object.keys(KIND_LABEL) as KindFilter[]).map((k) => (
+            <TierPill
+              key={k}
+              active={kind === k}
+              onClick={() => setKind(k)}
+              label={KIND_LABEL[k]}
+            />
+          ))}
+        </div>
       </header>
 
       {tier === 'ALL' ? (
-        <GroupedView communityId={communityId} />
+        <GroupedView communityId={communityId} kind={kind} />
       ) : (
-        <TierView tier={tier} communityId={communityId} />
+        <TierView tier={tier} communityId={communityId} kind={kind} />
       )}
     </section>
   );
 }
 
-function GroupedView({ communityId }: { communityId?: string }) {
-  const feedQuery = useGroupedFeed(communityId);
+function GroupedView({ communityId, kind }: { communityId?: string; kind: KindFilter }) {
+  const feedQuery = useGroupedFeed(communityId, kind);
   const items = feedQuery.data ?? [];
 
   const grouped: Partial<Record<Tier, FeedItem[]>> = {};
@@ -193,8 +215,16 @@ function GroupedView({ communityId }: { communityId?: string }) {
   );
 }
 
-function TierView({ tier, communityId }: { tier: Tier; communityId?: string }) {
-  const feed = useTierFeed(tier, communityId);
+function TierView({
+  tier,
+  communityId,
+  kind,
+}: {
+  tier: Tier;
+  communityId?: string;
+  kind: KindFilter;
+}) {
+  const feed = useTierFeed(tier, communityId, kind);
   const pages = feed.data?.pages ?? [];
   const items = pages.flatMap((p) => p.items);
 

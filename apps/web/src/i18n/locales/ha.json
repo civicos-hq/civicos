@@ -1,0 +1,241 @@
+{
+  "nav": {
+    "brandSubtitle": "Bayanin Jama'a · An kafa 2026",
+    "links": {
+      "docket": "Jadawali",
+      "whatItDoes": "Abin da yake yi",
+      "howItWorks": "Yadda yake aiki",
+      "faq": "Tambayoyi"
+    },
+    "signIn": "Shiga",
+    "register": "Yi rajista"
+  },
+
+  "hero": {
+    "masthead": "Mujallar 01 · Lamba 001 · Tsarin Jama'a a Bayyane",
+    "headline": "Dimokuradiyya tana <em>kowace rana</em>, ba ranar zaɓe kaɗai ba.",
+    "sub": "CivicOS yana adana bayanan jama'a na ayyukan 'yan ƙasa tsakanin zaɓe — matsalolin da aka shaida, takardun koƙe-koƙen da aka sa hannu, amsoshin da aka samu — a tituna, a cikin al'ummarka, yau.",
+    "ctaPrimary": "Shiga CivicOS — kyauta ne",
+    "ctaSecondary": "Ina da asusu",
+    "trust": "Lambar buɗewa · Asusu da aka tabbatar · Bayanai a lokacin UTC"
+  },
+
+  "docket": {
+    "title": "Jadawalin yau",
+    "live": "Kai tsaye · An sabunta da ƙarfe {{time}} WAT",
+    "paused": "An dakatar · Cire linzami don ci gaba",
+    "types": {
+      "issue": "Matsala",
+      "petition": "Koƙe",
+      "response": "Amsa",
+      "resolved": "An warware"
+    }
+  },
+
+  "parties": {
+    "marker": "§ 01 — Masu ruwa da tsaki",
+    "title": "An gina shi don kowa a rayuwar jama'a",
+    "citizens": {
+      "role": "Ga 'yan ƙasa",
+      "title": "Ka sa muryarka ta ji, kowace rana",
+      "body": "Bayar da rahoton matsaloli a kan titinka, sa hannu kan koƙe-koƙen abubuwan da ke damunka, biyo wakilanka, kuma ka ga abin da aka yi — cikin kwanaki, ba zagayowar zaɓe ba."
+    },
+    "reps": {
+      "role": "Ga wakilai",
+      "title": "Nuna aikinka a bayyane",
+      "body": "Amsa wa masu zaɓenka a wuri ɗaya. Yawan amsoshinka yana kan bayanin jama'arka — alhakin shi ne ƙirar, ba abin haɗawa ba."
+    },
+    "government": {
+      "role": "Ga gwamnati",
+      "title": "Hanyar amintacciya zuwa ga jama'a",
+      "body": "Tura rahotannin 'yan ƙasa zuwa ofishin da ya dace, fitar da shirye-shirye, kuma ka nuna ci gaba ta hanyar tarihin da za a iya tabbatar da shi."
+    },
+    "ngos": {
+      "role": "Ga NGOs",
+      "title": "Tara mutane kewaye da hujja ta gaske",
+      "body": "Tara siginar al'umma, shirya koƙe-koƙe, kuma auna tasiri da bayanan jama'a masu tsari maimakon labari kaɗai."
+    }
+  },
+
+  "articles": {
+    "marker": "§ 02 — Labarai",
+    "title": "Shiga ci gaba, ba lokacin zaɓe kaɗai ba",
+    "issues": {
+      "title": "Bayar da rahoto da biyo matsaloli",
+      "body": "Rami a kan hanya, fitilun titi, hanyar haɗari — shaida shi cikin mintuna uku tare da hotuna, kuma biyo matsayinsa daga buɗe zuwa ƙarƙashin nazari zuwa warware."
+    },
+    "petitions": {
+      "title": "Fara da sa hannu kan koƙe-koƙe",
+      "body": "Koƙe-koƙen tushen burin tare da matakai ta atomatik a 25%, 50%, da 100%. Ɗan ƙasa ɗaya, sa hannu ɗaya, babu lambobin da aka ƙara."
+    },
+    "reps": {
+      "title": "Biyo wakilanka",
+      "body": "Duba wanda yake wakiltarka, abin da suka faɗa, da yadda suke amsawa cikin sauri — duka a kan bayanin jama'a wanda ke sabunta kansa."
+    },
+    "discover": {
+      "title": "Gano abin da ke da muhimmanci kusa",
+      "body": "Jeri da aka tsara ta hanyar kusanci: al'ummarka da farko, sannan ƙananan hukumarka, sannan jiharka — don abubuwan gida su zo da farko."
+    },
+    "notifications": {
+      "title": "Ka kasance cikin tsari a ainihin lokaci",
+      "body": "Sanarwa tana zuwa nan da nan idan matsala ta sabunta, idan koƙe ya wuce ƙofa, ko kuma idan wakilinka ya amsa."
+    },
+    "transparency": {
+      "title": "Bayyane ta hanyar tsoho",
+      "body": "Kowane mu'amala yana da alamar lokaci kuma ana iya bin diddiginsa. Bayanan jama'a sun rage na jama'a; bayanan sirri sun rage na sirri."
+    }
+  },
+
+  "principles": {
+    "marker": "§ 03 — Ƙa'idodin tushe",
+    "title": "Ƙa'idodi biyar, an rubuta su kafin lambar",
+    "list": {
+      "transparency": "Bayyane",
+      "participation": "Shiga",
+      "accountability": "Alhaki",
+      "trust": "Amana",
+      "accessibility": "Samuwa"
+    },
+    "note": "Kamar yadda bankin dijital ya sabunta yadda muke motsa kuɗi, <em>CivicOS yana sabunta yadda muke shiga cikin dimokuradiyya</em> — bayyane, mai samuwa, kuma an gina shi don ya dawwama."
+  },
+
+  "steps": {
+    "marker": "§ 04 — Tsari",
+    "title": "Daga rajista zuwa aikin jama'a cikin minti biyar",
+    "join": {
+      "meta": "An shigar cikin daƙiƙa 90",
+      "title": "Shiga rajista",
+      "body": "Yi rajista da sunanka da imel. An tabbatar da shaida, babu takardu, babu kuɗi."
+    },
+    "pick": {
+      "meta": "Zaɓi al'ummarka",
+      "title": "Zaɓi yankinka",
+      "body": "Zaɓi jiharka da ƙaramar hukumarka don mu san abin da ake nufi da \"kusa da kai\" a jerinka."
+    },
+    "act": {
+      "meta": "A kan rikodin",
+      "title": "Ɗauki mataki",
+      "body": "Bayar da rahoton matsala, sa hannu kan koƙe, biyo wakilanka — sunanka, bayananka."
+    },
+    "follow": {
+      "meta": "Biyo sakamako",
+      "title": "Ka ga abin da aka yi",
+      "body": "Sabuntawa a ainihin lokaci yayin da matsayi ke canzawa, amsoshi suna zuwa, kuma matakai suna saukowa."
+    },
+    "stepLabel": "Mataki na {{n}}"
+  },
+
+  "faq": {
+    "marker": "§ 05 — Tambayoyi",
+    "title": "Tambayoyi, a kan rikodin",
+    "qLabel": "T.{{n}}",
+    "cost": {
+      "q": "Shin CivicOS kyauta ne don amfani?",
+      "a": "I. CivicOS kyauta ne ga 'yan ƙasa — har abada. Bayar da rahoton matsaloli, sa hannu kan koƙe-koƙe, biyo wakilanka, da karɓar sabuntawa duka kyauta ne. Cibiyoyin gwamnati da NGOs na iya samun matakan biya don kayan aiki na ci gaba, amma kwarewar 'yan ƙasa kyauta ne."
+    },
+    "privacy": {
+      "q": "Shin bayanan sirri na suna a kebe?",
+      "a": "Imel ɗinka, lambar wayarka, da adireshinka suna a kebe kuma ba a taɓa nuna su a bainar jama'a ba. Sunanka kawai, matsayinka, da ayyukan jama'a da kuke yi (matsalolin da kuka tayar, koƙe-koƙen da kuka sa hannu, sharhin da kuka aika) ana iya gani ga sauran masu amfani. Ku ke iko da abin da kuke rabawa."
+    },
+    "reps": {
+      "q": "Shin wakilai suna amfani da dandalin a zahiri?",
+      "a": "Ana ɗaukar wakilai al'umma da al'umma. Yawan amsoshinsu yana bayyane a kan bayanin jama'arsu — alhakin yana cikin ƙirar, don haka shiru shi ma sigina ce."
+    },
+    "coverage": {
+      "q": "Yaya idan babu wanda ke wakiltar yankina tukuna?",
+      "a": "Har yanzu kuna iya shiga, zaɓi al'ummarku, kuma ku shigar. Da zaran wakili na ƙasarku ya shiga, ayyukan ku da suka gabata za su haɗu da su ta atomatik."
+    },
+    "ownership": {
+      "q": "Wa ya gina CivicOS — kuma wa ya mallake shi?",
+      "a": "CivicOS tsarin jama'a ne na bayyane, an gina shi a bayyane kuma ƙungiyar 'yanci tana sa ido. Lambar tana bayyane, an rubuta tsarin, kuma ana maraba da gudummawa. Babu jam'iyyar siyasa, mai bayar da kuɗi, ko sha'awar kasuwanci da ke sarrafa dandalin."
+    },
+    "abuse": {
+      "q": "Yaya kuke hana zagi, spam, ko bayanan ƙarya?",
+      "a": "Ana tabbatar da kowane asusu da shaida a yayin rajista. Sharhi da gabatarwa suna da iyaka, ana sarrafa su a kan ƙa'idodin al'umma, kuma ana iya bin diddiginsu zuwa ainihin asusu. Koƙe-koƙe suna buƙatar sa hannu na musamman — ɗan ƙasa ɗaya, sa hannu ɗaya."
+    }
+  },
+
+  "newsletter": {
+    "marker": "§ 06 — Sanarwar jama'a",
+    "title": "Yi rajista zuwa The Dispatch — ka zama na farko da ka sani lokacin da CivicOS ta zo yankinka",
+    "sub": "Imel ɗaya gajere a kowane wata tare da sabuntawar samfur, matakan al'umma, da labaran fitarwa. Babu maganganun talla. Yi rashin rajista a kowane lokaci.",
+    "placeholder": "kai@misali.com",
+    "submit": "Yi rajista",
+    "submitting": "Ana yin rajista…",
+    "doneTitle": "Kana cikin jerin.",
+    "doneSub": "Za mu tuntube ka yayin da muke faɗaɗawa."
+  },
+
+  "cta": {
+    "eyebrow": "Yi rajistar muryarka",
+    "title": "Shin a shirye kake ka <em>shiga</em>?",
+    "sub": "Shiga 'yan ƙasa, wakilai, da ƙungiyoyi waɗanda ke gina rayuwar jama'a mai alhakin — tare, a kan rikodin.",
+    "ctaPrimary": "Ƙirƙira asusunka",
+    "ctaSecondary": "Shiga"
+  },
+
+  "footer": {
+    "mission": "Ƙarfafa shiga dimokuradiyya ta hanyar tsarin dijital mai aminci, bayyane, kuma mai samuwa.",
+    "meta": "© {{year}} CivicOS — Tsarin jama'a a bayyane",
+    "checks": {
+      "privacy": "Mai mutunta sirri",
+      "audit": "Mai sauƙin bincike",
+      "open": "An gina shi a bayyane"
+    }
+  },
+
+  "auth": {
+    "fields": {
+      "fullName": "Cikakken suna",
+      "email": "Imel",
+      "password": "Kalmar shiga",
+      "namePlaceholder": "Ada Okonkwo",
+      "emailPlaceholder": "kai@misali.com",
+      "passwordPlaceholder": "Aƙalla haruffa 8"
+    },
+    "login": {
+      "eyebrow": "Shiga CivicOS",
+      "title": "Shiga cibiyar sarrafa jama'arka.",
+      "description": "Biyo matsalolin al'umma, sa hannu kan koƙe-koƙe, kuma ka sa wakilanka su zama masu alhaki daga wuri ɗaya.",
+      "cardTitle": "Shiga",
+      "cardSubtitle": "Yi amfani da bayanan CivicOS naka don ci gaba.",
+      "submit": "Shiga",
+      "submitting": "Ana shiga…",
+      "error": "Ba mu iya shigar da kai ba. Duba imel da kalmar shiga, kuma a sake gwadawa.",
+      "footerNoAccount": "Babu asusu tukuna?",
+      "footerCreate": "Ƙirƙira ɗaya yanzu"
+    },
+    "register": {
+      "eyebrow": "Rajistar CivicOS",
+      "title": "Gina bayanin 'yan ƙasarka.",
+      "description": "Shiga wurin al'ummarka, ba da rahoton matsaloli da sauri, kuma ka tsara shawarwarin jama'a tsakanin zaɓe.",
+      "cardTitle": "Ƙirƙira asusu",
+      "cardSubtitle": "Bai wuce minti ɗaya don farawa ba.",
+      "submit": "Ƙirƙira asusu",
+      "submitting": "Ana ƙirƙirar asusu…",
+      "error": "Ba mu iya ƙirƙirar asusunka ba. Gwada wani imel ko sake gwadawa cikin ɗan lokaci.",
+      "footerHave": "Kana da asusu?",
+      "footerSignIn": "Shiga"
+    }
+  },
+
+  "sidebar": {
+    "discover": "Gano",
+    "community": "Al'umma",
+    "issues": "Matsaloli",
+    "petitions": "Koƙe-koƙe",
+    "representatives": "Wakilai",
+    "notifications": "Sanarwa",
+    "profile": "Bayani",
+    "signOut": "Fita"
+  },
+
+  "language": {
+    "label": "Harshe",
+    "en": "English",
+    "ig": "Igbo",
+    "yo": "Yorùbá",
+    "pcm": "Pidgin",
+    "ha": "Hausa"
+  }
+}

@@ -1,0 +1,241 @@
+{
+  "nav": {
+    "brandSubtitle": "Public Record · Est. 2026",
+    "links": {
+      "docket": "Docket",
+      "whatItDoes": "What it does",
+      "howItWorks": "How it works",
+      "faq": "FAQ"
+    },
+    "signIn": "Sign in",
+    "register": "Register"
+  },
+
+  "hero": {
+    "masthead": "Vol. 01 · No. 001 · Open Civic Infrastructure",
+    "headline": "Democracy is <em>daily</em>, not just on election day.",
+    "sub": "CivicOS keeps the public record of citizen action between elections — issues reported, petitions signed, responses received — on your street, in your community, today.",
+    "ctaPrimary": "Join CivicOS — it's free",
+    "ctaSecondary": "I have an account",
+    "trust": "Open source · Verified accounts · Audit-trailed in UTC"
+  },
+
+  "docket": {
+    "title": "Today's docket",
+    "live": "Live · Updated {{time}} WAT",
+    "paused": "Paused · Hover off to resume",
+    "types": {
+      "issue": "Issue",
+      "petition": "Petition",
+      "response": "Response",
+      "resolved": "Resolved"
+    }
+  },
+
+  "parties": {
+    "marker": "§ 01 — Parties of record",
+    "title": "Built for everyone in public life",
+    "citizens": {
+      "role": "For citizens",
+      "title": "Make your voice count, every day",
+      "body": "Report issues on your street, sign petitions for what you care about, follow your representatives, and see what gets done — in days, not election cycles."
+    },
+    "reps": {
+      "role": "For representatives",
+      "title": "Show your work in public",
+      "body": "Respond to your constituents in one place. Your response rate sits on your public profile — accountability is the design, not a feature."
+    },
+    "government": {
+      "role": "For government",
+      "title": "A trusted channel to the public",
+      "body": "Route citizen reports to the right office, publish initiatives, and demonstrate progress with a verifiable, timestamped record."
+    },
+    "ngos": {
+      "role": "For NGOs",
+      "title": "Mobilise around real evidence",
+      "body": "Aggregate community signals, organise petitions, and measure impact with structured civic data instead of anecdote."
+    }
+  },
+
+  "articles": {
+    "marker": "§ 02 — Articles",
+    "title": "Continuous participation, not just at election time",
+    "issues": {
+      "title": "Report and track issues",
+      "body": "Pothole, streetlight, unsafe road — file it in three minutes with photos and follow the status from open to under review to resolved."
+    },
+    "petitions": {
+      "title": "Start and sign petitions",
+      "body": "Goal-based petitions with automatic milestones at 25%, 50%, and 100%. One citizen, one signature, no inflated numbers."
+    },
+    "reps": {
+      "title": "Follow your representatives",
+      "body": "See who represents you, what they have said, and how quickly they respond — all on a public profile that updates itself."
+    },
+    "discover": {
+      "title": "Discover what matters nearby",
+      "body": "A feed ranked by proximity: your community first, then your LGA, then your state — so local always reads first."
+    },
+    "notifications": {
+      "title": "Stay in the loop in real time",
+      "body": "Notifications stream live the moment an issue updates, a petition crosses a threshold, or your representative replies."
+    },
+    "transparency": {
+      "title": "Transparency by default",
+      "body": "Every interaction is timestamped and traceable. Public information stays public; personal data stays private."
+    }
+  },
+
+  "principles": {
+    "marker": "§ 03 — Founding principles",
+    "title": "Five principles, written before the code",
+    "list": {
+      "transparency": "Transparency",
+      "participation": "Participation",
+      "accountability": "Accountability",
+      "trust": "Trust",
+      "accessibility": "Accessibility"
+    },
+    "note": "Just as digital banking modernised how we move money, <em>CivicOS modernises how we participate in democracy</em> — transparent, accessible, and built to last."
+  },
+
+  "steps": {
+    "marker": "§ 04 — Procedure",
+    "title": "From sign-up to civic action in under five minutes",
+    "join": {
+      "meta": "Filed in 90 seconds",
+      "title": "Join the register",
+      "body": "Sign up with your name and email. Identity-verified, no paperwork, no fees."
+    },
+    "pick": {
+      "meta": "Choose your community",
+      "title": "Pick your patch",
+      "body": "Select your state and LGA so we know what counts as \"near you\" in your feed."
+    },
+    "act": {
+      "meta": "On the record",
+      "title": "Take action",
+      "body": "Report an issue, sign a petition, follow your representatives — your name, your record."
+    },
+    "follow": {
+      "meta": "Follow the outcome",
+      "title": "See what gets done",
+      "body": "Real-time updates as status changes, responses arrive, and milestones land."
+    },
+    "stepLabel": "Step {{n}}"
+  },
+
+  "faq": {
+    "marker": "§ 05 — Queries",
+    "title": "Questions, on the record",
+    "qLabel": "Q.{{n}}",
+    "cost": {
+      "q": "Is CivicOS free to use?",
+      "a": "Yes. CivicOS is free for citizens — forever. Reporting issues, signing petitions, following your representatives, and receiving updates cost nothing. Public institutions and NGOs may have paid tiers for advanced tooling, but the citizen experience is free."
+    },
+    "privacy": {
+      "q": "Is my personal information private?",
+      "a": "Your email, phone number, and address are private and never shown publicly. Only your display name, role, and the public actions you take (issues you raise, petitions you sign, comments you post) are visible to other users. You control what you share."
+    },
+    "reps": {
+      "q": "Do representatives actually use the platform?",
+      "a": "Representatives are onboarded community by community. Their response rate is visible on their public profile — accountability is built into the design, so silence is also a signal."
+    },
+    "coverage": {
+      "q": "What if no one represents my area yet?",
+      "a": "You can still join, pick your community, and file. Once a representative for your constituency joins, your existing activity links to them automatically."
+    },
+    "ownership": {
+      "q": "Who built CivicOS — and who owns it?",
+      "a": "CivicOS is open civic infrastructure, built in the open and stewarded by an independent team. The codebase is public, the architecture is documented, and contributions are welcome. No political party, single funder, or commercial interest controls the platform."
+    },
+    "abuse": {
+      "q": "How do you prevent abuse, spam, or misinformation?",
+      "a": "Every account is identity-verified at sign-up. Comments and submissions are rate-limited, moderated against community guidelines, and traceable to a real account. Petitions require unique signatures — one citizen, one signature."
+    }
+  },
+
+  "newsletter": {
+    "marker": "§ 06 — Public dispatch",
+    "title": "Subscribe to The Dispatch — be first to know when CivicOS lands in your area",
+    "sub": "One short email per month with product updates, community milestones, and rollout news. No marketing fluff. Unsubscribe anytime.",
+    "placeholder": "you@example.com",
+    "submit": "Subscribe",
+    "submitting": "Subscribing…",
+    "doneTitle": "You're on the list.",
+    "doneSub": "We'll be in touch as we expand coverage."
+  },
+
+  "cta": {
+    "eyebrow": "Register your voice",
+    "title": "Ready to take <em>part</em>?",
+    "sub": "Join citizens, representatives, and organisations building a more accountable civic life — together, on the record.",
+    "ctaPrimary": "Create your account",
+    "ctaSecondary": "Sign in"
+  },
+
+  "footer": {
+    "mission": "Strengthening democratic participation through secure, transparent, accessible digital infrastructure.",
+    "meta": "© {{year}} CivicOS — Open civic infrastructure",
+    "checks": {
+      "privacy": "Privacy-respecting",
+      "audit": "Audit-friendly",
+      "open": "Built in the open"
+    }
+  },
+
+  "auth": {
+    "fields": {
+      "fullName": "Full name",
+      "email": "Email",
+      "password": "Password",
+      "namePlaceholder": "Ada Okonkwo",
+      "emailPlaceholder": "you@example.com",
+      "passwordPlaceholder": "At least 8 characters"
+    },
+    "login": {
+      "eyebrow": "CivicOS Access",
+      "title": "Enter your civic command center.",
+      "description": "Track community issues, sign petitions, and keep your representatives accountable from one place.",
+      "cardTitle": "Sign in",
+      "cardSubtitle": "Use your CivicOS credentials to continue.",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "error": "Could not sign you in. Check your email and password and try again.",
+      "footerNoAccount": "No account yet?",
+      "footerCreate": "Create one now"
+    },
+    "register": {
+      "eyebrow": "CivicOS Registration",
+      "title": "Build your citizen profile.",
+      "description": "Join your local community space, report issues faster, and shape public decisions between elections.",
+      "cardTitle": "Create account",
+      "cardSubtitle": "It takes less than a minute to get started.",
+      "submit": "Create account",
+      "submitting": "Creating account…",
+      "error": "Could not create your account. Try a different email or try again shortly.",
+      "footerHave": "Already have an account?",
+      "footerSignIn": "Sign in"
+    }
+  },
+
+  "sidebar": {
+    "discover": "Discover",
+    "community": "Community",
+    "issues": "Issues",
+    "petitions": "Petitions",
+    "representatives": "Representatives",
+    "notifications": "Notifications",
+    "profile": "Profile",
+    "signOut": "Sign out"
+  },
+
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "ig": "Igbo",
+    "yo": "Yorùbá",
+    "pcm": "Pidgin",
+    "ha": "Hausa"
+  }
+}

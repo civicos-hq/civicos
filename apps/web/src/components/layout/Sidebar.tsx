@@ -1,17 +1,19 @@
 import { AlertCircle, Bell, Compass, FileText, Home, LogOut, User, Users } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useUnreadCount } from '../../hooks/useNotifications';
 
 const navItems = [
-  { to: '/discover', label: 'Discover', icon: Compass },
-  { to: '/community', label: 'Community', icon: Home },
-  { to: '/issues', label: 'Issues', icon: AlertCircle },
-  { to: '/petitions', label: 'Petitions', icon: FileText },
-  { to: '/representatives', label: 'Representatives', icon: Users },
-  { to: '/notifications', label: 'Notifications', icon: Bell },
+  { to: '/discover', i18n: 'sidebar.discover', icon: Compass },
+  { to: '/community', i18n: 'sidebar.community', icon: Home },
+  { to: '/issues', i18n: 'sidebar.issues', icon: AlertCircle },
+  { to: '/petitions', i18n: 'sidebar.petitions', icon: FileText },
+  { to: '/representatives', i18n: 'sidebar.representatives', icon: Users },
+  { to: '/notifications', i18n: 'sidebar.notifications', icon: Bell },
 ];
 
 export function Sidebar() {
+  const { t } = useTranslation();
   const { data: unread = 0 } = useUnreadCount();
   function logout() {
     localStorage.removeItem('accessToken');
@@ -23,7 +25,7 @@ export function Sidebar() {
     <aside className="dashboard-sidebar">
       <div className="dashboard-brand">
         <span className="brand-mark" aria-hidden="true">
-          C
+          <img src="/civicos-mark.png" alt="" />
         </span>
         <div>
           <p className="brand-title">CivicOS</p>
@@ -32,7 +34,7 @@ export function Sidebar() {
       </div>
 
       <nav className="dashboard-nav" aria-label="Primary">
-        {navItems.map(({ to, label, icon: Icon }) => {
+        {navItems.map(({ to, i18n: i18nKey, icon: Icon }) => {
           const showBadge = to === '/notifications' && unread > 0;
           return (
             <NavLink
@@ -43,7 +45,7 @@ export function Sidebar() {
               }
             >
               <Icon className="h-4 w-4" aria-hidden="true" />
-              <span className="dashboard-link-label flex-1">{label}</span>
+              <span className="dashboard-link-label flex-1">{t(i18nKey)}</span>
               {showBadge && (
                 <span className="dashboard-link-badge inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1.5 text-[10px] font-bold leading-none text-white">
                   {unread > 99 ? '99+' : unread}
@@ -57,12 +59,12 @@ export function Sidebar() {
       <div className="dashboard-footer-nav">
         <NavLink to="/profile" className="dashboard-link dashboard-link-idle">
           <User className="h-4 w-4" />
-          Profile
+          {t('sidebar.profile')}
         </NavLink>
 
         <button type="button" className="dashboard-link dashboard-link-idle" onClick={logout}>
           <LogOut className="h-4 w-4" aria-hidden="true" />
-          Sign out
+          {t('sidebar.signOut')}
         </button>
       </div>
     </aside>

@@ -2,6 +2,7 @@ import { Bell, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useUnreadCount } from '../../hooks/useNotifications';
 import { SearchBar } from './SearchBar';
+import { LanguageSwitcher } from '../LanguageSwitcher';
 
 export function Topbar() {
   const { data: unread = 0 } = useUnreadCount();
@@ -18,6 +19,7 @@ export function Topbar() {
       </div>
 
       <div className="ml-auto flex items-center gap-3 md:ml-0">
+        <LanguageSwitcher />
         <Link
           to="/notifications"
           className="dashboard-icon-btn relative"

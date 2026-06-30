@@ -75,6 +75,12 @@ func (h *Handler) feed(c *gin.Context) {
 	// trust the caller to pass it as a query param. Empty = no personalization,
 	// everything falls to TierCountry sorted by recency.
 	tier := Tier(strings.ToUpper(c.Query("tier")))
+	kind := strings.ToLower(c.Query("kind"))
+	// Treat any value other than "issue"/"petition" as no filter so a typo on
+	// the client falls back to the full feed rather than silently empty.
+	if kind != "issue" && kind != "petition" {
+		kind = ""
+	}
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", strconv.Itoa(defaultPageSize)))
 	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
 	if limit <= 0 {
@@ -87,7 +93,7 @@ func (h *Handler) feed(c *gin.Context) {
 		offset = 0
 	}
 
-	result, err := h.svc.Feed(c.Query("communityId"), tier, limit, offset)
+	result, err := h.svc.Feed(c.Query("communityId"), tier, kind, limit, offset)
 	if err != nil {
 		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to load feed")
 		return
@@ -110,10 +116,12 @@ type FeedResult struct {
 //   results per tier up to totalLimit, no pagination cursor.
 // - When tierFilter is set, items are filtered to that tier and paginated via
 //   offset/limit, with NextOffset != nil when more items exist.
+// - kindFilter ("issue" | "petition" | "") narrows to a single entity kind.
+//   Skips fetching the other entity entirely so we don't waste a SQL round trip.
 //
 // userCommunityID may be empty — in that case base is nil and every item
 // resolves to TierCountry.
-func (s *Service) Feed(userCommunityID string, tierFilter Tier, limit, offset int) (FeedResult, error) {
+func (s *Service) Feed(userCommunityID string, tierFilter Tier, kindFilter string, limit, offset int) (FeedResult, error) {
 	communities, err := s.loadCommunities()
 	if err != nil {
 		return FeedResult{}, err
@@ -132,13 +140,22 @@ func (s *Service) Feed(userCommunityID string, tierFilter Tier, limit, offset in
 		scanLimit = flatScanLimit
 	}
 
-	issues, err := s.recentIssues(scanLimit)
-	if err != nil {
-		return FeedResult{}, err
+	wantIssues := kindFilter == "" || kindFilter == "issue"
+	wantPetitions := kindFilter == "" || kindFilter == "petition"
+
+	var issues []domain.Issue
+	if wantIssues {
+		issues, err = s.recentIssues(scanLimit)
+		if err != nil {
+			return FeedResult{}, err
+		}
 	}
-	petitions, err := s.recentPetitions(scanLimit)
-	if err != nil {
-		return FeedResult{}, err
+	var petitions []domain.Petition
+	if wantPetitions {
+		petitions, err = s.recentPetitions(scanLimit)
+		if err != nil {
+			return FeedResult{}, err
+		}
 	}
 
 	all := make([]FeedItem, 0, len(issues)+len(petitions))

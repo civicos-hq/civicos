@@ -2,6 +2,7 @@ import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { DashboardLayout } from './components/layout/DashboardLayout';
 import { CommunityPage } from './routes/CommunityPage';
 import { DiscoverPage } from './routes/DiscoverPage';
+import { HomePage } from './routes/HomePage';
 import { IssueDetailPage } from './routes/IssueDetailPage';
 import { IssuesPage } from './routes/IssuesPage';
 import { LoginPage } from './routes/LoginPage';
@@ -56,15 +57,12 @@ export default function App() {
         </Route>
       </Route>
 
-      {/* Default */}
+      {/* Default — marketing homepage for logged-out visitors, dashboard for logged-in */}
       <Route
         path="/"
-        element={<Navigate to={hasAccessToken() ? '/discover' : '/login'} replace />}
+        element={hasAccessToken() ? <Navigate to="/discover" replace /> : <HomePage />}
       />
-      <Route
-        path="*"
-        element={<Navigate to={hasAccessToken() ? '/discover' : '/login'} replace />}
-      />
+      <Route path="*" element={<Navigate to={hasAccessToken() ? '/discover' : '/'} replace />} />
     </Routes>
   );
 }

@@ -1,8 +1,11 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
 
 export function RegisterPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -20,7 +23,7 @@ export function RegisterPage() {
       navigate('/login', { replace: true });
     } catch (err) {
       console.error('Registration error:', err);
-      setErrorMessage('Could not create your account. Try a different email or try again shortly.');
+      setErrorMessage(t('auth.register.error'));
     } finally {
       setIsSubmitting(false);
     }
@@ -31,28 +34,30 @@ export function RegisterPage() {
       <div className="auth-pulse auth-pulse-left" aria-hidden="true" />
       <div className="auth-pulse auth-pulse-right" aria-hidden="true" />
 
+      <div className="auth-lang">
+        <LanguageSwitcher />
+      </div>
+
       <div className="auth-grid">
         <aside className="auth-copy">
-          <p className="auth-eyebrow">CivicOS Registration</p>
-          <h1 className="auth-title">Build your citizen profile.</h1>
-          <p className="auth-description">
-            Join your local community space, report issues faster, and shape public decisions
-            between elections.
-          </p>
+          <img src="/civicos-mark.png" alt="CivicOS" className="auth-mark" />
+          <p className="auth-eyebrow">{t('auth.register.eyebrow')}</p>
+          <h1 className="auth-title">{t('auth.register.title')}</h1>
+          <p className="auth-description">{t('auth.register.description')}</p>
         </aside>
 
         <form className="auth-card" onSubmit={onSubmit}>
-          <h2 className="auth-card-title">Create account</h2>
-          <p className="auth-card-subtitle">It takes less than a minute to get started.</p>
+          <h2 className="auth-card-title">{t('auth.register.cardTitle')}</h2>
+          <p className="auth-card-subtitle">{t('auth.register.cardSubtitle')}</p>
 
           <label className="auth-label" htmlFor="name">
-            Full name
+            {t('auth.fields.fullName')}
           </label>
           <input
             id="name"
             type="text"
             className="auth-input"
-            placeholder="Ada Okonkwo"
+            placeholder={t('auth.fields.namePlaceholder')}
             value={name}
             onChange={(event) => setName(event.target.value)}
             autoComplete="name"
@@ -61,13 +66,13 @@ export function RegisterPage() {
           />
 
           <label className="auth-label" htmlFor="email">
-            Email
+            {t('auth.fields.email')}
           </label>
           <input
             id="email"
             type="email"
             className="auth-input"
-            placeholder="you@example.com"
+            placeholder={t('auth.fields.emailPlaceholder')}
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             autoComplete="email"
@@ -75,13 +80,13 @@ export function RegisterPage() {
           />
 
           <label className="auth-label" htmlFor="password">
-            Password
+            {t('auth.fields.password')}
           </label>
           <input
             id="password"
             type="password"
             className="auth-input"
-            placeholder="At least 8 characters"
+            placeholder={t('auth.fields.passwordPlaceholder')}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             autoComplete="new-password"
@@ -92,13 +97,13 @@ export function RegisterPage() {
           {errorMessage && <p className="auth-error">{errorMessage}</p>}
 
           <button type="submit" className="auth-submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Creating account...' : 'Create account'}
+            {isSubmitting ? t('auth.register.submitting') : t('auth.register.submit')}
           </button>
 
           <p className="auth-footer">
-            Already have an account?{' '}
+            {t('auth.register.footerHave')}{' '}
             <Link to="/login" className="auth-link">
-              Sign in
+              {t('auth.register.footerSignIn')}
             </Link>
           </p>
         </form>

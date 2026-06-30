@@ -1,8 +1,11 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
 
 export function LoginPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -30,7 +33,7 @@ export function LoginPage() {
 
       navigate('/community', { replace: true });
     } catch {
-      setErrorMessage('Could not sign you in. Check your email and password and try again.');
+      setErrorMessage(t('auth.login.error'));
     } finally {
       setIsSubmitting(false);
     }
@@ -41,28 +44,30 @@ export function LoginPage() {
       <div className="auth-pulse auth-pulse-left" aria-hidden="true" />
       <div className="auth-pulse auth-pulse-right" aria-hidden="true" />
 
+      <div className="auth-lang">
+        <LanguageSwitcher />
+      </div>
+
       <div className="auth-grid">
         <aside className="auth-copy">
-          <p className="auth-eyebrow">CivicOS Access</p>
-          <h1 className="auth-title">Enter your civic command center.</h1>
-          <p className="auth-description">
-            Track community issues, sign petitions, and keep your representatives accountable from
-            one place.
-          </p>
+          <img src="/civicos-mark.png" alt="CivicOS" className="auth-mark" />
+          <p className="auth-eyebrow">{t('auth.login.eyebrow')}</p>
+          <h1 className="auth-title">{t('auth.login.title')}</h1>
+          <p className="auth-description">{t('auth.login.description')}</p>
         </aside>
 
         <form className="auth-card" onSubmit={onSubmit}>
-          <h2 className="auth-card-title">Sign in</h2>
-          <p className="auth-card-subtitle">Use your CivicOS credentials to continue.</p>
+          <h2 className="auth-card-title">{t('auth.login.cardTitle')}</h2>
+          <p className="auth-card-subtitle">{t('auth.login.cardSubtitle')}</p>
 
           <label className="auth-label" htmlFor="email">
-            Email
+            {t('auth.fields.email')}
           </label>
           <input
             id="email"
             type="email"
             className="auth-input"
-            placeholder="you@example.com"
+            placeholder={t('auth.fields.emailPlaceholder')}
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             autoComplete="email"
@@ -70,13 +75,13 @@ export function LoginPage() {
           />
 
           <label className="auth-label" htmlFor="password">
-            Password
+            {t('auth.fields.password')}
           </label>
           <input
             id="password"
             type="password"
             className="auth-input"
-            placeholder="At least 8 characters"
+            placeholder={t('auth.fields.passwordPlaceholder')}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             autoComplete="current-password"
@@ -87,13 +92,13 @@ export function LoginPage() {
           {errorMessage && <p className="auth-error">{errorMessage}</p>}
 
           <button type="submit" className="auth-submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Signing in...' : 'Sign in'}
+            {isSubmitting ? t('auth.login.submitting') : t('auth.login.submit')}
           </button>
 
           <p className="auth-footer">
-            No account yet?{' '}
+            {t('auth.login.footerNoAccount')}{' '}
             <Link to="/register" className="auth-link">
-              Create one now
+              {t('auth.login.footerCreate')}
             </Link>
           </p>
         </form>

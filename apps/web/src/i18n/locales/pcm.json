@@ -1,0 +1,241 @@
+{
+  "nav": {
+    "brandSubtitle": "Public Record · Start 2026",
+    "links": {
+      "docket": "Docket",
+      "whatItDoes": "Wetin e dey do",
+      "howItWorks": "How e dey work",
+      "faq": "Question dem"
+    },
+    "signIn": "Sign in",
+    "register": "Register"
+  },
+
+  "hero": {
+    "masthead": "Vol. 01 · No. 001 · Open Civic Infrastructure",
+    "headline": "Democracy na <em>everyday</em> tin, no be only election day.",
+    "sub": "CivicOS dey keep public record of wetin citizens dey do for between elections — issues wey people don report, petitions wey dem sign, replies wey rep don give — for your street, inside your community, today.",
+    "ctaPrimary": "Join CivicOS — e free",
+    "ctaSecondary": "I get account already",
+    "trust": "Open source · Verified accounts · Audit trail for UTC"
+  },
+
+  "docket": {
+    "title": "Today docket",
+    "live": "Live · We update am for {{time}} WAT",
+    "paused": "E pause · Comot mouse make e continue",
+    "types": {
+      "issue": "Issue",
+      "petition": "Petition",
+      "response": "Reply",
+      "resolved": "Resolved"
+    }
+  },
+
+  "parties": {
+    "marker": "§ 01 — People for record",
+    "title": "We build am for everybody for public life",
+    "citizens": {
+      "role": "For citizens",
+      "title": "Make your voice count, everyday",
+      "body": "Report issue for your street, sign petition for wetin matter to you, follow your reps, and see wetin dem do — for days, no be for election season."
+    },
+    "reps": {
+      "role": "For representatives",
+      "title": "Show your work for public",
+      "body": "Reply your constituents for one place. Your reply rate go dey for your public profile — accountability na part of the design, no be feature wey we add."
+    },
+    "government": {
+      "role": "For government",
+      "title": "Trusted channel to the public",
+      "body": "Send citizen reports to the right office, publish your work, and show progress with record wey get timestamp wey people fit verify."
+    },
+    "ngos": {
+      "role": "For NGOs",
+      "title": "Mobilise people with real evidence",
+      "body": "Gather community signals, organise petitions, and measure impact with structured civic data, no be only story story."
+    }
+  },
+
+  "articles": {
+    "marker": "§ 02 — Articles",
+    "title": "Continuous participation, no be election time alone",
+    "issues": {
+      "title": "Report and follow issue",
+      "body": "Pothole, broken streetlight, dangerous road — file am inside three minutes with picture and follow am from open to under review to resolved."
+    },
+    "petitions": {
+      "title": "Start and sign petition",
+      "body": "Petition wey get goal with auto milestone for 25%, 50%, and 100%. One citizen, one signature, no inflated numbers."
+    },
+    "reps": {
+      "title": "Follow your representatives",
+      "body": "See who dey represent you, wetin dem don talk, and how fast dem dey reply — everytin for public profile wey dey update itself."
+    },
+    "discover": {
+      "title": "Discover wetin dey happen near you",
+      "body": "Feed wey we rank by proximity: your community first, then your LGA, then your state — so local tin go dey on top."
+    },
+    "notifications": {
+      "title": "Stay for loop in real time",
+      "body": "Notification dey stream live the moment issue update, petition cross threshold, or your rep reply."
+    },
+    "transparency": {
+      "title": "Transparency by default",
+      "body": "Every interaction get timestamp and we fit trace am. Public information dey public; personal data dey private."
+    }
+  },
+
+  "principles": {
+    "marker": "§ 03 — Founding principles",
+    "title": "Five principles, we write before the code",
+    "list": {
+      "transparency": "Transparency",
+      "participation": "Participation",
+      "accountability": "Accountability",
+      "trust": "Trust",
+      "accessibility": "Accessibility"
+    },
+    "note": "Just as digital banking change how we dey move money, <em>CivicOS dey change how we dey take part for democracy</em> — transparent, accessible, and built to last."
+  },
+
+  "steps": {
+    "marker": "§ 04 — Procedure",
+    "title": "From sign-up to civic action under five minutes",
+    "join": {
+      "meta": "File am for 90 seconds",
+      "title": "Join the register",
+      "body": "Sign up with your name and email. Identity verified, no paperwork, no fee."
+    },
+    "pick": {
+      "meta": "Pick your community",
+      "title": "Choose your area",
+      "body": "Pick your state and LGA so we go know wetin be \"near you\" for your feed."
+    },
+    "act": {
+      "meta": "On the record",
+      "title": "Take action",
+      "body": "Report issue, sign petition, follow your reps — your name, your record."
+    },
+    "follow": {
+      "meta": "Follow outcome",
+      "title": "See wetin dem do",
+      "body": "Real-time updates as status dey change, response dey come, and milestones dey land."
+    },
+    "stepLabel": "Step {{n}}"
+  },
+
+  "faq": {
+    "marker": "§ 05 — Questions",
+    "title": "Questions, on the record",
+    "qLabel": "Q.{{n}}",
+    "cost": {
+      "q": "Abeg, CivicOS free to use?",
+      "a": "Yes. CivicOS free for citizens — forever. Reporting issues, signing petitions, following your reps, and receiving updates no go cost anything. Public institutions and NGOs fit get paid plan for advanced tools, but citizen experience dey free."
+    },
+    "privacy": {
+      "q": "My personal information dey private?",
+      "a": "Your email, phone number, and address dey private, and we no go ever show am for public. Na only your display name, your role, and the public action wey you take (issues you raise, petitions you sign, comments you drop) other users go see. You dey control wetin you wan share."
+    },
+    "reps": {
+      "q": "Reps dey really use the platform?",
+      "a": "We dey onboard reps community by community. Their reply rate dey for their public profile — accountability dey inside the design, so silence too na signal."
+    },
+    "coverage": {
+      "q": "Wetin if nobody dey represent my area yet?",
+      "a": "You fit still join, pick your community, and file. Once rep for your area join, your past activity go link with am automatically."
+    },
+    "ownership": {
+      "q": "Who build CivicOS — and who own am?",
+      "a": "CivicOS na open civic infrastructure, we build am for public and independent team dey run am. The codebase open, the architecture dey documented, and we dey welcome contributions. No political party, single funder, or business interest dey control the platform."
+    },
+    "abuse": {
+      "q": "How una dey prevent abuse, spam, or fake news?",
+      "a": "Every account na identity verified for sign-up. Comments and submissions get rate limit, we dey moderate dem against community guidelines, and dem dey traceable to real account. Petitions need unique signature — one citizen, one signature."
+    }
+  },
+
+  "newsletter": {
+    "marker": "§ 06 — Public dispatch",
+    "title": "Subscribe to The Dispatch — be the first to know when CivicOS reach your area",
+    "sub": "One short email every month with product updates, community milestones, and rollout news. No marketing wahala. Unsubscribe anytime.",
+    "placeholder": "you@example.com",
+    "submit": "Subscribe",
+    "submitting": "Subscribing…",
+    "doneTitle": "You don dey list.",
+    "doneSub": "We go reach you as we dey expand coverage."
+  },
+
+  "cta": {
+    "eyebrow": "Register your voice",
+    "title": "Ready to take <em>part</em>?",
+    "sub": "Join citizens, reps, and organisations wey dey build accountable civic life — together, on the record.",
+    "ctaPrimary": "Create your account",
+    "ctaSecondary": "Sign in"
+  },
+
+  "footer": {
+    "mission": "Dey strengthen democratic participation through secure, transparent, accessible digital infrastructure.",
+    "meta": "© {{year}} CivicOS — Open civic infrastructure",
+    "checks": {
+      "privacy": "E respect privacy",
+      "audit": "E friendly to audit",
+      "open": "Built for the open"
+    }
+  },
+
+  "auth": {
+    "fields": {
+      "fullName": "Full name",
+      "email": "Email",
+      "password": "Password",
+      "namePlaceholder": "Ada Okonkwo",
+      "emailPlaceholder": "you@example.com",
+      "passwordPlaceholder": "At least 8 characters"
+    },
+    "login": {
+      "eyebrow": "CivicOS Access",
+      "title": "Enter your civic command center.",
+      "description": "Track community issues, sign petitions, and hold your reps accountable from one place.",
+      "cardTitle": "Sign in",
+      "cardSubtitle": "Use your CivicOS details to continue.",
+      "submit": "Sign in",
+      "submitting": "Dey sign in…",
+      "error": "We no fit sign you in. Check your email and password, then try again.",
+      "footerNoAccount": "You never get account?",
+      "footerCreate": "Create one now"
+    },
+    "register": {
+      "eyebrow": "CivicOS Registration",
+      "title": "Build your citizen profile.",
+      "description": "Join your local community space, report issues faster, and shape public decisions between elections.",
+      "cardTitle": "Create account",
+      "cardSubtitle": "E no go pass one minute to start.",
+      "submit": "Create account",
+      "submitting": "Dey create account…",
+      "error": "We no fit create your account. Try different email or try again small time.",
+      "footerHave": "You get account already?",
+      "footerSignIn": "Sign in"
+    }
+  },
+
+  "sidebar": {
+    "discover": "Discover",
+    "community": "Community",
+    "issues": "Issues",
+    "petitions": "Petitions",
+    "representatives": "Representatives",
+    "notifications": "Notifications",
+    "profile": "Profile",
+    "signOut": "Sign out"
+  },
+
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "ig": "Igbo",
+    "yo": "Yorùbá",
+    "pcm": "Pidgin",
+    "ha": "Hausa"
+  }
+}

@@ -1,0 +1,241 @@
+{
+  "nav": {
+    "brandSubtitle": "Àkọsílẹ̀ Gbangba · Tì bẹ̀rẹ̀ 2026",
+    "links": {
+      "docket": "Àkọsílẹ̀",
+      "whatItDoes": "Ohun tó ń ṣe",
+      "howItWorks": "Bí ó ṣe ń ṣiṣẹ́",
+      "faq": "Àwọn Ìbéèrè"
+    },
+    "signIn": "Wọlé",
+    "register": "Forúkọsílẹ̀"
+  },
+
+  "hero": {
+    "masthead": "Ìdìpọ̀ 01 · No. 001 · Àkójọpọ̀ Ìjọba Gbangba",
+    "headline": "Ìṣàkóso ènìyàn jẹ́ ohun <em>ojoojúmọ́</em>, kì í ṣe ọjọ́ ìdìbò nìkan.",
+    "sub": "CivicOS ń tọ́jú àkọsílẹ̀ gbangba ti ìṣe àwọn aráàlú láàárín ìdìbò — àwọn ìṣòro tí a fi sílẹ̀, àwọn ẹ̀bẹ̀ tí a fọwọ́sí, àwọn ìdáhùn tí a rí — ní ojú-òpó rẹ, nínú agbègbè rẹ, lónìí.",
+    "ctaPrimary": "Dara pọ̀ mọ́ CivicOS — ọ̀fẹ́ ni",
+    "ctaSecondary": "Mo ní àkáǹtì",
+    "trust": "Àfihàn gbangba · Àwọn àkáǹtì tí a ti rí gbà · Àkọsílẹ̀ àkókò UTC"
+  },
+
+  "docket": {
+    "title": "Àkọsílẹ̀ òní",
+    "live": "Ó ń ṣiṣẹ́ · Sí gégé ní {{time}} WAT",
+    "paused": "Ó dúró · Yọ kúrò láti tẹ̀síwájú",
+    "types": {
+      "issue": "Ìṣòro",
+      "petition": "Ẹ̀bẹ̀",
+      "response": "Ìdáhùn",
+      "resolved": "Tún ṣe"
+    }
+  },
+
+  "parties": {
+    "marker": "§ 01 — Àwọn olùdíró",
+    "title": "A kọ́ ọ fún gbogbo ènìyàn nínú ìgbé ayé gbangba",
+    "citizens": {
+      "role": "Fún àwọn aráàlú",
+      "title": "Jẹ́ kí ohùn rẹ ka, lójoojúmọ́",
+      "body": "Ròyìn àwọn ìṣòro lójú-òpó rẹ, fọwọ́sí àwọn ẹ̀bẹ̀ ohun tí o nífẹ̀ẹ́, tẹ̀le àwọn aṣojú rẹ, kí o sì rí ohun tí à ń ṣe — ní ọjọ́ díẹ̀, kì í ṣe ní àkókò ìdìbò nìkan."
+    },
+    "reps": {
+      "role": "Fún àwọn aṣojú",
+      "title": "Fi iṣẹ́ rẹ hàn gbangba",
+      "body": "Dá àwọn olùdìbò rẹ lóhùn ní ibì kan. Iye ìdáhùn rẹ wà lórí profáìlì gbangba rẹ — ojúṣe ni a fi kọ́ ọ, kì í ṣe àfikún."
+    },
+    "government": {
+      "role": "Fún ìjọba",
+      "title": "Ojú-ọ̀nà tí a gbà gbọ́ sí gbogbo ènìyàn",
+      "body": "Tọ́ ìròyìn àwọn aráàlú lọ sí ọ́fíìsì tó yẹ, kéde àwọn ìpilẹ̀ṣẹ̀, kí o sì fi ìlọsíwájú hàn pẹ̀lú àkọsílẹ̀ tí ó ní àkókò."
+    },
+    "ngos": {
+      "role": "Fún àwọn NGO",
+      "title": "Kó àwọn ènìyàn jọ pẹ̀lú ẹ̀rí gidi",
+      "body": "Kó àwọn ìmọ̀ràn agbègbè jọ, ṣètò àwọn ẹ̀bẹ̀, kí o sì díwọ̀n ipa pẹ̀lú dátà gbangba tí a ṣètò dípò ìtàn lásán."
+    }
+  },
+
+  "articles": {
+    "marker": "§ 02 — Àwọn Àpilẹ̀kọ",
+    "title": "Ìkópa tí kò ní òpin, kì í ṣe ní àkókò ìdìbò nìkan",
+    "issues": {
+      "title": "Ròyìn kí o sì tẹ̀le àwọn ìṣòro",
+      "body": "Ihò ojú-ọ̀nà, iná òpópó, ọ̀nà tí kò láàbò — fi sílẹ̀ láàrín ìṣẹ́jú mẹ́ta pẹ̀lú àwọn fọ́tò kí o sì tẹ̀le ìpòsí lát'ọ̀dọ̀ ṣíṣí sí ìtúnṣe sí èyí tí a parí."
+    },
+    "petitions": {
+      "title": "Bẹ̀rẹ̀ kí o sì fọwọ́sí àwọn ẹ̀bẹ̀",
+      "body": "Àwọn ẹ̀bẹ̀ tí ó dá lórí àfojúsùn pẹ̀lú àwọn àmì ìfọkànsùn aládàáṣe ní 25%, 50%, àti 100%. Ọmọ orílẹ̀-èdè kan, ìfowọ́sí kan, kò sí nọ́mbà tí a fẹ̀ sí i."
+    },
+    "reps": {
+      "title": "Tẹ̀le àwọn aṣojú rẹ",
+      "body": "Wo ẹni tó ń ṣojú rẹ, ohun tí wọ́n sọ, àti bí wọ́n ṣe ń dáhùn ní kíákíá — gbogbo rẹ̀ lórí profáìlì gbangba tí ó ń sí gégé fún ara rẹ̀."
+    },
+    "discover": {
+      "title": "Ṣàwárí ohun tó ṣe pàtàkì létí",
+      "body": "Àkójọpọ̀ tí a tò nípa ìsúnmọ́: agbègbè rẹ ní àkọ́kọ́, lẹ́yìn náà LGA rẹ, lẹ́yìn náà ìpínlẹ̀ rẹ — kí ohun ìbílẹ̀ máa kọ́kọ́ wá."
+    },
+    "notifications": {
+      "title": "Wà nínú àlàyé ní àkókò gidi",
+      "body": "Àwọn ìfìmọ̀ràn yóò dé bá ọ lẹ́sẹ̀kẹsẹ̀ tí ìṣòro bá ní ìyípadà, tí ẹ̀bẹ̀ bá rékọjá ààlà, tàbí tí aṣojú rẹ bá dáhùn."
+    },
+    "transparency": {
+      "title": "Àfihàn gbangba látipilẹ̀ṣẹ̀",
+      "body": "Gbogbo ìbáraẹnisọ̀rọ̀ ní àkókò àkọsílẹ̀ àti àyẹ̀wò. Ìròyìn gbangba ó wà ní gbangba; dátà ti ara ẹni ó wà ní ìkọ̀kọ̀."
+    }
+  },
+
+  "principles": {
+    "marker": "§ 03 — Àwọn ìpilẹ̀ṣẹ̀",
+    "title": "Àwọn ìpilẹ̀ márùn, tí a kọ kí kóòdù tó bẹ̀rẹ̀",
+    "list": {
+      "transparency": "Àfihàn Gbangba",
+      "participation": "Ìkópa",
+      "accountability": "Ojúṣe",
+      "trust": "Ìgbẹ́kẹ̀lé",
+      "accessibility": "Ìráyètó"
+    },
+    "note": "Bí ilé ìfowópamọ́ dijítà ṣe ṣẹ̀dá ọ̀nà tuntun fún ìfijíṣẹ́ owó, <em>CivicOS ń ṣẹ̀dá ọ̀nà tuntun fún ìkópa wa nínú ìṣàkóso ènìyàn</em> — gbangba, ráyètó, àti tí a kọ́ láti pẹ́."
+  },
+
+  "steps": {
+    "marker": "§ 04 — Ìlànà",
+    "title": "Láti forúkọsílẹ̀ sí ìṣe gbangba láàárín ìṣẹ́jú márùn",
+    "join": {
+      "meta": "Fífi sílẹ̀ láàárín ìṣẹ́jú aaya 90",
+      "title": "Dara pọ̀ mọ́ àkọsílẹ̀",
+      "body": "Forúkọsílẹ̀ pẹ̀lú orúkọ àti ímeèlì rẹ. A ti rí ìdánimọ̀ gbà, kò sí àkọsílẹ̀, kò sí owó."
+    },
+    "pick": {
+      "meta": "Yan agbègbè rẹ",
+      "title": "Yan ojú-ọ̀nà rẹ",
+      "body": "Yan ìpínlẹ̀ àti LGA rẹ kí a mọ̀ ohun tí a pè ní \"létí ọ\" nínú àkójọpọ̀ rẹ."
+    },
+    "act": {
+      "meta": "Lórí àkọsílẹ̀",
+      "title": "Ṣe ìṣe",
+      "body": "Ròyìn ìṣòro, fọwọ́sí ẹ̀bẹ̀, tẹ̀le àwọn aṣojú rẹ — orúkọ rẹ, àkọsílẹ̀ rẹ."
+    },
+    "follow": {
+      "meta": "Tẹ̀le àbájáde",
+      "title": "Wo ohun tí à ń ṣe",
+      "body": "Àwọn ìyípadà àkókò gidi bí ipò ṣe ń yí padà, ìdáhùn ń dé, àti àwọn àmì ìfọkànsùn dé."
+    },
+    "stepLabel": "Ìgbésẹ̀ {{n}}"
+  },
+
+  "faq": {
+    "marker": "§ 05 — Àwọn Ìbéèrè",
+    "title": "Àwọn ìbéèrè, lórí àkọsílẹ̀",
+    "qLabel": "Ìb.{{n}}",
+    "cost": {
+      "q": "Ṣé CivicOS jẹ́ ọ̀fẹ́ láti lò?",
+      "a": "Bẹ́ẹ̀ni. CivicOS jẹ́ ọ̀fẹ́ fún àwọn aráàlú — láé. Ìròyìn àwọn ìṣòro, ìfọwọ́sí àwọn ẹ̀bẹ̀, ìtẹ̀le àwọn aṣojú rẹ, àti gbígba àwọn ìmúdojúiwọn kò ní owó. Àwọn iléeṣẹ́ gbangba àti àwọn NGO lè ní àwọn ipele tí a sanwó fún àwọn irinṣẹ́ tó ga, ṣùgbọ́n ìrírí àwọn aráàlú jẹ́ ọ̀fẹ́."
+    },
+    "privacy": {
+      "q": "Ṣé ìròyìn ti ara mi wà ní ìkọ̀kọ̀?",
+      "a": "Ímeèlì rẹ, nọ́mbà fóònù, àti àdírẹ́sì wà ní ìkọ̀kọ̀, a kò sì fihàn ní gbangba láé. Orúkọ ìfihàn rẹ, ipò rẹ, àti àwọn ìṣe gbangba tí o ń ṣe (àwọn ìṣòro tí o ròyìn, àwọn ẹ̀bẹ̀ tí o fọwọ́sí, àwọn ọ̀rọ̀ tí o kọ) ni àwọn ènìyàn mìíràn ń rí. Ìwọ ni o ń darí ohun tí o ń pín."
+    },
+    "reps": {
+      "q": "Ṣé àwọn aṣojú ń lo ojú-òpó yìí gidigidi?",
+      "a": "A ń mú àwọn aṣojú wá agbègbè kọ̀ọ̀kan. Iye ìdáhùn wọn wà lórí profáìlì gbangba wọn — a kọ́ ojúṣe sí inú ọ̀nà náà, nítorí náà ìdákẹ́ jẹ́ àmì pẹ̀lú."
+    },
+    "coverage": {
+      "q": "Bí kò bá sí ẹni tó ń ṣojú agbègbè mi báyìí ńkọ́?",
+      "a": "O ṣì lè dara pọ̀, yan agbègbè rẹ, kí o sì fi sílẹ̀. Ní kété tí aṣojú fún agbègbè rẹ bá dara pọ̀, gbogbo ìṣẹ́ rẹ tẹ́lẹ̀ yóò sopọ̀ mọ́ ọn aládàáṣe."
+    },
+    "ownership": {
+      "q": "Ta ló kọ́ CivicOS — ta sì ló ní?",
+      "a": "CivicOS jẹ́ àkójọpọ̀ ìjọba gbangba tí a kọ́ ní gbangba tí ẹgbẹ́ òmìnira ń ṣàkóso. Kóòdù rẹ̀ wà ní gbangba, a ti kọ ìjápọ̀ sílẹ̀, àwọn ìfunni gbígba ni gbogbo wọn. Kò sí ẹgbẹ́ ìṣèlú, ẹlẹ́bùn kan, tàbí ọrọ̀ ajé tó ń darí ojú-òpó yìí."
+    },
+    "abuse": {
+      "q": "Báwo ni o ṣe ń dí ìbàjẹ́, spam, tàbí ìròyìn èké lọ́nà?",
+      "a": "A ń rí ìdánimọ̀ àkáǹtì kọ̀ọ̀kan gbà ní ìforúkọsílẹ̀. A ń díwọ̀n àwọn ọ̀rọ̀ àti ìfisílẹ̀, ṣàkóso wọn lòdì sí àwọn ìlànà agbègbè, tí wọ́n sì lè wá kiri sí àkáǹtì gidi. Àwọn ẹ̀bẹ̀ nílò àwọn ìfowọ́sí tí ó yàtọ̀ — ọmọ orílẹ̀-èdè kan, ìfowọ́sí kan."
+    }
+  },
+
+  "newsletter": {
+    "marker": "§ 06 — Ìfìmọ̀ràn gbangba",
+    "title": "Forúkọsílẹ̀ fún The Dispatch — kọ́kọ́ mọ̀ nígbà tí CivicOS bá dé agbègbè rẹ",
+    "sub": "Ímeèlì kúkúrú kan fún oṣù kan pẹ̀lú àwọn ìmúdojúiwọn ọjà, àwọn àmì ìfọkànsùn agbègbè, àti ìròyìn ìjáde. Kò sí àwọn ọ̀rọ̀ ìpolówó. Yọ orúkọ rẹ kúrò nígbàkígbà.",
+    "placeholder": "ìwọ@àpẹẹrẹ.com",
+    "submit": "Forúkọsílẹ̀",
+    "submitting": "À ń forúkọsílẹ̀…",
+    "doneTitle": "O wà lórí àkójọpọ̀.",
+    "doneSub": "À óò kàn sí ọ bí à ti ń gbòòrò sí i."
+  },
+
+  "cta": {
+    "eyebrow": "Forúkọsílẹ̀ ohùn rẹ",
+    "title": "Ṣé o ti múra láti <em>kópa</em>?",
+    "sub": "Dara pọ̀ mọ́ àwọn aráàlú, àwọn aṣojú, àti àwọn àjọ tí ń kọ́ ìgbé ayé gbangba tó dáadáa — pa pọ̀, lórí àkọsílẹ̀.",
+    "ctaPrimary": "Ṣẹ̀dá àkáǹtì rẹ",
+    "ctaSecondary": "Wọlé"
+  },
+
+  "footer": {
+    "mission": "Mímú ìkópa ìṣàkóso ènìyàn lágbára nípasẹ̀ àkójọpọ̀ dijítà tó nírẹ̀wẹ̀sì, gbangba, àti ráyètó.",
+    "meta": "© {{year}} CivicOS — Àkójọpọ̀ ìjọba gbangba",
+    "checks": {
+      "privacy": "Ó bọ̀wọ̀ fún àṣírí",
+      "audit": "Ó ráyètó láti ṣàyẹ̀wò",
+      "open": "A kọ́ ọ ní gbangba"
+    }
+  },
+
+  "auth": {
+    "fields": {
+      "fullName": "Orúkọ kíkún",
+      "email": "Ímeèlì",
+      "password": "Ọ̀rọ̀ ìkọ̀kọ̀",
+      "namePlaceholder": "Ada Okonkwo",
+      "emailPlaceholder": "ìwọ@àpẹẹrẹ.com",
+      "passwordPlaceholder": "Lẹ́tà mẹ́jọ tàbí ju bẹ́ẹ̀ lọ"
+    },
+    "login": {
+      "eyebrow": "Wíwọlé CivicOS",
+      "title": "Wọ ibùdó ìṣàkóso ènìyàn rẹ.",
+      "description": "Tẹ̀le àwọn ìṣòro agbègbè, fọwọ́sí àwọn ẹ̀bẹ̀, kí o sì jẹ́ kí àwọn aṣojú rẹ ní ojúṣe láti ibì kan.",
+      "cardTitle": "Wọlé",
+      "cardSubtitle": "Lo ìjápọ̀ CivicOS rẹ láti tẹ̀síwájú.",
+      "submit": "Wọlé",
+      "submitting": "À ń wọlé…",
+      "error": "A kò lè jẹ́ kí o wọlé. Wo ímeèlì àti ọ̀rọ̀ ìkọ̀kọ̀ rẹ, kí o sì gbìyànjú lẹ́ẹ̀kan sí i.",
+      "footerNoAccount": "Kò sí àkáǹtì sí?",
+      "footerCreate": "Ṣẹ̀dá ọ̀kan báyìí"
+    },
+    "register": {
+      "eyebrow": "Ìforúkọsílẹ̀ CivicOS",
+      "title": "Kọ́ profáìlì aráàlú rẹ.",
+      "description": "Dara pọ̀ mọ́ agbègbè rẹ, ròyìn àwọn ìṣòro yàrá, kí o sì ṣe àpẹẹrẹ àwọn ìpinnu gbangba láàárín ìdìbò.",
+      "cardTitle": "Ṣẹ̀dá àkáǹtì",
+      "cardSubtitle": "Ó gba ìṣẹ́jú kan láti bẹ̀rẹ̀.",
+      "submit": "Ṣẹ̀dá àkáǹtì",
+      "submitting": "À ń ṣẹ̀dá àkáǹtì…",
+      "error": "A kò lè ṣẹ̀dá àkáǹtì rẹ. Gbìyànjú ímeèlì mìíràn tàbí gbìyànjú lẹ́ẹ̀kan sí i lẹ́yìn ìgbà díẹ̀.",
+      "footerHave": "Ṣé o ti ní àkáǹtì?",
+      "footerSignIn": "Wọlé"
+    }
+  },
+
+  "sidebar": {
+    "discover": "Ṣàwárí",
+    "community": "Agbègbè",
+    "issues": "Àwọn Ìṣòro",
+    "petitions": "Àwọn Ẹ̀bẹ̀",
+    "representatives": "Àwọn Aṣojú",
+    "notifications": "Àwọn Ìfìmọ̀ràn",
+    "profile": "Profáìlì",
+    "signOut": "Jáde"
+  },
+
+  "language": {
+    "label": "Èdè",
+    "en": "English",
+    "ig": "Igbo",
+    "yo": "Yorùbá",
+    "pcm": "Pidgin",
+    "ha": "Hausa"
+  }
+}

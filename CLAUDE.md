@@ -10,13 +10,13 @@ Core users: **citizens**, **elected representatives**, **government admins**, **
 
 All product, architecture, and engineering decisions are driven by five documents in `docs/product/`:
 
-| Document | Purpose |
-|----------|---------|
-| `CivicOS Blueprint.pdf` | Vision, mission, product philosophy, core principles |
-| `CivicOS Product Roadmap.pdf` | What gets built and in what order (5 phases) |
-| `CivicOS Technical Architecture v1.0.pdf` | How the system is designed — services, data, security, AI |
-| `CivicOS Experience Architecture.pdf` | UX, user journeys, screen specs, design system |
-| `CivicOS Engineering Playbook.pdf` | How software is written — standards, conventions, DI, testing |
+| Document                                  | Purpose                                                       |
+| ----------------------------------------- | ------------------------------------------------------------- |
+| `CivicOS Blueprint.pdf`                   | Vision, mission, product philosophy, core principles          |
+| `CivicOS Product Roadmap.pdf`             | What gets built and in what order (5 phases)                  |
+| `CivicOS Technical Architecture v1.0.pdf` | How the system is designed — services, data, security, AI     |
+| `CivicOS Experience Architecture.pdf`     | UX, user journeys, screen specs, design system                |
+| `CivicOS Engineering Playbook.pdf`        | How software is written — standards, conventions, DI, testing |
 
 **Before implementing any feature, consult the relevant document first.**
 
@@ -43,6 +43,7 @@ civicos/
 ```
 
 Each Go service follows the layout:
+
 ```
 service/
 ├── cmd/server/main.go        # Entry point — wires DI, starts Gin
@@ -66,6 +67,18 @@ service/
 - **Hot reload**: Air (`air` CLI, `.air.toml` per service)
 - **Monorepo**: pnpm workspaces + Turborepo (frontend/packages only)
 - **Package manager**: pnpm (frontend), Go modules (backend)
+
+### Stack note — Go vs the playbook
+
+The Engineering Playbook PDF prescribes **NestJS + TypeScript + Prisma** for backend. We diverged and built in **Go + Gin + GORM** for: smaller deploy artifacts, lower memory at idle, native concurrency for the SSE notification hub, and one binary per service. The playbook's principles (DI, modular services, UUIDs, error codes, UTC) still apply — only the language differs. If a future contributor reads the playbook expecting Node, this file is the source of truth.
+
+### Service boundaries (MVP)
+
+- `identity-service` — users, JWT, `/me`, community join
+- `community-service` — **everything community-scoped**: communities, issues, petitions, representatives, comments, **notifications**, search, discover
+- `api-gateway` — reverse proxy + JWT validation
+
+Notifications and search were spec'd by the playbook (line 714) as future standalone services. For the MVP we kept them inside `community-service` so cross-entity event emission (e.g., a petition signature → notification) stays in-process and doesn't need NATS. Extract when scale demands it, not before.
 
 ## Engineering rules
 
@@ -94,14 +107,16 @@ All types are in `packages/types/src/index.ts`.
 ## MVP build order
 
 1. ✅ Monorepo scaffold
-2. ✅ Identity Service — register, login, refresh, /me (Go)
-3. ✅ Community Service — communities, issues (Go)
+2. ✅ Identity Service — register, login, refresh, /me, PATCH /me (Go)
+3. ✅ Community Service — communities, issues, petitions, representatives, comments, notifications, search, discover (Go)
 4. ✅ API Gateway — reverse proxy, JWT validation (Go)
-5. 🔲 Frontend auth flow — register, login, dashboard shell
-6. 🔲 Issue reporting UI + API
-7. 🔲 Representative pages
-8. 🔲 Notifications
-9. 🔲 Petitions
+5. ✅ Frontend auth flow — register, login, dashboard shell, profile
+6. ✅ Issue reporting UI + API (incl. filters, status timeline, admin status change)
+7. ✅ Representative pages (incl. public comments, contact links, admin edit)
+8. ✅ Notifications (incl. SSE realtime push)
+9. ✅ Petitions (incl. sign + milestone fan-out)
+
+Beyond the original list, also shipped: search, discover feed (tier + kind + pagination), list-page filters, image lightbox, share button, public homepage.
 
 ## Running locally
 
