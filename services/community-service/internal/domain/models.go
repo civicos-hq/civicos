@@ -128,6 +128,16 @@ type Petition struct {
 	UpdatedAt      time.Time      `json:"updatedAt"`
 }
 
+// IssueUpvote records that a specific user upvoted a specific issue. The
+// compound unique index is what actually enforces "one vote per account" —
+// before this table existed the service just kept incrementing the counter.
+type IssueUpvote struct {
+	ID        string    `gorm:"type:uuid;primaryKey" json:"id"`
+	IssueID   string    `gorm:"not null;uniqueIndex:idx_issue_upvoter" json:"issueId"`
+	UserID    string    `gorm:"not null;uniqueIndex:idx_issue_upvoter" json:"userId"`
+	CreatedAt time.Time `json:"createdAt"`
+}
+
 type PetitionSignature struct {
 	ID         string    `gorm:"type:uuid;primaryKey" json:"id"`
 	PetitionID string    `gorm:"not null;uniqueIndex:idx_petition_user" json:"petitionId"`

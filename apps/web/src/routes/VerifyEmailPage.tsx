@@ -14,6 +14,7 @@ export function VerifyEmailPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [state, setState] = useState<State>({ kind: 'verifying' });
+  const [nextRoute, setNextRoute] = useState<'/discover' | '/onboarding'>('/discover');
 
   useEffect(() => {
     const token = params.get('token');
@@ -36,6 +37,10 @@ export function VerifyEmailPage() {
           localStorage.setItem('refreshToken', tokens.refreshToken);
         }
         await queryClient.invalidateQueries({ queryKey: ['me'] });
+        const verifiedUser = res.data?.data?.user;
+        if (verifiedUser && !verifiedUser.communityId) {
+          setNextRoute('/onboarding');
+        }
         setState({ kind: 'success' });
       } catch (err: unknown) {
         if (cancelled) return;
@@ -71,7 +76,7 @@ export function VerifyEmailPage() {
               </span>
               <h1 className="auth-card-title">{t('auth.verify.successTitle')}</h1>
               <p className="auth-card-subtitle">{t('auth.verify.successSub')}</p>
-              <button type="button" className="auth-submit" onClick={() => navigate('/discover')}>
+              <button type="button" className="auth-submit" onClick={() => navigate(nextRoute)}>
                 {t('auth.verify.successCta')}
               </button>
             </>

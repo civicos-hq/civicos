@@ -30,6 +30,7 @@ func main() {
 		&domain.Community{},
 		&domain.Issue{},
 		&domain.IssueComment{},
+		&domain.IssueUpvote{},
 		&domain.Petition{},
 		&domain.PetitionSignature{},
 		&domain.PetitionComment{},
@@ -93,6 +94,7 @@ func main() {
 	v1 := r.Group("/v1")
 	communityHandler.RegisterRoutes(v1.Group("/communities"), authMiddleware, requireAdminRole)
 	issueHandler.RegisterRoutes(v1.Group("/issues"), authMiddleware, requireVerified)
+	issueHandler.RegisterMeRoutes(v1.Group("/me"), authMiddleware)
 	petitionHandler.RegisterRoutes(v1.Group("/petitions"), authMiddleware, requireVerified)
 	repHandler.RegisterRoutes(v1.Group("/representatives"), authMiddleware, requireVerified, requireAdminRole)
 	repHandler.RegisterMeRoutes(v1.Group("/me"), authMiddleware)

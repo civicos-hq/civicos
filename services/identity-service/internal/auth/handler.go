@@ -21,6 +21,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, authMiddleware gin.Handler
 	rg.POST("/register", h.register)
 	rg.POST("/login", h.login)
 	rg.POST("/refresh", h.refresh)
+	rg.POST("/logout", h.logout)
 	rg.POST("/verify-email", h.verifyEmail)
 	rg.POST("/resend-verification", authMiddleware, h.resendVerification)
 	rg.POST("/forgot-password", h.forgotPassword)
@@ -111,6 +112,22 @@ func (h *Handler) updateMe(c *gin.Context) {
 		return
 	}
 	response.Success(c, http.StatusOK, gin.H{"user": user})
+}
+
+// logout accepts a refresh token in the body and revokes its family. Never
+// gated by JWT auth: a user with an expired access token still needs to be
+// able to sign out cleanly, and legitimate refresh material is proof enough.
+// Unknown / already-revoked tokens still return 200 so the client can safely
+// wipe local state either way.
+func (h *Handler) logout(c *gin.Context) {
+	var body struct {
+		RefreshToken string `json:"refreshToken"`
+	}
+	_ = c.ShouldBindJSON(&body)
+	if err := h.service.Logout(body.RefreshToken); err != nil {
+		log.Printf("[auth.logout] revoke failed (kept from client): %v", err)
+	}
+	response.Success(c, http.StatusOK, gin.H{"loggedOut": true})
 }
 
 func (h *Handler) verifyEmail(c *gin.Context) {

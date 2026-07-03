@@ -28,7 +28,8 @@ func main() {
 	}
 
 	authRepo := auth.NewRepository(db)
-	authSvc := auth.NewService(authRepo, cfg, mail)
+	refreshRepo := auth.NewRefreshRepository(db)
+	authSvc := auth.NewService(authRepo, refreshRepo, cfg, mail)
 	authHandler := auth.NewHandler(authSvc)
 
 	r := gin.Default()

@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
@@ -7,7 +7,11 @@ import { LanguageSwitcher } from '../components/LanguageSwitcher';
 export function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+  const location = useLocation();
+  // If routed here from "Sign in instead" on the register page, pre-fill the
+  // email so the user doesn't retype it.
+  const routedEmail = (location.state as { email?: string } | null)?.email ?? '';
+  const [email, setEmail] = useState(routedEmail);
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -21,6 +25,7 @@ export function LoginPage() {
       const response = await api.post('/api/v1/auth/login', { email, password });
       const accessToken = response.data?.data?.tokens?.accessToken;
       const refreshToken = response.data?.data?.tokens?.refreshToken;
+      const user = response.data?.data?.user;
 
       if (!accessToken) {
         throw new Error('ACCESS_TOKEN_MISSING');
@@ -31,7 +36,10 @@ export function LoginPage() {
         localStorage.setItem('refreshToken', refreshToken);
       }
 
-      navigate('/community', { replace: true });
+      // Users who never picked a community land on the wizard first.
+      // Once they've joined one (or skipped it), they go straight to Discover.
+      const destination = user?.communityId ? '/discover' : '/onboarding';
+      navigate(destination, { replace: true });
     } catch {
       setErrorMessage(t('auth.login.error'));
     } finally {

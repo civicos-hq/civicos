@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 
+type RegisterError = { kind: 'emailInUse' } | { kind: 'other'; message: string } | null;
+
 export function RegisterPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -11,11 +13,11 @@ export function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [error, setError] = useState<RegisterError>(null);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setErrorMessage('');
+    setError(null);
     setIsSubmitting(true);
 
     try {
@@ -30,8 +32,13 @@ export function RegisterPage() {
       }
       navigate('/verify-email-sent', { replace: true, state: { email } });
     } catch (err) {
-      console.error('Registration error:', err);
-      setErrorMessage(t('auth.register.error'));
+      const code = (err as { response?: { data?: { code?: string } } })?.response?.data?.code;
+      if (code === 'EMAIL_ALREADY_IN_USE') {
+        setError({ kind: 'emailInUse' });
+      } else {
+        console.error('Registration error:', err);
+        setError({ kind: 'other', message: t('auth.register.error') });
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -102,7 +109,22 @@ export function RegisterPage() {
             minLength={8}
           />
 
-          {errorMessage && <p className="auth-error">{errorMessage}</p>}
+          {error?.kind === 'other' && <p className="auth-error">{error.message}</p>}
+
+          {error?.kind === 'emailInUse' && (
+            <div className="auth-hint">
+              <p className="auth-hint-title">{t('auth.register.emailInUse')}</p>
+              <p className="auth-hint-sub">
+                <Link to="/login" state={{ email }} className="auth-link">
+                  {t('auth.register.emailInUseSignIn')}
+                </Link>{' '}
+                <Link to="/forgot-password" className="auth-link">
+                  {t('auth.register.emailInUseForgot')}
+                </Link>
+                .
+              </p>
+            </div>
+          )}
 
           <button type="submit" className="auth-submit" disabled={isSubmitting}>
             {isSubmitting ? t('auth.register.submitting') : t('auth.register.submit')}

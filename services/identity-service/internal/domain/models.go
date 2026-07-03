@@ -49,6 +49,41 @@ type PublicUser struct {
 	CreatedAt       time.Time  `json:"createdAt"`
 }
 
+// RefreshToken records a single opaque refresh token. Rotation:
+//
+//	- Every /refresh call CONSUMES the presented token and issues a fresh one
+//	  in the same family. Consuming = setting ConsumedAt.
+//	- FamilyID is stable across a rotation chain (typically = the initial
+//	  token's ID). It's what lets us nuke a whole session on replay.
+//	- Presenting a token whose ConsumedAt is already set = replay = theft.
+//	  We revoke every row where FamilyID matches, forcing the attacker (and
+//	  legitimate user) to sign in again. This is the OWASP pattern.
+//
+// The raw token is 32 bytes of crypto/rand hex — never stored. We keep only
+// SHA256(raw) in TokenHash so leaking the DB can't hijack live sessions.
+type RefreshToken struct {
+	ID         string     `gorm:"type:uuid;primaryKey" json:"id"`
+	UserID     string     `gorm:"not null;index" json:"userId"`
+	TokenHash  string     `gorm:"uniqueIndex;not null" json:"-"`
+	FamilyID   string     `gorm:"not null;index" json:"familyId"`
+	ExpiresAt  time.Time  `gorm:"not null" json:"expiresAt"`
+	ConsumedAt *time.Time `json:"consumedAt,omitempty"`
+	RevokedAt  *time.Time `json:"revokedAt,omitempty"`
+	CreatedAt  time.Time  `json:"createdAt"`
+}
+
+// IsUsable reports whether this token can still be exchanged. Callers should
+// treat an "already consumed" result as a replay signal and revoke the family.
+func (r *RefreshToken) IsUsable(now time.Time) bool {
+	if r.RevokedAt != nil {
+		return false
+	}
+	if r.ConsumedAt != nil {
+		return false
+	}
+	return now.Before(r.ExpiresAt)
+}
+
 func (u *User) ToPublic() PublicUser {
 	return PublicUser{
 		ID:              u.ID,

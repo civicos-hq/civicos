@@ -17,6 +17,7 @@ import { VerifyEmailPage } from './routes/VerifyEmailPage';
 import { VerifyEmailSentPage } from './routes/VerifyEmailSentPage';
 import { ForgotPasswordPage } from './routes/ForgotPasswordPage';
 import { ResetPasswordPage } from './routes/ResetPasswordPage';
+import { OnboardingPage } from './routes/OnboardingPage';
 
 function hasAccessToken() {
   return Boolean(localStorage.getItem('accessToken'));
@@ -58,6 +59,10 @@ export default function App() {
 
       {/* Authenticated */}
       <Route element={<RequireAuth />}>
+        {/* Onboarding sits outside the dashboard chrome so the wizard is
+            distraction-free. It self-redirects to /discover once the user
+            has a community, so revisiting the URL is safe. */}
+        <Route path="/onboarding" element={<OnboardingPage />} />
         <Route element={<DashboardLayout />}>
           <Route path="/discover" element={<DiscoverPage />} />
           <Route path="/community" element={<CommunityPage />} />

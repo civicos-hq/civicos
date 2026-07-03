@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"errors"
 	"strings"
 	"testing"
 	"time"
@@ -129,6 +130,55 @@ func (s *inMemoryUserStore) ResetPassword(userID, newPasswordHash string) error 
 	return nil
 }
 
+// inMemoryRefreshStore lets rotation + replay tests run without Postgres.
+// Keyed by token hash — mirrors the real repo's uniqueIndex.
+type inMemoryRefreshStore struct {
+	byID   map[string]*domain.RefreshToken
+	byHash map[string]*domain.RefreshToken
+}
+
+func newInMemoryRefreshStore() *inMemoryRefreshStore {
+	return &inMemoryRefreshStore{
+		byID:   map[string]*domain.RefreshToken{},
+		byHash: map[string]*domain.RefreshToken{},
+	}
+}
+
+func (s *inMemoryRefreshStore) Create(t *domain.RefreshToken) error {
+	if _, exists := s.byHash[t.TokenHash]; exists {
+		return errors.New("duplicate token hash")
+	}
+	s.byID[t.ID] = t
+	s.byHash[t.TokenHash] = t
+	return nil
+}
+
+func (s *inMemoryRefreshStore) FindByHash(hash string) (*domain.RefreshToken, error) {
+	if tok, ok := s.byHash[hash]; ok {
+		return tok, nil
+	}
+	return nil, gorm.ErrRecordNotFound
+}
+
+func (s *inMemoryRefreshStore) Consume(id string, at time.Time) (int64, error) {
+	tok, ok := s.byID[id]
+	if !ok || tok.ConsumedAt != nil || tok.RevokedAt != nil {
+		return 0, nil
+	}
+	tok.ConsumedAt = &at
+	return 1, nil
+}
+
+func (s *inMemoryRefreshStore) RevokeFamily(familyID string, at time.Time) error {
+	for _, tok := range s.byID {
+		if tok.FamilyID == familyID && tok.RevokedAt == nil {
+			revoked := at
+			tok.RevokedAt = &revoked
+		}
+	}
+	return nil
+}
+
 // captureMailer records the last verification URL so VerifyEmail can be
 // exercised without spinning up SMTP.
 type captureMailer struct {
@@ -147,7 +197,7 @@ func (m *captureMailer) Send(to, subject, htmlBody, textBody string) error {
 func TestRegisterAndLoginFlow(t *testing.T) {
 	cfg := &config.Config{JWTSecret: "12345678901234567890123456789012", AppURL: "http://localhost:5173"}
 	repo := newInMemoryUserStore()
-	svc := NewService(repo, cfg, &captureMailer{})
+	svc := NewService(repo, newInMemoryRefreshStore(), cfg, &captureMailer{})
 
 	user, regTokens, err := svc.Register(RegisterInput{
 		Name:     "Ada",
@@ -186,7 +236,7 @@ func TestVerifyEmailFlow(t *testing.T) {
 	cfg := &config.Config{JWTSecret: "12345678901234567890123456789012", AppURL: "http://localhost:5173"}
 	repo := newInMemoryUserStore()
 	mail := &captureMailer{}
-	svc := NewService(repo, cfg, mail)
+	svc := NewService(repo, newInMemoryRefreshStore(), cfg, mail)
 
 	if _, _, err := svc.Register(RegisterInput{
 		Name:     "Ada",
@@ -219,7 +269,7 @@ func TestForgotAndResetPasswordFlow(t *testing.T) {
 	cfg := &config.Config{JWTSecret: "12345678901234567890123456789012", AppURL: "http://localhost:5173"}
 	repo := newInMemoryUserStore()
 	mail := &captureMailer{}
-	svc := NewService(repo, cfg, mail)
+	svc := NewService(repo, newInMemoryRefreshStore(), cfg, mail)
 
 	if _, _, err := svc.Register(RegisterInput{
 		Name:     "Ada",
@@ -278,6 +328,80 @@ func TestForgotAndResetPasswordFlow(t *testing.T) {
 		t.Fatalf("expected replayed reset token to be rejected")
 	}
 }
+
+func TestRefreshTokenRotation(t *testing.T) {
+	cfg := &config.Config{JWTSecret: "12345678901234567890123456789012", AppURL: "http://localhost:5173"}
+	repo := newInMemoryUserStore()
+	refresh := newInMemoryRefreshStore()
+	svc := NewService(repo, refresh, cfg, &captureMailer{})
+
+	_, tokens, err := svc.Register(RegisterInput{
+		Name: "Ada", Email: "ada@example.com", Password: "password123",
+	})
+	if err != nil {
+		t.Fatalf("register: %v", err)
+	}
+
+	firstRefresh := tokens.RefreshToken
+	if firstRefresh == "" {
+		t.Fatalf("expected an initial refresh token")
+	}
+
+	// A successful rotation must return NEW tokens — the old refresh must no
+	// longer work.
+	rotated, err := svc.RefreshTokens(firstRefresh)
+	if err != nil {
+		t.Fatalf("first rotation: %v", err)
+	}
+	if rotated.RefreshToken == firstRefresh {
+		t.Fatalf("rotation should hand out a fresh refresh token")
+	}
+
+	// Replay of the original consumed token: must (a) fail and (b) revoke
+	// the whole family, so even the freshly-rotated token becomes unusable.
+	if _, err := svc.RefreshTokens(firstRefresh); err == nil {
+		t.Fatalf("replay of consumed refresh must be rejected")
+	}
+	if _, err := svc.RefreshTokens(rotated.RefreshToken); err == nil {
+		t.Fatalf("family revocation must invalidate the rotated token too")
+	}
+}
+
+func TestLogoutRevokesFamily(t *testing.T) {
+	cfg := &config.Config{JWTSecret: "12345678901234567890123456789012", AppURL: "http://localhost:5173"}
+	repo := newInMemoryUserStore()
+	refresh := newInMemoryRefreshStore()
+	svc := NewService(repo, refresh, cfg, &captureMailer{})
+
+	_, tokens, err := svc.Register(RegisterInput{
+		Name: "Ada", Email: "ada@example.com", Password: "password123",
+	})
+	if err != nil {
+		t.Fatalf("register: %v", err)
+	}
+
+	// Rotate once so there are two tokens in the family — a live one and a
+	// consumed one. Logout must invalidate both.
+	rotated, err := svc.RefreshTokens(tokens.RefreshToken)
+	if err != nil {
+		t.Fatalf("rotate before logout: %v", err)
+	}
+	if err := svc.Logout(rotated.RefreshToken); err != nil {
+		t.Fatalf("logout: %v", err)
+	}
+	if _, err := svc.RefreshTokens(rotated.RefreshToken); err == nil {
+		t.Fatalf("post-logout rotation must fail")
+	}
+
+	// Logout with an unknown refresh must NOT return an error — clients call
+	// this from a stale session and expect to always succeed locally.
+	if err := svc.Logout("does-not-exist"); err != nil {
+		t.Fatalf("logout with unknown token should be a no-op, got %v", err)
+	}
+}
+
+// Prevent unused-import complaints in the rare test-only build case.
+var _ = errors.New
 
 func extractToken(t *testing.T, mailText string) string {
 	t.Helper()

@@ -13,7 +13,10 @@ type IssueStore interface {
 	FindAll(communityID, status, category string) ([]domain.Issue, error)
 	FindByID(id string) (*domain.Issue, error)
 	Create(issue *domain.Issue) error
-	IncrementUpvote(id string) error
+	HasUserUpvoted(issueID, userID string) (bool, error)
+	AddUpvote(issueID, userID string) (int, error)
+	RemoveUpvote(issueID, userID string) (int, error)
+	ListUpvotedIssueIDsByUser(userID string) ([]string, error)
 	UpdateStatus(id string, status domain.IssueStatus) error
 	ListComments(issueID string) ([]domain.IssueComment, error)
 	AddComment(comment *domain.IssueComment) error
@@ -80,8 +83,28 @@ func (s *Service) Create(input CreateInput, reportedByID string) (*domain.Issue,
 	return issue, s.repo.Create(issue)
 }
 
-func (s *Service) Upvote(id string) error {
-	return s.repo.IncrementUpvote(id)
+// ToggleUpvote flips the caller's upvote on the issue. Returns the state
+// they should now see (upvoted true/false) and the fresh counter. Prior
+// behaviour blindly incremented per click — this dedups via the unique
+// (issue_id, user_id) constraint on IssueUpvote.
+func (s *Service) ToggleUpvote(issueID, userID string) (upvoted bool, count int, err error) {
+	if _, err := s.Get(issueID); err != nil {
+		return false, 0, err
+	}
+	has, err := s.repo.HasUserUpvoted(issueID, userID)
+	if err != nil {
+		return false, 0, err
+	}
+	if has {
+		n, err := s.repo.RemoveUpvote(issueID, userID)
+		return false, n, err
+	}
+	n, err := s.repo.AddUpvote(issueID, userID)
+	return true, n, err
+}
+
+func (s *Service) ListUpvotedIssueIDs(userID string) ([]string, error) {
+	return s.repo.ListUpvotedIssueIDsByUser(userID)
 }
 
 func (s *Service) UpdateStatus(id string, status domain.IssueStatus) error {

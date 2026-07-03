@@ -133,7 +133,16 @@ export function ResetPasswordPage() {
             </span>
             <h2 className="auth-card-title">{t('auth.reset.successTitle')}</h2>
             <p className="auth-card-subtitle">{t('auth.reset.successSub')}</p>
-            <button type="button" className="auth-submit" onClick={() => navigate('/discover')}>
+            <button
+              type="button"
+              className="auth-submit"
+              onClick={() => {
+                // If the just-reset user still has no community, drop them
+                // into the wizard rather than the empty-feed Discover.
+                const cached = queryClient.getQueryData<{ communityId?: string | null }>(['me']);
+                navigate(cached?.communityId ? '/discover' : '/onboarding');
+              }}
+            >
               {t('auth.reset.successCta')}
             </button>
           </div>

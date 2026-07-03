@@ -11,6 +11,7 @@ import (
 
 type CommunityStore interface {
 	FindAll() ([]domain.Community, error)
+	FindByLocation(state, lga string) ([]domain.Community, error)
 	FindByID(id string) (*domain.Community, error)
 	Create(c *domain.Community) error
 }
@@ -27,8 +28,11 @@ type CreateInput struct {
 	Description *string `json:"description"`
 }
 
-func (s *Service) List() ([]domain.Community, error) {
-	return s.repo.FindAll()
+func (s *Service) List(state, lga string) ([]domain.Community, error) {
+	if state == "" && lga == "" {
+		return s.repo.FindAll()
+	}
+	return s.repo.FindByLocation(state, lga)
 }
 
 func (s *Service) Get(id string) (*domain.Community, error) {

@@ -15,6 +15,7 @@ import { CommentsSection } from '../components/civic/CommentsSection';
 import { ImageGallery } from '../components/ImageLightbox';
 import { ShareButton } from '../components/ShareButton';
 import { useMe } from '../hooks/useMe';
+import { useUpvotedIssues } from '../hooks/useUpvotedIssues';
 
 const STAFF_ROLES = new Set<UserRole>([
   UserRole.REPRESENTATIVE,
@@ -96,12 +97,44 @@ export function IssueDetailPage() {
     }
   }, [location.hash, issueQuery.isLoading]);
 
+  const upvotedIssuesQuery = useUpvotedIssues();
+  const hasUpvoted = Boolean(id && upvotedIssuesQuery.data?.has(id));
+
   const upvoteMutation = useMutation({
     mutationFn: async () => {
-      await api.post(`/api/v1/issues/${id}/upvote`);
+      const res = await api.post<ApiResponse<{ upvoted: boolean; upvoteCount: number }>>(
+        `/api/v1/issues/${id}/upvote`,
+      );
+      return res.data.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['issue', id] });
+    // Update the upvoted-set optimistically and reconcile with the server
+    // response so the button flips state immediately, no full refetch needed.
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ['upvotedIssues'] });
+      const prev = queryClient.getQueryData<Set<string>>(['upvotedIssues']);
+      if (prev && id) {
+        const next = new Set(prev);
+        next.has(id) ? next.delete(id) : next.add(id);
+        queryClient.setQueryData(['upvotedIssues'], next);
+      }
+      return { prev };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(['upvotedIssues'], ctx.prev);
+    },
+    onSuccess: (data) => {
+      // Server is the source of truth for the count. Patch the cached issue
+      // instead of refetching so the number changes without a flash.
+      if (id) {
+        queryClient.setQueryData<Issue>(['issue', id], (prev) =>
+          prev ? { ...prev, upvoteCount: data.upvoteCount } : prev,
+        );
+        queryClient.setQueryData<Set<string>>(['upvotedIssues'], (prev) => {
+          const next = new Set(prev ?? []);
+          data.upvoted ? next.add(id) : next.delete(id);
+          return next;
+        });
+      }
       queryClient.invalidateQueries({ queryKey: ['issues'] });
     },
   });
@@ -225,8 +258,12 @@ export function IssueDetailPage() {
             </span>
           </p>
         </div>
-        <Button onClick={() => upvoteMutation.mutate()} loading={upvoteMutation.isPending}>
-          ▲ Upvote
+        <Button
+          onClick={() => upvoteMutation.mutate()}
+          loading={upvoteMutation.isPending}
+          variant={hasUpvoted ? 'secondary' : 'primary'}
+        >
+          {hasUpvoted ? '✓ Upvoted' : '▲ Upvote'}
         </Button>
       </article>
 

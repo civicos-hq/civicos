@@ -15,6 +15,20 @@ func (f *fakeCommunityRepo) FindAll() ([]domain.Community, error) {
 	return append([]domain.Community{}, f.items...), nil
 }
 
+func (f *fakeCommunityRepo) FindByLocation(state, lga string) ([]domain.Community, error) {
+	out := make([]domain.Community, 0, len(f.items))
+	for _, item := range f.items {
+		if state != "" && item.State != state {
+			continue
+		}
+		if lga != "" && item.LGA != lga {
+			continue
+		}
+		out = append(out, item)
+	}
+	return out, nil
+}
+
 func (f *fakeCommunityRepo) FindByID(id string) (*domain.Community, error) {
 	for _, item := range f.items {
 		if item.ID == id {
@@ -49,12 +63,28 @@ func TestCreateAndListCommunities(t *testing.T) {
 		t.Fatalf("expected slug lekki, got %s", created.Slug)
 	}
 
-	items, err := svc.List()
+	items, err := svc.List("", "")
 	if err != nil {
 		t.Fatalf("list communities: %v", err)
 	}
 	if len(items) != 1 {
 		t.Fatalf("expected 1 community, got %d", len(items))
+	}
+
+	// State/LGA filters must narrow the result.
+	filtered, err := svc.List("Lagos", "Eti-Osa")
+	if err != nil {
+		t.Fatalf("list filtered: %v", err)
+	}
+	if len(filtered) != 1 {
+		t.Fatalf("expected 1 filtered community, got %d", len(filtered))
+	}
+	empty, err := svc.List("Rivers", "")
+	if err != nil {
+		t.Fatalf("list mismatched state: %v", err)
+	}
+	if len(empty) != 0 {
+		t.Fatalf("expected 0 communities in Rivers, got %d", len(empty))
 	}
 
 	got, err := svc.Get(created.ID)

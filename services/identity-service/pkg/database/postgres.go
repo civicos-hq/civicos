@@ -18,7 +18,7 @@ func Connect(dsn string) *gorm.DB {
 	}
 
 	// Auto-migrate — keeps schema in sync during development
-	if err := db.AutoMigrate(&domain.User{}); err != nil {
+	if err := db.AutoMigrate(&domain.User{}, &domain.RefreshToken{}); err != nil {
 		log.Fatalf("❌ failed to run migrations: %v", err)
 	}
 

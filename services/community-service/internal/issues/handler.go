@@ -35,6 +35,13 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth, verified gin.Handler
 	rg.POST("/:id/comments", auth, verified, h.addComment)
 }
 
+// RegisterMeRoutes mounts user-scoped queries onto /me on the parent router
+// (mirrors representatives.RegisterMeRoutes so the frontend can seed
+// "already upvoted / already followed" state at load time).
+func (h *Handler) RegisterMeRoutes(rg *gin.RouterGroup, auth gin.HandlerFunc) {
+	rg.GET("/upvotes/issues", auth, h.listMyUpvotes)
+}
+
 func (h *Handler) list(c *gin.Context) {
 	items, err := h.svc.List(c.Query("communityId"), c.Query("status"), c.Query("category"))
 	if err != nil {
@@ -74,11 +81,35 @@ func (h *Handler) create(c *gin.Context) {
 }
 
 func (h *Handler) upvote(c *gin.Context) {
-	if err := h.svc.Upvote(c.Param("id")); err != nil {
+	userID, _ := c.Get("userID")
+	upvoted, count, err := h.svc.ToggleUpvote(c.Param("id"), userID.(string))
+	if err != nil {
+		var appErr *AppError
+		if errors.As(err, &appErr) {
+			response.Error(c, appErr.Status, appErr.Code, appErr.Message)
+			return
+		}
+		log.Printf("[issues.upvote] toggle failed for issue=%s user=%s: %v", c.Param("id"), userID, err)
 		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to upvote")
 		return
 	}
-	response.Success(c, http.StatusOK, gin.H{"upvoted": true})
+	response.Success(c, http.StatusOK, gin.H{"upvoted": upvoted, "upvoteCount": count})
+}
+
+// listMyUpvotes returns the IDs of every issue the calling user has an
+// active upvote on. Mirrors /me/follows/representatives so the frontend
+// can seed its "already upvoted" state on load.
+func (h *Handler) listMyUpvotes(c *gin.Context) {
+	userID, _ := c.Get("userID")
+	ids, err := h.svc.ListUpvotedIssueIDs(userID.(string))
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to load upvotes")
+		return
+	}
+	if ids == nil {
+		ids = []string{}
+	}
+	response.Success(c, http.StatusOK, gin.H{"issueIds": ids})
 }
 
 func (h *Handler) listComments(c *gin.Context) {

@@ -2,6 +2,7 @@ import { AlertCircle, Bell, Compass, FileText, Home, LogOut, User, Users } from 
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useUnreadCount } from '../../hooks/useNotifications';
+import { signOut } from '../../lib/api';
 
 const navItems = [
   { to: '/discover', i18n: 'sidebar.discover', icon: Compass },
@@ -15,9 +16,10 @@ const navItems = [
 export function Sidebar() {
   const { t } = useTranslation();
   const { data: unread = 0 } = useUnreadCount();
-  function logout() {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+  async function logout() {
+    // Best-effort server revoke of the refresh family, then wipe local state.
+    // signOut() itself never throws so the sign-out flow is idempotent.
+    await signOut();
     window.location.href = '/login';
   }
 

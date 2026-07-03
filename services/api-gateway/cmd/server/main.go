@@ -57,6 +57,7 @@ func main() {
 	r.POST("/api/v1/auth/register", identityPublic)
 	r.POST("/api/v1/auth/login", identityPublic)
 	r.POST("/api/v1/auth/refresh", identityPublic)
+	r.POST("/api/v1/auth/logout", identityPublic)
 	r.POST("/api/v1/auth/verify-email", identityPublic)
 	r.POST("/api/v1/auth/resend-verification", authMiddleware, identityProtected)
 	r.POST("/api/v1/auth/forgot-password", identityPublic)
@@ -98,6 +99,7 @@ func main() {
 	r.GET("/api/v1/representatives/:id/comments", communityProxy)
 	r.POST("/api/v1/representatives/:id/comments", authMiddleware, communityProxy)
 	r.GET("/api/v1/me/follows/representatives", authMiddleware, communityProxy)
+	r.GET("/api/v1/me/upvotes/issues", authMiddleware, communityProxy)
 
 	// Uploads (POST is auth-protected; GET is public so images render in <img>)
 	r.POST("/api/v1/uploads", authMiddleware, communityProxy)

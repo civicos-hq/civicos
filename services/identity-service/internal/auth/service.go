@@ -22,6 +22,11 @@ import (
 const (
 	verificationTokenTTL  = 24 * time.Hour
 	passwordResetTokenTTL = 1 * time.Hour
+	refreshTokenTTL       = 30 * 24 * time.Hour
+	// Short access-token lifetime is the whole point of the rotation setup
+	// we just shipped — a leaked token stays usable for at most 15 minutes,
+	// while the axios auto-refresh interceptor keeps the UX seamless.
+	accessTokenTTL = 15 * time.Minute
 )
 
 type UserStore interface {
@@ -38,14 +43,24 @@ type UserStore interface {
 	ResetPassword(userID, newPasswordHash string) error
 }
 
-type Service struct {
-	repo   UserStore
-	cfg    *config.Config
-	mailer mailer.Mailer
+// RefreshStore is the subset of RefreshRepository the service depends on.
+// Kept minimal so the fake in unit tests is trivial.
+type RefreshStore interface {
+	Create(t *domain.RefreshToken) error
+	FindByHash(hash string) (*domain.RefreshToken, error)
+	Consume(id string, at time.Time) (int64, error)
+	RevokeFamily(familyID string, at time.Time) error
 }
 
-func NewService(repo UserStore, cfg *config.Config, m mailer.Mailer) *Service {
-	return &Service{repo: repo, cfg: cfg, mailer: m}
+type Service struct {
+	repo    UserStore
+	refresh RefreshStore
+	cfg     *config.Config
+	mailer  mailer.Mailer
+}
+
+func NewService(repo UserStore, refresh RefreshStore, cfg *config.Config, m mailer.Mailer) *Service {
+	return &Service{repo: repo, refresh: refresh, cfg: cfg, mailer: m}
 }
 
 type RegisterInput struct {
@@ -291,18 +306,73 @@ func (s *Service) Login(input LoginInput) (*domain.PublicUser, *TokenPair, error
 	return &public, tokens, nil
 }
 
-func (s *Service) RefreshTokens(refreshToken string) (*TokenPair, error) {
-	claims, err := s.parseToken(refreshToken)
+// RefreshTokens performs rotation:
+//
+//	1. Look up the presented token by hash.
+//	2. If already-consumed → treat as replay: revoke the entire family and
+//	   reject. Both attacker and legitimate user must sign in again.
+//	3. If revoked or expired → reject.
+//	4. Otherwise atomically consume it and issue a new pair in the same
+//	   family. The atomic UPDATE is what guards against a legitimate
+//	   double-click race — one call wins, the other sees "not affected"
+//	   and gets the same INVALID_REFRESH_TOKEN error.
+func (s *Service) RefreshTokens(rawRefresh string) (*TokenPair, error) {
+	if rawRefresh == "" {
+		return nil, errors.New("INVALID_REFRESH_TOKEN")
+	}
+	tok, err := s.refresh.FindByHash(hashToken(rawRefresh))
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("INVALID_REFRESH_TOKEN")
+		}
+		return nil, err
+	}
+
+	now := time.Now()
+	if tok.RevokedAt != nil || now.After(tok.ExpiresAt) {
+		return nil, errors.New("INVALID_REFRESH_TOKEN")
+	}
+	if tok.ConsumedAt != nil {
+		// Replay — someone is presenting a token we already rotated away
+		// from. Nuke the family so whichever party is legitimate has to
+		// sign in fresh, but neither can hold onto old state.
+		log.Printf("[auth.RefreshTokens] replay detected for family=%s user=%s — revoking", tok.FamilyID, tok.UserID)
+		_ = s.refresh.RevokeFamily(tok.FamilyID, now.UTC())
 		return nil, errors.New("INVALID_REFRESH_TOKEN")
 	}
 
-	user, err := s.repo.FindByID(claims.UserID)
+	affected, err := s.refresh.Consume(tok.ID, now.UTC())
 	if err != nil {
+		return nil, err
+	}
+	if affected == 0 {
+		// Someone else consumed it while we were checking. Reject rather
+		// than issuing a second pair for the same rotation event.
 		return nil, errors.New("INVALID_REFRESH_TOKEN")
 	}
 
-	return s.signTokens(user)
+	user, err := s.repo.FindByID(tok.UserID)
+	if err != nil {
+		return nil, errors.New("INVALID_REFRESH_TOKEN")
+	}
+	return s.issueTokenPair(user, tok.FamilyID)
+}
+
+// Logout revokes every token in the family that the presented refresh token
+// belongs to. Best-effort: an unknown / expired token still returns nil so
+// clients can safely "sign out anyway" from a stale session.
+func (s *Service) Logout(rawRefresh string) error {
+	if rawRefresh == "" {
+		return nil
+	}
+	tok, err := s.refresh.FindByHash(hashToken(rawRefresh))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil
+		}
+		return err
+	}
+	return s.refresh.RevokeFamily(tok.FamilyID, time.Now().UTC())
 }
 
 func (s *Service) GetMe(userID string) (*domain.PublicUser, error) {
@@ -357,10 +427,19 @@ func (s *Service) JoinCommunity(userID, communityID string) (*domain.PublicUser,
 	return s.GetMe(userID)
 }
 
-// signTokens is the single place token pairs are issued — no duplicate logic.
+// signTokens keeps the old signature so callers (Login, Register, Verify,
+// Reset) don't all need to change. Under the hood it now issues an opaque
+// refresh token backed by a DB row and starts a fresh rotation family.
 func (s *Service) signTokens(user *domain.User) (*TokenPair, error) {
-	accessExpiry := time.Now().Add(7 * 24 * time.Hour)
-	refreshExpiry := time.Now().Add(30 * 24 * time.Hour)
+	return s.issueTokenPair(user, "")
+}
+
+// issueTokenPair mints an access JWT + an opaque refresh token. Passing
+// familyID="" opens a NEW rotation family (fresh session). Passing an
+// existing family threads a rotation event — used by RefreshTokens.
+func (s *Service) issueTokenPair(user *domain.User, familyID string) (*TokenPair, error) {
+	now := time.Now()
+	accessExpiry := now.Add(accessTokenTTL)
 
 	accessClaims := AuthClaims{
 		UserID:        user.ID,
@@ -370,35 +449,38 @@ func (s *Service) signTokens(user *domain.User) (*TokenPair, error) {
 		EmailVerified: user.EmailVerified,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(accessExpiry),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			IssuedAt:  jwt.NewNumericDate(now),
 		},
 	}
-
 	accessToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, accessClaims).SignedString([]byte(s.cfg.JWTSecret))
 	if err != nil {
 		return nil, fmt.Errorf("failed to sign access token: %w", err)
 	}
 
-	refreshClaims := AuthClaims{
-		UserID:        user.ID,
-		Email:         user.Email,
-		Name:          user.Name,
-		Role:          user.Role,
-		EmailVerified: user.EmailVerified,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(refreshExpiry),
-			IssuedAt:  jwt.NewNumericDate(time.Now()),
-		},
-	}
-
-	refreshToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims).SignedString([]byte(s.cfg.JWTSecret))
+	rawRefresh, err := newRandomToken(32)
 	if err != nil {
-		return nil, fmt.Errorf("failed to sign refresh token: %w", err)
+		return nil, fmt.Errorf("generate refresh token: %w", err)
+	}
+	row := &domain.RefreshToken{
+		ID:        uuid.New().String(),
+		UserID:    user.ID,
+		TokenHash: hashToken(rawRefresh),
+		ExpiresAt: now.Add(refreshTokenTTL).UTC(),
+	}
+	if familyID == "" {
+		// The first token in a family uses its own ID as the family ID. That
+		// way we don't need a separate table just to represent the concept.
+		row.FamilyID = row.ID
+	} else {
+		row.FamilyID = familyID
+	}
+	if err := s.refresh.Create(row); err != nil {
+		return nil, fmt.Errorf("persist refresh token: %w", err)
 	}
 
 	return &TokenPair{
 		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
+		RefreshToken: rawRefresh,
 		ExpiresIn:    accessExpiry.Unix(),
 	}, nil
 }

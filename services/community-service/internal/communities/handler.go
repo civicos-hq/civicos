@@ -22,7 +22,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth, requireRole gin.Hand
 }
 
 func (h *Handler) list(c *gin.Context) {
-	items, err := h.svc.List()
+	items, err := h.svc.List(c.Query("state"), c.Query("lga"))
 	if err != nil {
 		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to fetch communities")
 		return
