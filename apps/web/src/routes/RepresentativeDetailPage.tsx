@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { Mail, Phone, Globe, Pencil } from 'lucide-react';
 import { Button, Input } from '@civicos/ui';
 import { UserRole, type ApiResponse, type Community, type Representative } from '@civicos/types';
@@ -41,6 +42,7 @@ function useCommunities() {
 }
 
 export function RepresentativeDetailPage() {
+  const { t, i18n } = useTranslation();
   const { id = '' } = useParams<{ id: string }>();
   const repQuery = useRepresentative(id);
   const communitiesQuery = useCommunities();
@@ -50,7 +52,7 @@ export function RepresentativeDetailPage() {
   const isAdmin = meQuery.data?.role ? ADMIN_ROLES.has(meQuery.data.role) : false;
 
   if (repQuery.isLoading) {
-    return <p className="text-sm text-slate-500">Loading…</p>;
+    return <p className="text-sm text-slate-500">{t('common.loading')}</p>;
   }
   if (repQuery.isError || !repQuery.data) {
     return (
@@ -59,9 +61,9 @@ export function RepresentativeDetailPage() {
           to="/representatives"
           className="text-sm font-semibold text-civic-700 hover:underline"
         >
-          ← Back to representatives
+          {t('representativeDetail.backToRepresentatives')}
         </Link>
-        <p className="text-sm text-red-600">Couldn't load this representative.</p>
+        <p className="text-sm text-red-600">{t('representativeDetail.loadError')}</p>
       </section>
     );
   }
@@ -73,7 +75,7 @@ export function RepresentativeDetailPage() {
   return (
     <section className="space-y-6">
       <Link to="/representatives" className="text-sm font-semibold text-civic-700 hover:underline">
-        ← Back to representatives
+        {t('representativeDetail.backToRepresentatives')}
       </Link>
 
       <header className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -81,7 +83,7 @@ export function RepresentativeDetailPage() {
           <Avatar name={rep.name} src={rep.avatarUrl} size={96} />
           <div className="min-w-0 flex-1">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-civic-700">
-              Representative
+              {t('representativeDetail.eyebrow')}
             </p>
             <h1 className="mt-1 text-3xl font-semibold text-slate-900">
               {rep.title} {rep.name}
@@ -100,7 +102,7 @@ export function RepresentativeDetailPage() {
             {isAdmin && (
               <Button size="sm" variant="secondary" onClick={() => setEditOpen(true)}>
                 <Pencil className="h-3.5 w-3.5" />
-                Edit
+                {t('representativeDetail.edit')}
               </Button>
             )}
             <FollowButton representativeId={rep.id} isFollowing={isFollowing} />
@@ -111,34 +113,40 @@ export function RepresentativeDetailPage() {
       <div className="grid gap-4 md:grid-cols-2">
         <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-            Response rate
+            {t('representativeDetail.stats.responseRate')}
           </p>
           <p className="mt-2 text-3xl font-semibold text-slate-900">{rep.responseRate}%</p>
-          <p className="mt-1 text-sm text-slate-500">Of citizen messages answered.</p>
+          <p className="mt-1 text-sm text-slate-500">
+            {t('representativeDetail.stats.responseRateSub')}
+          </p>
         </article>
         <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-            Followers
+            {t('representativeDetail.stats.followers')}
           </p>
           <p className="mt-2 text-3xl font-semibold text-slate-900">
-            {rep.followerCount.toLocaleString()}
+            {rep.followerCount.toLocaleString(i18n.language)}
           </p>
-          <p className="mt-1 text-sm text-slate-500">Citizens subscribed to updates.</p>
+          <p className="mt-1 text-sm text-slate-500">
+            {t('representativeDetail.stats.followersSub')}
+          </p>
         </article>
       </div>
 
       {rep.bio && (
         <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-900">About</h2>
+          <h2 className="text-lg font-semibold text-slate-900">
+            {t('representativeDetail.about')}
+          </h2>
           <p className="mt-3 whitespace-pre-wrap text-sm text-slate-700">{rep.bio}</p>
         </article>
       )}
 
       <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-900">Contact</h2>
-        <p className="mt-1 text-sm text-slate-500">
-          For private matters. For public questions, post below — replies are visible to everyone.
-        </p>
+        <h2 className="text-lg font-semibold text-slate-900">
+          {t('representativeDetail.contact.heading')}
+        </h2>
+        <p className="mt-1 text-sm text-slate-500">{t('representativeDetail.contact.sub')}</p>
         {rep.email || rep.phone || rep.website ? (
           <div className="mt-4 flex flex-wrap gap-2">
             {rep.email && (
@@ -166,8 +174,7 @@ export function RepresentativeDetailPage() {
           </div>
         ) : (
           <p className="mt-4 text-sm italic text-slate-500">
-            No direct contact details on file. Post a question below to reach this representative
-            publicly.
+            {t('representativeDetail.contact.empty')}
           </p>
         )}
       </article>
@@ -180,6 +187,7 @@ export function RepresentativeDetailPage() {
 }
 
 function EditRepresentativeModal({ rep, onClose }: { rep: Representative; onClose: () => void }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [name, setName] = useState(rep.name);
   const [title, setTitle] = useState(rep.title);
@@ -216,7 +224,7 @@ function EditRepresentativeModal({ rep, onClose }: { rep: Representative; onClos
       queryClient.invalidateQueries({ queryKey: ['representatives'] });
       onClose();
     },
-    onError: () => setError('Could not save changes. Double-check email/website format.'),
+    onError: () => setError(t('representativeDetail.editModal.genericError')),
   });
 
   function submit(e: FormEvent) {
@@ -226,31 +234,43 @@ function EditRepresentativeModal({ rep, onClose }: { rep: Representative; onClos
   }
 
   return (
-    <Modal title={`Edit ${rep.name}`} onClose={onClose}>
+    <Modal title={t('representativeDetail.editModal.title', { name: rep.name })} onClose={onClose}>
       <form onSubmit={submit} className="space-y-4">
         <div className="grid gap-3 md:grid-cols-[100px,1fr]">
-          <Input label="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
           <Input
-            label="Full name"
+            label={t('representativeDetail.editModal.fields.title')}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+          <Input
+            label={t('representativeDetail.editModal.fields.fullName')}
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
             minLength={2}
           />
         </div>
-        <Input label="Position" value={position} onChange={(e) => setPosition(e.target.value)} />
+        <Input
+          label={t('representativeDetail.editModal.fields.position')}
+          value={position}
+          onChange={(e) => setPosition(e.target.value)}
+        />
         <div className="grid gap-3 md:grid-cols-2">
           <Input
-            label="Constituency"
+            label={t('representativeDetail.editModal.fields.constituency')}
             value={constituency}
             onChange={(e) => setConstituency(e.target.value)}
           />
-          <Input label="Party" value={party} onChange={(e) => setParty(e.target.value)} />
+          <Input
+            label={t('representativeDetail.editModal.fields.party')}
+            value={party}
+            onChange={(e) => setParty(e.target.value)}
+          />
         </div>
 
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-gray-700" htmlFor="edit-bio">
-            Bio
+            {t('representativeDetail.editModal.fields.bio')}
           </label>
           <textarea
             id="edit-bio"
@@ -263,17 +283,17 @@ function EditRepresentativeModal({ rep, onClose }: { rep: Representative; onClos
 
         <fieldset className="rounded-lg border border-slate-200 p-3">
           <legend className="px-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Contact
+            {t('representativeDetail.editModal.contactLegend')}
           </legend>
           <div className="grid gap-3 sm:grid-cols-2">
             <Input
-              label="Email"
+              label={t('representativeDetail.editModal.email')}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
             <Input
-              label="Phone"
+              label={t('representativeDetail.editModal.phone')}
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
@@ -281,7 +301,7 @@ function EditRepresentativeModal({ rep, onClose }: { rep: Representative; onClos
           </div>
           <div className="mt-3">
             <Input
-              label="Website"
+              label={t('representativeDetail.editModal.website')}
               type="url"
               value={website}
               onChange={(e) => setWebsite(e.target.value)}
@@ -293,10 +313,10 @@ function EditRepresentativeModal({ rep, onClose }: { rep: Representative; onClos
 
         <div className="flex justify-end gap-2 pt-2">
           <Button type="button" variant="secondary" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button type="submit" loading={mutation.isPending}>
-            Save
+            {t('representativeDetail.editModal.save')}
           </Button>
         </div>
       </form>

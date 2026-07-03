@@ -1,38 +1,21 @@
 import { useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@civicos/ui';
 import type {
   ApiResponse,
   IssueComment,
   PetitionComment,
   RepresentativeComment,
-  UserRole,
 } from '@civicos/types';
 import { api } from '../../lib/api';
+import { useEnumLabels } from '../../hooks/useEnumLabels';
+import { useRelativeTime } from '../../hooks/useRelativeTime';
 
 type EntityType = 'issues' | 'petitions' | 'representatives';
 type AnyComment = IssueComment | PetitionComment | RepresentativeComment;
 
-const ROLE_LABEL: Partial<Record<UserRole, string>> = {
-  CITIZEN: 'Citizen',
-  REPRESENTATIVE: 'Representative',
-  GOVERNMENT_ADMIN: 'Government Admin',
-  NGO: 'NGO',
-  MODERATOR: 'Moderator',
-  PLATFORM_ADMIN: 'Platform Admin',
-} as Partial<Record<UserRole, string>>;
-
-function formatTimeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const minutes = Math.round(diff / 60_000);
-  if (minutes < 1) return 'just now';
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.round(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.round(hours / 24);
-  if (days < 30) return `${days}d ago`;
-  return new Date(iso).toLocaleDateString();
-}
+const COMMENT_MAX = 2000;
 
 function initials(name: string): string {
   return (
@@ -52,6 +35,9 @@ export function CommentsSection({
   entityType: EntityType;
   entityId: string;
 }) {
+  const { t } = useTranslation();
+  const enums = useEnumLabels();
+  const relative = useRelativeTime();
   const queryClient = useQueryClient();
   const [content, setContent] = useState('');
   const [error, setError] = useState('');
@@ -74,7 +60,7 @@ export function CommentsSection({
       setContent('');
       queryClient.invalidateQueries({ queryKey: ['comments', entityType, entityId] });
     },
-    onError: () => setError('Could not post your comment. Try again.'),
+    onError: () => setError(t('comments.postError')),
   });
 
   function handleSubmit(e: FormEvent) {
@@ -89,37 +75,40 @@ export function CommentsSection({
   return (
     <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <h2 className="text-lg font-semibold text-slate-900">
-        Discussion <span className="text-sm font-normal text-slate-500">({comments.length})</span>
+        {t('comments.heading')}{' '}
+        <span className="text-sm font-normal text-slate-500">({comments.length})</span>
       </h2>
 
       <form onSubmit={handleSubmit} className="mt-4 space-y-3">
         <textarea
           className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-civic-500"
           rows={3}
-          maxLength={2000}
-          placeholder="Add to the discussion…"
+          maxLength={COMMENT_MAX}
+          placeholder={t('comments.placeholder')}
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
         {error && <p className="text-sm text-red-600">{error}</p>}
         <div className="flex items-center justify-between">
-          <p className="text-xs text-slate-500">{content.length}/2000</p>
+          <p className="text-xs text-slate-500">
+            {t('comments.charCount', { count: content.length, max: COMMENT_MAX })}
+          </p>
           <Button
             type="submit"
             size="sm"
             loading={addMutation.isPending}
             disabled={!content.trim()}
           >
-            Post comment
+            {t('comments.post')}
           </Button>
         </div>
       </form>
 
       <div className="mt-6 space-y-4">
         {commentsQuery.isLoading ? (
-          <p className="text-sm text-slate-500">Loading…</p>
+          <p className="text-sm text-slate-500">{t('common.loading')}</p>
         ) : comments.length === 0 ? (
-          <p className="text-sm text-slate-500">No comments yet — start the conversation.</p>
+          <p className="text-sm text-slate-500">{t('comments.empty')}</p>
         ) : (
           comments.map((c) => (
             <div
@@ -132,17 +121,13 @@ export function CommentsSection({
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-baseline gap-2">
                   <p className="text-sm font-semibold text-slate-900">{c.authorName}</p>
-                  <span className="text-xs text-slate-500">
-                    {ROLE_LABEL[c.authorRole] ?? c.authorRole}
-                  </span>
+                  <span className="text-xs text-slate-500">{enums.userRole(c.authorRole)}</span>
                   {c.isOfficialResponse && (
                     <span className="rounded-full bg-civic-700 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
-                      Official response
+                      {t('comments.officialResponse')}
                     </span>
                   )}
-                  <span className="ml-auto text-xs text-slate-400">
-                    {formatTimeAgo(c.createdAt)}
-                  </span>
+                  <span className="ml-auto text-xs text-slate-400">{relative(c.createdAt)}</span>
                 </div>
                 <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700">{c.content}</p>
               </div>

@@ -81,6 +81,102 @@
     }
   },
 
+  "representativeDetail": {
+    "backToRepresentatives": "← Koma zuwa wakilai",
+    "loadError": "Ba mu iya ɗora wannan wakilin ba.",
+    "eyebrow": "Wakili",
+    "edit": "Gyara",
+    "stats": {
+      "responseRate": "Adadin amsa",
+      "responseRateSub": "Daga cikin saƙon 'yan ƙasa da aka amsa.",
+      "followers": "Masu bi",
+      "followersSub": "'Yan ƙasa da suka yi rijista don sabuntawa."
+    },
+    "about": "Game da",
+    "contact": {
+      "heading": "Tuntuɓi",
+      "sub": "Don al'amuran sirri. Don tambayoyi na jama'a, aika a ƙasa — amsoshi za su bayyana ga kowa.",
+      "empty": "Babu cikakkun bayanan tuntuɓi. Aika tambaya a ƙasa don isa ga wannan wakili a bainar jama'a."
+    },
+    "editModal": {
+      "title": "Gyara {{name}}",
+      "fields": {
+        "title": "Taken girmamawa",
+        "fullName": "Cikakken suna",
+        "position": "Matsayi",
+        "constituency": "Mazaɓa",
+        "party": "Jam'iyya",
+        "bio": "Tarihi"
+      },
+      "contactLegend": "Tuntuɓi",
+      "email": "Imel",
+      "phone": "Waya",
+      "website": "Yanar gizo",
+      "genericError": "Ba mu iya ajiye canje-canje ba. Duba tsarin imel/yanar gizo.",
+      "save": "Ajiye"
+    }
+  },
+
+  "petitionDetail": {
+    "backToPetitions": "← Koma zuwa koƙe-koƙe",
+    "loadError": "Ba mu iya ɗora wannan koƙen ba. Wataƙila an cire shi.",
+    "eyebrow": "Koƙe",
+    "startedAt": "An fara {{when}}",
+    "whyThisMatters": "Me yasa wannan yake da muhimmanci",
+    "photos": "Hotuna",
+    "photoAlt": "Hoton koƙe",
+    "signatures": "Sa hannu",
+    "ofTarget": "daga cikin manufa {{goal}}",
+    "deadline": "Lokacin ƙarshe:",
+    "endsToday": "· Zai ƙare a yau",
+    "daysLeft_one": "· Kwana {{count}} ya rage",
+    "daysLeft_other": "· Kwanaki {{count}} suka rage",
+    "percentComplete": "{{percent}}% sun cika",
+    "sign": "✎ Sa hannu",
+    "onlyActive": "Za a iya sa hannu kan koƙe-koƙen da suke aiki kaɗai",
+    "signError": "Ba mu iya sa hannu ba. Da fatan sake gwadawa."
+  },
+
+  "issueDetail": {
+    "backToIssues": "← Koma zuwa matsaloli",
+    "loadError": "Ba mu iya ɗora wannan matsalar ba. Wataƙila an cire ta.",
+    "reportedAt": "An bayar da rahoto {{when}}",
+    "description": "Bayani",
+    "location": "Wuri",
+    "photos": "Hotuna",
+    "photoAlt": "Hoton matsala",
+    "communitySupport": "Goyon bayan al'umma",
+    "upvotesCount_one": "goyon baya",
+    "upvotesCount_other": "goyon baya",
+    "upvote": "▲ Ba goyon baya",
+    "upvoted": "✓ An ba goyon baya",
+    "statusClosedNote": "An rufe wannan matsalar ba tare da warware ta ba.",
+    "updateStatus": "Sabunta matsayi",
+    "updateStatusError": "Ba mu iya sabuntawa ba."
+  },
+
+  "comments": {
+    "heading": "Tattaunawa",
+    "placeholder": "Ƙara wa tattaunawar…",
+    "charCount": "{{count}}/{{max}}",
+    "post": "Aika sharhi",
+    "empty": "Babu sharhi tukuna — fara tattaunawar.",
+    "officialResponse": "Amsar hukuma",
+    "postError": "Ba mu iya aika sharhinka ba. Sake gwadawa."
+  },
+
+  "search": {
+    "placeholder": "Nemi matsaloli, koƙe-koƙe, wakilai…",
+    "typeToSearch": "Rubuta aƙalla haruffa 2 don nema",
+    "loading": "Ana nema…",
+    "empty": "Babu sakamako na \"{{query}}\".",
+    "groups": {
+      "issues": "Matsaloli",
+      "petitions": "Koƙe-koƙe",
+      "representatives": "Wakilai"
+    }
+  },
+
   "discoverPage": {
     "eyebrow": "Gano",
     "title": "Abin da ke faruwa kusa da kai",

@@ -81,6 +81,102 @@
     }
   },
 
+  "representativeDetail": {
+    "backToRepresentatives": "← Padà sí àwọn aṣojú",
+    "loadError": "A kò lè kó aṣojú yìí.",
+    "eyebrow": "Aṣojú",
+    "edit": "Ṣàtúnṣe",
+    "stats": {
+      "responseRate": "Iye ìdáhùn",
+      "responseRateSub": "Nínú àwọn ìránṣẹ́ aráàlú tí a dáhùn.",
+      "followers": "Ọmọ ẹ̀yìn",
+      "followersSub": "Àwọn aráàlú tí wọ́n forúkọsílẹ̀ sí àwọn ìmúdojúiwọn."
+    },
+    "about": "Nípa",
+    "contact": {
+      "heading": "Ìkànsí",
+      "sub": "Fún ọ̀rọ̀ ìkọ̀kọ̀. Fún àwọn ìbéèrè gbangba, kọ ní ìsàlẹ̀ — ìdáhùn yóò farahàn fún gbogbo ènìyàn.",
+      "empty": "Kò sí àpèjúwe ìkànsí ti ara ẹni. Kọ ìbéèrè ní ìsàlẹ̀ láti dé ọ̀dọ̀ aṣojú yìí ní gbangba."
+    },
+    "editModal": {
+      "title": "Ṣàtúnṣe {{name}}",
+      "fields": {
+        "title": "Àkọlé",
+        "fullName": "Orúkọ kíkún",
+        "position": "Ipò",
+        "constituency": "Àgbègbè ìdìbò",
+        "party": "Ẹgbẹ́",
+        "bio": "Ìtàn ìgbé ayé"
+      },
+      "contactLegend": "Ìkànsí",
+      "email": "Ímeèlì",
+      "phone": "Fóònù",
+      "website": "Ojú-òpó",
+      "genericError": "A kò lè fi àwọn ìyípadà pamọ́. Ṣàyẹ̀wò fọ́màtì ímeèlì/ojú-òpó.",
+      "save": "Fi pamọ́"
+    }
+  },
+
+  "petitionDetail": {
+    "backToPetitions": "← Padà sí àwọn ẹ̀bẹ̀",
+    "loadError": "A kò lè kó ẹ̀bẹ̀ yìí. Ó lè jẹ́ pé a ti pa á rẹ́.",
+    "eyebrow": "Ẹ̀bẹ̀",
+    "startedAt": "A bẹ̀rẹ̀ ní {{when}}",
+    "whyThisMatters": "Idi tí ó fi ṣe pàtàkì",
+    "photos": "Àwọn fọ́tò",
+    "photoAlt": "Fọ́tò ẹ̀bẹ̀",
+    "signatures": "Àwọn ìfowọ́sí",
+    "ofTarget": "nínú àfojúsùn {{goal}}",
+    "deadline": "Àkókò ìparí:",
+    "endsToday": "· Ó ń parí lónìí",
+    "daysLeft_one": "· Ọjọ́ {{count}} tó kù",
+    "daysLeft_other": "· Ọjọ́ {{count}} tó kù",
+    "percentComplete": "{{percent}}% ti parí",
+    "sign": "✎ Fọwọ́sí ẹ̀bẹ̀",
+    "onlyActive": "Àwọn ẹ̀bẹ̀ tí ó ń ṣíṣẹ́ nìkan la lè fọwọ́sí",
+    "signError": "A kò lè fọwọ́sí. Jọ̀wọ́ gbìyànjú lẹ́ẹ̀kan sí i."
+  },
+
+  "issueDetail": {
+    "backToIssues": "← Padà sí àwọn ìṣòro",
+    "loadError": "A kò lè kó ìṣòro yìí. Ó lè jẹ́ pé a ti pa á rẹ́.",
+    "reportedAt": "A ròyìn ní {{when}}",
+    "description": "Àpèjúwe",
+    "location": "Ibi",
+    "photos": "Àwọn fọ́tò",
+    "photoAlt": "Fọ́tò ìṣòro",
+    "communitySupport": "Àtìlẹ́yìn agbègbè",
+    "upvotesCount_one": "àtìlẹ́yìn",
+    "upvotesCount_other": "àwọn àtìlẹ́yìn",
+    "upvote": "▲ Fọwọ́sí",
+    "upvoted": "✓ Fọwọ́sí",
+    "statusClosedNote": "A pa ìṣòro yìí láìṣe ìpinnu.",
+    "updateStatus": "Ṣàtúnṣe ipò",
+    "updateStatusError": "A kò lè ṣàtúnṣe."
+  },
+
+  "comments": {
+    "heading": "Ìjíròrò",
+    "placeholder": "Fi kún ìjíròrò…",
+    "charCount": "{{count}}/{{max}}",
+    "post": "Fi ọ̀rọ̀ ránṣẹ́",
+    "empty": "Kò sí ọ̀rọ̀ ṣíṣí — bẹ̀rẹ̀ ìjíròrò.",
+    "officialResponse": "Ìdáhùn ìjọba",
+    "postError": "A kò lè fi ọ̀rọ̀ rẹ ránṣẹ́. Gbìyànjú lẹ́ẹ̀kan sí i."
+  },
+
+  "search": {
+    "placeholder": "Wá àwọn ìṣòro, ẹ̀bẹ̀, àwọn aṣojú…",
+    "typeToSearch": "Tẹ lẹ́tà méjì ó kéré jù láti wá",
+    "loading": "À ń wá…",
+    "empty": "Kò sí àbájáde fún \"{{query}}\".",
+    "groups": {
+      "issues": "Àwọn Ìṣòro",
+      "petitions": "Àwọn Ẹ̀bẹ̀",
+      "representatives": "Àwọn Aṣojú"
+    }
+  },
+
   "discoverPage": {
     "eyebrow": "Ṣàwárí",
     "title": "Ohun tí ń ṣẹlẹ̀ létí",

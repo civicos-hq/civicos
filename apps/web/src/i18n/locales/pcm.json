@@ -81,6 +81,102 @@
     }
   },
 
+  "representativeDetail": {
+    "backToRepresentatives": "← Go back to reps",
+    "loadError": "We no fit load this rep.",
+    "eyebrow": "Representative",
+    "edit": "Edit",
+    "stats": {
+      "responseRate": "Response rate",
+      "responseRateSub": "Of citizen messages wey e answer.",
+      "followers": "Followers",
+      "followersSub": "Citizens wey subscribe for updates."
+    },
+    "about": "About",
+    "contact": {
+      "heading": "Contact",
+      "sub": "For private matters. For public questions, post below — replies dey visible to everyone.",
+      "empty": "No direct contact dey. Post question below make you reach this rep publicly."
+    },
+    "editModal": {
+      "title": "Edit {{name}}",
+      "fields": {
+        "title": "Title",
+        "fullName": "Full name",
+        "position": "Position",
+        "constituency": "Constituency",
+        "party": "Party",
+        "bio": "Bio"
+      },
+      "contactLegend": "Contact",
+      "email": "Email",
+      "phone": "Phone",
+      "website": "Website",
+      "genericError": "We no fit save the changes. Double-check email/website format.",
+      "save": "Save"
+    }
+  },
+
+  "petitionDetail": {
+    "backToPetitions": "← Go back to petitions",
+    "loadError": "We no fit load this petition. Maybe dem don remove am.",
+    "eyebrow": "Petition",
+    "startedAt": "Started {{when}}",
+    "whyThisMatters": "Why this one matter",
+    "photos": "Photos",
+    "photoAlt": "Petition photo",
+    "signatures": "Signatures",
+    "ofTarget": "out of {{goal}} target",
+    "deadline": "Deadline:",
+    "endsToday": "· E dey end today",
+    "daysLeft_one": "· {{count}} day remain",
+    "daysLeft_other": "· {{count}} days remain",
+    "percentComplete": "{{percent}}% don complete",
+    "sign": "✎ Sign petition",
+    "onlyActive": "Na only active petitions you fit sign",
+    "signError": "We no fit sign. Abeg try again."
+  },
+
+  "issueDetail": {
+    "backToIssues": "← Go back to issues",
+    "loadError": "We no fit load this issue. Maybe dem don remove am.",
+    "reportedAt": "Reported {{when}}",
+    "description": "Description",
+    "location": "Location",
+    "photos": "Photos",
+    "photoAlt": "Issue photo",
+    "communitySupport": "Community support",
+    "upvotesCount_one": "upvote",
+    "upvotesCount_other": "upvotes",
+    "upvote": "▲ Upvote",
+    "upvoted": "✓ You don upvote",
+    "statusClosedNote": "Dem close this issue without resolve am.",
+    "updateStatus": "Update status",
+    "updateStatusError": "We no fit update."
+  },
+
+  "comments": {
+    "heading": "Discussion",
+    "placeholder": "Add to the discussion…",
+    "charCount": "{{count}}/{{max}}",
+    "post": "Post comment",
+    "empty": "No comment dey yet — start the conversation.",
+    "officialResponse": "Official response",
+    "postError": "We no fit post your comment. Try again."
+  },
+
+  "search": {
+    "placeholder": "Search issues, petitions, reps…",
+    "typeToSearch": "Type at least 2 characters to search",
+    "loading": "Dey search…",
+    "empty": "No result for \"{{query}}\".",
+    "groups": {
+      "issues": "Issues",
+      "petitions": "Petitions",
+      "representatives": "Representatives"
+    }
+  },
+
   "discoverPage": {
     "eyebrow": "Discover",
     "title": "Wetin dey happen near you",

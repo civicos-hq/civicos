@@ -1,10 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Search, Loader2 } from 'lucide-react';
 import type { Petition, Representative } from '@civicos/types';
 import { useSearch } from '../../hooks/useSearch';
+import { useEnumLabels } from '../../hooks/useEnumLabels';
 
 export function SearchBar() {
+  const { t } = useTranslation();
+  const enums = useEnumLabels();
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -38,7 +42,7 @@ export function SearchBar() {
       <input
         type="search"
         value={query}
-        placeholder="Search issues, petitions, representatives…"
+        placeholder={t('search.placeholder')}
         className="dashboard-search"
         onChange={(e) => {
           setQuery(e.target.value);
@@ -60,17 +64,19 @@ export function SearchBar() {
         <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-20 max-h-[28rem] overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-lg">
           {showEmpty && (
             <p className="px-4 py-6 text-center text-sm text-slate-500">
-              No matches for “{debouncedQuery}”.
+              {t('search.empty', { query: debouncedQuery })}
             </p>
           )}
 
           {data.issues.length > 0 && (
-            <Section title="Issues">
+            <Section title={t('search.groups.issues')}>
               {data.issues.map((it) => (
                 <ResultRow
                   key={it.id}
                   primary={it.title}
-                  secondary={`${it.status} · ${it.upvoteCount} upvotes`}
+                  secondary={`${enums.issueStatus(it.status)} · ${t('issuesPage.meta.upvotes', {
+                    count: it.upvoteCount,
+                  })}`}
                   onClick={() => go(`/issues/${it.id}`)}
                 />
               ))}
@@ -78,12 +84,15 @@ export function SearchBar() {
           )}
 
           {data.petitions.length > 0 && (
-            <Section title="Petitions">
+            <Section title={t('search.groups.petitions')}>
               {data.petitions.map((p: Petition) => (
                 <ResultRow
                   key={p.id}
                   primary={p.title}
-                  secondary={`${p.signatureCount}/${p.goal} signatures · ${p.status}`}
+                  secondary={`${t('discoverPage.meta.signaturesOf', {
+                    signatures: p.signatureCount,
+                    goal: p.goal,
+                  })} · ${enums.petitionStatus(p.status)}`}
                   onClick={() => go(`/petitions/${p.id}`)}
                 />
               ))}
@@ -91,7 +100,7 @@ export function SearchBar() {
           )}
 
           {data.representatives.length > 0 && (
-            <Section title="Representatives">
+            <Section title={t('search.groups.representatives')}>
               {data.representatives.map((r: Representative) => (
                 <ResultRow
                   key={r.id}

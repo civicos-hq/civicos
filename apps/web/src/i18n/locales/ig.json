@@ -81,6 +81,102 @@
     }
   },
 
+  "representativeDetail": {
+    "backToRepresentatives": "← Laghachi na ndị nnọchi anya",
+    "loadError": "Anyị enweghị ike ibubata onye nnọchi anya a.",
+    "eyebrow": "Onye nnọchi anya",
+    "edit": "Dezie",
+    "stats": {
+      "responseRate": "Ọnụọgụ nzaghachi",
+      "responseRateSub": "Nke ozi ndị nkịtị a zaghachiri.",
+      "followers": "Ndị na-eso",
+      "followersSub": "Ụmụ amaala debanyere aha maka mmelite."
+    },
+    "about": "Gbasara",
+    "contact": {
+      "heading": "Kpọtụrụ",
+      "sub": "Maka ihe nzuzo. Maka ajụjụ ọha, dee n'okpuru — azịza ga-adị ọha.",
+      "empty": "Enweghị nkọwa kpọtụrụ n'akwụkwọ. Dee ajụjụ n'okpuru iji ruo onye nnọchi anya a n'ọha."
+    },
+    "editModal": {
+      "title": "Dezie {{name}}",
+      "fields": {
+        "title": "Utu aha",
+        "fullName": "Aha zuru oke",
+        "position": "Ọkwa",
+        "constituency": "Mpaghara nhọpụta",
+        "party": "Otu",
+        "bio": "Akụkọ ndụ"
+      },
+      "contactLegend": "Kpọtụrụ",
+      "email": "Ozi-e",
+      "phone": "Ekwentị",
+      "website": "Weebụsaịtị",
+      "genericError": "Anyị enweghị ike ichekwa mgbanwe. Lelee nhazi ozi-e/weebụsaịtị.",
+      "save": "Chekwaa"
+    }
+  },
+
+  "petitionDetail": {
+    "backToPetitions": "← Laghachi na akwụkwọ arịrịọ",
+    "loadError": "Anyị enweghị ike ibubata akwụkwọ arịrịọ a. Enwere ike ewepụrụ ya.",
+    "eyebrow": "Akwụkwọ arịrịọ",
+    "startedAt": "Bidoro na {{when}}",
+    "whyThisMatters": "Ihe kpatara nke a ji dị mkpa",
+    "photos": "Foto",
+    "photoAlt": "Foto akwụkwọ arịrịọ",
+    "signatures": "Aha ndị bịnyere",
+    "ofTarget": "n'ime ebumnobi {{goal}}",
+    "deadline": "Njedebe:",
+    "endsToday": "· Emechiri taa",
+    "daysLeft_one": "· Ụbọchị {{count}} fọdụrụ",
+    "daysLeft_other": "· Ụbọchị {{count}} fọdụrụ",
+    "percentComplete": "{{percent}}% zuru oke",
+    "sign": "✎ Bịnye aka",
+    "onlyActive": "Ọ bụ naanị akwụkwọ arịrịọ na-arụ ọrụ ka enwere ike ibinye aka",
+    "signError": "Anyị enweghị ike ibinye aka. Biko nwaa ọzọ."
+  },
+
+  "issueDetail": {
+    "backToIssues": "← Laghachi na okwu",
+    "loadError": "Anyị enweghị ike ibubata okwu a. Enwere ike ewepụrụ ya.",
+    "reportedAt": "Akọrọ na {{when}}",
+    "description": "Nkọwa",
+    "location": "Ebe",
+    "photos": "Foto",
+    "photoAlt": "Foto okwu",
+    "communitySupport": "Nkwado obodo",
+    "upvotesCount_one": "nkwado",
+    "upvotesCount_other": "nkwado",
+    "upvote": "▲ Kwado",
+    "upvoted": "✓ Kwadoro",
+    "statusClosedNote": "Emechiri okwu a na-enweghị nkwụsị.",
+    "updateStatus": "Melite ọnọdụ",
+    "updateStatusError": "Anyị enweghị ike imelite."
+  },
+
+  "comments": {
+    "heading": "Mkparịta ụka",
+    "placeholder": "Tinye na mkparịta ụka…",
+    "charCount": "{{count}}/{{max}}",
+    "post": "Zipụ okwu",
+    "empty": "Enweghị okwu ọ bụla ugbu a — bido mkparịta ụka.",
+    "officialResponse": "Azịza nke gọọmentị",
+    "postError": "Anyị enweghị ike izipu okwu gị. Nwaa ọzọ."
+  },
+
+  "search": {
+    "placeholder": "Chọọ okwu, akwụkwọ arịrịọ, ndị nnọchi anya…",
+    "typeToSearch": "Pịnye opekata mpe mkpụrụedemede 2 iji chọọ",
+    "loading": "Na-achọ…",
+    "empty": "Enweghị nsonaazụ maka \"{{query}}\".",
+    "groups": {
+      "issues": "Okwu",
+      "petitions": "Akwụkwọ arịrịọ",
+      "representatives": "Ndị nnọchi anya"
+    }
+  },
+
   "discoverPage": {
     "eyebrow": "Chọpụta",
     "title": "Ihe na-eme n'akụkụ gị",

@@ -81,6 +81,102 @@
     }
   },
 
+  "representativeDetail": {
+    "backToRepresentatives": "← Back to representatives",
+    "loadError": "Couldn't load this representative.",
+    "eyebrow": "Representative",
+    "edit": "Edit",
+    "stats": {
+      "responseRate": "Response rate",
+      "responseRateSub": "Of citizen messages answered.",
+      "followers": "Followers",
+      "followersSub": "Citizens subscribed to updates."
+    },
+    "about": "About",
+    "contact": {
+      "heading": "Contact",
+      "sub": "For private matters. For public questions, post below — replies are visible to everyone.",
+      "empty": "No direct contact details on file. Post a question below to reach this representative publicly."
+    },
+    "editModal": {
+      "title": "Edit {{name}}",
+      "fields": {
+        "title": "Title",
+        "fullName": "Full name",
+        "position": "Position",
+        "constituency": "Constituency",
+        "party": "Party",
+        "bio": "Bio"
+      },
+      "contactLegend": "Contact",
+      "email": "Email",
+      "phone": "Phone",
+      "website": "Website",
+      "genericError": "Could not save changes. Double-check email/website format.",
+      "save": "Save"
+    }
+  },
+
+  "petitionDetail": {
+    "backToPetitions": "← Back to petitions",
+    "loadError": "Couldn't load this petition. It may have been removed.",
+    "eyebrow": "Petition",
+    "startedAt": "Started {{when}}",
+    "whyThisMatters": "Why this matters",
+    "photos": "Photos",
+    "photoAlt": "Petition photo",
+    "signatures": "Signatures",
+    "ofTarget": "of {{goal}} target",
+    "deadline": "Deadline:",
+    "endsToday": "· Ends today",
+    "daysLeft_one": "· {{count}} day left",
+    "daysLeft_other": "· {{count}} days left",
+    "percentComplete": "{{percent}}% complete",
+    "sign": "✎ Sign petition",
+    "onlyActive": "Only active petitions can be signed",
+    "signError": "Could not sign. Please try again."
+  },
+
+  "issueDetail": {
+    "backToIssues": "← Back to issues",
+    "loadError": "Couldn't load this issue. It may have been removed.",
+    "reportedAt": "Reported {{when}}",
+    "description": "Description",
+    "location": "Location",
+    "photos": "Photos",
+    "photoAlt": "Issue photo",
+    "communitySupport": "Community support",
+    "upvotesCount_one": "upvote",
+    "upvotesCount_other": "upvotes",
+    "upvote": "▲ Upvote",
+    "upvoted": "✓ Upvoted",
+    "statusClosedNote": "This issue was closed without resolution.",
+    "updateStatus": "Update status",
+    "updateStatusError": "Could not update."
+  },
+
+  "comments": {
+    "heading": "Discussion",
+    "placeholder": "Add to the discussion…",
+    "charCount": "{{count}}/{{max}}",
+    "post": "Post comment",
+    "empty": "No comments yet — start the conversation.",
+    "officialResponse": "Official response",
+    "postError": "Could not post your comment. Try again."
+  },
+
+  "search": {
+    "placeholder": "Search issues, petitions, representatives…",
+    "typeToSearch": "Type at least 2 characters to search",
+    "loading": "Searching…",
+    "empty": "No results for \"{{query}}\".",
+    "groups": {
+      "issues": "Issues",
+      "petitions": "Petitions",
+      "representatives": "Representatives"
+    }
+  },
+
   "discoverPage": {
     "eyebrow": "Discover",
     "title": "What's happening near you",
