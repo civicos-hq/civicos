@@ -1,4 +1,10 @@
 {
+  "rateLimit": {
+    "title": "Slow down for a moment.",
+    "body": "You're doing that too fast. Try again in {{seconds}}s.",
+    "genericBody": "You're doing that too fast. Please wait a moment."
+  },
+
   "common": {
     "loading": "Loading…",
     "loadingMore": "Loading more…",

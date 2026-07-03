@@ -77,11 +77,34 @@ function forceSignOut() {
   }
 }
 
+/**
+ * The rate-limit event a UI-side listener (RateLimitToast) subscribes to.
+ * We dispatch on window rather than plumbing a callback through every axios
+ * call — this keeps the toast decoupled from mutation code.
+ */
+export type RateLimitEvent = { retryAfter: number };
+export const RATE_LIMIT_EVENT = 'civicos:ratelimited';
+
 api.interceptors.response.use(
   (res) => res,
   async (error: AxiosError) => {
     const original = error.config as InternalAxiosRequestConfig & { _retried?: boolean };
     const status = error.response?.status;
+
+    // 429s never auto-retry — retrying would just burn more of the budget
+    // and delay the reset. Broadcast so a global toast can nag the user.
+    if (status === 429) {
+      const retryHeader = (error.response?.headers as Record<string, string> | undefined)?.[
+        'retry-after'
+      ];
+      const bodyRetry = (error.response?.data as { data?: { retryAfter?: number } } | undefined)
+        ?.data?.retryAfter;
+      const retryAfter = Number(retryHeader ?? bodyRetry ?? 0) || 5;
+      window.dispatchEvent(
+        new CustomEvent<RateLimitEvent>(RATE_LIMIT_EVENT, { detail: { retryAfter } }),
+      );
+      return Promise.reject(error);
+    }
 
     if (
       status !== 401 ||

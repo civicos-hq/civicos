@@ -18,6 +18,7 @@ import { VerifyEmailSentPage } from './routes/VerifyEmailSentPage';
 import { ForgotPasswordPage } from './routes/ForgotPasswordPage';
 import { ResetPasswordPage } from './routes/ResetPasswordPage';
 import { OnboardingPage } from './routes/OnboardingPage';
+import { RateLimitToast } from './components/RateLimitToast';
 
 function hasAccessToken() {
   return Boolean(localStorage.getItem('accessToken'));
@@ -38,6 +39,16 @@ function PublicOnly() {
 }
 
 export default function App() {
+  return (
+    <>
+      {/* Mounted at the root so 429 toasts appear on public + authed pages. */}
+      <RateLimitToast />
+      <AppRoutes />
+    </>
+  );
+}
+
+function AppRoutes() {
   return (
     <Routes>
       {/* Public */}

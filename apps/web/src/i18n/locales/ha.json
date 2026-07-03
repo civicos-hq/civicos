@@ -1,4 +1,10 @@
 {
+  "rateLimit": {
+    "title": "Yi hankali kaɗan.",
+    "body": "Kana yi da sauri sosai. Sake gwadawa cikin {{seconds}}s.",
+    "genericBody": "Kana yi da sauri sosai. Da fatan jira ɗan lokaci."
+  },
+
   "common": {
     "loading": "Ana loda…",
     "loadingMore": "Ana ƙara loda…",

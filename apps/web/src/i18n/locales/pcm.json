@@ -1,4 +1,10 @@
 {
+  "rateLimit": {
+    "title": "Slow down small.",
+    "body": "You dey do am too fast. Try again in {{seconds}}s.",
+    "genericBody": "You dey do am too fast. Abeg wait small."
+  },
+
   "common": {
     "loading": "Dey load…",
     "loadingMore": "Dey load more…",

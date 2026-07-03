@@ -10,6 +10,10 @@ type Config struct {
 	JWTSecret           string
 	IdentityServiceURL  string
 	CommunityServiceURL string
+	// RedisURL is used by the rate limiter. Empty means "no Redis" — the
+	// limiter fails open (every request allowed) so a dev with no local
+	// Redis can still run the gateway.
+	RedisURL string
 }
 
 func Load() *Config {
@@ -38,5 +42,6 @@ func Load() *Config {
 		JWTSecret:           secret,
 		IdentityServiceURL:  identityURL,
 		CommunityServiceURL: communityURL,
+		RedisURL:            os.Getenv("REDIS_URL"),
 	}
 }

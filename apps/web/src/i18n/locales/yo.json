@@ -1,4 +1,10 @@
 {
+  "rateLimit": {
+    "title": "Fa fún ìṣẹ́jú kan.",
+    "body": "O ń ṣe é kíákíá jù. Gbìyànjú lẹ́ẹ̀kan sí i lẹ́yìn {{seconds}}s.",
+    "genericBody": "O ń ṣe é kíákíá jù. Jọ̀wọ́ dúró fún ìṣẹ́jú kan."
+  },
+
   "common": {
     "loading": "À ń kó…",
     "loadingMore": "À ń kó sí i…",

@@ -1,4 +1,10 @@
 {
+  "rateLimit": {
+    "title": "Weda ngwa ngwa.",
+    "body": "Ị na-eme ya ngwa ngwa. Nwaa ọzọ mgbe {{seconds}}s gasịrị.",
+    "genericBody": "Ị na-eme ya ngwa ngwa. Biko chere obere oge."
+  },
+
   "common": {
     "loading": "Na-ebubata…",
     "loadingMore": "Na-ebubata ọzọ…",
