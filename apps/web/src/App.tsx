@@ -18,6 +18,9 @@ import { VerifyEmailSentPage } from './routes/VerifyEmailSentPage';
 import { ForgotPasswordPage } from './routes/ForgotPasswordPage';
 import { ResetPasswordPage } from './routes/ResetPasswordPage';
 import { OnboardingPage } from './routes/OnboardingPage';
+import { PrivacyPage } from './routes/PrivacyPage';
+import { OrganizationsPage } from './routes/OrganizationsPage';
+import { OrganizationDetailPage } from './routes/OrganizationDetailPage';
 import { RateLimitToast } from './components/RateLimitToast';
 
 function hasAccessToken() {
@@ -68,6 +71,9 @@ function AppRoutes() {
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
 
+      {/* Privacy policy — always reachable regardless of auth state. */}
+      <Route path="/privacy" element={<PrivacyPage />} />
+
       {/* Authenticated */}
       <Route element={<RequireAuth />}>
         {/* Onboarding sits outside the dashboard chrome so the wizard is
@@ -83,6 +89,8 @@ function AppRoutes() {
           <Route path="/petitions/:id" element={<PetitionDetailPage />} />
           <Route path="/representatives" element={<RepresentativesPage />} />
           <Route path="/representatives/:id" element={<RepresentativeDetailPage />} />
+          <Route path="/organizations" element={<OrganizationsPage />} />
+          <Route path="/organizations/:id" element={<OrganizationDetailPage />} />
           <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Route>

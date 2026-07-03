@@ -480,7 +480,8 @@
     "sub": "CivicOS ń tọ́jú àkọsílẹ̀ gbangba ti ìṣe àwọn aráàlú láàárín ìdìbò — àwọn ìṣòro tí a fi sílẹ̀, àwọn ẹ̀bẹ̀ tí a fọwọ́sí, àwọn ìdáhùn tí a rí — ní ojú-òpó rẹ, nínú agbègbè rẹ, lónìí.",
     "ctaPrimary": "Dara pọ̀ mọ́ CivicOS — ọ̀fẹ́ ni",
     "ctaSecondary": "Mo ní àkáǹtì",
-    "trust": "Àfihàn gbangba · Àwọn àkáǹtì tí a ti rí gbà · Àkọsílẹ̀ àkókò UTC"
+    "trust": "Àfihàn gbangba · Àwọn àkáǹtì tí a ti rí gbà · Àkọsílẹ̀ àkókò UTC",
+    "signatureCaption": "Fọwọ́sí — láti ọwọ́ àwọn ènìyàn"
   },
 
   "docket": {
@@ -640,6 +641,10 @@
   "footer": {
     "mission": "Mímú ìkópa ìṣàkóso ènìyàn lágbára nípasẹ̀ àkójọpọ̀ dijítà tó nírẹ̀wẹ̀sì, gbangba, àti ráyètó.",
     "meta": "© {{year}} CivicOS — Àkójọpọ̀ ìjọba gbangba",
+    "legal": {
+      "label": "Òfin",
+      "privacy": "Àṣírí"
+    },
     "checks": {
       "privacy": "Ó bọ̀wọ̀ fún àṣírí",
       "audit": "Ó ráyètó láti ṣàyẹ̀wò",
@@ -772,6 +777,7 @@
     "issues": "Àwọn Ìṣòro",
     "petitions": "Àwọn Ẹ̀bẹ̀",
     "representatives": "Àwọn Aṣojú",
+    "organizations": "Àwọn Àjọ",
     "notifications": "Àwọn Ìfìmọ̀ràn",
     "profile": "Profáìlì",
     "signOut": "Jáde"

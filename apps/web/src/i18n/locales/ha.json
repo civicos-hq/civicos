@@ -480,7 +480,8 @@
     "sub": "CivicOS yana adana bayanan jama'a na ayyukan 'yan ƙasa tsakanin zaɓe — matsalolin da aka shaida, takardun koƙe-koƙen da aka sa hannu, amsoshin da aka samu — a tituna, a cikin al'ummarka, yau.",
     "ctaPrimary": "Shiga CivicOS — kyauta ne",
     "ctaSecondary": "Ina da asusu",
-    "trust": "Lambar buɗewa · Asusu da aka tabbatar · Bayanai a lokacin UTC"
+    "trust": "Lambar buɗewa · Asusu da aka tabbatar · Bayanai a lokacin UTC",
+    "signatureCaption": "An sanya hannu — jama'a"
   },
 
   "docket": {
@@ -640,6 +641,10 @@
   "footer": {
     "mission": "Ƙarfafa shiga dimokuradiyya ta hanyar tsarin dijital mai aminci, bayyane, kuma mai samuwa.",
     "meta": "© {{year}} CivicOS — Tsarin jama'a a bayyane",
+    "legal": {
+      "label": "Doka",
+      "privacy": "Sirri"
+    },
     "checks": {
       "privacy": "Mai mutunta sirri",
       "audit": "Mai sauƙin bincike",
@@ -772,6 +777,7 @@
     "issues": "Matsaloli",
     "petitions": "Koƙe-koƙe",
     "representatives": "Wakilai",
+    "organizations": "Ƙungiyoyi",
     "notifications": "Sanarwa",
     "profile": "Bayani",
     "signOut": "Fita"

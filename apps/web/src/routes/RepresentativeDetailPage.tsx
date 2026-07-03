@@ -8,7 +8,7 @@ import { UserRole, type ApiResponse, type Community, type Representative } from 
 import { api } from '../lib/api';
 import { useMe } from '../hooks/useMe';
 import { useFollowedReps } from '../hooks/useFollowedReps';
-import { Avatar, FollowButton } from './RepresentativesPage';
+import { Avatar, FollowButton, stripTitleFromName } from './RepresentativesPage';
 import { CommentsSection } from '../components/civic/CommentsSection';
 import { Modal } from '../components/Modal';
 
@@ -86,7 +86,7 @@ export function RepresentativeDetailPage() {
               {t('representativeDetail.eyebrow')}
             </p>
             <h1 className="mt-1 text-3xl font-semibold text-slate-900">
-              {rep.title} {rep.name}
+              {rep.title} {stripTitleFromName(rep.title, rep.name)}
             </h1>
             <p className="mt-1 text-sm text-slate-600">
               {rep.position} · {rep.constituency}
@@ -203,7 +203,8 @@ function EditRepresentativeModal({ rep, onClose }: { rep: Representative; onClos
   const mutation = useMutation({
     mutationFn: async () => {
       const payload: Record<string, string> = {};
-      if (name !== rep.name) payload.name = name;
+      const cleanName = stripTitleFromName(title, name);
+      if (cleanName !== rep.name) payload.name = cleanName;
       if (title !== rep.title) payload.title = title;
       if (position !== rep.position) payload.position = position;
       if (constituency !== rep.constituency) payload.constituency = constituency;

@@ -480,7 +480,8 @@
     "sub": "CivicOS na-edebe akwụkwọ ọha banyere ihe ndị ụmụ amaala na-eme n'etiti oge ntuli aka — okwu akọwapụtara, akwụkwọ akwụsịrị aka, azịza enwetara — n'okporo ụzọ gị, n'obodo gị, taa.",
     "ctaPrimary": "Soro CivicOS — efu ka ọ bụ",
     "ctaSecondary": "Enwere m akaụntụ",
-    "trust": "Mmepe mepere emepe · Akaụntụ ndị akwadoro · Ndekọ ego nke UTC"
+    "trust": "Mmepe mepere emepe · Akaụntụ ndị akwadoro · Ndekọ ego nke UTC",
+    "signatureCaption": "Ndị mmadụ bịanyere aka"
   },
 
   "docket": {
@@ -640,6 +641,10 @@
   "footer": {
     "mission": "Imesi ntinye aka n'ọchịchị onye kwuo uche ya site n'akụrụngwa dijitalụ echekwara, doro anya, na enwere ohere.",
     "meta": "© {{year}} CivicOS — Akụrụngwa ọha mepere emepe",
+    "legal": {
+      "label": "Iwu",
+      "privacy": "Nzuzo"
+    },
     "checks": {
       "privacy": "Na-akwanyere nzuzo ùgwù",
       "audit": "Enwere ike ịnyochaa",
@@ -772,6 +777,7 @@
     "issues": "Okwu",
     "petitions": "Akwụkwọ Arịrịọ",
     "representatives": "Ndị Nnọchi Anya",
+    "organizations": "Ọgbakọ",
     "notifications": "Ọkwa",
     "profile": "Profaịlụ",
     "signOut": "Pụta"

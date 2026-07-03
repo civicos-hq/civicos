@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Trans, useTranslation } from 'react-i18next';
 import {
   ArrowRight,
@@ -18,6 +18,7 @@ import { LanguageSwitcher } from '../components/LanguageSwitcher';
 
 export function HomePage() {
   useScrollReveal();
+  useScrollToHash();
   return (
     <div className="home-shell">
       <TopNav />
@@ -32,6 +33,74 @@ export function HomePage() {
       <Footer />
     </div>
   );
+}
+
+// Section markers ("SECTION — PARTIES TO THE RECORD") type in glyph by
+// glyph as their section enters the viewport. Wraps each character in a
+// span with a per-index animation-delay; screen readers get the whole
+// string via aria-label and skip the char spans.
+function TypedMarker({
+  text,
+  className = 'home-section-marker',
+}: {
+  text: string;
+  className?: string;
+}) {
+  return (
+    <p className={className} aria-label={text}>
+      {[...text].map((ch, i) => (
+        <span
+          key={`${i}-${ch}`}
+          className="marker-char"
+          aria-hidden="true"
+          style={{ animationDelay: `${i * 22}ms` }}
+        >
+          {ch === ' ' ? ' ' : ch}
+        </span>
+      ))}
+    </p>
+  );
+}
+
+// One-stroke cursive flourish under the hero title. Draws left→right after
+// the docket cascade lands, as if the public record has just been signed.
+// Purely decorative — hidden from screen readers.
+function HeroSignature() {
+  const { t } = useTranslation();
+  return (
+    <>
+      <svg className="hero-signature" viewBox="0 0 400 44" role="presentation" aria-hidden="true">
+        <path
+          d="M 4 30
+             C 22 8, 40 40, 60 22
+             S 96 6, 122 28
+             Q 140 42, 162 20
+             T 214 26
+             C 236 34, 258 12, 288 30
+             S 332 8, 356 24
+             L 386 20"
+        />
+      </svg>
+      <span className="hero-signature-caption" aria-hidden="true">
+        {t('hero.signatureCaption')}
+      </span>
+    </>
+  );
+}
+
+// Scrolls to the location.hash target on mount and whenever the hash
+// changes. Lets the TopNav's `/#docket`-style links work whether the user
+// clicks them while on the homepage or arrives from another route.
+function useScrollToHash() {
+  const { hash } = useLocation();
+  useEffect(() => {
+    if (!hash) return;
+    const id = hash.slice(1);
+    const el = document.getElementById(id);
+    if (!el) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  }, [hash]);
 }
 
 function useScrollReveal() {
@@ -58,7 +127,7 @@ function useScrollReveal() {
   }, []);
 }
 
-function TopNav() {
+export function TopNav() {
   const { t } = useTranslation();
   return (
     <header className="home-nav">
@@ -73,10 +142,10 @@ function TopNav() {
       </Link>
 
       <nav className="home-nav-links" aria-label="Primary">
-        <a href="#docket">{t('nav.links.docket')}</a>
-        <a href="#articles">{t('nav.links.whatItDoes')}</a>
-        <a href="#how">{t('nav.links.howItWorks')}</a>
-        <a href="#faq">{t('nav.links.faq')}</a>
+        <Link to="/#docket">{t('nav.links.docket')}</Link>
+        <Link to="/#articles">{t('nav.links.whatItDoes')}</Link>
+        <Link to="/#how">{t('nav.links.howItWorks')}</Link>
+        <Link to="/#faq">{t('nav.links.faq')}</Link>
       </nav>
 
       <div className="home-nav-cta">
@@ -109,36 +178,163 @@ function Hero() {
       <div className="home-hero-orb home-hero-orb--1" aria-hidden="true" />
       <div className="home-hero-orb home-hero-orb--2" aria-hidden="true" />
 
-      <div className="home-hero-masthead">
-        <span>
-          <span className="pr-cyan-dot" aria-hidden="true" /> {t('hero.masthead')}
-        </span>
-        <span>{today}</span>
+      <div className="home-hero-body">
+        <div className="home-hero-copy">
+          <div className="home-hero-masthead">
+            <span>
+              <span className="pr-cyan-dot" aria-hidden="true" /> {t('hero.masthead')}
+            </span>
+            <span>{today}</span>
+          </div>
+
+          <h1 className="home-hero-title">
+            <Trans i18nKey="hero.headline" components={{ em: <em /> }} />
+          </h1>
+
+          <HeroSignature />
+
+          <p className="home-hero-sub">{t('hero.sub')}</p>
+
+          <div className="home-hero-cta">
+            <Link to="/register" className="home-btn home-btn-primary home-btn-lg">
+              {t('hero.ctaPrimary')}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link to="/login" className="home-btn home-btn-ghost home-btn-lg">
+              {t('hero.ctaSecondary')}
+            </Link>
+          </div>
+
+          <p className="home-trust-strip">
+            <ShieldCheck className="h-4 w-4" />
+            <span>{t('hero.trust')}</span>
+          </p>
+        </div>
+
+        <HeroArt />
       </div>
-
-      <h1 className="home-hero-title">
-        <Trans i18nKey="hero.headline" components={{ em: <em /> }} />
-      </h1>
-
-      <p className="home-hero-sub">{t('hero.sub')}</p>
-
-      <div className="home-hero-cta">
-        <Link to="/register" className="home-btn home-btn-primary home-btn-lg">
-          {t('hero.ctaPrimary')}
-          <ArrowRight className="h-4 w-4" />
-        </Link>
-        <Link to="/login" className="home-btn home-btn-ghost home-btn-lg">
-          {t('hero.ctaSecondary')}
-        </Link>
-      </div>
-
-      <p className="home-trust-strip">
-        <ShieldCheck className="h-4 w-4" />
-        <span>{t('hero.trust')}</span>
-      </p>
 
       <Docket />
     </section>
+  );
+}
+
+// A stylized "Citizens' Register" card that sits beside the hero copy at
+// wide widths. Communicates community without a stock photo: 80 citizen
+// dots (~20% highlighted by engagement tier), a signature stroke, and a
+// stamped seal. Purely decorative — hidden from screen readers. Swap the
+// contents for an <img> if you have a real community photograph.
+function HeroArt() {
+  const { t } = useTranslation();
+  const TOTAL = 80;
+  const COLS = 8;
+  const CELL_W = 40;
+  const CELL_H = 34;
+  const GRID_ORIGIN_X = 30;
+  const GRID_ORIGIN_Y = 80;
+
+  // Deterministic highlights so the composition renders identically each
+  // load; index → tier tag. Rough 20% highlight density, spatially spread.
+  const highlights: Record<number, 'cyan' | 'mint' | 'lavender'> = {
+    4: 'cyan',
+    11: 'cyan',
+    22: 'cyan',
+    37: 'cyan',
+    53: 'cyan',
+    67: 'cyan',
+    8: 'mint',
+    17: 'mint',
+    31: 'mint',
+    45: 'mint',
+    58: 'mint',
+    72: 'mint',
+    14: 'lavender',
+    28: 'lavender',
+    43: 'lavender',
+    61: 'lavender',
+  };
+  const FILL = {
+    base: 'rgba(196, 199, 252, 0.22)',
+    cyan: '#61E5FC',
+    mint: '#7CF6B5',
+    lavender: '#C4C7FC',
+  } as const;
+
+  return (
+    <div className="hero-art" aria-hidden="true">
+      <svg viewBox="0 0 380 500" xmlns="http://www.w3.org/2000/svg">
+        <rect
+          x="0.5"
+          y="0.5"
+          width="379"
+          height="499"
+          rx="4"
+          fill="rgba(13, 22, 53, 0.55)"
+          stroke="rgba(97, 229, 252, 0.22)"
+        />
+
+        <text x="20" y="30" className="hero-art-header">
+          {t('hero.art.header')}
+        </text>
+        <g className="hero-art-live" transform="translate(360, 30)">
+          <circle cx="-4" cy="-4" r="3.2" fill="#61E5FC" />
+          <text x="-14" y="0" textAnchor="end" className="hero-art-live-text">
+            {t('hero.art.live')}
+          </text>
+        </g>
+        <line x1="20" y1="42" x2="360" y2="42" stroke="rgba(97, 229, 252, 0.3)" />
+
+        <g>
+          {Array.from({ length: TOTAL }).map((_, i) => {
+            const col = i % COLS;
+            const row = Math.floor(i / COLS);
+            const cx = GRID_ORIGIN_X + col * CELL_W + CELL_W / 2;
+            const cy = GRID_ORIGIN_Y + row * CELL_H + CELL_H / 2;
+            const h = highlights[i];
+            return (
+              <g key={i}>
+                {h && <circle cx={cx} cy={cy} r={10} fill={FILL[h]} opacity={0.14} />}
+                <circle cx={cx} cy={cy} r={h ? 5 : 3.6} fill={h ? FILL[h] : FILL.base} />
+              </g>
+            );
+          })}
+        </g>
+
+        <path
+          className="hero-art-signature"
+          d="M 30 428 C 55 410, 78 448, 108 424 S 158 402, 192 424 Q 214 442, 240 422 T 300 418 C 322 420, 336 430, 350 424"
+        />
+
+        <g className="hero-art-stamp" transform="translate(288, 372) rotate(-7)">
+          <circle
+            cx="0"
+            cy="0"
+            r="50"
+            fill="none"
+            stroke="rgba(124, 246, 181, 0.68)"
+            strokeWidth="1.8"
+          />
+          <circle
+            cx="0"
+            cy="0"
+            r="42"
+            fill="none"
+            stroke="rgba(124, 246, 181, 0.34)"
+            strokeWidth="0.75"
+          />
+          <text x="0" y="-4" textAnchor="middle" className="hero-art-stamp-primary">
+            {t('hero.art.stamp')}
+          </text>
+          <text x="0" y="10" textAnchor="middle" className="hero-art-stamp-secondary">
+            {t('hero.art.stampSub')}
+          </text>
+        </g>
+
+        <text x="20" y="482" className="hero-art-footer">
+          {t('hero.art.footer')}
+        </text>
+      </svg>
+    </div>
   );
 }
 
@@ -280,7 +476,7 @@ function Parties() {
   const keys = ['citizens', 'reps', 'government', 'ngos'] as const;
   return (
     <section className="home-section reveal">
-      <p className="home-section-marker">{t('parties.marker')}</p>
+      <TypedMarker text={t('parties.marker')} />
       <div className="home-section-head">
         <h2 className="home-section-title">{t('parties.title')}</h2>
       </div>
@@ -309,7 +505,7 @@ function Articles() {
   ] as const;
   return (
     <section id="articles" className="home-section reveal">
-      <p className="home-section-marker">{t('articles.marker')}</p>
+      <TypedMarker text={t('articles.marker')} />
       <div className="home-section-head">
         <h2 className="home-section-title">{t('articles.title')}</h2>
       </div>
@@ -341,7 +537,7 @@ function Principles() {
   return (
     <section className="home-section home-section-soft reveal">
       <div>
-        <p className="home-section-marker">{t('principles.marker')}</p>
+        <TypedMarker text={t('principles.marker')} />
         <div className="home-section-head">
           <h2 className="home-section-title">{t('principles.title')}</h2>
         </div>
@@ -366,7 +562,7 @@ function HowItWorks() {
   const keys = ['join', 'pick', 'act', 'follow'] as const;
   return (
     <section id="how" className="home-section reveal">
-      <p className="home-section-marker">{t('steps.marker')}</p>
+      <TypedMarker text={t('steps.marker')} />
       <div className="home-section-head">
         <h2 className="home-section-title">{t('steps.title')}</h2>
       </div>
@@ -391,7 +587,7 @@ function FAQ() {
   const keys = ['cost', 'privacy', 'reps', 'coverage', 'ownership', 'abuse'] as const;
   return (
     <section id="faq" className="home-section reveal">
-      <p className="home-section-marker">{t('faq.marker')}</p>
+      <TypedMarker text={t('faq.marker')} />
       <div className="home-section-head">
         <h2 className="home-section-title">{t('faq.title')}</h2>
       </div>
@@ -428,7 +624,7 @@ function Newsletter() {
   return (
     <section id="updates" className="home-section home-section-soft reveal">
       <div>
-        <p className="home-section-marker">{t('newsletter.marker')}</p>
+        <TypedMarker text={t('newsletter.marker')} />
         <div className="home-newsletter">
           <div className="home-newsletter-copy">
             <h2 className="home-section-title">{t('newsletter.title')}</h2>
@@ -503,7 +699,7 @@ function CTA() {
   );
 }
 
-function Footer() {
+export function Footer() {
   const { t } = useTranslation();
   return (
     <footer className="home-footer">
@@ -521,6 +717,9 @@ function Footer() {
       </div>
       <div className="home-footer-row home-footer-meta">
         <p>{t('footer.meta', { year: new Date().getFullYear() })}</p>
+        <nav className="home-footer-links" aria-label={t('footer.legal.label')}>
+          <Link to="/privacy">{t('footer.legal.privacy')}</Link>
+        </nav>
         <p className="home-footer-checks">
           <span>
             <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" /> {t('footer.checks.privacy')}

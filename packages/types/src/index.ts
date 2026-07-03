@@ -207,3 +207,132 @@ export interface JwtPayload {
   iat?: number;
   exp?: number;
 }
+
+// ─── Organization types ───────────────────────────────────────────────────────
+
+export enum OrgKind {
+  GOVERNMENT = 'GOVERNMENT',
+  AGENCY = 'AGENCY',
+  NGO = 'NGO',
+  UTILITY = 'UTILITY',
+  OTHER = 'OTHER',
+}
+
+export enum OrgJurisdiction {
+  NATIONAL = 'NATIONAL',
+  STATE = 'STATE',
+  LGA = 'LGA',
+  COMMUNITY = 'COMMUNITY',
+}
+
+export enum OrgMemberRole {
+  OWNER = 'OWNER',
+  ADMIN = 'ADMIN',
+  STAFF = 'STAFF',
+}
+
+export enum AnnouncementStatus {
+  DRAFT = 'DRAFT',
+  PUBLISHED = 'PUBLISHED',
+  ARCHIVED = 'ARCHIVED',
+}
+
+export enum ProjectStatus {
+  PLANNED = 'PLANNED',
+  ACTIVE = 'ACTIVE',
+  PAUSED = 'PAUSED',
+  COMPLETED = 'COMPLETED',
+  CANCELLED = 'CANCELLED',
+}
+
+export enum AssignmentStatus {
+  RECEIVED = 'RECEIVED',
+  IN_PROGRESS = 'IN_PROGRESS',
+  COMPLETED = 'COMPLETED',
+  REJECTED = 'REJECTED',
+}
+
+export interface Organization {
+  id: UUID;
+  name: string;
+  slug: string;
+  kind: OrgKind;
+  jurisdiction: OrgJurisdiction;
+  state?: string;
+  lga?: string;
+  description?: string;
+  logoUrl?: string;
+  email?: string;
+  phone?: string;
+  website?: string;
+  verified: boolean;
+  memberCount: number;
+  announcementCount: number;
+  projectCount: number;
+  assignmentCount: number;
+  createdById: UUID;
+  createdAt: ISODateTime;
+  updatedAt: ISODateTime;
+}
+
+export interface OrgMember {
+  id: UUID;
+  organizationId: UUID;
+  userId: UUID;
+  userName: string;
+  userRole: UserRole;
+  role: OrgMemberRole;
+  joinedAt: ISODateTime;
+}
+
+export interface Announcement {
+  id: UUID;
+  organizationId: UUID;
+  title: string;
+  body: string;
+  status: AnnouncementStatus;
+  publishedAt?: ISODateTime;
+  authorId: UUID;
+  authorName: string;
+  createdAt: ISODateTime;
+  updatedAt: ISODateTime;
+}
+
+export interface Project {
+  id: UUID;
+  organizationId: UUID;
+  title: string;
+  description: string;
+  status: ProjectStatus;
+  startDate?: ISODateTime;
+  expectedEndDate?: ISODateTime;
+  budgetKobo?: number;
+  communityId?: UUID;
+  createdById: UUID;
+  createdAt: ISODateTime;
+  updatedAt: ISODateTime;
+}
+
+export interface IssueAssignment {
+  id: UUID;
+  organizationId: UUID;
+  issueId: UUID;
+  status: AssignmentStatus;
+  note?: string;
+  assignedById: UUID;
+  assignedByName: string;
+  createdAt: ISODateTime;
+  updatedAt: ISODateTime;
+}
+
+export interface ProgressUpdate {
+  id: UUID;
+  organizationId: UUID;
+  issueId?: UUID;
+  projectId?: UUID;
+  body: string;
+  isPublic: boolean;
+  authorId: UUID;
+  authorName: string;
+  createdAt: ISODateTime;
+}

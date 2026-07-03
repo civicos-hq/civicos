@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { Megaphone } from 'lucide-react';
 import { Button } from '@civicos/ui';
 import {
   IssueStatus,
@@ -9,6 +10,7 @@ import {
   type ApiResponse,
   type Community,
   type Issue,
+  type Organization,
 } from '@civicos/types';
 import { api } from '../lib/api';
 import { CommentsSection } from '../components/civic/CommentsSection';
@@ -17,6 +19,8 @@ import { ShareButton } from '../components/ShareButton';
 import { useMe } from '../hooks/useMe';
 import { useUpvotedIssues } from '../hooks/useUpvotedIssues';
 import { useEnumLabels } from '../hooks/useEnumLabels';
+import { useRelativeTime } from '../hooks/useRelativeTime';
+import { useIssueProgressUpdates } from './OrganizationDetailPage';
 
 const STAFF_ROLES = new Set<UserRole>([
   UserRole.REPRESENTATIVE,
@@ -246,10 +250,89 @@ export function IssueDetailPage() {
         </Button>
       </article>
 
+      <OfficialProgressSection issueId={issue.id} />
+
       <div id="comments" ref={commentsRef}>
         <CommentsSection entityType="issues" entityId={issue.id} />
       </div>
     </section>
+  );
+}
+
+// Renders the "Official progress" section on an issue: every progress update
+// posted by an organization that has been assigned this report, newest
+// first. Org names are batch-fetched in parallel and linked to their
+// detail pages so citizens can see who is answering.
+function OfficialProgressSection({ issueId }: { issueId: string }) {
+  const { t } = useTranslation();
+  const relative = useRelativeTime();
+  const updatesQuery = useIssueProgressUpdates(issueId);
+  const updates = updatesQuery.data ?? [];
+  const uniqueOrgIds = Array.from(new Set(updates.map((u) => u.organizationId)));
+
+  const orgQueries = useQueries({
+    queries: uniqueOrgIds.map((id) => ({
+      queryKey: ['organization', id],
+      queryFn: async () => {
+        const res = await api.get<ApiResponse<{ organization: Organization }>>(
+          `/api/v1/organizations/${id}`,
+        );
+        return res.data.data.organization;
+      },
+      staleTime: 60_000,
+    })),
+  });
+  const orgByID: Record<string, Organization | undefined> = {};
+  orgQueries.forEach((q, i) => {
+    orgByID[uniqueOrgIds[i]] = q.data;
+  });
+
+  if (updatesQuery.isLoading || updates.length === 0) {
+    return null;
+  }
+
+  return (
+    <article className="rounded-2xl border border-civic-200 bg-civic-50/40 p-6 shadow-sm">
+      <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
+        <Megaphone className="h-4 w-4 text-civic-700" aria-hidden="true" />
+        {t('issueDetail.officialProgress.heading')}
+      </h2>
+      <p className="mt-1 text-sm text-slate-600">{t('issueDetail.officialProgress.sub')}</p>
+
+      <ol className="mt-4 space-y-3">
+        {updates.map((u) => {
+          const org = orgByID[u.organizationId];
+          return (
+            <li key={u.id} className="rounded-xl border border-civic-200 bg-white p-4 shadow-sm">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <p className="text-sm font-semibold text-slate-900">
+                  {org ? (
+                    <Link
+                      to={`/organizations/${u.organizationId}`}
+                      className="text-civic-700 hover:underline"
+                    >
+                      {org.name}
+                    </Link>
+                  ) : (
+                    <Link
+                      to={`/organizations/${u.organizationId}`}
+                      className="text-civic-700 hover:underline"
+                    >
+                      {t('issueDetail.officialProgress.orgFallback')}
+                    </Link>
+                  )}
+                </p>
+                <span className="text-xs text-slate-500">{relative(u.createdAt)}</span>
+              </div>
+              <p className="mt-2 whitespace-pre-wrap text-sm text-slate-700">{u.body}</p>
+              <p className="mt-2 text-xs text-slate-500">
+                {t('issueDetail.officialProgress.byAuthor', { name: u.authorName })}
+              </p>
+            </li>
+          );
+        })}
+      </ol>
+    </article>
   );
 }
 

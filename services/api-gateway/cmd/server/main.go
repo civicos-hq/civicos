@@ -141,6 +141,50 @@ func main() {
 	// Discover
 	r.GET("/api/v1/discover/feed", authMiddleware, communityProxy)
 
+	// --- Organization Service ---
+	orgProxy := proxy.NewReverseProxy(cfg.OrganizationServiceURL, "/api")
+
+	// Organizations (registry + membership)
+	r.GET("/api/v1/organizations", orgProxy)
+	r.GET("/api/v1/organizations/:id", orgProxy)
+	r.POST("/api/v1/organizations", authMiddleware, limitStandard, orgProxy)
+	r.PATCH("/api/v1/organizations/:id", authMiddleware, limitStandard, orgProxy)
+	r.GET("/api/v1/organizations/:id/members", orgProxy)
+	r.POST("/api/v1/organizations/:id/members", authMiddleware, limitStandard, orgProxy)
+	r.PATCH("/api/v1/organizations/:id/members/:userId", authMiddleware, limitStandard, orgProxy)
+	r.DELETE("/api/v1/organizations/:id/members/:userId", authMiddleware, limitStandard, orgProxy)
+
+	// Announcements
+	r.GET("/api/v1/announcements", orgProxy)
+	r.GET("/api/v1/organizations/:id/announcements", authMiddleware, orgProxy)
+	r.GET("/api/v1/announcements/:announcementId", orgProxy)
+	r.POST("/api/v1/organizations/:id/announcements", authMiddleware, limitStandard, orgProxy)
+	r.PATCH("/api/v1/announcements/:announcementId", authMiddleware, limitStandard, orgProxy)
+	r.POST("/api/v1/announcements/:announcementId/publish", authMiddleware, limitStandard, orgProxy)
+	r.POST("/api/v1/announcements/:announcementId/archive", authMiddleware, limitStandard, orgProxy)
+	r.DELETE("/api/v1/announcements/:announcementId", authMiddleware, limitStandard, orgProxy)
+
+	// Projects
+	r.GET("/api/v1/projects", orgProxy)
+	r.GET("/api/v1/organizations/:id/projects", orgProxy)
+	r.GET("/api/v1/projects/:projectId", orgProxy)
+	r.POST("/api/v1/organizations/:id/projects", authMiddleware, limitStandard, orgProxy)
+	r.PATCH("/api/v1/projects/:projectId", authMiddleware, limitStandard, orgProxy)
+	r.DELETE("/api/v1/projects/:projectId", authMiddleware, limitStandard, orgProxy)
+
+	// Issue assignments (receive reports)
+	r.GET("/api/v1/organizations/:id/assignments", authMiddleware, orgProxy)
+	r.GET("/api/v1/issues/:id/assignments", orgProxy)
+	r.POST("/api/v1/organizations/:id/assignments", authMiddleware, limitStandard, orgProxy)
+	r.PATCH("/api/v1/assignments/:assignmentId", authMiddleware, limitStandard, orgProxy)
+	r.DELETE("/api/v1/assignments/:assignmentId", authMiddleware, limitStandard, orgProxy)
+
+	// Progress updates (public responses on issues, project progress)
+	r.GET("/api/v1/issues/:id/progress-updates", orgProxy)
+	r.GET("/api/v1/projects/:projectId/progress-updates", orgProxy)
+	r.POST("/api/v1/organizations/:id/progress-updates", authMiddleware, limitStandard, orgProxy)
+	r.DELETE("/api/v1/progress-updates/:updateId", authMiddleware, limitStandard, orgProxy)
+
 	// Notifications
 	notificationsStream := proxy.NewStreamingProxy(cfg.CommunityServiceURL, "/api")
 	r.GET("/api/v1/notifications", authMiddleware, communityProxy)

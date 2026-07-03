@@ -180,6 +180,14 @@ button {
   font-size: 0.9rem;
 }
 
+.auth-legal {
+  margin: 1.2rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+  font-size: 0.78rem;
+  text-align: center;
+}
+
 .auth-link {
   color: var(--brand-700);
   font-weight: 700;
@@ -212,7 +220,7 @@ button {
 
 .dashboard-shell {
   display: flex;
-  min-height: 100vh;
+  height: 100dvh;
   position: relative;
   overflow: hidden;
 }
@@ -797,6 +805,93 @@ button {
 
 .home-hero-art { display: none; }
 
+/* ── Hero body: copy on the left, citizen-register card on the right ── */
+.home-hero-body {
+  display: block;
+}
+
+.home-hero-copy {
+  min-width: 0;
+}
+
+.hero-art {
+  margin: 2rem auto 0;
+  width: 100%;
+  max-width: 380px;
+  animation: pr-rise 640ms 220ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.hero-art svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.hero-art-header {
+  font-family: var(--pr-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  fill: rgba(196, 199, 252, 0.7);
+}
+
+.hero-art-live-text {
+  font-family: var(--pr-mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  fill: rgba(97, 229, 252, 0.9);
+}
+
+.hero-art-live circle {
+  animation: pr-pulse-dot 2s ease-in-out infinite;
+}
+
+.hero-art-signature {
+  fill: none;
+  stroke: var(--pr-cyan);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 4px rgba(97, 229, 252, 0.4));
+  stroke-dasharray: 520;
+  stroke-dashoffset: 520;
+  animation: pr-sign-draw 1600ms cubic-bezier(0.5, 0, 0.5, 1) 1500ms both;
+}
+
+.hero-art-stamp-primary {
+  font-family: var(--pr-mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  fill: rgba(124, 246, 181, 0.92);
+  font-weight: 600;
+}
+
+.hero-art-stamp-secondary {
+  font-family: var(--pr-mono);
+  font-size: 7px;
+  letter-spacing: 1.6px;
+  fill: rgba(124, 246, 181, 0.66);
+}
+
+.hero-art-footer {
+  font-family: var(--pr-mono);
+  font-size: 8px;
+  letter-spacing: 2px;
+  fill: rgba(196, 199, 252, 0.42);
+}
+
+@media (min-width: 960px) {
+  .home-hero-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
+    gap: clamp(2rem, 4vw, 3.5rem);
+    align-items: start;
+  }
+  .hero-art {
+    margin: 0;
+    max-width: 100%;
+  }
+}
+
 /* ── DOCKET (signature element) ── */
 .docket {
   margin-top: clamp(2.5rem, 5vw, 4rem);
@@ -947,18 +1042,20 @@ button {
 }
 
 .home-section-marker {
-  display: inline-block;
+  display: block;
   font-family: var(--pr-mono);
   font-size: 0.68rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--pr-ink-soft);
-  margin: 0 0 1.1rem;
+  text-align: center;
+  margin: 0 auto 1.1rem;
 }
 
 .home-section-head {
   max-width: 38rem;
-  margin-bottom: 2.4rem;
+  margin: 0 auto 2.4rem;
+  text-align: center;
 }
 
 .home-eyebrow {
@@ -1143,11 +1240,12 @@ button {
 }
 
 .home-principles-note {
-  margin: 2.4rem 0 0;
+  margin: 2.4rem auto 0;
   max-width: 60ch;
   color: var(--pr-ink-soft);
   line-height: 1.65;
   font-size: 0.98rem;
+  text-align: center;
 }
 
 .home-principles-note em {
@@ -1305,8 +1403,12 @@ button {
   gap: 0.4rem;
 }
 
+.home-newsletter-copy {
+  text-align: center;
+}
+
 .home-newsletter-sub {
-  margin: 0.8rem 0 0;
+  margin: 0.8rem auto 0;
   color: var(--pr-ink-soft);
   line-height: 1.6;
   max-width: 52ch;
@@ -1411,13 +1513,11 @@ button {
   z-index: 1;
   max-width: var(--pr-max);
   margin: 0 auto;
-  display: grid;
-  gap: 1.5rem;
-  align-items: end;
-}
-
-@media (min-width: 880px) {
-  .home-cta-inner { grid-template-columns: minmax(0, 1.5fr) auto; }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.8rem;
 }
 
 .home-cta-eyebrow {
@@ -1431,7 +1531,7 @@ button {
 }
 
 .home-cta-title {
-  margin: 0;
+  margin: 0 auto;
   font-family: var(--pr-serif);
   font-weight: 700;
   font-size: clamp(2rem, 4.5vw, 3.4rem);
@@ -1452,7 +1552,7 @@ button {
 }
 
 .home-cta-sub {
-  margin: 1rem 0 0;
+  margin: 1rem auto 0;
   max-width: 52ch;
   color: rgba(255, 255, 255, 0.78);
   line-height: 1.6;
@@ -1462,6 +1562,7 @@ button {
 .home-cta-buttons {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 0.6rem;
 }
 
@@ -1513,6 +1614,148 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
+}
+
+.home-footer-links {
+  margin: 0;
+  display: inline-flex;
+  gap: 1.25rem;
+}
+
+.home-footer-links a {
+  color: var(--pr-ink-soft);
+  text-decoration: none;
+  transition: color 160ms ease;
+}
+
+.home-footer-links a:hover,
+.home-footer-links a:focus-visible {
+  color: var(--pr-stamp);
+}
+
+/* ─────────── Privacy notice ─────────── */
+.privacy-page {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: clamp(2.5rem, 6vw, 4.5rem) var(--pr-pad) clamp(3rem, 6vw, 5rem);
+  color: var(--pr-ink);
+  position: relative;
+  z-index: 1;
+}
+
+.privacy-head {
+  margin: 0 0 3.5rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--pr-border);
+}
+
+.privacy-eyebrow {
+  margin: 0;
+  font-family: var(--pr-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--pr-stamp);
+}
+
+.privacy-title {
+  margin: 0.9rem 0 0;
+  font-family: var(--pr-serif);
+  font-weight: 700;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--pr-ink);
+}
+
+.privacy-effective {
+  margin: 1.1rem 0 0;
+  font-family: var(--pr-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--pr-ink-soft);
+}
+
+.privacy-intro {
+  margin: 1.8rem 0 0;
+  font-size: 1.02rem;
+  line-height: 1.65;
+  color: var(--pr-ink-soft);
+}
+
+.privacy-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: privacy;
+}
+
+.privacy-clause {
+  padding: 2rem 0;
+  border-bottom: 1px solid var(--pr-rule-hair);
+}
+
+.privacy-clause:last-child {
+  border-bottom: none;
+}
+
+.privacy-clause-num {
+  margin: 0 0 0.6rem;
+  font-family: var(--pr-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--pr-stamp);
+}
+
+.privacy-clause-title {
+  margin: 0 0 1.1rem;
+  font-family: var(--pr-serif);
+  font-weight: 600;
+  font-size: 1.4rem;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  color: var(--pr-ink);
+}
+
+.privacy-clause-body {
+  color: var(--pr-ink-soft);
+  font-size: 0.98rem;
+  line-height: 1.7;
+}
+
+.privacy-clause-body p {
+  margin: 0 0 0.9rem;
+}
+
+.privacy-clause-body p:last-child {
+  margin-bottom: 0;
+}
+
+.privacy-clause-body strong {
+  color: var(--pr-ink);
+  font-weight: 600;
+}
+
+.privacy-clause-body em {
+  color: var(--pr-ink);
+  font-style: normal;
+  font-family: var(--pr-mono);
+  font-size: 0.9em;
+  letter-spacing: 0.02em;
+}
+
+.privacy-link {
+  color: var(--pr-cyan);
+  text-decoration: underline;
+  text-decoration-color: rgba(97, 229, 252, 0.4);
+  text-underline-offset: 3px;
+}
+
+.privacy-link:hover,
+.privacy-link:focus-visible {
+  text-decoration-color: var(--pr-cyan);
 }
 
 /* ─────────── Motion: restrained, on-brand ─────────── */
@@ -1702,24 +1945,145 @@ button {
 .home-faq-item { transition: background 160ms ease; }
 .home-faq-item:hover { background: var(--pr-paper-soft); }
 
-/* Scroll reveal — one subtle fade-up per section, plays once. */
+/* ── Clerk's scan reveal ────────────────────────────────────────────────
+   Each section stays flat while a cyan hairline sweeps top→bottom on entry,
+   as if a clerk is running a finger down the record. Content fades up in
+   its wake. Replaces the generic scroll-fade. */
 .reveal {
+  position: relative;
   opacity: 0;
-  transform: translate3d(0, 18px, 0);
-  transition: opacity 520ms cubic-bezier(0.2, 0.7, 0.2, 1),
-              transform 520ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  transform: translate3d(0, 14px, 0);
+  transition: opacity 620ms cubic-bezier(0.2, 0.7, 0.2, 1) 240ms,
+              transform 620ms cubic-bezier(0.2, 0.7, 0.2, 1) 240ms;
   will-change: opacity, transform;
+}
+.reveal::before {
+  content: '';
+  position: absolute;
+  left: var(--pr-pad);
+  right: var(--pr-pad);
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(97, 229, 252, 0.05) 20%,
+    var(--pr-cyan) 50%,
+    rgba(97, 229, 252, 0.05) 80%,
+    transparent 100%);
+  box-shadow: 0 0 14px rgba(97, 229, 252, 0.55);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
 }
 .reveal.in-view {
   opacity: 1;
   transform: translate3d(0, 0, 0);
   will-change: auto;
 }
+.reveal.in-view::before {
+  animation: pr-clerk-scan 1200ms cubic-bezier(0.4, 0, 0.6, 1) both;
+}
+@keyframes pr-clerk-scan {
+  0%   { opacity: 0; top: 0; }
+  10%  { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { opacity: 0; top: calc(100% - 1px); }
+}
+
+/* Section markers type in one glyph at a time when their section enters. */
+.home-section-marker .marker-char {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(3px);
+  animation: pr-char-in 300ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-play-state: paused;
+}
+.reveal.in-view .home-section-marker .marker-char {
+  animation-play-state: running;
+}
+@keyframes pr-char-in {
+  from { opacity: 0; transform: translateY(3px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Article-number stamp — Art. 01 lands like an ink-stamp hitting paper. */
+.home-article-num {
+  display: inline-block;
+  transform-origin: 55% 60%;
+}
+.reveal.in-view .home-article-num {
+  animation: pr-stamp 500ms cubic-bezier(0.34, 1.56, 0.64, 1) 340ms both;
+}
+@keyframes pr-stamp {
+  0%   { opacity: 0; transform: scale(1.55) rotate(-7deg); }
+  55%  { opacity: 1; transform: scale(0.92) rotate(1.5deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+
+/* Same stamp treatment for the FAQ number labels. */
+.reveal.in-view .home-faq-num {
+  display: inline-block;
+  animation: pr-stamp 500ms cubic-bezier(0.34, 1.56, 0.64, 1) 300ms both;
+}
+
+/* Hero signature — a single-stroke cursive flourish that "signs" the
+   headline. Draws left→right after the docket cascade has landed. */
+.hero-signature {
+  display: block;
+  margin: 0.4rem 0 -0.2rem;
+  width: min(320px, 60%);
+  height: 44px;
+  overflow: visible;
+  color: var(--pr-cyan);
+  animation: pr-rise 480ms 1160ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.hero-signature path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 6px rgba(97, 229, 252, 0.45));
+  stroke-dasharray: 720;
+  stroke-dashoffset: 720;
+  animation: pr-sign-draw 1600ms cubic-bezier(0.5, 0, 0.5, 1) 1360ms both;
+}
+.hero-signature-caption {
+  display: block;
+  margin-top: 0.35rem;
+  font-family: var(--pr-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--pr-ink-mute);
+  opacity: 0;
+  animation: pr-rise 480ms 2680ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes pr-sign-draw {
+  to { stroke-dashoffset: 0; }
+}
 
 /* The reveal class can be on any section. The hero is the exception —
    it does its own choreographed load above. */
 .home-hero.reveal,
 .home-hero.reveal { opacity: 1; transform: none; }  /* no-op safety */
+.home-hero.reveal::before { display: none; }        /* hero handles its own entry */
+
+/* ── Paper grain overlay ────────────────────────────────────────────────
+   A single SVG-noise plate sits fixed above everything at ~3.5% opacity,
+   overlay-blended. This is what turns a flat digital plane into a
+   materially-textured public record. */
+.home-shell::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.9 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size: 240px 240px;
+}
 
 /* Reduced motion — kill all storytelling animation, keep hover transitions
    (small, useful, never disorienting). */
@@ -1732,16 +2096,27 @@ button {
   .docket,
   .docket::before,
   .docket-row,
-  .docket-row.is-new {
+  .docket-row.is-new,
+  .hero-signature,
+  .hero-signature path,
+  .hero-signature-caption,
+  .hero-art,
+  .hero-art-signature,
+  .hero-art-live circle,
+  .home-section-marker .marker-char,
+  .home-article-num,
+  .home-faq-num {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
+    stroke-dashoffset: 0 !important;
   }
   .reveal {
     opacity: 1 !important;
     transform: none !important;
     transition: none !important;
   }
+  .reveal::before { display: none !important; }
   .home-article-title { transition: none !important; }
   .docket-live::before { animation: none !important; }
 }

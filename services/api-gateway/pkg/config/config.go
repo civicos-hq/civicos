@@ -6,10 +6,11 @@ import (
 )
 
 type Config struct {
-	Port                string
-	JWTSecret           string
-	IdentityServiceURL  string
-	CommunityServiceURL string
+	Port                   string
+	JWTSecret              string
+	IdentityServiceURL     string
+	CommunityServiceURL    string
+	OrganizationServiceURL string
 	// RedisURL is used by the rate limiter. Empty means "no Redis" — the
 	// limiter fails open (every request allowed) so a dev with no local
 	// Redis can still run the gateway.
@@ -32,16 +33,22 @@ func Load() *Config {
 		communityURL = "http://localhost:3002"
 	}
 
+	organizationURL := os.Getenv("ORGANIZATION_SERVICE_URL")
+	if organizationURL == "" {
+		organizationURL = "http://localhost:3003"
+	}
+
 	port := os.Getenv("API_GATEWAY_PORT")
 	if port == "" {
 		port = "3000"
 	}
 
 	return &Config{
-		Port:                port,
-		JWTSecret:           secret,
-		IdentityServiceURL:  identityURL,
-		CommunityServiceURL: communityURL,
-		RedisURL:            os.Getenv("REDIS_URL"),
+		Port:                   port,
+		JWTSecret:              secret,
+		IdentityServiceURL:     identityURL,
+		CommunityServiceURL:    communityURL,
+		OrganizationServiceURL: organizationURL,
+		RedisURL:               os.Getenv("REDIS_URL"),
 	}
 }

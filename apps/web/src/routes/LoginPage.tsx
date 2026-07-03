@@ -115,6 +115,11 @@ export function LoginPage() {
               {t('auth.login.footerCreate')}
             </Link>
           </p>
+          <p className="auth-legal">
+            <Link to="/privacy" className="auth-link auth-link--muted">
+              {t('footer.legal.privacy')}
+            </Link>
+          </p>
         </form>
       </div>
     </section>

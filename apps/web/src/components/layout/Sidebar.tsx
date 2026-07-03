@@ -1,4 +1,14 @@
-import { AlertCircle, Bell, Compass, FileText, Home, LogOut, User, Users } from 'lucide-react';
+import {
+  AlertCircle,
+  Bell,
+  Building2,
+  Compass,
+  FileText,
+  Home,
+  LogOut,
+  User,
+  Users,
+} from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useUnreadCount } from '../../hooks/useNotifications';
@@ -10,6 +20,7 @@ const navItems = [
   { to: '/issues', i18n: 'sidebar.issues', icon: AlertCircle },
   { to: '/petitions', i18n: 'sidebar.petitions', icon: FileText },
   { to: '/representatives', i18n: 'sidebar.representatives', icon: Users },
+  { to: '/organizations', i18n: 'sidebar.organizations', icon: Building2 },
   { to: '/notifications', i18n: 'sidebar.notifications', icon: Bell },
 ];
 

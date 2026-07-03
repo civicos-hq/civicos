@@ -166,7 +166,13 @@
     "upvoted": "✓ Upvoted",
     "statusClosedNote": "This issue was closed without resolution.",
     "updateStatus": "Update status",
-    "updateStatusError": "Could not update."
+    "updateStatusError": "Could not update.",
+    "officialProgress": {
+      "heading": "Official progress",
+      "sub": "Updates posted by organizations responsible for this report.",
+      "byAuthor": "Posted by {{name}}",
+      "orgFallback": "View organization"
+    }
   },
 
   "comments": {
@@ -480,7 +486,15 @@
     "sub": "CivicOS keeps the public record of citizen action between elections — issues reported, petitions signed, responses received — on your street, in your community, today.",
     "ctaPrimary": "Join CivicOS — it's free",
     "ctaSecondary": "I have an account",
-    "trust": "Open source · Verified accounts · Audit-trailed in UTC"
+    "trust": "Open source · Verified accounts · Audit-trailed in UTC",
+    "signatureCaption": "Signed — the public",
+    "art": {
+      "header": "CITIZENS' REGISTER · KY-04",
+      "live": "LIVE",
+      "stamp": "REGISTERED",
+      "stampSub": "NIGERIA · 2026",
+      "footer": "80 ON RECORD · 16 ACTIVE THIS WEEK"
+    }
   },
 
   "docket": {
@@ -640,10 +654,72 @@
   "footer": {
     "mission": "Strengthening democratic participation through secure, transparent, accessible digital infrastructure.",
     "meta": "© {{year}} CivicOS — Open civic infrastructure",
+    "legal": {
+      "label": "Legal",
+      "privacy": "Privacy"
+    },
     "checks": {
       "privacy": "Privacy-respecting",
       "audit": "Audit-friendly",
       "open": "Built in the open"
+    }
+  },
+
+  "privacy": {
+    "eyebrow": "The Public Record — Privacy Notice",
+    "title": "Privacy notice",
+    "effective": "Effective {{date}}",
+    "intro": "This is CivicOS's privacy notice. Plain English, no legalese, and specific to how CivicOS actually works. If anything below is unclear, write to us — the address is in §12.",
+    "footerLink": "Read the CivicOS privacy notice",
+    "sections": {
+      "who": {
+        "title": "Who we are",
+        "body": "<p>CivicOS is open civic infrastructure — a public register for citizen action between elections. This notice covers the CivicOS platform and any successor domain. \"We\" is CivicOS; \"you\" is anyone who registers, reports, signs, comments, or reads.</p>"
+      },
+      "what": {
+        "title": "What we collect",
+        "body": "<p><strong>Account information.</strong> Your email, a password (never stored in clear — see §6), your display name, your community (state and LGA), and optionally your phone number and avatar. Representatives and admins may store additional public contact fields (office email, phone, website) tied to their public role.</p><p><strong>Activity.</strong> Issues you report, petitions you sign or create, comments you post, representatives you follow, notifications delivered to you, and timestamps for each — all in UTC.</p><p><strong>Security signals.</strong> IP address, request path, session ID, and rate-limit counters. Kept briefly, then discarded (see §7).</p><p><strong>We do not collect.</strong> Real-time location, contacts, biometrics, browsing history outside CivicOS, or advertising identifiers.</p>"
+      },
+      "why": {
+        "title": "Why we collect it",
+        "body": "<p>To let you participate — report issues, sign petitions, follow representatives. To notify you when things you care about change — an issue you upvoted moves to <em>RESOLVED</em>, a petition you signed hits a milestone. To keep the public record honest — every action is audit-trailed so admins can investigate abuse. To keep you signed in without asking for your password every time.</p>"
+      },
+      "donot": {
+        "title": "What we do not do",
+        "body": "<p>We do not sell your data. Ever. To anyone. We do not run advertising, tracking pixels, or cross-site cookies. We do not enrich your profile from external databases. We do not embed third-party analytics scripts that could exfiltrate your activity.</p>"
+      },
+      "sharing": {
+        "title": "What is public, what is private",
+        "body": "<p><strong>Public by design:</strong> your display name, community, petitions you author, comments you post publicly on issues, petitions, and representatives, and aggregate counts (signature totals, upvotes, follower counts).</p><p><strong>Private by default:</strong> your email, phone, password hash, private notifications, security signals, and the audit trail of admin actions on your account.</p><p><strong>Petition signatures</strong> appear as counts, not names, on public pages — unless you explicitly opt into signed public endorsement.</p>"
+      },
+      "security": {
+        "title": "Security",
+        "body": "<p>Passwords are hashed with bcrypt at cost 12 — even we cannot recover them. Access tokens are short-lived JWTs; refresh tokens are opaque 32-byte hex values stored SHA-256-hashed, with family-based replay detection. All traffic is TLS. Admin actions are audit-logged. Report a vulnerability to <security>security@civicos.ng</security>.</p>"
+      },
+      "retention": {
+        "title": "Retention",
+        "body": "<p><strong>Active account.</strong> We keep your account and activity for as long as your account is active.</p><p><strong>Deleted account.</strong> On request, we anonymise your public contributions (comments show as removed; petitions you authored show that the author withdrew) and purge your personal information within 30 days. Aggregate counts stay, for record integrity.</p><p><strong>Security signals.</strong> IP addresses and rate-limit counters expire within 24 hours.</p><p><strong>Backups.</strong> Encrypted, retained 30 days, then destroyed.</p>"
+      },
+      "rights": {
+        "title": "Your rights",
+        "body": "<p>You can — at any time, without asking permission — access, export, correct, or delete your data. Log in and use the Profile page for access, correction, and export. To delete your account, use \"Delete account\" in Profile, or write to <mail>privacy@civicos.ng</mail>.</p><p>If you are a Nigerian resident, you have rights under the NDPR (Nigeria Data Protection Regulation). If you are resident elsewhere, you have the rights of your local jurisdiction (GDPR if in the EU, and so on) in addition to your NDPR rights as a Nigerian citizen.</p>"
+      },
+      "cookies": {
+        "title": "Cookies and storage",
+        "body": "<p>We store your refresh token in an httpOnly cookie so you stay signed in. We store your access token, language preference, and dismissed-banner state in browser localStorage. That is it — no analytics cookies, no tracking cookies, no third-party cookies.</p>"
+      },
+      "children": {
+        "title": "Children",
+        "body": "<p>CivicOS is intended for people 18 and older. If we learn we have collected data from a minor, we delete it.</p>"
+      },
+      "changes": {
+        "title": "Changes to this notice",
+        "body": "<p>We will post material changes on this page and notify all account holders by email at least 14 days before they take effect. The effective date at the top of this notice always reflects the current version.</p>"
+      },
+      "contact": {
+        "title": "Contact",
+        "body": "<p><mail>privacy@civicos.ng</mail> — our privacy team.</p><p><security>security@civicos.ng</security> — for security disclosures.</p><p>CivicOS · Nigeria</p>"
+      }
     }
   },
 
@@ -772,9 +848,114 @@
     "issues": "Issues",
     "petitions": "Petitions",
     "representatives": "Representatives",
+    "organizations": "Organizations",
     "notifications": "Notifications",
     "profile": "Profile",
     "signOut": "Sign out"
+  },
+
+  "organizationsPage": {
+    "eyebrow": "Section — Organizations",
+    "title": "The organizations on the record",
+    "subtitle": "Government agencies, utilities, and civic NGOs that receive reports, update progress, and respond publicly.",
+    "newBtn": "Register organization",
+    "empty": "No organizations yet in this filter.",
+    "kinds": {
+      "ALL": "All kinds",
+      "GOVERNMENT": "Government",
+      "AGENCY": "Agency",
+      "NGO": "NGO",
+      "UTILITY": "Utility",
+      "OTHER": "Other"
+    },
+    "jurisdictions": {
+      "NATIONAL": "National",
+      "STATE": "State",
+      "LGA": "LGA",
+      "COMMUNITY": "Community"
+    },
+    "card": {
+      "verified": "Verified organization",
+      "members_one": "{{count}} member",
+      "members_other": "{{count}} members",
+      "announcements_one": "{{count}} announcement",
+      "announcements_other": "{{count}} announcements",
+      "projects_one": "{{count}} project",
+      "projects_other": "{{count}} projects",
+      "reports_one": "{{count}} report received",
+      "reports_other": "{{count}} reports received"
+    },
+    "modal": {
+      "title": "Register a new organization",
+      "save": "Register",
+      "genericError": "Could not register organization. Please try again.",
+      "fields": {
+        "name": "Name",
+        "slug": "Slug",
+        "kind": "Kind",
+        "jurisdiction": "Jurisdiction",
+        "description": "Description",
+        "email": "Contact email"
+      }
+    }
+  },
+
+  "organizationDetail": {
+    "backToList": "← Back to organizations",
+    "loadError": "We couldn't load this organization.",
+    "genericError": "Something went wrong. Please try again.",
+    "byAuthor": "Posted by {{name}}",
+    "sections": {
+      "announcements": "Announcements",
+      "projects": "Projects",
+      "assignments": "Reports received"
+    },
+    "emptyAnnouncements": "No announcements posted yet.",
+    "emptyProjects": "No projects yet.",
+    "emptyAssignments": "No reports have been routed to this organization yet.",
+    "newAnnouncement": "New announcement",
+    "newProject": "New project",
+    "postResponse": "Post public response",
+    "responsePlaceholder": "Share progress with citizens — what has changed, what is next?",
+    "markInProgress": "Mark in progress",
+    "markCompleted": "Mark completed",
+    "assignmentIssueLink": "Issue #{{id}}",
+    "assignmentAssignedBy": "Assigned by {{name}} · {{when}}",
+    "projectBudget": "Budget · {{amount}}",
+    "announcementModal": {
+      "title": "New announcement",
+      "publishNow": "Publish immediately",
+      "fields": {
+        "title": "Title",
+        "body": "Body"
+      }
+    },
+    "projectModal": {
+      "title": "New project",
+      "fields": {
+        "title": "Title",
+        "description": "Description",
+        "budgetNGN": "Budget (₦, optional)"
+      }
+    },
+    "announcementStatus": {
+      "DRAFT": "Draft",
+      "PUBLISHED": "Published",
+      "ARCHIVED": "Archived"
+    },
+    "projectStatus": {
+      "PLANNED": "Planned",
+      "ACTIVE": "Active",
+      "PAUSED": "Paused",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled"
+    },
+    "assignmentStatus": {
+      "RECEIVED": "Received",
+      "IN_PROGRESS": "In progress",
+      "COMPLETED": "Completed",
+      "REJECTED": "Rejected"
+    }
   },
 
   "language": {

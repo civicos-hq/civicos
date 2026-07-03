@@ -19,6 +19,18 @@ const ADMIN_ROLES = new Set<UserRole>([
   UserRole.NGO,
 ]);
 
+// Strips a leading title from a name so `${title} ${name}` never doubles up.
+// Handles "Mr. Mr Kola", "Mr Kola" against title "Mr." or "Mr". Used both at
+// display time (fixes existing bad records) and at save time (prevents new
+// ones).
+export function stripTitleFromName(title: string | undefined | null, name: string): string {
+  const cleanName = name.trim();
+  const cleanTitle = (title ?? '').trim();
+  if (!cleanTitle) return cleanName;
+  const base = cleanTitle.replace(/\.$/, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return cleanName.replace(new RegExp(`^${base}\\.?\\s+`, 'i'), '').trim();
+}
+
 function useRepresentatives(communityId?: string) {
   return useQuery({
     queryKey: ['representatives', communityId ?? 'all'],
@@ -86,7 +98,7 @@ export function RepresentativesPage() {
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <h2 className="truncate text-lg font-semibold text-slate-900">
-                    {rep.title} {rep.name}
+                    {rep.title} {stripTitleFromName(rep.title, rep.name)}
                   </h2>
                   <FollowButton representativeId={rep.id} isFollowing={followedSet.has(rep.id)} />
                 </div>
@@ -239,7 +251,7 @@ function NewRepresentativeModal({
     mutationFn: async () => {
       const avatarUrl = avatar ? await uploadImage(avatar) : undefined;
       await api.post('/api/v1/representatives', {
-        name,
+        name: stripTitleFromName(title, name),
         title,
         position,
         constituency,

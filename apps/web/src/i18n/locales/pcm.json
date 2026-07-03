@@ -480,7 +480,8 @@
     "sub": "CivicOS dey keep public record of wetin citizens dey do for between elections — issues wey people don report, petitions wey dem sign, replies wey rep don give — for your street, inside your community, today.",
     "ctaPrimary": "Join CivicOS — e free",
     "ctaSecondary": "I get account already",
-    "trust": "Open source · Verified accounts · Audit trail for UTC"
+    "trust": "Open source · Verified accounts · Audit trail for UTC",
+    "signatureCaption": "The people don sign am"
   },
 
   "docket": {
@@ -640,6 +641,10 @@
   "footer": {
     "mission": "Dey strengthen democratic participation through secure, transparent, accessible digital infrastructure.",
     "meta": "© {{year}} CivicOS — Open civic infrastructure",
+    "legal": {
+      "label": "Legal",
+      "privacy": "Privacy"
+    },
     "checks": {
       "privacy": "E respect privacy",
       "audit": "E friendly to audit",
@@ -772,6 +777,7 @@
     "issues": "Issues",
     "petitions": "Petitions",
     "representatives": "Representatives",
+    "organizations": "Organizations",
     "notifications": "Notifications",
     "profile": "Profile",
     "signOut": "Sign out"
