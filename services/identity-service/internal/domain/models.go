@@ -22,7 +22,7 @@ type User struct {
 	PasswordHash string    `gorm:"not null" json:"-"` // never serialised
 	Role         UserRole  `gorm:"type:varchar(30);default:'CITIZEN'" json:"role"`
 	AvatarURL    *string   `json:"avatarUrl,omitempty"`
-	CommunityID  *string   `json:"communityId,omitempty"`
+	CommunityID  *string   `gorm:"type:uuid" json:"communityId,omitempty"`
 
 	EmailVerified                 bool       `gorm:"not null;default:false" json:"emailVerified"`
 	EmailVerifiedAt               *time.Time `json:"emailVerifiedAt,omitempty"`
@@ -63,9 +63,9 @@ type PublicUser struct {
 // SHA256(raw) in TokenHash so leaking the DB can't hijack live sessions.
 type RefreshToken struct {
 	ID         string     `gorm:"type:uuid;primaryKey" json:"id"`
-	UserID     string     `gorm:"not null;index" json:"userId"`
+	UserID     string     `gorm:"type:uuid;not null;index" json:"userId"`
 	TokenHash  string     `gorm:"uniqueIndex;not null" json:"-"`
-	FamilyID   string     `gorm:"not null;index" json:"familyId"`
+	FamilyID   string     `gorm:"type:uuid;not null;index" json:"familyId"`
 	ExpiresAt  time.Time  `gorm:"not null" json:"expiresAt"`
 	ConsumedAt *time.Time `json:"consumedAt,omitempty"`
 	RevokedAt  *time.Time `json:"revokedAt,omitempty"`

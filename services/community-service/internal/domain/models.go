@@ -42,7 +42,7 @@ type Notification struct {
 	Body      string           `gorm:"not null" json:"body"`
 	Read      bool             `gorm:"default:false;index" json:"read"`
 	LinkURL   *string          `json:"linkUrl,omitempty"`
-	UserID    string           `gorm:"not null;index" json:"userId"`
+	UserID    string           `gorm:"type:uuid;not null;index" json:"userId"`
 	CreatedAt time.Time        `json:"createdAt"`
 }
 
@@ -55,7 +55,7 @@ type Community struct {
 	LGA         string     `gorm:"not null" json:"lga"`
 	Country     string     `gorm:"default:'Nigeria'" json:"country"`
 	LogoURL     *string    `json:"logoUrl,omitempty"`
-	CreatedByID string     `gorm:"not null" json:"createdById"`
+	CreatedByID string     `gorm:"type:uuid;not null" json:"createdById"`
 	Issues      []Issue    `gorm:"foreignKey:CommunityID" json:"-"`
 	Petitions   []Petition `gorm:"foreignKey:CommunityID" json:"-"`
 	CreatedAt   time.Time  `json:"createdAt"`
@@ -72,8 +72,8 @@ type Issue struct {
 	ImageURLs    []string       `gorm:"type:jsonb;serializer:json" json:"imageUrls"`
 	UpvoteCount  int            `gorm:"default:0" json:"upvoteCount"`
 	CommentCount int            `gorm:"default:0" json:"commentCount"`
-	CommunityID  string         `gorm:"not null;index" json:"communityId"`
-	ReportedByID string         `gorm:"not null" json:"reportedById"`
+	CommunityID  string         `gorm:"type:uuid;not null;index" json:"communityId"`
+	ReportedByID string         `gorm:"type:uuid;not null" json:"reportedById"`
 	Comments     []IssueComment `gorm:"foreignKey:IssueID" json:"-"`
 	CreatedAt    time.Time      `json:"createdAt"`
 	UpdatedAt    time.Time      `json:"updatedAt"`
@@ -82,8 +82,8 @@ type Issue struct {
 type IssueComment struct {
 	ID                 string    `gorm:"type:uuid;primaryKey" json:"id"`
 	Content            string    `gorm:"not null" json:"content"`
-	IssueID            string    `gorm:"not null;index" json:"issueId"`
-	AuthorID           string    `gorm:"not null" json:"authorId"`
+	IssueID            string    `gorm:"type:uuid;not null;index" json:"issueId"`
+	AuthorID           string    `gorm:"type:uuid;not null" json:"authorId"`
 	AuthorName         string    `gorm:"not null" json:"authorName"`
 	AuthorRole         string    `gorm:"not null" json:"authorRole"`
 	IsOfficialResponse bool      `gorm:"default:false" json:"isOfficialResponse"`
@@ -93,8 +93,8 @@ type IssueComment struct {
 type RepresentativeComment struct {
 	ID                 string    `gorm:"type:uuid;primaryKey" json:"id"`
 	Content            string    `gorm:"not null" json:"content"`
-	RepresentativeID   string    `gorm:"not null;index" json:"representativeId"`
-	AuthorID           string    `gorm:"not null" json:"authorId"`
+	RepresentativeID   string    `gorm:"type:uuid;not null;index" json:"representativeId"`
+	AuthorID           string    `gorm:"type:uuid;not null" json:"authorId"`
 	AuthorName         string    `gorm:"not null" json:"authorName"`
 	AuthorRole         string    `gorm:"not null" json:"authorRole"`
 	IsOfficialResponse bool      `gorm:"default:false" json:"isOfficialResponse"`
@@ -104,8 +104,8 @@ type RepresentativeComment struct {
 type PetitionComment struct {
 	ID                 string    `gorm:"type:uuid;primaryKey" json:"id"`
 	Content            string    `gorm:"not null" json:"content"`
-	PetitionID         string    `gorm:"not null;index" json:"petitionId"`
-	AuthorID           string    `gorm:"not null" json:"authorId"`
+	PetitionID         string    `gorm:"type:uuid;not null;index" json:"petitionId"`
+	AuthorID           string    `gorm:"type:uuid;not null" json:"authorId"`
 	AuthorName         string    `gorm:"not null" json:"authorName"`
 	AuthorRole         string    `gorm:"not null" json:"authorRole"`
 	IsOfficialResponse bool      `gorm:"default:false" json:"isOfficialResponse"`
@@ -122,8 +122,8 @@ type Petition struct {
 	Status         PetitionStatus `gorm:"type:varchar(30);default:'DRAFT'" json:"status"`
 	Deadline       *time.Time     `json:"deadline,omitempty"`
 	ImageURLs      []string       `gorm:"type:jsonb;serializer:json" json:"imageUrls"`
-	CommunityID    string         `gorm:"not null;index" json:"communityId"`
-	CreatedByID    string         `gorm:"not null" json:"createdById"`
+	CommunityID    string         `gorm:"type:uuid;not null;index" json:"communityId"`
+	CreatedByID    string         `gorm:"type:uuid;not null" json:"createdById"`
 	CreatedAt      time.Time      `json:"createdAt"`
 	UpdatedAt      time.Time      `json:"updatedAt"`
 }
@@ -133,22 +133,22 @@ type Petition struct {
 // before this table existed the service just kept incrementing the counter.
 type IssueUpvote struct {
 	ID        string    `gorm:"type:uuid;primaryKey" json:"id"`
-	IssueID   string    `gorm:"not null;uniqueIndex:idx_issue_upvoter" json:"issueId"`
-	UserID    string    `gorm:"not null;uniqueIndex:idx_issue_upvoter" json:"userId"`
+	IssueID   string    `gorm:"type:uuid;not null;uniqueIndex:idx_issue_upvoter" json:"issueId"`
+	UserID    string    `gorm:"type:uuid;not null;uniqueIndex:idx_issue_upvoter" json:"userId"`
 	CreatedAt time.Time `json:"createdAt"`
 }
 
 type PetitionSignature struct {
 	ID         string    `gorm:"type:uuid;primaryKey" json:"id"`
-	PetitionID string    `gorm:"not null;uniqueIndex:idx_petition_user" json:"petitionId"`
-	UserID     string    `gorm:"not null;uniqueIndex:idx_petition_user" json:"userId"`
+	PetitionID string    `gorm:"type:uuid;not null;uniqueIndex:idx_petition_user" json:"petitionId"`
+	UserID     string    `gorm:"type:uuid;not null;uniqueIndex:idx_petition_user" json:"userId"`
 	CreatedAt  time.Time `json:"createdAt"`
 }
 
 type RepresentativeFollower struct {
 	ID               string    `gorm:"type:uuid;primaryKey" json:"id"`
-	RepresentativeID string    `gorm:"not null;uniqueIndex:idx_rep_follower" json:"representativeId"`
-	UserID           string    `gorm:"not null;uniqueIndex:idx_rep_follower" json:"userId"`
+	RepresentativeID string    `gorm:"type:uuid;not null;uniqueIndex:idx_rep_follower" json:"representativeId"`
+	UserID           string    `gorm:"type:uuid;not null;uniqueIndex:idx_rep_follower" json:"userId"`
 	CreatedAt        time.Time `json:"createdAt"`
 }
 
@@ -164,11 +164,11 @@ type Representative struct {
 	Email         *string   `json:"email,omitempty"`
 	Phone         *string   `json:"phone,omitempty"`
 	Website       *string   `json:"website,omitempty"`
-	CommunityID   string    `gorm:"not null;index" json:"communityId"`
+	CommunityID   string    `gorm:"type:uuid;not null;index" json:"communityId"`
 	ResponseRate  int       `gorm:"default:0" json:"responseRate"`
 	FollowerCount int       `gorm:"default:0" json:"followerCount"`
 	CommentCount  int       `gorm:"default:0" json:"commentCount"`
-	CreatedByID   string    `gorm:"not null" json:"createdById"`
+	CreatedByID   string    `gorm:"type:uuid;not null" json:"createdById"`
 	CreatedAt     time.Time `json:"createdAt"`
 	UpdatedAt     time.Time `json:"updatedAt"`
 }

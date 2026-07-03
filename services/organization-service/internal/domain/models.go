@@ -59,15 +59,15 @@ type Organization struct {
 	AnnouncementCount int             `gorm:"default:0" json:"announcementCount"`
 	ProjectCount      int             `gorm:"default:0" json:"projectCount"`
 	AssignmentCount   int             `gorm:"default:0" json:"assignmentCount"`
-	CreatedByID       string          `gorm:"not null" json:"createdById"`
+	CreatedByID       string          `gorm:"type:uuid;not null" json:"createdById"`
 	CreatedAt         time.Time       `json:"createdAt"`
 	UpdatedAt         time.Time       `json:"updatedAt"`
 }
 
 type OrgMember struct {
 	ID             string        `gorm:"type:uuid;primaryKey" json:"id"`
-	OrganizationID string        `gorm:"not null;uniqueIndex:idx_org_user" json:"organizationId"`
-	UserID         string        `gorm:"not null;uniqueIndex:idx_org_user" json:"userId"`
+	OrganizationID string        `gorm:"type:uuid;not null;uniqueIndex:idx_org_user" json:"organizationId"`
+	UserID         string        `gorm:"type:uuid;not null;uniqueIndex:idx_org_user" json:"userId"`
 	UserName       string        `gorm:"not null" json:"userName"`
 	UserRole       string        `gorm:"not null" json:"userRole"`
 	Role           OrgMemberRole `gorm:"type:varchar(20);default:'STAFF'" json:"role"`
@@ -76,12 +76,12 @@ type OrgMember struct {
 
 type Announcement struct {
 	ID             string             `gorm:"type:uuid;primaryKey" json:"id"`
-	OrganizationID string             `gorm:"not null;index" json:"organizationId"`
+	OrganizationID string             `gorm:"type:uuid;not null;index" json:"organizationId"`
 	Title          string             `gorm:"not null" json:"title"`
 	Body           string             `gorm:"not null" json:"body"`
 	Status         AnnouncementStatus `gorm:"type:varchar(20);default:'DRAFT'" json:"status"`
 	PublishedAt    *time.Time         `json:"publishedAt,omitempty"`
-	AuthorID       string             `gorm:"not null" json:"authorId"`
+	AuthorID       string             `gorm:"type:uuid;not null" json:"authorId"`
 	AuthorName     string             `gorm:"not null" json:"authorName"`
 	CreatedAt      time.Time          `json:"createdAt"`
 	UpdatedAt      time.Time          `json:"updatedAt"`
@@ -89,15 +89,15 @@ type Announcement struct {
 
 type Project struct {
 	ID              string        `gorm:"type:uuid;primaryKey" json:"id"`
-	OrganizationID  string        `gorm:"not null;index" json:"organizationId"`
+	OrganizationID  string        `gorm:"type:uuid;not null;index" json:"organizationId"`
 	Title           string        `gorm:"not null" json:"title"`
 	Description     string        `gorm:"not null" json:"description"`
 	Status          ProjectStatus `gorm:"type:varchar(20);default:'PLANNED'" json:"status"`
 	StartDate       *time.Time    `json:"startDate,omitempty"`
 	ExpectedEndDate *time.Time    `json:"expectedEndDate,omitempty"`
 	BudgetKobo      *int64        `json:"budgetKobo,omitempty"`
-	CommunityID     *string       `gorm:"index" json:"communityId,omitempty"`
-	CreatedByID     string        `gorm:"not null" json:"createdById"`
+	CommunityID     *string       `gorm:"type:uuid;index" json:"communityId,omitempty"`
+	CreatedByID     string        `gorm:"type:uuid;not null" json:"createdById"`
 	CreatedAt       time.Time     `json:"createdAt"`
 	UpdatedAt       time.Time     `json:"updatedAt"`
 }
@@ -107,11 +107,11 @@ type Project struct {
 // bare UUID reference — this service does not FK across the boundary.
 type IssueAssignment struct {
 	ID             string           `gorm:"type:uuid;primaryKey" json:"id"`
-	OrganizationID string           `gorm:"not null;uniqueIndex:idx_org_issue" json:"organizationId"`
-	IssueID        string           `gorm:"not null;uniqueIndex:idx_org_issue" json:"issueId"`
+	OrganizationID string           `gorm:"type:uuid;not null;uniqueIndex:idx_org_issue" json:"organizationId"`
+	IssueID        string           `gorm:"type:uuid;not null;uniqueIndex:idx_org_issue" json:"issueId"`
 	Status         AssignmentStatus `gorm:"type:varchar(20);default:'RECEIVED'" json:"status"`
 	Note           *string          `json:"note,omitempty"`
-	AssignedByID   string           `gorm:"not null" json:"assignedById"`
+	AssignedByID   string           `gorm:"type:uuid;not null" json:"assignedById"`
 	AssignedByName string           `gorm:"not null" json:"assignedByName"`
 	CreatedAt      time.Time        `json:"createdAt"`
 	UpdatedAt      time.Time        `json:"updatedAt"`
@@ -123,12 +123,12 @@ type IssueAssignment struct {
 // member-only.
 type ProgressUpdate struct {
 	ID             string    `gorm:"type:uuid;primaryKey" json:"id"`
-	OrganizationID string    `gorm:"not null;index" json:"organizationId"`
-	IssueID        *string   `gorm:"index" json:"issueId,omitempty"`
-	ProjectID      *string   `gorm:"index" json:"projectId,omitempty"`
+	OrganizationID string    `gorm:"type:uuid;not null;index" json:"organizationId"`
+	IssueID        *string   `gorm:"type:uuid;index" json:"issueId,omitempty"`
+	ProjectID      *string   `gorm:"type:uuid;index" json:"projectId,omitempty"`
 	Body           string    `gorm:"not null" json:"body"`
 	IsPublic       bool      `gorm:"default:true" json:"isPublic"`
-	AuthorID       string    `gorm:"not null" json:"authorId"`
+	AuthorID       string    `gorm:"type:uuid;not null" json:"authorId"`
 	AuthorName     string    `gorm:"not null" json:"authorName"`
 	CreatedAt      time.Time `json:"createdAt"`
 }
