@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
+import { UnverifiedBanner } from '../UnverifiedBanner';
 import { useNotificationStream } from '../../hooks/useNotifications';
 
 export function DashboardLayout() {
@@ -15,6 +16,7 @@ export function DashboardLayout() {
       <div className="dashboard-main-pane">
         <Topbar />
         <main className="dashboard-content">
+          <UnverifiedBanner />
           <Outlet />
         </main>
       </div>

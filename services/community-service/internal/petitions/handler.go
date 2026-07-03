@@ -23,13 +23,13 @@ func NewHandler(svc *Service, notifier Notifier) *Handler {
 	return &Handler{svc: svc, notifier: notifier}
 }
 
-func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth gin.HandlerFunc) {
+func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth, verified gin.HandlerFunc) {
 	rg.GET("", h.list)
 	rg.GET("/:id", h.get)
-	rg.POST("", auth, h.create)
-	rg.POST("/:id/sign", auth, h.sign)
+	rg.POST("", auth, verified, h.create)
+	rg.POST("/:id/sign", auth, verified, h.sign)
 	rg.GET("/:id/comments", h.listComments)
-	rg.POST("/:id/comments", auth, h.addComment)
+	rg.POST("/:id/comments", auth, verified, h.addComment)
 }
 
 func (h *Handler) list(c *gin.Context) {

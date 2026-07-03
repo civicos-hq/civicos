@@ -60,6 +60,8 @@ export interface User {
   role: UserRole;
   avatarUrl?: string;
   communityId?: UUID;
+  emailVerified: boolean;
+  emailVerifiedAt?: ISODateTime;
   createdAt: ISODateTime;
   updatedAt: ISODateTime;
 }

@@ -216,6 +216,27 @@
       "error": "A kò lè ṣẹ̀dá àkáǹtì rẹ. Gbìyànjú ímeèlì mìíràn tàbí gbìyànjú lẹ́ẹ̀kan sí i lẹ́yìn ìgbà díẹ̀.",
       "footerHave": "Ṣé o ti ní àkáǹtì?",
       "footerSignIn": "Wọlé"
+    },
+    "verify": {
+      "sentTitle": "Wo àpótí ímeèlì rẹ.",
+      "sentSub": "A fi ọ̀nà ìjẹ́rìí ránṣẹ́ sí {{email}}. Tẹ ẹ́ láti ṣe ìdánilójú àkáǹtì rẹ — ọ̀nà náà yóò wà fún wákàtí 24.",
+      "sentTip": "Kò rí i? Wo apò spam, tàbí lo bọ́tìnnì ní ìsàlẹ̀ láti tún rán an.",
+      "resend": "Tún ímeèlì ìjẹ́rìí ránṣẹ́",
+      "resending": "À ń tún rán…",
+      "resent": "A ti rán. Fún ní ìṣẹ́jú kan.",
+      "goToLogin": "Mo máa ṣe ìjẹ́rìí lẹ́yìn — wọlé",
+      "verifyingTitle": "À ń ṣe ìjẹ́rìí ímeèlì rẹ…",
+      "successTitle": "A ti ṣe ìjẹ́rìí ímeèlì.",
+      "successSub": "O ti múra. O lè ròyìn àwọn ìṣòro báyìí, fọwọ́sí àwọn ẹ̀bẹ̀, kí o sì darapọ̀ mọ́ àwọn ìjíròrò.",
+      "successCta": "Lọ sí dashboard",
+      "expiredTitle": "Ọ̀nà yìí ti pé ọjọ́.",
+      "invalidTitle": "Ọ̀nà ìjẹ́rìí yìí kò wúlò mọ́.",
+      "expiredSub": "Àwọn ọ̀nà ìjẹ́rìí pé fún wákàtí 24. Wọlé kí o sì béèrè fún tuntun.",
+      "invalidSub": "Ó lè ti lò tẹ́lẹ̀. Wọlé kí o sì béèrè fún ọ̀nà tuntun bí ìmeèlì rẹ kò bá tíì ní ìjẹ́rìí.",
+      "errorCta": "Lọ wọlé",
+      "bannerTitle": "Ṣe ìjẹ́rìí ímeèlì rẹ láti ṣí ohun gbogbo.",
+      "bannerSub": "A fi ọ̀nà ránṣẹ́ sí {{email}}. Títí o ó fi tẹ́ ẹ, o lè wo nìkan, kò sì ní ròyìn, fọwọ́sí, tàbí kọ ọ̀rọ̀.",
+      "bannerResend": "Tún ímeèlì ránṣẹ́"
     }
   },
 

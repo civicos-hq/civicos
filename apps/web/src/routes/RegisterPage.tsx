@@ -19,8 +19,16 @@ export function RegisterPage() {
     setIsSubmitting(true);
 
     try {
-      await api.post('/api/v1/auth/register', { name, email, password });
-      navigate('/login', { replace: true });
+      const res = await api.post('/api/v1/auth/register', { name, email, password });
+      const accessToken = res.data?.data?.tokens?.accessToken;
+      const refreshToken = res.data?.data?.tokens?.refreshToken;
+      if (accessToken) {
+        localStorage.setItem('accessToken', accessToken);
+      }
+      if (refreshToken) {
+        localStorage.setItem('refreshToken', refreshToken);
+      }
+      navigate('/verify-email-sent', { replace: true, state: { email } });
     } catch (err) {
       console.error('Registration error:', err);
       setErrorMessage(t('auth.register.error'));

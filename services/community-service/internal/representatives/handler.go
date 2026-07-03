@@ -26,15 +26,15 @@ func NewHandler(svc *Service, notifier Notifier) *Handler {
 	return &Handler{svc: svc, notifier: notifier}
 }
 
-func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth, requireRole gin.HandlerFunc) {
+func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth, verified, requireRole gin.HandlerFunc) {
 	rg.GET("", h.list)
 	rg.GET("/:id", h.get)
 	rg.POST("", auth, requireRole, h.create)
 	rg.PATCH("/:id", auth, requireRole, h.update)
-	rg.POST("/:id/follow", auth, h.follow)
+	rg.POST("/:id/follow", auth, verified, h.follow)
 	rg.DELETE("/:id/follow", auth, h.unfollow)
 	rg.GET("/:id/comments", h.listComments)
-	rg.POST("/:id/comments", auth, h.addComment)
+	rg.POST("/:id/comments", auth, verified, h.addComment)
 }
 
 // RegisterMeRoutes mounts user-scoped follow lookups under /me on the parent router.

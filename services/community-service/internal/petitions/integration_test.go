@@ -146,9 +146,21 @@ DBReady:
 	}
 ServiceReady:
 
-	// create auth token for the integration user
+	// create auth token for the integration user — admin role so the test can
+	// create a community (gated by requireAdminRole), and emailVerified=true so
+	// the test can perform writes (gated by requireVerified).
 	userID := "integration-user"
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.RegisteredClaims{Subject: userID})
+	type integrationClaims struct {
+		UserID        string `json:"sub"`
+		Role          string `json:"role"`
+		EmailVerified bool   `json:"emailVerified"`
+		jwt.RegisteredClaims
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, integrationClaims{
+		UserID:        userID,
+		Role:          "PLATFORM_ADMIN",
+		EmailVerified: true,
+	})
 	signed, err := token.SignedString([]byte("integration-test-secret-which-is-very-long-0123456789"))
 	if err != nil {
 		t.Fatalf("sign token: %v", err)

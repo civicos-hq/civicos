@@ -216,6 +216,27 @@
       "error": "Could not create your account. Try a different email or try again shortly.",
       "footerHave": "Already have an account?",
       "footerSignIn": "Sign in"
+    },
+    "verify": {
+      "sentTitle": "Check your inbox.",
+      "sentSub": "We sent a verification link to {{email}}. Click it to confirm your account — the link is good for 24 hours.",
+      "sentTip": "Don't see it? Check spam, or use the button below to resend.",
+      "resend": "Resend verification email",
+      "resending": "Resending…",
+      "resent": "Sent. Give it a minute.",
+      "goToLogin": "I'll verify later — sign in",
+      "verifyingTitle": "Confirming your email…",
+      "successTitle": "Email verified.",
+      "successSub": "You're all set. You can now file issues, sign petitions, and join the conversation.",
+      "successCta": "Go to dashboard",
+      "expiredTitle": "This link has expired.",
+      "invalidTitle": "This verification link is no longer valid.",
+      "expiredSub": "Verification links last 24 hours. Sign in and request a new one from your profile.",
+      "invalidSub": "It may have already been used. Sign in and request a new one if your email isn't verified yet.",
+      "errorCta": "Go to sign in",
+      "bannerTitle": "Verify your email to unlock everything.",
+      "bannerSub": "We sent a link to {{email}}. Until you click it, you can browse but not file, sign, or comment.",
+      "bannerResend": "Resend email"
     }
   },
 

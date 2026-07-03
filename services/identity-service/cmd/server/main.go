@@ -8,6 +8,7 @@ import (
 	"github.com/civicos/identity-service/internal/middleware"
 	"github.com/civicos/identity-service/pkg/config"
 	"github.com/civicos/identity-service/pkg/database"
+	"github.com/civicos/identity-service/pkg/mailer"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -17,8 +18,17 @@ func main() {
 
 	db := database.Connect(cfg.DatabaseURL)
 
+	var mail mailer.Mailer
+	if cfg.SMTPHost != "" {
+		mail = mailer.NewSMTPMailer(cfg.SMTPHost, cfg.SMTPPort, cfg.SMTPUser, cfg.SMTPPassword, cfg.SMTPFrom)
+		log.Printf("📨 Mailer: SMTP via %s:%d", cfg.SMTPHost, cfg.SMTPPort)
+	} else {
+		mail = mailer.NewConsoleMailer(cfg.SMTPFrom)
+		log.Printf("📨 Mailer: console (set SMTP_HOST to send real mail)")
+	}
+
 	authRepo := auth.NewRepository(db)
-	authSvc := auth.NewService(authRepo, cfg)
+	authSvc := auth.NewService(authRepo, cfg, mail)
 	authHandler := auth.NewHandler(authSvc)
 
 	r := gin.Default()

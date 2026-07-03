@@ -13,6 +13,8 @@ import { ProfilePage } from './routes/ProfilePage';
 import { RegisterPage } from './routes/RegisterPage';
 import { RepresentativeDetailPage } from './routes/RepresentativeDetailPage';
 import { RepresentativesPage } from './routes/RepresentativesPage';
+import { VerifyEmailPage } from './routes/VerifyEmailPage';
+import { VerifyEmailSentPage } from './routes/VerifyEmailSentPage';
 
 function hasAccessToken() {
   return Boolean(localStorage.getItem('accessToken'));
@@ -40,6 +42,11 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
       </Route>
+
+      {/* Email verification — reachable whether or not signed in (the user
+          may click the link from another browser/device). */}
+      <Route path="/verify-email" element={<VerifyEmailPage />} />
+      <Route path="/verify-email-sent" element={<VerifyEmailSentPage />} />
 
       {/* Authenticated */}
       <Route element={<RequireAuth />}>

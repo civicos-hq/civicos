@@ -216,6 +216,27 @@
       "error": "Anyị enweghị ike imepụta akaụntụ gị. Gbalịa ozi-e ọzọ ma ọ bụ nwaa ọzọ obere oge.",
       "footerHave": "Inwere akaụntụ ugbu a?",
       "footerSignIn": "Banye"
+    },
+    "verify": {
+      "sentTitle": "Lelee ozi-e gị.",
+      "sentSub": "Anyị zigara njikọ nkwado na {{email}}. Pịa ya ka ịkwado akaụntụ gị — njikọ ahụ ga-adịte ka awa 24.",
+      "sentTip": "Ị hụghị ya? Lelee spam, ma ọ bụ jiri bọtịnụ dị n'okpuru ziga ọzọ.",
+      "resend": "Ziga ozi-e nkwado ọzọ",
+      "resending": "Na-eziga ọzọ…",
+      "resent": "E zigala. Nye ya nkeji.",
+      "goToLogin": "M ga-akwado ma emechaa — banye",
+      "verifyingTitle": "Na-akwado ozi-e gị…",
+      "successTitle": "Akwadoro ozi-e.",
+      "successSub": "Ị dị njikere. Ị nwere ike ịkọ okwu, bịnye aka n'akwụkwọ arịrịọ, ma sonye na mkparịta ụka.",
+      "successCta": "Gaa na dashboard",
+      "expiredTitle": "Njikọ a agwụla oge.",
+      "invalidTitle": "Njikọ nkwado a abaghị uru ọzọ.",
+      "expiredSub": "Njikọ nkwado adịte awa 24. Banye ma rịọ nke ọhụrụ.",
+      "invalidSub": "O nwere ike ejila ya. Banye ma rịọ nke ọhụrụ ma ọ bụrụ na akwadobeghị ozi-e gị.",
+      "errorCta": "Gaa banye",
+      "bannerTitle": "Kwado ozi-e gị iji mepee ihe niile.",
+      "bannerSub": "Anyị zigara njikọ na {{email}}. Ruo mgbe ị pịrị ya, ị nwere ike ileghachi naanị, ọ bụghị ịkọ, ịbịnye aka, ma ọ bụ ikwu okwu.",
+      "bannerResend": "Ziga ozi-e ọzọ"
     }
   },
 

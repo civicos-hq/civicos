@@ -216,6 +216,27 @@
       "error": "We no fit create your account. Try different email or try again small time.",
       "footerHave": "You get account already?",
       "footerSignIn": "Sign in"
+    },
+    "verify": {
+      "sentTitle": "Check your inbox.",
+      "sentSub": "We don send verification link go {{email}}. Click am to confirm your account — the link go work for 24 hours.",
+      "sentTip": "You no see am? Check spam, or use the button below to resend.",
+      "resend": "Resend verification email",
+      "resending": "Dey resend…",
+      "resent": "Don send. Give am one minute.",
+      "goToLogin": "I go verify later — sign in",
+      "verifyingTitle": "Dey confirm your email…",
+      "successTitle": "Email verified.",
+      "successSub": "You don ready. You fit now report issues, sign petitions, and join the conversation.",
+      "successCta": "Go to dashboard",
+      "expiredTitle": "This link don expire.",
+      "invalidTitle": "This verification link no work again.",
+      "expiredSub": "Verification links last 24 hours. Sign in and request fresh one from your profile.",
+      "invalidSub": "Maybe somebody don use am. Sign in and request fresh one if your email never verify.",
+      "errorCta": "Go sign in",
+      "bannerTitle": "Verify your email to unlock everything.",
+      "bannerSub": "We send link go {{email}}. Until you click am, you fit browse but you no fit file, sign, or comment.",
+      "bannerResend": "Resend email"
     }
   },
 

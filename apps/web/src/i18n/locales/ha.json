@@ -216,6 +216,27 @@
       "error": "Ba mu iya ƙirƙirar asusunka ba. Gwada wani imel ko sake gwadawa cikin ɗan lokaci.",
       "footerHave": "Kana da asusu?",
       "footerSignIn": "Shiga"
+    },
+    "verify": {
+      "sentTitle": "Duba imel ɗinka.",
+      "sentSub": "Mun aika hanyar tabbatarwa zuwa {{email}}. Danna ta don tabbatar da asusunka — hanyar tana aiki har sa'o'i 24.",
+      "sentTip": "Ba ka gan ta ba? Duba spam, ko yi amfani da maɓallin da ke ƙasa don sake aikawa.",
+      "resend": "Sake aika imel na tabbatarwa",
+      "resending": "Ana sake aikawa…",
+      "resent": "An aika. Ka jira minti ɗaya.",
+      "goToLogin": "Zan tabbata daga baya — shiga",
+      "verifyingTitle": "Ana tabbatar da imel ɗinka…",
+      "successTitle": "An tabbatar da imel.",
+      "successSub": "Kana shirye. Yanzu za ka iya bayar da rahoton matsaloli, sa hannu kan koƙe-koƙe, kuma ka shiga zance.",
+      "successCta": "Je zuwa dashboard",
+      "expiredTitle": "Hanyar nan ta wuce lokaci.",
+      "invalidTitle": "Hanyar tabbatarwa ba ta da inganci.",
+      "expiredSub": "Hanyoyin tabbatarwa suna aiki na sa'o'i 24. Shiga sannan ka nemi sabuwa.",
+      "invalidSub": "Wataƙila an riga an yi amfani da ita. Shiga ka nemi sabuwa idan ba a tabbatar da imel ɗinka ba.",
+      "errorCta": "Je shiga",
+      "bannerTitle": "Tabbatar da imel ɗinka don buɗe komai.",
+      "bannerSub": "Mun aika hanya zuwa {{email}}. Har sai ka danna ta, za ka iya leƙawa kawai, ba za ka iya ba da rahoto, sa hannu, ko yin sharhi ba.",
+      "bannerResend": "Sake aika imel"
     }
   },
 

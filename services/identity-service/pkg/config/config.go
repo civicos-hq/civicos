@@ -14,6 +14,17 @@ type Config struct {
 	JWTSecret           string
 	JWTExpiresIn        string
 	JWTRefreshExpiresIn string
+
+	// Public URL of the web frontend — used to build links inside emails.
+	AppURL string
+
+	// SMTP config. When SMTPHost is empty the service falls back to the
+	// console mailer (verification links are printed to the service log).
+	SMTPHost     string
+	SMTPPort     int
+	SMTPUser     string
+	SMTPPassword string
+	SMTPFrom     string
 }
 
 // Load validates and returns config from environment.
@@ -26,6 +37,12 @@ func Load() *Config {
 		JWTSecret:           require("JWT_SECRET"),
 		JWTExpiresIn:        getStr("JWT_EXPIRES_IN", "7d"),
 		JWTRefreshExpiresIn: getStr("JWT_REFRESH_EXPIRES_IN", "30d"),
+		AppURL:              getStr("APP_URL", "http://localhost:5173"),
+		SMTPHost:            getStr("SMTP_HOST", ""),
+		SMTPPort:            getInt("SMTP_PORT", 1025),
+		SMTPUser:            getStr("SMTP_USER", ""),
+		SMTPPassword:        getStr("SMTP_PASSWORD", ""),
+		SMTPFrom:            getStr("SMTP_FROM", "CivicOS <no-reply@civicos.local>"),
 	}
 
 	if len(cfg.JWTSecret) < 32 {

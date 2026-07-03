@@ -20,6 +20,8 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, authMiddleware gin.Handler
 	rg.POST("/register", h.register)
 	rg.POST("/login", h.login)
 	rg.POST("/refresh", h.refresh)
+	rg.POST("/verify-email", h.verifyEmail)
+	rg.POST("/resend-verification", authMiddleware, h.resendVerification)
 	rg.GET("/me", authMiddleware, h.me)
 	rg.PATCH("/me", authMiddleware, h.updateMe)
 	rg.POST("/me/community", authMiddleware, h.joinCommunity)
@@ -32,7 +34,7 @@ func (h *Handler) register(c *gin.Context) {
 		return
 	}
 
-	user, err := h.service.Register(input)
+	user, tokens, err := h.service.Register(input)
 	if err != nil {
 		if err.Error() == "EMAIL_ALREADY_IN_USE" {
 			response.Error(c, http.StatusConflict, "EMAIL_ALREADY_IN_USE", "This email is already registered")
@@ -42,7 +44,7 @@ func (h *Handler) register(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, http.StatusCreated, gin.H{"user": user})
+	response.Success(c, http.StatusCreated, gin.H{"user": user, "tokens": tokens})
 }
 
 func (h *Handler) login(c *gin.Context) {
@@ -106,6 +108,42 @@ func (h *Handler) updateMe(c *gin.Context) {
 		return
 	}
 	response.Success(c, http.StatusOK, gin.H{"user": user})
+}
+
+func (h *Handler) verifyEmail(c *gin.Context) {
+	var body struct {
+		Token string `json:"token" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&body); err != nil {
+		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", err.Error())
+		return
+	}
+	user, tokens, err := h.service.VerifyEmail(body.Token)
+	if err != nil {
+		switch err.Error() {
+		case "VERIFICATION_TOKEN_INVALID":
+			response.Error(c, http.StatusBadRequest, "VERIFICATION_TOKEN_INVALID", "Invalid verification link")
+		case "VERIFICATION_TOKEN_EXPIRED":
+			response.Error(c, http.StatusBadRequest, "VERIFICATION_TOKEN_EXPIRED", "This verification link has expired. Request a new one.")
+		default:
+			response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Could not verify email")
+		}
+		return
+	}
+	payload := gin.H{"user": user}
+	if tokens != nil {
+		payload["tokens"] = tokens
+	}
+	response.Success(c, http.StatusOK, payload)
+}
+
+func (h *Handler) resendVerification(c *gin.Context) {
+	userID, _ := c.Get("userID")
+	if err := h.service.ResendVerification(userID.(string)); err != nil {
+		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Could not send verification email")
+		return
+	}
+	response.Success(c, http.StatusOK, gin.H{"sent": true})
 }
 
 func (h *Handler) joinCommunity(c *gin.Context) {

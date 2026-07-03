@@ -1839,3 +1839,101 @@ button {
   right: 1.5rem;
   z-index: 5;
 }
+
+/* --- Verification pages --- */
+.auth-grid--single { display: block; max-width: 32rem; margin: 0 auto; padding: 2.5rem 1rem; }
+.auth-card--centered { text-align: center; padding-top: 2.25rem; }
+.auth-card--centered .auth-card-title { font-family: var(--font-serif, Georgia, serif); }
+.auth-submit--link {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+}
+
+.verify-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  margin: 0 auto 1rem;
+  border-radius: 999px;
+}
+.verify-icon--info { background: rgba(31, 110, 212, 0.12); color: var(--brand-700, #174d95); }
+.verify-icon--ok   { background: rgba(34, 197, 94, 0.14);  color: #15803d; }
+.verify-icon--err  { background: rgba(244, 63, 94, 0.12);  color: #be123c; }
+
+.verify-spin { animation: verify-spin 0.9s linear infinite; }
+@keyframes verify-spin { to { transform: rotate(360deg); } }
+
+.verify-tip {
+  margin: 0.75rem 0 1rem;
+  font-size: 0.85rem;
+  color: var(--ink-500, #475569);
+}
+.verify-success {
+  margin: 0.6rem 0 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #15803d;
+}
+
+/* --- Unverified-email banner (dashboard) --- */
+.verify-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.75rem 1rem;
+  margin: 0 0 1rem;
+  background: linear-gradient(120deg, rgba(238, 127, 59, 0.10), rgba(31, 110, 212, 0.08));
+  border: 1px solid rgba(238, 127, 59, 0.28);
+  border-radius: 12px;
+  color: var(--ink-900, #0f172a);
+}
+.verify-banner-icon {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  background: rgba(238, 127, 59, 0.16);
+  color: #c2410c;
+}
+.verify-banner-body { flex: 1 1 16rem; min-width: 0; }
+.verify-banner-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+.verify-banner-sub {
+  margin: 0.15rem 0 0;
+  font-size: 0.83rem;
+  color: var(--ink-700, #334155);
+}
+.verify-banner-actions { display: flex; gap: 0.5rem; flex: none; }
+.verify-banner-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 999px;
+  background: var(--brand-500, #1f6ed4);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: 0;
+  cursor: pointer;
+  transition: background 160ms ease, transform 160ms ease;
+}
+.verify-banner-btn:hover { background: var(--brand-700, #174d95); transform: translateY(-1px); }
+.verify-banner-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+.verify-banner-ack {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #15803d;
+  padding: 0.4rem 0.6rem;
+}

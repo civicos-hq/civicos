@@ -74,6 +74,7 @@ func main() {
 	uploadsHandler := uploads.NewHandler(uploadsDir)
 
 	authMiddleware := middleware.JWTAuth(cfg)
+	requireVerified := middleware.RequireVerified()
 	requireAdminRole := middleware.RequireRole("GOVERNMENT_ADMIN", "PLATFORM_ADMIN", "NGO")
 
 	r := gin.New()
@@ -91,14 +92,14 @@ func main() {
 
 	v1 := r.Group("/v1")
 	communityHandler.RegisterRoutes(v1.Group("/communities"), authMiddleware, requireAdminRole)
-	issueHandler.RegisterRoutes(v1.Group("/issues"), authMiddleware)
-	petitionHandler.RegisterRoutes(v1.Group("/petitions"), authMiddleware)
-	repHandler.RegisterRoutes(v1.Group("/representatives"), authMiddleware, requireAdminRole)
+	issueHandler.RegisterRoutes(v1.Group("/issues"), authMiddleware, requireVerified)
+	petitionHandler.RegisterRoutes(v1.Group("/petitions"), authMiddleware, requireVerified)
+	repHandler.RegisterRoutes(v1.Group("/representatives"), authMiddleware, requireVerified, requireAdminRole)
 	repHandler.RegisterMeRoutes(v1.Group("/me"), authMiddleware)
 	notificationHandler.RegisterRoutes(v1.Group("/notifications"), authMiddleware)
 	searchHandler.RegisterRoutes(v1.Group("/search"))
 	discoverHandler.RegisterRoutes(v1.Group("/discover"), authMiddleware)
-	uploadsHandler.RegisterRoutes(v1.Group("/uploads"), authMiddleware)
+	uploadsHandler.RegisterRoutes(v1.Group("/uploads"), authMiddleware, requireVerified)
 
 	addr := ":" + cfg.Port
 	log.Printf("community-service listening on %s", addr)

@@ -12,10 +12,11 @@ import (
 )
 
 type Claims struct {
-	UserID string `json:"sub"`
-	Email  string `json:"email"`
-	Name   string `json:"name"`
-	Role   string `json:"role"`
+	UserID        string `json:"sub"`
+	Email         string `json:"email"`
+	Name          string `json:"name"`
+	Role          string `json:"role"`
+	EmailVerified bool   `json:"emailVerified"`
 	jwt.RegisteredClaims
 }
 
@@ -53,6 +54,22 @@ func JWTAuth(cfg *config.Config) gin.HandlerFunc {
 		c.Set("userID", claims.UserID)
 		c.Set("userName", claims.Name)
 		c.Set("userRole", claims.Role)
+		c.Set("emailVerified", claims.EmailVerified)
+		c.Next()
+	}
+}
+
+// RequireVerified blocks the request if the caller's JWT says the email is
+// not yet verified. Designed to layer on top of JWTAuth — apply it only to
+// write endpoints (file an issue, sign a petition, post a comment).
+// Read endpoints stay open so unverified users can still explore.
+func RequireVerified() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if !c.GetBool("emailVerified") {
+			response.Error(c, http.StatusForbidden, "EMAIL_NOT_VERIFIED", "Verify your email to perform this action")
+			c.Abort()
+			return
+		}
 		c.Next()
 	}
 }

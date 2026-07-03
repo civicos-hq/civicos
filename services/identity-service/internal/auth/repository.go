@@ -1,6 +1,8 @@
 package auth
 
 import (
+	"time"
+
 	"github.com/civicos/identity-service/internal/domain"
 	"gorm.io/gorm"
 )
@@ -55,4 +57,34 @@ func (r *Repository) UpdateProfile(userID, name, email string) error {
 		return nil
 	}
 	return r.db.Model(&domain.User{}).Where("id = ?", userID).Updates(updates).Error
+}
+
+// SetVerificationToken stores a hashed token + expiry. Always overwrites —
+// resending invalidates any earlier outstanding link.
+func (r *Repository) SetVerificationToken(userID, tokenHash string, expiresAt time.Time) error {
+	return r.db.Model(&domain.User{}).Where("id = ?", userID).Updates(map[string]any{
+		"email_verification_token_hash": tokenHash,
+		"email_verification_expires_at": expiresAt,
+	}).Error
+}
+
+func (r *Repository) FindByVerificationTokenHash(tokenHash string) (*domain.User, error) {
+	var user domain.User
+	result := r.db.Where("email_verification_token_hash = ?", tokenHash).First(&user)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &user, nil
+}
+
+// MarkVerified flips the verified bit, stamps the time, and clears the
+// outstanding token in a single update so the link can't be replayed.
+func (r *Repository) MarkVerified(userID string) error {
+	now := time.Now().UTC()
+	return r.db.Model(&domain.User{}).Where("id = ?", userID).Updates(map[string]any{
+		"email_verified":                true,
+		"email_verified_at":             now,
+		"email_verification_token_hash": gorm.Expr("NULL"),
+		"email_verification_expires_at": gorm.Expr("NULL"),
+	}).Error
 }
