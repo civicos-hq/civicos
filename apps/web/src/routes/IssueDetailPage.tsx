@@ -128,7 +128,7 @@ export function IssueDetailPage() {
   });
 
   if (issueQuery.isLoading) {
-    return <p className="text-sm text-slate-500">{t('common.loading')}</p>;
+    return <p className="text-sm text-slate-600">{t('common.loading')}</p>;
   }
 
   if (issueQuery.isError || !issueQuery.data) {
@@ -160,7 +160,7 @@ export function IssueDetailPage() {
               {enums.issueCategory(issue.category)}
             </p>
             <h1 className="mt-2 text-3xl font-semibold text-slate-900">{issue.title}</h1>
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-sm text-slate-600">
               {t('issueDetail.reportedAt', { when: reportedAt })}
               {community ? ` · ${community.name}, ${community.lga}` : ''}
             </p>
@@ -179,7 +179,7 @@ export function IssueDetailPage() {
 
         {isStaff && (
           <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4">
-            <p className="mr-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <p className="mr-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
               {t('issueDetail.updateStatus')}
             </p>
             {(Object.values(IssueStatus) as IssueStatus[]).map((s) => (
@@ -209,7 +209,7 @@ export function IssueDetailPage() {
         <p className="mt-3 whitespace-pre-wrap text-sm text-slate-700">{issue.description}</p>
         {issue.location && (
           <div className="mt-4 border-t border-slate-100 pt-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600">
               {t('issueDetail.location')}
             </p>
             <p className="mt-1 text-sm text-slate-700">{issue.location}</p>
@@ -226,12 +226,12 @@ export function IssueDetailPage() {
 
       <article className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600">
             {t('issueDetail.communitySupport')}
           </p>
           <p className="mt-1 text-2xl font-semibold text-slate-900">
             {issue.upvoteCount}{' '}
-            <span className="text-sm font-normal text-slate-500">
+            <span className="text-sm font-normal text-slate-600">
               {t('issueDetail.upvotesCount', { count: issue.upvoteCount })}
             </span>
           </p>
@@ -240,6 +240,7 @@ export function IssueDetailPage() {
           onClick={() => upvoteMutation.mutate()}
           loading={upvoteMutation.isPending}
           variant={hasUpvoted ? 'secondary' : 'primary'}
+          aria-pressed={hasUpvoted}
         >
           {hasUpvoted ? t('issueDetail.upvoted') : t('issueDetail.upvote')}
         </Button>
@@ -257,7 +258,7 @@ function StatusTimeline({ current }: { current: IssueStatus }) {
   const enums = useEnumLabels();
   if (current === IssueStatus.CLOSED) {
     return (
-      <p className="mt-5 text-xs italic text-slate-500">{t('issueDetail.statusClosedNote')}</p>
+      <p className="mt-5 text-xs italic text-slate-600">{t('issueDetail.statusClosedNote')}</p>
     );
   }
   const activeIdx = STATUS_FLOW.indexOf(current);
@@ -267,7 +268,11 @@ function StatusTimeline({ current }: { current: IssueStatus }) {
         const reached = i <= activeIdx;
         const isActive = i === activeIdx;
         return (
-          <li key={s} className="flex items-center gap-2">
+          <li
+            key={s}
+            className="flex items-center gap-2"
+            aria-current={isActive ? 'step' : undefined}
+          >
             <span
               className={
                 isActive
@@ -276,6 +281,7 @@ function StatusTimeline({ current }: { current: IssueStatus }) {
                     ? 'flex h-6 w-6 items-center justify-center rounded-full bg-civic-600 text-[10px] font-bold text-white'
                     : 'flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 bg-white text-[10px] font-bold text-slate-400'
               }
+              aria-hidden="true"
             >
               {i + 1}
             </span>

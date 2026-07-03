@@ -7,6 +7,10 @@ import { PetitionStatus, type ApiResponse, type Petition } from '@civicos/types'
 import { api, uploadImage } from '../lib/api';
 import { useMe } from '../hooks/useMe';
 import { useEnumLabels } from '../hooks/useEnumLabels';
+import { PageHeader, useTodayMeta } from '../components/PageHeader';
+import { EmptyState } from '../components/EmptyState';
+import { CommunityGate, CommunityGateLink } from '../components/CommunityGate';
+import { FileText } from 'lucide-react';
 
 const MAX_IMAGES = 5;
 const MAX_IMAGE_MB = 5;
@@ -68,6 +72,7 @@ function daysUntil(deadlineISO?: string) {
 export function PetitionsPage() {
   const { t } = useTranslation();
   const enums = useEnumLabels();
+  const meta = useTodayMeta();
   const meQuery = useMe();
   const communityId = meQuery.data?.communityId;
   const [params, setParams] = useSearchParams();
@@ -91,16 +96,11 @@ export function PetitionsPage() {
 
   return (
     <section className="space-y-6">
-      <header className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-civic-700">
-              {t('petitionsPage.eyebrow')}
-            </p>
-            <h1 className="mt-2 text-3xl font-semibold text-slate-900">
-              {t('petitionsPage.title')}
-            </h1>
-          </div>
+      <PageHeader
+        eyebrow={t('petitionsPage.eyebrow')}
+        title={t('petitionsPage.title')}
+        meta={meta}
+        actions={
           <Button
             size="sm"
             onClick={() => setModalOpen(true)}
@@ -109,17 +109,16 @@ export function PetitionsPage() {
           >
             {t('petitionsPage.newBtn')}
           </Button>
-        </div>
+        }
+      >
         {!meQuery.isLoading && !hasCommunity && (
-          <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          <CommunityGate>
             {t('petitionsPage.noCommunityBanner')}{' '}
-            <Link to="/community" className="font-semibold underline">
-              {t('petitionsPage.pickOne')}
-            </Link>{' '}
+            <CommunityGateLink>{t('petitionsPage.pickOne')}</CommunityGateLink>{' '}
             {t('petitionsPage.toStart')}
-          </p>
+          </CommunityGate>
         )}
-      </header>
+      </PageHeader>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -148,7 +147,7 @@ export function PetitionsPage() {
                 {t('petitionsPage.clear')}
               </button>
             )}
-            <label className="text-xs font-semibold text-slate-500">
+            <label className="text-xs font-semibold text-slate-600">
               {t('common.sortBy')}
               <select
                 value={sort}
@@ -167,15 +166,18 @@ export function PetitionsPage() {
       </section>
 
       {petitionsQuery.isLoading ? (
-        <p className="text-sm text-slate-500">{t('common.loading')}</p>
+        <p className="text-sm text-slate-600">{t('common.loading')}</p>
       ) : visible.length === 0 ? (
-        <article className="rounded-2xl border border-dashed border-slate-300 bg-white/60 p-8 text-center text-sm text-slate-500">
-          {hasFilter
-            ? t('petitionsPage.empty.noMatch')
-            : hasCommunity
-              ? t('petitionsPage.empty.noneYet')
-              : t('petitionsPage.empty.needCommunity')}
-        </article>
+        <EmptyState
+          icon={<FileText className="h-5 w-5" />}
+          title={
+            hasFilter
+              ? t('petitionsPage.empty.noMatch')
+              : hasCommunity
+                ? t('petitionsPage.empty.noneYet')
+                : t('petitionsPage.empty.needCommunity')
+          }
+        />
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {visible.map((petition) => {
@@ -222,7 +224,7 @@ export function PetitionsPage() {
                   <span className="rounded-full bg-civic-50 px-2.5 py-1 font-semibold text-civic-700">
                     {t('petitionsPage.percentComplete', { percent: progress })}
                   </span>
-                  <span className="text-slate-500">
+                  <span className="text-slate-600">
                     {t('common.commentCount', { count: petition.commentCount })}
                     {deadlineFragment}
                   </span>
@@ -253,6 +255,7 @@ function FilterPill({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={
         active
           ? 'rounded-full bg-civic-700 px-3 py-1 text-xs font-semibold text-white shadow-sm'

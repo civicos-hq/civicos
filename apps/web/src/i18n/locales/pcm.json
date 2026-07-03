@@ -1,11 +1,19 @@
 {
+  "pageHeader": {
+    "publicRecord": "Public"
+  },
+
   "rateLimit": {
     "title": "Slow down small.",
     "body": "You dey do am too fast. Try again in {{seconds}}s.",
+    "bodyStatic": "You dey do am too fast.",
+    "bodyCountdown": "Try again in {{seconds}}s.",
     "genericBody": "You dey do am too fast. Abeg wait small."
   },
 
   "common": {
+    "mainNav": "Main navigation",
+    "topbar": "Top toolbar",
     "loading": "Dey load…",
     "loadingMore": "Dey load more…",
     "retry": "Try again",
@@ -752,7 +760,9 @@
       "errorCta": "Go sign in",
       "bannerTitle": "Verify your email to unlock everything.",
       "bannerSub": "We send link go {{email}}. Until you click am, you fit browse but you no fit file, sign, or comment.",
-      "bannerResend": "Resend email"
+      "bannerResend": "Resend email",
+      "bannerDismiss": "Hide for now",
+      "bannerCompact": "Verify your email to file, sign, and comment."
     }
   },
 

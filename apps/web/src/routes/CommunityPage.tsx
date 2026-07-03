@@ -6,6 +6,9 @@ import { UserRole, type ApiResponse, type Community } from '@civicos/types';
 import { api } from '../lib/api';
 import { useMe } from '../hooks/useMe';
 import { Modal } from '../components/Modal';
+import { PageHeader, useTodayMeta } from '../components/PageHeader';
+import { EmptyState } from '../components/EmptyState';
+import { Home } from 'lucide-react';
 
 const ADMIN_ROLES = new Set<UserRole>([
   UserRole.GOVERNMENT_ADMIN,
@@ -33,6 +36,7 @@ function slugify(value: string): string {
 
 export function CommunityPage() {
   const { t } = useTranslation();
+  const meta = useTodayMeta();
   const meQuery = useMe();
   const communitiesQuery = useCommunities();
   const queryClient = useQueryClient();
@@ -54,35 +58,30 @@ export function CommunityPage() {
 
   return (
     <section className="space-y-6">
-      <header className="rounded-2xl border border-slate-200 bg-white/90 p-6 shadow-sm backdrop-blur">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-civic-700">
-              {t('communityPage.eyebrow')}
-            </p>
-            <h1 className="mt-2 text-3xl font-semibold text-slate-900">
-              {myCommunity ? myCommunity.name : t('communityPage.findYours')}
-            </h1>
-            <p className="mt-3 max-w-2xl text-sm text-slate-600">
-              {myCommunity
-                ? t('communityPage.memberSub', {
-                    name: myCommunity.name,
-                    lga: myCommunity.lga,
-                    state: myCommunity.state,
-                  })
-                : t('communityPage.joinPrompt')}
-            </p>
-          </div>
-          {isAdmin && (
+      <PageHeader
+        eyebrow={t('communityPage.eyebrow')}
+        title={myCommunity ? myCommunity.name : t('communityPage.findYours')}
+        subtitle={
+          myCommunity
+            ? t('communityPage.memberSub', {
+                name: myCommunity.name,
+                lga: myCommunity.lga,
+                state: myCommunity.state,
+              })
+            : t('communityPage.joinPrompt')
+        }
+        meta={meta}
+        actions={
+          isAdmin ? (
             <Button size="sm" onClick={() => setNewOpen(true)}>
               {t('communityPage.newCommunity')}
             </Button>
-          )}
-        </div>
-      </header>
+          ) : undefined
+        }
+      />
 
       {meQuery.isLoading || communitiesQuery.isLoading ? (
-        <p className="text-sm text-slate-500">{t('common.loading')}</p>
+        <p className="text-sm text-slate-600">{t('common.loading')}</p>
       ) : myCommunity ? (
         <>
           <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -103,7 +102,7 @@ export function CommunityPage() {
             <h2 className="text-lg font-semibold text-slate-900">
               {t('communityPage.switchCommunity')}
             </h2>
-            <p className="mt-1 text-sm text-slate-500">{t('communityPage.switchSub')}</p>
+            <p className="mt-1 text-sm text-slate-600">{t('communityPage.switchSub')}</p>
             <div className="mt-4 grid gap-3">
               {communities
                 .filter((c) => c.id !== myCommunity.id)
@@ -125,7 +124,9 @@ export function CommunityPage() {
             {t('communityPage.availableCommunities')}
           </h2>
           {communities.length === 0 ? (
-            <p className="mt-4 text-sm text-slate-500">{t('communityPage.empty')}</p>
+            <div className="mt-4">
+              <EmptyState icon={<Home className="h-5 w-5" />} title={t('communityPage.empty')} />
+            </div>
           ) : (
             <div className="mt-4 grid gap-3">
               {communities.map((c) => (
@@ -184,7 +185,7 @@ function CommunityRow({
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
-      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{label}</p>
+      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600">{label}</p>
       <p className="mt-2 text-base font-semibold text-slate-900">{value}</p>
     </div>
   );
@@ -264,7 +265,7 @@ function NewCommunityModal({
             minLength={2}
             pattern="[a-z0-9-]+"
           />
-          <span className="mt-1 block text-xs text-slate-500">
+          <span className="mt-1 block text-xs text-slate-600">
             {t('communityPage.modal.slugHint')}
           </span>
         </label>

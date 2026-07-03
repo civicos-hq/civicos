@@ -1,11 +1,19 @@
 {
+  "pageHeader": {
+    "publicRecord": "Gbangba"
+  },
+
   "rateLimit": {
     "title": "Fa fún ìṣẹ́jú kan.",
     "body": "O ń ṣe é kíákíá jù. Gbìyànjú lẹ́ẹ̀kan sí i lẹ́yìn {{seconds}}s.",
+    "bodyStatic": "O ń ṣe é kíákíá jù.",
+    "bodyCountdown": "Gbìyànjú lẹ́ẹ̀kan sí i lẹ́yìn {{seconds}}s.",
     "genericBody": "O ń ṣe é kíákíá jù. Jọ̀wọ́ dúró fún ìṣẹ́jú kan."
   },
 
   "common": {
+    "mainNav": "Ìlànà àkọ́kọ́",
+    "topbar": "Ọ̀pá irinṣẹ́ òkè",
     "loading": "À ń kó…",
     "loadingMore": "À ń kó sí i…",
     "retry": "Gbìyànjú lẹ́ẹ̀kan sí i",
@@ -752,7 +760,9 @@
       "errorCta": "Lọ wọlé",
       "bannerTitle": "Ṣe ìjẹ́rìí ímeèlì rẹ láti ṣí ohun gbogbo.",
       "bannerSub": "A fi ọ̀nà ránṣẹ́ sí {{email}}. Títí o ó fi tẹ́ ẹ, o lè wo nìkan, kò sì ní ròyìn, fọwọ́sí, tàbí kọ ọ̀rọ̀.",
-      "bannerResend": "Tún ímeèlì ránṣẹ́"
+      "bannerResend": "Tún ímeèlì ránṣẹ́",
+      "bannerDismiss": "Fi sílẹ̀ fún ìsinsìnyí",
+      "bannerCompact": "Ṣe ìjẹ́rìí ímeèlì rẹ láti ròyìn, fọwọ́sí, àti kọ ọ̀rọ̀."
     }
   },
 

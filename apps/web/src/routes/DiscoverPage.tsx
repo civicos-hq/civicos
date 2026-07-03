@@ -9,6 +9,9 @@ import { api } from '../lib/api';
 import { useMe } from '../hooks/useMe';
 import { useEnumLabels } from '../hooks/useEnumLabels';
 import { useRelativeTime } from '../hooks/useRelativeTime';
+import { PageHeader, useTodayMeta } from '../components/PageHeader';
+import { EmptyState } from '../components/EmptyState';
+import { CommunityGate, CommunityGateLink } from '../components/CommunityGate';
 
 type Tier = 'COMMUNITY' | 'LGA' | 'STATE' | 'COUNTRY';
 
@@ -91,6 +94,7 @@ function useTierFeed(tier: Tier, communityId: string | undefined, kind: KindFilt
 
 export function DiscoverPage() {
   const { t } = useTranslation();
+  const meta = useTodayMeta();
   const meQuery = useMe();
   const communityId = meQuery.data?.communityId;
   const [tier, setTier] = useState<TierFilter>('ALL');
@@ -98,20 +102,18 @@ export function DiscoverPage() {
 
   return (
     <section className="space-y-6">
-      <header className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-civic-700">
-          {t('discoverPage.eyebrow')}
-        </p>
-        <h1 className="mt-2 text-3xl font-semibold text-slate-900">{t('discoverPage.title')}</h1>
-        <p className="mt-2 max-w-2xl text-sm text-slate-600">{t('discoverPage.subtitle')}</p>
+      <PageHeader
+        eyebrow={t('discoverPage.eyebrow')}
+        title={t('discoverPage.title')}
+        subtitle={t('discoverPage.subtitle')}
+        meta={meta}
+      >
         {!meQuery.isLoading && !communityId && (
-          <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          <CommunityGate>
             {t('discoverPage.noCommunityBefore')}{' '}
-            <Link to="/community" className="font-semibold underline">
-              {t('discoverPage.noCommunityLink')}
-            </Link>{' '}
+            <CommunityGateLink>{t('discoverPage.noCommunityLink')}</CommunityGateLink>{' '}
             {t('discoverPage.noCommunityAfter')}
-          </p>
+          </CommunityGate>
         )}
 
         <div className="mt-4 flex flex-wrap gap-2">
@@ -140,7 +142,7 @@ export function DiscoverPage() {
             />
           ))}
         </div>
-      </header>
+      </PageHeader>
 
       {tier === 'ALL' ? (
         <GroupedView communityId={communityId} kind={kind} />
@@ -162,14 +164,10 @@ function GroupedView({ communityId, kind }: { communityId?: string; kind: KindFi
   }
 
   if (feedQuery.isLoading) {
-    return <p className="text-sm text-slate-500">{t('common.loading')}</p>;
+    return <p className="text-sm text-slate-600">{t('common.loading')}</p>;
   }
   if (items.length === 0) {
-    return (
-      <article className="rounded-2xl border border-dashed border-slate-300 bg-white/60 p-8 text-center text-sm text-slate-500">
-        {t('discoverPage.empty.grouped')}
-      </article>
-    );
+    return <EmptyState title={t('discoverPage.empty.grouped')} />;
   }
 
   return (
@@ -185,7 +183,7 @@ function GroupedView({ communityId, kind }: { communityId?: string; kind: KindFi
               >
                 {t(`discoverPage.tiers.${tk}`)}
               </span>
-              <span className="text-xs text-slate-500">
+              <span className="text-xs text-slate-600">
                 {t('discoverPage.itemCount', { count: tierItems.length })}
               </span>
             </div>
@@ -216,14 +214,10 @@ function TierView({
   const items = pages.flatMap((p) => p.items);
 
   if (feed.isLoading) {
-    return <p className="text-sm text-slate-500">{t('common.loading')}</p>;
+    return <p className="text-sm text-slate-600">{t('common.loading')}</p>;
   }
   if (items.length === 0) {
-    return (
-      <article className="rounded-2xl border border-dashed border-slate-300 bg-white/60 p-8 text-center text-sm text-slate-500">
-        {t('discoverPage.empty.tier')}
-      </article>
-    );
+    return <EmptyState title={t('discoverPage.empty.tier')} />;
   }
 
   return (
@@ -234,7 +228,7 @@ function TierView({
         >
           {t(`discoverPage.tiers.${tier}`)}
         </span>
-        <span className="text-xs text-slate-500">
+        <span className="text-xs text-slate-600">
           {t('discoverPage.itemsLoaded', { count: items.length })}
         </span>
       </div>
@@ -276,10 +270,11 @@ function TierPill({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={
         active
           ? `rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide shadow-sm ${tone ?? 'bg-civic-700 text-white'}`
-          : 'rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-500 hover:border-civic-300 hover:text-civic-700'
+          : 'rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600 hover:border-civic-300 hover:text-civic-700'
       }
     >
       {label}
@@ -395,7 +390,7 @@ function CardMeta({
 }) {
   const relative = useRelativeTime();
   return (
-    <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500">
+    <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-600">
       {community && (
         <span className="inline-flex items-center gap-1">
           <MapPin className="h-3 w-3" />

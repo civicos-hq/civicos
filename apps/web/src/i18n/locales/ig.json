@@ -1,11 +1,19 @@
 {
+  "pageHeader": {
+    "publicRecord": "Ọha"
+  },
+
   "rateLimit": {
     "title": "Weda ngwa ngwa.",
     "body": "Ị na-eme ya ngwa ngwa. Nwaa ọzọ mgbe {{seconds}}s gasịrị.",
+    "bodyStatic": "Ị na-eme ya ngwa ngwa.",
+    "bodyCountdown": "Nwaa ọzọ mgbe {{seconds}}s gasịrị.",
     "genericBody": "Ị na-eme ya ngwa ngwa. Biko chere obere oge."
   },
 
   "common": {
+    "mainNav": "Isi ngagharị",
+    "topbar": "Ngwaọrụ elu",
     "loading": "Na-ebubata…",
     "loadingMore": "Na-ebubata ọzọ…",
     "retry": "Nwaa ọzọ",
@@ -752,7 +760,9 @@
       "errorCta": "Gaa banye",
       "bannerTitle": "Kwado ozi-e gị iji mepee ihe niile.",
       "bannerSub": "Anyị zigara njikọ na {{email}}. Ruo mgbe ị pịrị ya, ị nwere ike ileghachi naanị, ọ bụghị ịkọ, ịbịnye aka, ma ọ bụ ikwu okwu.",
-      "bannerResend": "Ziga ozi-e ọzọ"
+      "bannerResend": "Ziga ozi-e ọzọ",
+      "bannerDismiss": "Hapụ ya ugbu a",
+      "bannerCompact": "Kwado ozi-e gị iji kọọ, bịnye aka, na kwuo okwu."
     }
   },
 

@@ -15,8 +15,10 @@ export function DashboardLayout() {
       <Sidebar />
       <div className="dashboard-main-pane">
         <Topbar />
+        {/* Chrome strip — sits between the topbar and content, not inside
+            the scrollable content area, so page real estate isn't eaten. */}
+        <UnverifiedBanner />
         <main className="dashboard-content">
-          <UnverifiedBanner />
           <Outlet />
         </main>
       </div>

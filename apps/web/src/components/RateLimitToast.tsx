@@ -38,11 +38,20 @@ export function RateLimitToast() {
   if (remaining <= 0) return null;
 
   return (
-    <div className="rate-limit-toast" role="status" aria-live="polite">
+    <div className="rate-limit-toast">
       <AlertTriangle className="h-4 w-4 rate-limit-toast-icon" aria-hidden="true" />
-      <div>
-        <p className="rate-limit-toast-title">{t('rateLimit.title')}</p>
-        <p className="rate-limit-toast-body">{t('rateLimit.body', { seconds: remaining })}</p>
+      <div className="rate-limit-toast-copy">
+        {/* Live region for the one-shot announcement — title + static body only.
+            Screen readers get one clean message when the toast appears. */}
+        <div role="status" aria-live="polite">
+          <p className="rate-limit-toast-title">{t('rateLimit.title')}</p>
+          <p className="rate-limit-toast-body">{t('rateLimit.bodyStatic')}</p>
+        </div>
+        {/* Countdown ticks every second and is aria-hidden so it doesn't cause
+            the polite region to re-announce ("34…33…32…") on every update. */}
+        <p className="rate-limit-toast-body rate-limit-toast-countdown" aria-hidden="true">
+          {t('rateLimit.bodyCountdown', { seconds: remaining })}
+        </p>
       </div>
     </div>
   );

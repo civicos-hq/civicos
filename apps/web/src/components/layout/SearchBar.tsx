@@ -43,6 +43,7 @@ export function SearchBar() {
         type="search"
         value={query}
         placeholder={t('search.placeholder')}
+        aria-label={t('search.placeholder')}
         className="dashboard-search"
         onChange={(e) => {
           setQuery(e.target.value);
@@ -63,7 +64,7 @@ export function SearchBar() {
       {showDropdown && (
         <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-20 max-h-[28rem] overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-lg">
           {showEmpty && (
-            <p className="px-4 py-6 text-center text-sm text-slate-500">
+            <p className="px-4 py-6 text-center text-sm text-slate-600">
               {t('search.empty', { query: debouncedQuery })}
             </p>
           )}
@@ -144,7 +145,7 @@ function ResultRow({
       className="flex w-full flex-col items-start gap-0.5 px-4 py-2 text-left hover:bg-slate-50"
     >
       <span className="line-clamp-1 text-sm font-medium text-slate-900">{primary}</span>
-      <span className="line-clamp-1 text-xs text-slate-500">{secondary}</span>
+      <span className="line-clamp-1 text-xs text-slate-600">{secondary}</span>
     </button>
   );
 }

@@ -1,11 +1,19 @@
 {
+  "pageHeader": {
+    "publicRecord": "Jama'a"
+  },
+
   "rateLimit": {
     "title": "Yi hankali kaɗan.",
     "body": "Kana yi da sauri sosai. Sake gwadawa cikin {{seconds}}s.",
+    "bodyStatic": "Kana yi da sauri sosai.",
+    "bodyCountdown": "Sake gwadawa cikin {{seconds}}s.",
     "genericBody": "Kana yi da sauri sosai. Da fatan jira ɗan lokaci."
   },
 
   "common": {
+    "mainNav": "Babban kewayawa",
+    "topbar": "Sandar sama",
     "loading": "Ana loda…",
     "loadingMore": "Ana ƙara loda…",
     "retry": "Sake gwadawa",
@@ -752,7 +760,9 @@
       "errorCta": "Je shiga",
       "bannerTitle": "Tabbatar da imel ɗinka don buɗe komai.",
       "bannerSub": "Mun aika hanya zuwa {{email}}. Har sai ka danna ta, za ka iya leƙawa kawai, ba za ka iya ba da rahoto, sa hannu, ko yin sharhi ba.",
-      "bannerResend": "Sake aika imel"
+      "bannerResend": "Sake aika imel",
+      "bannerDismiss": "Watsar da yanzu",
+      "bannerCompact": "Tabbatar da imel ɗinka don yin rahoto, sa hannu, da yin sharhi."
     }
   },
 

@@ -8,6 +8,7 @@ import type { ApiResponse, Community, User } from '@civicos/types';
 import { api, signOut as signOutRemote } from '../lib/api';
 import { useMe } from '../hooks/useMe';
 import { useEnumLabels } from '../hooks/useEnumLabels';
+import { PageHeader, useTodayMeta } from '../components/PageHeader';
 
 function useCommunity(id: string | undefined) {
   return useQuery({
@@ -39,6 +40,7 @@ const ROLE_TONE: Record<string, string> = {
 export function ProfilePage() {
   const { t, i18n } = useTranslation();
   const enums = useEnumLabels();
+  const meta = useTodayMeta();
   const navigate = useNavigate();
   const meQuery = useMe();
   const me = meQuery.data;
@@ -51,7 +53,7 @@ export function ProfilePage() {
   }
 
   if (meQuery.isLoading) {
-    return <p className="text-sm text-slate-500">{t('profilePage.loadingProfile')}</p>;
+    return <p className="text-sm text-slate-600">{t('profilePage.loadingProfile')}</p>;
   }
 
   if (!me) {
@@ -63,25 +65,26 @@ export function ProfilePage() {
 
   return (
     <section className="space-y-6">
-      <header className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-civic-700 text-xl font-bold text-white">
-            {initials(me.name)}
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-civic-700">
-              {t('profilePage.eyebrow')}
-            </p>
-            <h1 className="mt-1 text-2xl font-semibold text-slate-900">{me.name}</h1>
-            <p className="text-sm text-slate-500">{me.email}</p>
-          </div>
+      <PageHeader
+        eyebrow={t('profilePage.eyebrow')}
+        title={
+          <span className="profile-header-identity">
+            <span className="profile-header-avatar" aria-hidden="true">
+              {initials(me.name)}
+            </span>
+            {me.name}
+          </span>
+        }
+        subtitle={me.email}
+        meta={meta}
+        actions={
           <span
             className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide ${roleTone}`}
           >
             {enums.userRole(me.role)}
           </span>
-        </div>
-      </header>
+        }
+      />
 
       <div className="grid gap-4 lg:grid-cols-[1.2fr,0.8fr]">
         <AccountSection user={me} language={i18n.language} />
@@ -91,11 +94,11 @@ export function ProfilePage() {
             {t('profilePage.community.heading')}
           </h2>
           {communityQuery.isLoading ? (
-            <p className="mt-3 text-sm text-slate-500">{t('common.loading')}</p>
+            <p className="mt-3 text-sm text-slate-600">{t('common.loading')}</p>
           ) : community ? (
             <div className="mt-3 space-y-2 text-sm text-slate-700">
               <p className="text-base font-semibold text-slate-900">{community.name}</p>
-              <p className="text-slate-500">
+              <p className="text-slate-600">
                 {community.lga}, {community.state}
               </p>
               {community.description && (
@@ -136,7 +139,7 @@ export function ProfilePage() {
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{label}</dt>
+      <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600">{label}</dt>
       <dd className="mt-1 text-sm text-slate-900">{value}</dd>
     </div>
   );

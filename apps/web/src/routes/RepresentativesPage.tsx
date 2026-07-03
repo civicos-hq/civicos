@@ -8,6 +8,10 @@ import { api, uploadImage, uploadUrl } from '../lib/api';
 import { useMe } from '../hooks/useMe';
 import { useFollowedReps } from '../hooks/useFollowedReps';
 import { Modal } from '../components/Modal';
+import { PageHeader, useTodayMeta } from '../components/PageHeader';
+import { EmptyState } from '../components/EmptyState';
+import { CommunityGate, CommunityGateLink } from '../components/CommunityGate';
+import { Users } from 'lucide-react';
 
 const ADMIN_ROLES = new Set<UserRole>([
   UserRole.GOVERNMENT_ADMIN,
@@ -30,6 +34,7 @@ function useRepresentatives(communityId?: string) {
 
 export function RepresentativesPage() {
   const { t } = useTranslation();
+  const meta = useTodayMeta();
   const meQuery = useMe();
   const communityId = meQuery.data?.communityId;
   const repsQuery = useRepresentatives(communityId);
@@ -43,40 +48,32 @@ export function RepresentativesPage() {
 
   return (
     <section className="space-y-6">
-      <header className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-civic-700">
-              {t('representativesPage.eyebrow')}
-            </p>
-            <h1 className="mt-2 text-3xl font-semibold text-slate-900">
-              {t('representativesPage.title')}
-            </h1>
-            <p className="mt-3 text-sm text-slate-600">{t('representativesPage.subtitle')}</p>
-          </div>
-          {isAdmin && (
+      <PageHeader
+        eyebrow={t('representativesPage.eyebrow')}
+        title={t('representativesPage.title')}
+        subtitle={t('representativesPage.subtitle')}
+        meta={meta}
+        actions={
+          isAdmin ? (
             <Button size="sm" onClick={() => setModalOpen(true)} disabled={!hasCommunity}>
               {t('representativesPage.newBtn')}
             </Button>
-          )}
-        </div>
+          ) : undefined
+        }
+      >
         {!meQuery.isLoading && !hasCommunity && (
-          <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          <CommunityGate>
             {t('representativesPage.noCommunityBefore')}{' '}
-            <Link to="/community" className="font-semibold underline">
-              {t('representativesPage.noCommunityLink')}
-            </Link>{' '}
+            <CommunityGateLink>{t('representativesPage.noCommunityLink')}</CommunityGateLink>{' '}
             {t('representativesPage.noCommunityAfter')}
-          </p>
+          </CommunityGate>
         )}
-      </header>
+      </PageHeader>
 
       {repsQuery.isLoading ? (
-        <p className="text-sm text-slate-500">{t('common.loading')}</p>
+        <p className="text-sm text-slate-600">{t('common.loading')}</p>
       ) : reps.length === 0 ? (
-        <article className="rounded-2xl border border-dashed border-slate-300 bg-white/60 p-8 text-center text-sm text-slate-500">
-          {t('representativesPage.empty')}
-        </article>
+        <EmptyState icon={<Users className="h-5 w-5" />} title={t('representativesPage.empty')} />
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {reps.map((rep) => (
@@ -101,7 +98,7 @@ export function RepresentativesPage() {
                     {rep.party}
                   </p>
                 )}
-                <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-500">
+                <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-600">
                   <span>
                     {t('representativesPage.card.responseRate', { rate: rep.responseRate })}
                   </span>
@@ -154,6 +151,7 @@ export function FollowButton({
       variant={isFollowing ? 'secondary' : 'primary'}
       size="sm"
       loading={toggle.isPending}
+      aria-pressed={isFollowing}
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -344,7 +342,7 @@ function NewRepresentativeModal({
         </div>
 
         <fieldset className="rounded-lg border border-slate-200 p-3">
-          <legend className="px-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <legend className="px-2 text-xs font-semibold uppercase tracking-wide text-slate-600">
             {t('representativesPage.modal.contact.legend')}
           </legend>
           <div className="grid gap-3 sm:grid-cols-2">

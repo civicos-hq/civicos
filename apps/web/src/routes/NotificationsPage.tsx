@@ -7,6 +7,9 @@ import { api } from '../lib/api';
 import { useNotifications } from '../hooks/useNotifications';
 import { useEnumLabels } from '../hooks/useEnumLabels';
 import { useRelativeTime } from '../hooks/useRelativeTime';
+import { PageHeader, useTodayMeta } from '../components/PageHeader';
+import { EmptyState } from '../components/EmptyState';
+import { Bell } from 'lucide-react';
 
 const TYPE_TONE: Record<NotificationType, string> = {
   [NotificationType.ISSUE_UPDATE]: 'bg-rose-100 text-rose-700',
@@ -18,6 +21,7 @@ const TYPE_TONE: Record<NotificationType, string> = {
 
 export function NotificationsPage() {
   const { t } = useTranslation();
+  const meta = useTodayMeta();
   const queryClient = useQueryClient();
   const notificationsQuery = useNotifications();
 
@@ -44,21 +48,16 @@ export function NotificationsPage() {
 
   return (
     <section className="space-y-6">
-      <header className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-civic-700">
-              {t('notificationsPage.eyebrow')}
-            </p>
-            <h1 className="mt-2 text-3xl font-semibold text-slate-900">
-              {t('notificationsPage.title')}
-            </h1>
-            <p className="mt-1 text-sm text-slate-500">
-              {unreadCount > 0
-                ? t('notificationsPage.unreadCount', { count: unreadCount })
-                : t('notificationsPage.allCaughtUp')}
-            </p>
-          </div>
+      <PageHeader
+        eyebrow={t('notificationsPage.eyebrow')}
+        title={t('notificationsPage.title')}
+        subtitle={
+          unreadCount > 0
+            ? t('notificationsPage.unreadCount', { count: unreadCount })
+            : t('notificationsPage.allCaughtUp')
+        }
+        meta={meta}
+        actions={
           <Button
             size="sm"
             variant="secondary"
@@ -68,15 +67,17 @@ export function NotificationsPage() {
           >
             {t('notificationsPage.markAllRead')}
           </Button>
-        </div>
-      </header>
+        }
+      />
 
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-slate-900">{t('notificationsPage.recent')}</h2>
         {notificationsQuery.isLoading ? (
-          <p className="mt-4 text-sm text-slate-500">{t('common.loading')}</p>
+          <p className="mt-4 text-sm text-slate-600">{t('common.loading')}</p>
         ) : notifications.length === 0 ? (
-          <p className="mt-4 text-sm text-slate-500">{t('notificationsPage.empty')}</p>
+          <div className="mt-4">
+            <EmptyState icon={<Bell className="h-5 w-5" />} title={t('notificationsPage.empty')} />
+          </div>
         ) : (
           <div className="mt-4 grid gap-3">
             {notifications.map((n) => (
@@ -121,7 +122,7 @@ function NotificationRow({
               aria-label={t('notificationsPage.unread')}
             />
           )}
-          <span className="ml-auto text-xs font-medium text-slate-500">
+          <span className="ml-auto text-xs font-medium text-slate-600">
             {relative(notification.createdAt)}
           </span>
         </div>

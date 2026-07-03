@@ -24,7 +24,7 @@ export function Sidebar() {
   }
 
   return (
-    <aside className="dashboard-sidebar">
+    <aside className="dashboard-sidebar" aria-label={t('common.mainNav')}>
       <div className="dashboard-brand">
         <span className="brand-mark" aria-hidden="true">
           <img src="/civicos-mark.png" alt="" />
@@ -35,7 +35,7 @@ export function Sidebar() {
         </div>
       </div>
 
-      <nav className="dashboard-nav" aria-label="Primary">
+      <nav className="dashboard-nav" aria-label={t('common.mainNav')}>
         {navItems.map(({ to, i18n: i18nKey, icon: Icon }) => {
           const showBadge = to === '/notifications' && unread > 0;
           return (

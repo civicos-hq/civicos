@@ -7,6 +7,10 @@ import { IssueCategory, IssueStatus, type ApiResponse, type Issue } from '@civic
 import { api, uploadImage, uploadUrl } from '../lib/api';
 import { useMe } from '../hooks/useMe';
 import { useEnumLabels } from '../hooks/useEnumLabels';
+import { PageHeader, useTodayMeta } from '../components/PageHeader';
+import { EmptyState } from '../components/EmptyState';
+import { CommunityGate, CommunityGateLink } from '../components/CommunityGate';
+import { Megaphone } from 'lucide-react';
 
 const MAX_IMAGES = 5;
 const MAX_IMAGE_MB = 5;
@@ -55,6 +59,7 @@ function sortIssues(issues: Issue[], sort: IssueSort): Issue[] {
 export function IssuesPage() {
   const { t } = useTranslation();
   const enums = useEnumLabels();
+  const meta = useTodayMeta();
   const meQuery = useMe();
   const communityId = meQuery.data?.communityId;
   const [params, setParams] = useSearchParams();
@@ -87,14 +92,11 @@ export function IssuesPage() {
 
   return (
     <section className="space-y-6">
-      <header className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-civic-700">
-              {t('issuesPage.eyebrow')}
-            </p>
-            <h1 className="mt-2 text-3xl font-semibold text-slate-900">{t('issuesPage.title')}</h1>
-          </div>
+      <PageHeader
+        eyebrow={t('issuesPage.eyebrow')}
+        title={t('issuesPage.title')}
+        meta={meta}
+        actions={
           <Button
             size="sm"
             onClick={() => setModalOpen(true)}
@@ -103,17 +105,16 @@ export function IssuesPage() {
           >
             {t('issuesPage.reportBtn')}
           </Button>
-        </div>
+        }
+      >
         {!meQuery.isLoading && !hasCommunity && (
-          <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          <CommunityGate>
             {t('issuesPage.noCommunityBanner')}{' '}
-            <Link to="/community" className="font-semibold underline">
-              {t('issuesPage.pickOne')}
-            </Link>{' '}
+            <CommunityGateLink>{t('issuesPage.pickOne')}</CommunityGateLink>{' '}
             {t('issuesPage.toStart')}
-          </p>
+          </CommunityGate>
         )}
-      </header>
+      </PageHeader>
 
       <div className="grid gap-4 md:grid-cols-3">
         {lanes.map((lane) => (
@@ -121,7 +122,7 @@ export function IssuesPage() {
             key={lane.status}
             className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
           >
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600">
               {enums.issueStatus(lane.status)}
             </p>
             <div className="mt-3 flex items-center justify-between">
@@ -138,7 +139,7 @@ export function IssuesPage() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-lg font-semibold text-slate-900">
             {hasFilters ? t('issuesPage.filteredHeading') : t('issuesPage.recentHeading')}
-            <span className="ml-2 text-sm font-normal text-slate-500">({visible.length})</span>
+            <span className="ml-2 text-sm font-normal text-slate-600">({visible.length})</span>
           </h2>
           <div className="flex items-center gap-2">
             {hasFilters && (
@@ -155,7 +156,7 @@ export function IssuesPage() {
                 {t('common.clearFilters')}
               </button>
             )}
-            <label className="text-xs font-semibold text-slate-500">
+            <label className="text-xs font-semibold text-slate-600">
               {t('common.sortBy')}
               <select
                 value={sort}
@@ -204,15 +205,20 @@ export function IssuesPage() {
         </div>
 
         {issuesQuery.isLoading ? (
-          <p className="mt-4 text-sm text-slate-500">{t('common.loading')}</p>
+          <p className="mt-4 text-sm text-slate-600">{t('common.loading')}</p>
         ) : visible.length === 0 ? (
-          <p className="mt-6 text-sm text-slate-500">
-            {hasFilters
-              ? t('issuesPage.empty.noMatch')
-              : hasCommunity
-                ? t('issuesPage.empty.noneYet')
-                : t('issuesPage.empty.needCommunity')}
-          </p>
+          <div className="mt-6">
+            <EmptyState
+              icon={<Megaphone className="h-5 w-5" />}
+              title={
+                hasFilters
+                  ? t('issuesPage.empty.noMatch')
+                  : hasCommunity
+                    ? t('issuesPage.empty.noneYet')
+                    : t('issuesPage.empty.needCommunity')
+              }
+            />
+          </div>
         ) : (
           <div className="mt-4 grid gap-3">
             {visible.map((issue) => {
@@ -250,7 +256,7 @@ export function IssuesPage() {
                       <p className="text-sm font-semibold text-slate-900">
                         {t('issuesPage.meta.upvotes', { count: issue.upvoteCount })}
                       </p>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-slate-600">
                         {t('common.commentCount', { count: issue.commentCount })} ·{' '}
                         {enums.issueStatus(issue.status)}
                       </p>
@@ -285,6 +291,7 @@ function FilterPill({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={
         active
           ? 'rounded-full bg-civic-700 px-3 py-1 text-xs font-semibold text-white shadow-sm'

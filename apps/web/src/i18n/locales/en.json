@@ -1,11 +1,19 @@
 {
+  "pageHeader": {
+    "publicRecord": "Public"
+  },
+
   "rateLimit": {
     "title": "Slow down for a moment.",
     "body": "You're doing that too fast. Try again in {{seconds}}s.",
+    "bodyStatic": "You're doing that too fast.",
+    "bodyCountdown": "Try again in {{seconds}}s.",
     "genericBody": "You're doing that too fast. Please wait a moment."
   },
 
   "common": {
+    "mainNav": "Main navigation",
+    "topbar": "Top toolbar",
     "loading": "Loading…",
     "loadingMore": "Loading more…",
     "retry": "Try again",
@@ -752,7 +760,9 @@
       "errorCta": "Go to sign in",
       "bannerTitle": "Verify your email to unlock everything.",
       "bannerSub": "We sent a link to {{email}}. Until you click it, you can browse but not file, sign, or comment.",
-      "bannerResend": "Resend email"
+      "bannerResend": "Resend email",
+      "bannerDismiss": "Dismiss for now",
+      "bannerCompact": "Verify your email to file, sign, and comment."
     }
   },
 

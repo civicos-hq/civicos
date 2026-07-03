@@ -1,16 +1,18 @@
 import { Bell, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useUnreadCount } from '../../hooks/useNotifications';
 import { SearchBar } from './SearchBar';
 import { LanguageSwitcher } from '../LanguageSwitcher';
 
 export function Topbar() {
+  const { t } = useTranslation();
   const { data: unread = 0 } = useUnreadCount();
   const hasUnread = unread > 0;
   const label = unread > 99 ? '99+' : String(unread);
 
   return (
-    <header className="dashboard-topbar">
+    <header className="dashboard-topbar" aria-label={t('common.topbar')}>
       <SearchBar />
 
       <div className="ml-auto hidden items-center gap-3 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 shadow-sm md:flex">

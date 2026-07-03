@@ -11,6 +11,8 @@ import type {
 import { api } from '../../lib/api';
 import { useEnumLabels } from '../../hooks/useEnumLabels';
 import { useRelativeTime } from '../../hooks/useRelativeTime';
+import { EmptyState } from '../EmptyState';
+import { MessageSquare } from 'lucide-react';
 
 type EntityType = 'issues' | 'petitions' | 'representatives';
 type AnyComment = IssueComment | PetitionComment | RepresentativeComment;
@@ -76,7 +78,7 @@ export function CommentsSection({
     <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <h2 className="text-lg font-semibold text-slate-900">
         {t('comments.heading')}{' '}
-        <span className="text-sm font-normal text-slate-500">({comments.length})</span>
+        <span className="text-sm font-normal text-slate-600">({comments.length})</span>
       </h2>
 
       <form onSubmit={handleSubmit} className="mt-4 space-y-3">
@@ -90,7 +92,7 @@ export function CommentsSection({
         />
         {error && <p className="text-sm text-red-600">{error}</p>}
         <div className="flex items-center justify-between">
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-600">
             {t('comments.charCount', { count: content.length, max: COMMENT_MAX })}
           </p>
           <Button
@@ -106,9 +108,9 @@ export function CommentsSection({
 
       <div className="mt-6 space-y-4">
         {commentsQuery.isLoading ? (
-          <p className="text-sm text-slate-500">{t('common.loading')}</p>
+          <p className="text-sm text-slate-600">{t('common.loading')}</p>
         ) : comments.length === 0 ? (
-          <p className="text-sm text-slate-500">{t('comments.empty')}</p>
+          <EmptyState icon={<MessageSquare className="h-5 w-5" />} title={t('comments.empty')} />
         ) : (
           comments.map((c) => (
             <div
@@ -121,7 +123,7 @@ export function CommentsSection({
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-baseline gap-2">
                   <p className="text-sm font-semibold text-slate-900">{c.authorName}</p>
-                  <span className="text-xs text-slate-500">{enums.userRole(c.authorRole)}</span>
+                  <span className="text-xs text-slate-600">{enums.userRole(c.authorRole)}</span>
                   {c.isOfficialResponse && (
                     <span className="rounded-full bg-civic-700 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
                       {t('comments.officialResponse')}

@@ -69,7 +69,7 @@ export function PetitionDetailPage() {
   });
 
   if (petitionQuery.isLoading) {
-    return <p className="text-sm text-slate-500">{t('common.loading')}</p>;
+    return <p className="text-sm text-slate-600">{t('common.loading')}</p>;
   }
 
   if (petitionQuery.isError || !petitionQuery.data) {
@@ -106,7 +106,7 @@ export function PetitionDetailPage() {
               {t('petitionDetail.eyebrow')}
             </p>
             <h1 className="mt-2 text-3xl font-semibold text-slate-900">{petition.title}</h1>
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-sm text-slate-600">
               {t('petitionDetail.startedAt', { when: createdAt })}
               {community ? ` · ${community.name}, ${community.lga}` : ''}
             </p>
@@ -139,12 +139,12 @@ export function PetitionDetailPage() {
       <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600">
               {t('petitionDetail.signatures')}
             </p>
             <p className="mt-1 text-2xl font-semibold text-slate-900">
               {petition.signatureCount.toLocaleString(i18n.language)}{' '}
-              <span className="text-sm font-normal text-slate-500">
+              <span className="text-sm font-normal text-slate-600">
                 {t('petitionDetail.ofTarget', {
                   goal: petition.goal.toLocaleString(i18n.language),
                 })}
@@ -152,7 +152,7 @@ export function PetitionDetailPage() {
             </p>
           </div>
           {deadlineLabel && (
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-600">
               {t('petitionDetail.deadline')}{' '}
               <span className="font-medium text-slate-700">{deadlineLabel}</span>
               {daysLeft !== null && (
@@ -162,7 +162,7 @@ export function PetitionDetailPage() {
                       ? 'ml-2 font-semibold text-rose-600'
                       : daysLeft <= 14
                         ? 'ml-2 font-semibold text-amber-600'
-                        : 'ml-2 text-slate-500'
+                        : 'ml-2 text-slate-600'
                   }
                 >
                   {daysLeft === 0

@@ -1879,64 +1879,165 @@ button {
   color: #15803d;
 }
 
-/* --- Unverified-email banner (dashboard) --- */
-.verify-banner {
+/* --- Unverified-email chrome strip -------------------------------
+   Slim bar between Topbar and content. Doesn't eat page real estate;
+   the accent tone signals "action needed" without dominating.
+   ------------------------------------------------------------------ */
+.verify-strip {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 0.85rem;
-  padding: 0.75rem 1rem;
-  margin: 0 0 1rem;
-  background: linear-gradient(120deg, rgba(238, 127, 59, 0.10), rgba(31, 110, 212, 0.08));
-  border: 1px solid rgba(238, 127, 59, 0.28);
-  border-radius: 12px;
+  gap: 0.7rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(90deg, rgba(238, 127, 59, 0.12), rgba(238, 127, 59, 0.06));
+  border-bottom: 1px solid rgba(238, 127, 59, 0.28);
+  font-size: 0.85rem;
   color: var(--ink-900, #0f172a);
+  z-index: 1;
 }
-.verify-banner-icon {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
+.verify-strip-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
   border-radius: 999px;
-  background: rgba(238, 127, 59, 0.16);
+  background: rgba(238, 127, 59, 0.18);
   color: #c2410c;
+  flex: none;
 }
-.verify-banner-body { flex: 1 1 16rem; min-width: 0; }
-.verify-banner-title {
+.verify-strip-body {
   margin: 0;
-  font-size: 0.95rem;
-  font-weight: 700;
+  flex: 1;
+  min-width: 0;
+  font-weight: 500;
+  color: var(--ink-900, #0f172a);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.verify-banner-sub {
-  margin: 0.15rem 0 0;
-  font-size: 0.83rem;
-  color: var(--ink-700, #334155);
-}
-.verify-banner-actions { display: flex; gap: 0.5rem; flex: none; }
-.verify-banner-btn {
+.verify-strip-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 0.85rem;
+  gap: 0.35rem;
+  padding: 0.32rem 0.75rem;
   border-radius: 999px;
   background: var(--brand-500, #1f6ed4);
   color: #fff;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 600;
   border: 0;
   cursor: pointer;
-  transition: background 160ms ease, transform 160ms ease;
+  flex: none;
+  transition: background 160ms ease;
 }
-.verify-banner-btn:hover { background: var(--brand-700, #174d95); transform: translateY(-1px); }
-.verify-banner-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
-.verify-banner-ack {
-  font-size: 0.82rem;
+.verify-strip-btn:hover { background: var(--brand-700, #174d95); }
+.verify-strip-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.verify-strip-ack {
+  font-size: 0.78rem;
   font-weight: 600;
   color: #15803d;
-  padding: 0.4rem 0.6rem;
+  flex: none;
 }
+.verify-strip-dismiss {
+  display: inline-grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-700, #334155);
+  border: 0;
+  cursor: pointer;
+  flex: none;
+  transition: background 140ms ease, color 140ms ease;
+}
+.verify-strip-dismiss:hover {
+  background: rgba(15, 23, 42, 0.08);
+  color: var(--ink-900, #0f172a);
+}
+
+/* --- Shared EmptyState -------------------------------------------
+   Dashed card, optional icon, headline, body, action. Replaces the
+   patchwork of empty-state markup that used to live in each page.
+   ------------------------------------------------------------------ */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.55rem;
+  padding: 2.2rem 1.5rem;
+  border-radius: 1rem;
+  border: 1px dashed rgba(15, 23, 42, 0.16);
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--ink-700, #334155);
+}
+.empty-state-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  background: rgba(31, 110, 212, 0.08);
+  color: var(--brand-700, #174d95);
+  margin-bottom: 0.15rem;
+}
+.empty-state-title {
+  margin: 0;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--ink-900, #0f172a);
+  line-height: 1.35;
+}
+.empty-state-body {
+  margin: 0;
+  font-size: 0.87rem;
+  line-height: 1.55;
+  max-width: 44ch;
+  color: var(--ink-700, #334155);
+}
+.empty-state-action {
+  margin-top: 0.65rem;
+}
+
+/* --- Shared CommunityGate ----------------------------------------
+   Amber notice used across Discover/Issues/Petitions/Reps to nudge
+   users toward joining a community. One visual voice instead of four.
+   ------------------------------------------------------------------ */
+.community-gate {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.55rem 0.85rem;
+  border-radius: 10px;
+  background: rgba(238, 127, 59, 0.08);
+  border: 1px solid rgba(238, 127, 59, 0.22);
+  color: #78350f;
+}
+.community-gate-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  background: rgba(238, 127, 59, 0.16);
+  color: #c2410c;
+  flex: none;
+  margin-top: 0.05rem;
+}
+.community-gate-body {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #78350f;
+}
+.community-gate-link {
+  color: var(--brand-700, #174d95);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.community-gate-link:hover { color: var(--brand-500, #1f6ed4); }
 
 /* Forgot-password link on the login form */
 .auth-forgot-row {
@@ -2279,4 +2380,148 @@ button {
   font-size: 0.82rem;
   line-height: 1.45;
   color: #cbd5e1;
+}
+
+/* ─── Shared PageHeader ─────────────────────────────────────────────
+   The masthead every dashboard page uses. Deliberately echoes the
+   homepage's "public record" typography — Fraunces title, small-caps
+   eyebrow with § marker, optional dateline on the right — so the
+   dashboard reads as a natural sibling, not a generic SaaS admin.
+   ─────────────────────────────────────────────────────────────────── */
+
+.page-header {
+  position: relative;
+  padding: 1.5rem 1.75rem 1.75rem;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+}
+
+/* Thin accent rule at the top — brand blues warming into terracotta.
+   Makes the header instantly readable as "section masthead" without
+   requiring anything heavier than a 3px bar. */
+.page-header::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--brand-700), var(--brand-500) 55%, var(--accent-500));
+}
+
+.page-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.9rem;
+  min-height: 1rem;
+}
+
+.page-header-eyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--brand-700);
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.page-header-marker {
+  color: var(--accent-500);
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.05rem;
+  line-height: 1;
+  transform: translateY(-1px);
+}
+
+.page-header-meta {
+  margin: 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-700);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.page-header-title-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.page-header-titles {
+  flex: 1;
+  min-width: 0;
+}
+
+.page-header-title {
+  margin: 0;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: clamp(1.65rem, 3vw, 2.35rem);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  color: var(--ink-900);
+  font-weight: 600;
+}
+
+.page-header-subtitle {
+  margin: 0.6rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--ink-700);
+  max-width: 62ch;
+}
+
+.page-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: none;
+  align-self: flex-end;
+}
+
+.page-header-notice {
+  margin: 1.2rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px dashed rgba(15, 23, 42, 0.08);
+}
+
+/* Profile page uses the shared PageHeader with an inline avatar chip
+   next to the name, so the identity reads as a single title unit. */
+.profile-header-identity {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+.profile-header-avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 999px;
+  background: linear-gradient(130deg, var(--brand-700), var(--accent-500));
+  color: #fff;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  box-shadow: 0 6px 18px -8px rgba(23, 77, 149, 0.45);
+  flex: none;
+}
+
+/* Rate-limit toast: split copy so countdown sits below the static line. */
+.rate-limit-toast-copy { min-width: 0; }
+.rate-limit-toast-countdown {
+  margin-top: 0.2rem;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.85;
 }
