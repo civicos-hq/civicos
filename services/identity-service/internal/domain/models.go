@@ -29,6 +29,9 @@ type User struct {
 	EmailVerificationTokenHash    *string    `gorm:"index" json:"-"`
 	EmailVerificationExpiresAt    *time.Time `json:"-"`
 
+	PasswordResetTokenHash        *string    `gorm:"index" json:"-"`
+	PasswordResetExpiresAt        *time.Time `json:"-"`
+
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }

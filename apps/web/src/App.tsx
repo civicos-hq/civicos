@@ -15,6 +15,8 @@ import { RepresentativeDetailPage } from './routes/RepresentativeDetailPage';
 import { RepresentativesPage } from './routes/RepresentativesPage';
 import { VerifyEmailPage } from './routes/VerifyEmailPage';
 import { VerifyEmailSentPage } from './routes/VerifyEmailSentPage';
+import { ForgotPasswordPage } from './routes/ForgotPasswordPage';
+import { ResetPasswordPage } from './routes/ResetPasswordPage';
 
 function hasAccessToken() {
   return Boolean(localStorage.getItem('accessToken'));
@@ -47,6 +49,12 @@ export default function App() {
           may click the link from another browser/device). */}
       <Route path="/verify-email" element={<VerifyEmailPage />} />
       <Route path="/verify-email-sent" element={<VerifyEmailSentPage />} />
+
+      {/* Password recovery — reachable while logged-out (the whole point) and
+          intentionally left reachable while logged-in too so a user who is
+          worried their session was hijacked can still trigger a reset. */}
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
 
       {/* Authenticated */}
       <Route element={<RequireAuth />}>

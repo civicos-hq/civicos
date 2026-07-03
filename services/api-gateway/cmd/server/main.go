@@ -59,6 +59,8 @@ func main() {
 	r.POST("/api/v1/auth/refresh", identityPublic)
 	r.POST("/api/v1/auth/verify-email", identityPublic)
 	r.POST("/api/v1/auth/resend-verification", authMiddleware, identityProtected)
+	r.POST("/api/v1/auth/forgot-password", identityPublic)
+	r.POST("/api/v1/auth/reset-password", identityPublic)
 	r.GET("/api/v1/auth/me", authMiddleware, identityProtected)
 	r.PATCH("/api/v1/auth/me", authMiddleware, identityProtected)
 	r.POST("/api/v1/auth/me/community", authMiddleware, identityProtected)

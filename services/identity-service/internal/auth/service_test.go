@@ -99,6 +99,36 @@ func (s *inMemoryUserStore) MarkVerified(userID string) error {
 	return nil
 }
 
+func (s *inMemoryUserStore) SetPasswordResetToken(userID, tokenHash string, expiresAt time.Time) error {
+	user, ok := s.usersByID[userID]
+	if !ok {
+		return gorm.ErrRecordNotFound
+	}
+	user.PasswordResetTokenHash = &tokenHash
+	user.PasswordResetExpiresAt = &expiresAt
+	return nil
+}
+
+func (s *inMemoryUserStore) FindByPasswordResetTokenHash(tokenHash string) (*domain.User, error) {
+	for _, user := range s.usersByID {
+		if user.PasswordResetTokenHash != nil && *user.PasswordResetTokenHash == tokenHash {
+			return user, nil
+		}
+	}
+	return nil, gorm.ErrRecordNotFound
+}
+
+func (s *inMemoryUserStore) ResetPassword(userID, newPasswordHash string) error {
+	user, ok := s.usersByID[userID]
+	if !ok {
+		return gorm.ErrRecordNotFound
+	}
+	user.PasswordHash = newPasswordHash
+	user.PasswordResetTokenHash = nil
+	user.PasswordResetExpiresAt = nil
+	return nil
+}
+
 // captureMailer records the last verification URL so VerifyEmail can be
 // exercised without spinning up SMTP.
 type captureMailer struct {
@@ -182,6 +212,70 @@ func TestVerifyEmailFlow(t *testing.T) {
 	// Single-use: replaying the same token must now fail.
 	if _, _, err := svc.VerifyEmail(rawToken); err == nil {
 		t.Fatalf("expected replayed token to be rejected")
+	}
+}
+
+func TestForgotAndResetPasswordFlow(t *testing.T) {
+	cfg := &config.Config{JWTSecret: "12345678901234567890123456789012", AppURL: "http://localhost:5173"}
+	repo := newInMemoryUserStore()
+	mail := &captureMailer{}
+	svc := NewService(repo, cfg, mail)
+
+	if _, _, err := svc.Register(RegisterInput{
+		Name:     "Ada",
+		Email:    "ada@example.com",
+		Password: "originalPassword",
+	}); err != nil {
+		t.Fatalf("register: %v", err)
+	}
+
+	// Unknown email must return nil error (silent to prevent enumeration) and
+	// must not send a mail.
+	mail.lastText = ""
+	if err := svc.RequestPasswordReset("nobody@example.com"); err != nil {
+		t.Fatalf("expected nil error for unknown email, got %v", err)
+	}
+	if mail.lastText != "" {
+		t.Fatalf("expected no mail sent for unknown email")
+	}
+
+	// Known email — must send a reset link.
+	if err := svc.RequestPasswordReset("ada@example.com"); err != nil {
+		t.Fatalf("forgot-password: %v", err)
+	}
+	if mail.lastSubject != "Reset your CivicOS password" {
+		t.Fatalf("expected reset subject, got %q", mail.lastSubject)
+	}
+	rawToken := extractToken(t, mail.lastText)
+
+	// Reset with a too-short password must be rejected before touching the DB.
+	if _, _, err := svc.ResetPassword(rawToken, "short"); err == nil ||
+		err.Error() != "PASSWORD_TOO_SHORT" {
+		t.Fatalf("expected PASSWORD_TOO_SHORT, got %v", err)
+	}
+
+	publicUser, tokens, err := svc.ResetPassword(rawToken, "brandNewPassword")
+	if err != nil {
+		t.Fatalf("reset-password: %v", err)
+	}
+	if publicUser.Email != "ada@example.com" {
+		t.Fatalf("expected same user, got %s", publicUser.Email)
+	}
+	if tokens == nil || tokens.AccessToken == "" {
+		t.Fatalf("expected fresh tokens (auto-login) after reset")
+	}
+
+	// Old password must no longer log in; new one must.
+	if _, _, err := svc.Login(LoginInput{Email: "ada@example.com", Password: "originalPassword"}); err == nil {
+		t.Fatalf("expected old password to be rejected after reset")
+	}
+	if _, _, err := svc.Login(LoginInput{Email: "ada@example.com", Password: "brandNewPassword"}); err != nil {
+		t.Fatalf("expected new password to work, got %v", err)
+	}
+
+	// Replaying the same reset token must fail (single-use).
+	if _, _, err := svc.ResetPassword(rawToken, "anotherOne"); err == nil {
+		t.Fatalf("expected replayed reset token to be rejected")
 	}
 }
 

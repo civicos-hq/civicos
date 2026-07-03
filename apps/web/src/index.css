@@ -1937,3 +1937,16 @@ button {
   color: #15803d;
   padding: 0.4rem 0.6rem;
 }
+
+/* Forgot-password link on the login form */
+.auth-forgot-row {
+  display: flex;
+  justify-content: flex-end;
+  margin: -0.25rem 0 0.75rem;
+}
+.auth-link--muted {
+  font-size: 0.82rem;
+  color: var(--ink-500, #64748b);
+  text-decoration: none;
+}
+.auth-link--muted:hover { color: var(--brand-500, #1f6ed4); text-decoration: underline; }

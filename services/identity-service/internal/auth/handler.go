@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/civicos/identity-service/pkg/response"
@@ -22,6 +23,8 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, authMiddleware gin.Handler
 	rg.POST("/refresh", h.refresh)
 	rg.POST("/verify-email", h.verifyEmail)
 	rg.POST("/resend-verification", authMiddleware, h.resendVerification)
+	rg.POST("/forgot-password", h.forgotPassword)
+	rg.POST("/reset-password", h.resetPassword)
 	rg.GET("/me", authMiddleware, h.me)
 	rg.PATCH("/me", authMiddleware, h.updateMe)
 	rg.POST("/me/community", authMiddleware, h.joinCommunity)
@@ -135,6 +138,50 @@ func (h *Handler) verifyEmail(c *gin.Context) {
 		payload["tokens"] = tokens
 	}
 	response.Success(c, http.StatusOK, payload)
+}
+
+// forgotPassword always returns 200 — even for unknown emails — so an attacker
+// cannot use response timing or status codes to enumerate accounts. Actual
+// failures (SMTP down, DB error) log server-side and still respond 200.
+func (h *Handler) forgotPassword(c *gin.Context) {
+	var body struct {
+		Email string `json:"email" binding:"required,email"`
+	}
+	if err := c.ShouldBindJSON(&body); err != nil {
+		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", err.Error())
+		return
+	}
+	if err := h.service.RequestPasswordReset(body.Email); err != nil {
+		// Log and swallow — do not leak whether the email exists / mailer failed.
+		log.Printf("[auth.forgotPassword] backend error (kept from client): %v", err)
+	}
+	response.Success(c, http.StatusOK, gin.H{"sent": true})
+}
+
+func (h *Handler) resetPassword(c *gin.Context) {
+	var body struct {
+		Token       string `json:"token" binding:"required"`
+		NewPassword string `json:"newPassword" binding:"required,min=8"`
+	}
+	if err := c.ShouldBindJSON(&body); err != nil {
+		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", err.Error())
+		return
+	}
+	user, tokens, err := h.service.ResetPassword(body.Token, body.NewPassword)
+	if err != nil {
+		switch err.Error() {
+		case "RESET_TOKEN_INVALID":
+			response.Error(c, http.StatusBadRequest, "RESET_TOKEN_INVALID", "Invalid reset link")
+		case "RESET_TOKEN_EXPIRED":
+			response.Error(c, http.StatusBadRequest, "RESET_TOKEN_EXPIRED", "This reset link has expired. Request a new one.")
+		case "PASSWORD_TOO_SHORT":
+			response.Error(c, http.StatusBadRequest, "PASSWORD_TOO_SHORT", "Password must be at least 8 characters")
+		default:
+			response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Could not reset password")
+		}
+		return
+	}
+	response.Success(c, http.StatusOK, gin.H{"user": user, "tokens": tokens})
 }
 
 func (h *Handler) resendVerification(c *gin.Context) {

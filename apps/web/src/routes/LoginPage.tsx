@@ -89,6 +89,12 @@ export function LoginPage() {
             minLength={8}
           />
 
+          <div className="auth-forgot-row">
+            <Link to="/forgot-password" className="auth-link auth-link--muted">
+              {t('auth.forgot.title')}
+            </Link>
+          </div>
+
           {errorMessage && <p className="auth-error">{errorMessage}</p>}
 
           <button type="submit" className="auth-submit" disabled={isSubmitting}>

@@ -19,7 +19,10 @@ import (
 	"gorm.io/gorm"
 )
 
-const verificationTokenTTL = 24 * time.Hour
+const (
+	verificationTokenTTL  = 24 * time.Hour
+	passwordResetTokenTTL = 1 * time.Hour
+)
 
 type UserStore interface {
 	FindByEmail(email string) (*domain.User, error)
@@ -30,6 +33,9 @@ type UserStore interface {
 	SetVerificationToken(userID, tokenHash string, expiresAt time.Time) error
 	FindByVerificationTokenHash(tokenHash string) (*domain.User, error)
 	MarkVerified(userID string) error
+	SetPasswordResetToken(userID, tokenHash string, expiresAt time.Time) error
+	FindByPasswordResetTokenHash(tokenHash string) (*domain.User, error)
+	ResetPassword(userID, newPasswordHash string) error
 }
 
 type Service struct {
@@ -162,6 +168,78 @@ func (s *Service) ResendVerification(userID string) error {
 		return nil
 	}
 	return s.sendVerificationEmail(user)
+}
+
+// RequestPasswordReset always succeeds — even when the email doesn't match a
+// registered account. Silent-on-unknown is the standard defence against email
+// enumeration ("does this address have an account?"). We still log the miss
+// server-side so operators can spot brute-force patterns.
+func (s *Service) RequestPasswordReset(email string) error {
+	user, err := s.repo.FindByEmail(email)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			log.Printf("[auth.RequestPasswordReset] unknown email — silently ignored: %s", email)
+			return nil
+		}
+		return err
+	}
+
+	raw, err := newRandomToken(32)
+	if err != nil {
+		return fmt.Errorf("generate reset token: %w", err)
+	}
+	expiresAt := time.Now().Add(passwordResetTokenTTL).UTC()
+	if err := s.repo.SetPasswordResetToken(user.ID, hashToken(raw), expiresAt); err != nil {
+		return fmt.Errorf("persist reset token: %w", err)
+	}
+
+	resetURL := fmt.Sprintf("%s/reset-password?token=%s", s.cfg.AppURL, url.QueryEscape(raw))
+	subject, html, text := mailer.PasswordResetEmail(user.Name, resetURL)
+	if err := s.mailer.Send(user.Email, subject, html, text); err != nil {
+		log.Printf("[auth.RequestPasswordReset] mail send failed for user=%s: %v", user.ID, err)
+		return err
+	}
+	return nil
+}
+
+// ResetPassword swaps the password hash and issues fresh tokens so the user
+// lands logged-in on the dashboard. The raw token is single-use.
+func (s *Service) ResetPassword(rawToken, newPassword string) (*domain.PublicUser, *TokenPair, error) {
+	if rawToken == "" {
+		return nil, nil, errors.New("RESET_TOKEN_INVALID")
+	}
+	if len(newPassword) < 8 {
+		return nil, nil, errors.New("PASSWORD_TOO_SHORT")
+	}
+	user, err := s.repo.FindByPasswordResetTokenHash(hashToken(rawToken))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil, errors.New("RESET_TOKEN_INVALID")
+		}
+		return nil, nil, err
+	}
+	if user.PasswordResetExpiresAt == nil || time.Now().After(*user.PasswordResetExpiresAt) {
+		return nil, nil, errors.New("RESET_TOKEN_EXPIRED")
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(newPassword), 12)
+	if err != nil {
+		return nil, nil, fmt.Errorf("hash password: %w", err)
+	}
+	if err := s.repo.ResetPassword(user.ID, string(hash)); err != nil {
+		return nil, nil, err
+	}
+
+	fresh, err := s.repo.FindByID(user.ID)
+	if err != nil {
+		return nil, nil, err
+	}
+	tokens, err := s.signTokens(fresh)
+	if err != nil {
+		return nil, nil, err
+	}
+	public := fresh.ToPublic()
+	return &public, tokens, nil
 }
 
 func (s *Service) sendVerificationEmail(user *domain.User) error {
