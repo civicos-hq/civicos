@@ -1,4 +1,357 @@
 {
+  "common": {
+    "loading": "Ana loda…",
+    "loadingMore": "Ana ƙara loda…",
+    "retry": "Sake gwadawa",
+    "save": "Ajiye",
+    "saving": "Ana ajiyewa…",
+    "saved": "An ajiye",
+    "cancel": "Soke",
+    "close": "Rufe",
+    "delete": "Share",
+    "edit": "Gyara",
+    "back": "Koma baya",
+    "next": "Na gaba",
+    "yes": "Ee",
+    "no": "A'a",
+    "search": "Nemi",
+    "filter": "Tace",
+    "clearFilters": "Kashe tace",
+    "sortBy": "Rarraba ta",
+    "commentCount_one": "Sharhi {{count}}",
+    "commentCount_other": "Sharhohi {{count}}",
+    "memberCount_one": "Memba {{count}}",
+    "memberCount_other": "Membobi {{count}}"
+  },
+
+  "time": {
+    "justNow": "yanzu-yanzu",
+    "minutesAgo_one": "mintuna {{count}} da suka wuce",
+    "minutesAgo_other": "mintuna {{count}} da suka wuce",
+    "hoursAgo_one": "sa'o'i {{count}} da suka wuce",
+    "hoursAgo_other": "sa'o'i {{count}} da suka wuce",
+    "daysAgo_one": "kwana {{count}} da suka wuce",
+    "daysAgo_other": "kwanaki {{count}} da suka wuce",
+    "weeksAgo_one": "makon {{count}} da suka wuce",
+    "weeksAgo_other": "makonni {{count}} da suka wuce",
+    "monthsAgo_one": "wata {{count}} da suka wuce",
+    "monthsAgo_other": "watanni {{count}} da suka wuce",
+    "yearsAgo_one": "shekara {{count}} da suka wuce",
+    "yearsAgo_other": "shekaru {{count}} da suka wuce"
+  },
+
+  "enums": {
+    "issueStatus": {
+      "OPEN": "A buɗe",
+      "UNDER_REVIEW": "Ana bincike",
+      "IN_PROGRESS": "Ana ci gaba",
+      "RESOLVED": "An warware",
+      "CLOSED": "An rufe"
+    },
+    "issueCategory": {
+      "INFRASTRUCTURE": "Ababen more rayuwa",
+      "HEALTH": "Lafiya",
+      "EDUCATION": "Ilimi",
+      "SECURITY": "Tsaro",
+      "ENVIRONMENT": "Muhalli",
+      "UTILITIES": "Kayan aiki",
+      "TRANSPORT": "Sufuri",
+      "OTHER": "Sauran"
+    },
+    "petitionStatus": {
+      "DRAFT": "Zayyana",
+      "ACTIVE": "Aiki",
+      "CLOSED": "An rufe",
+      "SUCCESSFUL": "Nasara"
+    },
+    "userRole": {
+      "CITIZEN": "Ɗan ƙasa",
+      "REPRESENTATIVE": "Wakili",
+      "GOVERNMENT_ADMIN": "Manajan gwamnati",
+      "NGO": "NGO",
+      "MODERATOR": "Manajan zance",
+      "PLATFORM_ADMIN": "Manajan dandali"
+    },
+    "notificationType": {
+      "ISSUE_UPDATE": "Sabunta matsala",
+      "PETITION_UPDATE": "Sabunta koƙe",
+      "REPRESENTATIVE_RESPONSE": "Amsar wakili",
+      "COMMUNITY_UPDATE": "Sabunta al'umma",
+      "SYSTEM": "Tsarin"
+    }
+  },
+
+  "discoverPage": {
+    "eyebrow": "Gano",
+    "title": "Abin da ke faruwa kusa da kai",
+    "subtitle": "Jerin matsaloli da koƙe-koƙe kai tsaye, an tsara su ta yadda suke kusa da al'ummarka.",
+    "noCommunityBefore": "Ba ka shiga wata al'umma ba tukuna —",
+    "noCommunityLink": "zaɓi ɗaya",
+    "noCommunityAfter": "kuma wannan jerin zai fara tsarawa ta hanyar kusanci.",
+    "tiers": {
+      "ALL": "Duk",
+      "COMMUNITY": "A al'ummarka",
+      "LGA": "Kusa da kai · LGA ɗaya",
+      "STATE": "A cikin jiha",
+      "COUNTRY": "A wani wuri"
+    },
+    "kinds": {
+      "all": "Duk nau'i",
+      "issue": "Matsaloli",
+      "petition": "Koƙe-koƙe"
+    },
+    "itemCount_one": "Abu {{count}}",
+    "itemCount_other": "Abubuwa {{count}}",
+    "itemsLoaded_one": "An loda abu {{count}}",
+    "itemsLoaded_other": "An loda abubuwa {{count}}",
+    "empty": {
+      "grouped": "Babu abin da za a gano tukuna. Da zaran matsaloli da koƙe-koƙe suka fara bayyana, za su nuna anan.",
+      "tier": "Babu abubuwa a wannan matakin tukuna."
+    },
+    "loadMore": "Loda ƙari",
+    "labels": {
+      "issue": "Matsala",
+      "petition": "Koƙe"
+    },
+    "meta": {
+      "upvotes_one": "Goyon baya {{count}}",
+      "upvotes_other": "Goyon baya {{count}}",
+      "signaturesOf": "Sa hannu {{signatures}}/{{goal}}"
+    }
+  },
+
+  "representativesPage": {
+    "eyebrow": "Allo na Wakilai",
+    "title": "Wa ne ke da alhaki na abin",
+    "subtitle": "Biyo hukumomin da aka zaɓa a al'ummarka, abin da suke maida hankali kansa, da yadda suke amsawa da sauri.",
+    "newBtn": "+ Sabon wakili",
+    "noCommunityBefore": "Shiga al'umma a",
+    "noCommunityLink": "Al'umma",
+    "noCommunityAfter": "shafi don ganin wakilan gida.",
+    "empty": "Ba a ƙara wakilai ba don al'ummarka har yanzu.",
+    "card": {
+      "responseRate": "Adadin amsa {{rate}}%",
+      "followerCount_one": "Mai bi {{count}}",
+      "followerCount_other": "Masu bi {{count}}"
+    },
+    "follow": {
+      "follow": "+ Biyo",
+      "following": "✓ Ana biyo"
+    },
+    "modal": {
+      "title": "Ƙara wakili",
+      "changePhoto": "Canza hoto",
+      "uploadPhoto": "Loda hoto",
+      "avatarTooBig": "\"{{name}}\" ya wuce 5MB.",
+      "avatarPreview": "Kallon avatar",
+      "fields": {
+        "title": "Taken girmamawa",
+        "titlePlaceholder": "Hon.",
+        "fullName": "Cikakken suna",
+        "fullNamePlaceholder": "Amina Yusuf",
+        "position": "Matsayi",
+        "positionPlaceholder": "Shugaban Karamar Hukuma",
+        "constituency": "Mazaɓa",
+        "constituencyPlaceholder": "Lekki Phase 1",
+        "party": "Jam'iyya (na zaɓi)",
+        "partyPlaceholder": "PDP",
+        "bio": "Tarihi (na zaɓi)",
+        "bioPlaceholder": "Ɗan gajeren tarihi don 'yan ƙasa su ƙara sani."
+      },
+      "contact": {
+        "legend": "Tuntuɓi (na zaɓi)",
+        "email": "Imel",
+        "emailPlaceholder": "rep@example.org",
+        "phone": "Waya",
+        "phonePlaceholder": "+234 800 000 0000",
+        "website": "Yanar gizo",
+        "websitePlaceholder": "https://representative.example.org"
+      },
+      "genericError": "Ba mu iya ƙirƙirar wakili ba. Duba shigarwar ka kuma sake gwadawa.",
+      "submit": "Ƙara wakili"
+    }
+  },
+
+  "petitionsPage": {
+    "eyebrow": "Ɗakin Koƙe",
+    "title": "Tsara muryar jama'a",
+    "newBtn": "+ Sabon Koƙe",
+    "joinCommunityFirst": "Shiga al'umma tukuna",
+    "noCommunityBanner": "Ba ka shiga wata al'umma ba tukuna.",
+    "pickOne": "Zaɓi ɗaya",
+    "toStart": "don ka fara koƙe-koƙe.",
+    "filters": {
+      "all": "Duk"
+    },
+    "clear": "Share",
+    "sort": {
+      "newest": "Sabuwa",
+      "oldest": "Tsohuwa",
+      "signatures": "Fi sa hannu",
+      "deadline": "Za su ƙare nan da nan"
+    },
+    "empty": {
+      "noMatch": "Babu koƙe da ya dace da tacen yanzu.",
+      "noneYet": "Babu koƙe tukuna. Fara na farko a al'ummarka.",
+      "needCommunity": "Shiga al'umma don ganin koƙe-koƙen gida."
+    },
+    "signaturesOf": "Sa hannu {{count}} daga cikin manufa {{goal}}",
+    "percentComplete": "{{percent}}% sun cika",
+    "deadline": {
+      "endsToday": "Zai ƙare a yau",
+      "daysLeft_one": "Kwana {{count}} ya rage",
+      "daysLeft_other": "Kwanaki {{count}} suka rage"
+    },
+    "modal": {
+      "title": "Fara koƙe",
+      "titleLabel": "Take",
+      "titlePlaceholder": "Gyaran hanyar shiga makarantar firamare",
+      "description": "Bayani",
+      "descriptionPlaceholder": "Bayyana canjin da kake so da dalilin da yasa yake da muhimmanci.",
+      "signatureGoal": "Manufar sa hannu",
+      "deadline": "Lokacin ƙarshe (na zaɓi)",
+      "photos": "Hotuna (na zaɓi, har {{max}})",
+      "tooBig": "\"{{name}}\" ya wuce {{max}}MB.",
+      "addPhotos": "Ƙara hotuna · {{max}}MB mafi girma kowanne",
+      "photosFull": "An zaɓi hotuna {{max}}",
+      "removePhoto": "Cire {{name}}",
+      "genericError": "Ba mu iya ƙirƙirar koƙe ba. Duba shigarwar ka kuma sake gwadawa.",
+      "submit": "Fitar da koƙe"
+    }
+  },
+
+  "issuesPage": {
+    "eyebrow": "Tebulin Matsala",
+    "title": "Allon sanarwar al'umma",
+    "reportBtn": "+ Bayar da rahoto",
+    "joinCommunityFirst": "Shiga al'umma tukuna",
+    "noCommunityBanner": "Ba ka shiga wata al'umma ba tukuna.",
+    "pickOne": "Zaɓi ɗaya",
+    "toStart": "don ka fara bayar da rahoton matsaloli.",
+    "filteredHeading": "Rahotannin da aka tace",
+    "recentHeading": "Rahotannin baya-bayan nan",
+    "filters": {
+      "allStatus": "Duk matsayi",
+      "allCategories": "Duk rukuni"
+    },
+    "sort": {
+      "newest": "Sabuwa",
+      "oldest": "Tsohuwa",
+      "upvotes": "Fi samun goyon baya",
+      "comments": "Fi zance"
+    },
+    "empty": {
+      "noMatch": "Babu matsalar da ta dace da tacen yanzu.",
+      "noneYet": "Babu matsala tukuna. Yi amfani da maɓallin da ke sama don bayar da rahoto na farko.",
+      "needCommunity": "Shiga al'umma don ganin rahotannin gida."
+    },
+    "meta": {
+      "upvotes_one": "Goyon baya {{count}}",
+      "upvotes_other": "Goyon baya {{count}}"
+    },
+    "modal": {
+      "title": "Bayar da rahoton matsala",
+      "titleLabel": "Take",
+      "titlePlaceholder": "Fitilar titi ta mutu a Adeniran",
+      "description": "Bayani",
+      "descriptionPlaceholder": "Menene ke faruwa, kuma yaya yake shafar mutane?",
+      "category": "Rukuni",
+      "location": "Wuri (na zaɓi)",
+      "locationPlaceholder": "Titi, tambari, ko taswira",
+      "photos": "Hotuna (na zaɓi, har {{max}})",
+      "tooBig": "\"{{name}}\" ya wuce {{max}}MB.",
+      "addPhotos": "Ƙara hotuna · {{max}}MB mafi girma kowanne",
+      "photosFull": "An zaɓi hotuna {{max}}",
+      "removePhoto": "Cire {{name}}",
+      "genericError": "Ba mu iya ƙirƙirar matsala ba. Duba shigarwar ka kuma sake gwadawa.",
+      "submit": "Bayar da rahoto"
+    }
+  },
+
+  "communityPage": {
+    "eyebrow": "Al'umma",
+    "findYours": "Nemo al'ummarka",
+    "memberSub": "Kai memba ne na {{name}} ({{lga}}, {{state}}). Rahotanni da koƙe-koƙe da ka ƙirƙira za su kasance na wannan al'ummar.",
+    "joinPrompt": "Shiga al'umma don ka fara bayar da rahoton matsaloli da sa hannu kan koƙe-koƙe.",
+    "newCommunity": "+ Sabuwar al'umma",
+    "yourCommunity": "Al'ummarka",
+    "stats": {
+      "state": "Jiha",
+      "lga": "LGA",
+      "country": "Ƙasa"
+    },
+    "switchCommunity": "Canza al'umma",
+    "switchSub": "Za ka iya matsawa zuwa wata al'umma a duk lokacin.",
+    "availableCommunities": "Al'ummomin da ake da su",
+    "empty": "Babu al'ummomi da suke akwai tukuna. Sake dubawa nan da nan.",
+    "actions": {
+      "join": "Shiga",
+      "switch": "Canza"
+    },
+    "joinError": "Ba mu iya shiga ba. Da fatan sake gwadawa.",
+    "modal": {
+      "title": "Sabuwar al'umma",
+      "name": "Suna",
+      "namePlaceholder": "Ikeja Central",
+      "slug": "Slug",
+      "slugPlaceholder": "ikeja-central",
+      "slugHint": "Ƙananan haruffa, lambobi, da hyphens kawai.",
+      "slugTaken": "An riga an yi amfani da slug \"{{slug}}\". Zaɓi wani.",
+      "state": "Jiha",
+      "statePlaceholder": "Lagos",
+      "lga": "LGA",
+      "lgaPlaceholder": "Ikeja",
+      "description": "Bayani",
+      "descriptionOptional": "(na zaɓi)",
+      "descriptionPlaceholder": "Abin da wannan al'ummar ke gudanarwa",
+      "genericError": "Ba mu iya ƙirƙira al'umma ba. Da fatan sake gwadawa.",
+      "create": "Ƙirƙira al'umma"
+    }
+  },
+
+  "profilePage": {
+    "eyebrow": "Bayanin Ɗan Ƙasa",
+    "loadingProfile": "Ana ɗora bayanin martabarka…",
+    "loadError": "Ba mu iya ɗora bayanin martabarka ba. Gwada shiga sabo.",
+    "account": "Asusu",
+    "editAccount": "Gyara asusu",
+    "fields": {
+      "fullName": "Cikakken suna",
+      "email": "Imel",
+      "role": "Matsayi",
+      "memberSince": "Memba tun"
+    },
+    "saveChanges": "Ajiye canje-canje",
+    "errors": {
+      "emailInUse": "An riga an yi wa wannan imel rajista a wani asusu.",
+      "validation": "Da fatan za ka duba ƙimomin da ka shigar.",
+      "generic": "Ba mu iya ajiye canje-canje ba. Da fatan sake gwadawa."
+    },
+    "community": {
+      "heading": "Al'umma",
+      "change": "Canza al'umma",
+      "empty": "Ba ka shiga wata al'umma ba tukuna.",
+      "findMine": "Nemo al'ummarka"
+    },
+    "session": {
+      "heading": "Zama",
+      "sub": "Fita daga CivicOS akan wannan na'ura.",
+      "signOut": "Fita"
+    }
+  },
+
+  "notificationsPage": {
+    "eyebrow": "Cibiyar Sanarwa",
+    "title": "Jerin ayyukan jama'a",
+    "unreadCount_one": "{{count}} da ba a karanta ba",
+    "unreadCount_other": "{{count}} da ba a karanta ba",
+    "allCaughtUp": "Ka kama komai.",
+    "markAllRead": "Sanya duk an karanta",
+    "recent": "Sabuwa",
+    "empty": "Ba ka da wata sanarwa tukuna. Za su bayyana anan idan ayyuka suka isa gare ka.",
+    "unread": "Ba a karanta ba"
+  },
+
   "nav": {
     "brandSubtitle": "Bayanin Jama'a · An kafa 2026",
     "links": {

@@ -1,4 +1,357 @@
 {
+  "common": {
+    "loading": "À ń kó…",
+    "loadingMore": "À ń kó sí i…",
+    "retry": "Gbìyànjú lẹ́ẹ̀kan sí i",
+    "save": "Fi pamọ́",
+    "saving": "À ń fi pamọ́…",
+    "saved": "A ti fi pamọ́",
+    "cancel": "Fagilé",
+    "close": "Pa",
+    "delete": "Pa rẹ́",
+    "edit": "Ṣàtúnṣe",
+    "back": "Padà",
+    "next": "Tẹ̀síwájú",
+    "yes": "Bẹ́ẹ̀ni",
+    "no": "Bẹ́ẹ̀kọ́",
+    "search": "Wá",
+    "filter": "Ṣàyẹ̀wò",
+    "clearFilters": "Pa àwọn ìdálẹ́",
+    "sortBy": "Tò nípa",
+    "commentCount_one": "Ọ̀rọ̀ {{count}}",
+    "commentCount_other": "Àwọn ọ̀rọ̀ {{count}}",
+    "memberCount_one": "Ọmọ ẹgbẹ́ {{count}}",
+    "memberCount_other": "Àwọn ọmọ ẹgbẹ́ {{count}}"
+  },
+
+  "time": {
+    "justNow": "báyìí",
+    "minutesAgo_one": "ìṣẹ́jú {{count}} sẹ́yìn",
+    "minutesAgo_other": "ìṣẹ́jú {{count}} sẹ́yìn",
+    "hoursAgo_one": "wákàtí {{count}} sẹ́yìn",
+    "hoursAgo_other": "wákàtí {{count}} sẹ́yìn",
+    "daysAgo_one": "ọjọ́ {{count}} sẹ́yìn",
+    "daysAgo_other": "ọjọ́ {{count}} sẹ́yìn",
+    "weeksAgo_one": "ọ̀sẹ̀ {{count}} sẹ́yìn",
+    "weeksAgo_other": "ọ̀sẹ̀ {{count}} sẹ́yìn",
+    "monthsAgo_one": "oṣù {{count}} sẹ́yìn",
+    "monthsAgo_other": "oṣù {{count}} sẹ́yìn",
+    "yearsAgo_one": "ọdún {{count}} sẹ́yìn",
+    "yearsAgo_other": "ọdún {{count}} sẹ́yìn"
+  },
+
+  "enums": {
+    "issueStatus": {
+      "OPEN": "Ṣíṣí",
+      "UNDER_REVIEW": "N àyẹ̀wò",
+      "IN_PROGRESS": "N ṣíṣe",
+      "RESOLVED": "A ti parí",
+      "CLOSED": "A ti pa"
+    },
+    "issueCategory": {
+      "INFRASTRUCTURE": "Àwọn Àkójọpọ̀",
+      "HEALTH": "Ìlera",
+      "EDUCATION": "Ẹ̀kọ́",
+      "SECURITY": "Ààbò",
+      "ENVIRONMENT": "Àyíká",
+      "UTILITIES": "Àwọn Ohun Èlò",
+      "TRANSPORT": "Ìrìnnà",
+      "OTHER": "Mìíràn"
+    },
+    "petitionStatus": {
+      "DRAFT": "Àkọsílẹ̀",
+      "ACTIVE": "N ṣíṣẹ́",
+      "CLOSED": "A ti pa",
+      "SUCCESSFUL": "Àṣeyọrí"
+    },
+    "userRole": {
+      "CITIZEN": "Aráàlú",
+      "REPRESENTATIVE": "Aṣojú",
+      "GOVERNMENT_ADMIN": "Alábòójútó Ìjọba",
+      "NGO": "NGO",
+      "MODERATOR": "Alábòójútó",
+      "PLATFORM_ADMIN": "Alábòójútó Ojú-òpó"
+    },
+    "notificationType": {
+      "ISSUE_UPDATE": "Ìmúdojúiwọn ìṣòro",
+      "PETITION_UPDATE": "Ìmúdojúiwọn ẹ̀bẹ̀",
+      "REPRESENTATIVE_RESPONSE": "Ìdáhùn aṣojú",
+      "COMMUNITY_UPDATE": "Ìmúdojúiwọn agbègbè",
+      "SYSTEM": "Ètò"
+    }
+  },
+
+  "discoverPage": {
+    "eyebrow": "Ṣàwárí",
+    "title": "Ohun tí ń ṣẹlẹ̀ létí",
+    "subtitle": "Àkójọpọ̀ ìṣòro àti ẹ̀bẹ̀ tí ó ń ṣẹlẹ̀ ní àkókò gidi, tí a tò nípa bí wọ́n ṣe sún mọ́ agbègbè rẹ.",
+    "noCommunityBefore": "O kò tíì darapọ̀ mọ́ agbègbè kankan —",
+    "noCommunityLink": "yan ọ̀kan",
+    "noCommunityAfter": "kí àkójọpọ̀ yìí bẹ̀rẹ̀ láti tò nípa ìsúnmọ́.",
+    "tiers": {
+      "ALL": "Gbogbo",
+      "COMMUNITY": "Nínú agbègbè rẹ",
+      "LGA": "Létí ọ · LGA kan náà",
+      "STATE": "Kákiri ìpínlẹ̀",
+      "COUNTRY": "Ibòmíràn"
+    },
+    "kinds": {
+      "all": "Gbogbo ẹ̀ka",
+      "issue": "Àwọn ìṣòro",
+      "petition": "Àwọn ẹ̀bẹ̀"
+    },
+    "itemCount_one": "Ohun {{count}}",
+    "itemCount_other": "Àwọn ohun {{count}}",
+    "itemsLoaded_one": "A ti kó ohun {{count}}",
+    "itemsLoaded_other": "A ti kó àwọn ohun {{count}}",
+    "empty": {
+      "grouped": "Kò sí ohun tí a lè ṣàwárí ṣíṣí. Nígbà tí àwọn ìṣòro àti ẹ̀bẹ̀ bá bẹ̀rẹ̀, wọn yóò farahàn níbí.",
+      "tier": "Kò sí ohun kankan nínú ẹ̀ka yìí ṣíṣí."
+    },
+    "loadMore": "Kó sí i",
+    "labels": {
+      "issue": "Ìṣòro",
+      "petition": "Ẹ̀bẹ̀"
+    },
+    "meta": {
+      "upvotes_one": "Àtìlẹ́yìn {{count}}",
+      "upvotes_other": "Àwọn àtìlẹ́yìn {{count}}",
+      "signaturesOf": "Àwọn ìfowọ́sí {{signatures}}/{{goal}}"
+    }
+  },
+
+  "representativesPage": {
+    "eyebrow": "Pátákó Aṣojú",
+    "title": "Tani ó ń ṣàkóso kí",
+    "subtitle": "Tẹ̀le àwọn aṣojú ìdìbò ní agbègbè rẹ, ohun tí wọ́n ń fojú sí, àti bí wọ́n ṣe ń dáhùn kíákíá tó.",
+    "newBtn": "+ Aṣojú tuntun",
+    "noCommunityBefore": "Darapọ̀ mọ́ agbègbè lórí",
+    "noCommunityLink": "Agbègbè",
+    "noCommunityAfter": "ojú-ìwé láti rí àwọn aṣojú agbègbè rẹ.",
+    "empty": "Kò sí aṣojú tí a ti fi kún agbègbè rẹ ṣíṣí.",
+    "card": {
+      "responseRate": "Iye ìdáhùn {{rate}}%",
+      "followerCount_one": "Ọmọ ẹ̀yìn {{count}}",
+      "followerCount_other": "Àwọn ọmọ ẹ̀yìn {{count}}"
+    },
+    "follow": {
+      "follow": "+ Tẹ̀le",
+      "following": "✓ Ń tẹ̀le"
+    },
+    "modal": {
+      "title": "Fi aṣojú kún",
+      "changePhoto": "Yí fọ́tò padà",
+      "uploadPhoto": "Gbé fọ́tò sí i",
+      "avatarTooBig": "\"{{name}}\" ju 5MB lọ.",
+      "avatarPreview": "Àyẹ̀wò fọ́tò",
+      "fields": {
+        "title": "Àkọlé",
+        "titlePlaceholder": "Hon.",
+        "fullName": "Orúkọ kíkún",
+        "fullNamePlaceholder": "Amina Yusuf",
+        "position": "Ipò",
+        "positionPlaceholder": "Alága Ìgbìmọ̀ Ìbílẹ̀",
+        "constituency": "Àgbègbè ìdìbò",
+        "constituencyPlaceholder": "Lekki Phase 1",
+        "party": "Ẹgbẹ́ (kì í ṣe pàtàkì)",
+        "partyPlaceholder": "PDP",
+        "bio": "Ìtàn ìgbé ayé (kì í ṣe pàtàkì)",
+        "bioPlaceholder": "Ìtàn ìgbé ayé kúkúrú fún àwọn aráàlú láti mọ̀ sí i."
+      },
+      "contact": {
+        "legend": "Ìkànsí (kì í ṣe pàtàkì)",
+        "email": "Ímeèlì",
+        "emailPlaceholder": "rep@example.org",
+        "phone": "Fóònù",
+        "phonePlaceholder": "+234 800 000 0000",
+        "website": "Ojú-òpó",
+        "websitePlaceholder": "https://representative.example.org"
+      },
+      "genericError": "A kò lè ṣẹ̀dá aṣojú. Ṣàyẹ̀wò àwọn nǹkan tí o kọ, kí o sì gbìyànjú lẹ́ẹ̀kan sí i.",
+      "submit": "Fi aṣojú kún"
+    }
+  },
+
+  "petitionsPage": {
+    "eyebrow": "Ọ́fíìsì Ẹ̀bẹ̀",
+    "title": "Ṣètò ohùn ẹgbẹ́",
+    "newBtn": "+ Ẹ̀bẹ̀ Tuntun",
+    "joinCommunityFirst": "Darapọ̀ mọ́ agbègbè lákọ̀ọ́kọ́",
+    "noCommunityBanner": "O kò tíì darapọ̀ mọ́ agbègbè kankan.",
+    "pickOne": "Yan ọ̀kan",
+    "toStart": "láti bẹ̀rẹ̀ àwọn ẹ̀bẹ̀.",
+    "filters": {
+      "all": "Gbogbo"
+    },
+    "clear": "Fọ̀",
+    "sort": {
+      "newest": "Tuntun jùlọ",
+      "oldest": "Àtijọ́ jùlọ",
+      "signatures": "Ìfowọ́sí jùlọ",
+      "deadline": "Ń parí kíákíá"
+    },
+    "empty": {
+      "noMatch": "Kò sí ẹ̀bẹ̀ tí ó bá ìdálẹ́ mu.",
+      "noneYet": "Kò sí ẹ̀bẹ̀ ṣíṣí. Bẹ̀rẹ̀ àkọ́kọ́ nínú agbègbè rẹ.",
+      "needCommunity": "Darapọ̀ mọ́ agbègbè láti rí àwọn ẹ̀bẹ̀ agbègbè."
+    },
+    "signaturesOf": "Àwọn ìfowọ́sí {{count}} nínú àfojúsùn {{goal}}",
+    "percentComplete": "{{percent}}% ti parí",
+    "deadline": {
+      "endsToday": "Ó ń parí lónìí",
+      "daysLeft_one": "Ọjọ́ {{count}} tó kù",
+      "daysLeft_other": "Ọjọ́ {{count}} tó kù"
+    },
+    "modal": {
+      "title": "Bẹ̀rẹ̀ ẹ̀bẹ̀ kan",
+      "titleLabel": "Àkọlé",
+      "titlePlaceholder": "Ṣàtúnṣe ojú-ọ̀nà sí ilé-ẹ̀kọ́ àkọ́kọ́",
+      "description": "Àpèjúwe",
+      "descriptionPlaceholder": "Ṣàlàyé ìyípadà tí o fẹ́ àti idi tí ó fi ṣe pàtàkì.",
+      "signatureGoal": "Àfojúsùn ìfowọ́sí",
+      "deadline": "Àkókò ìparí (kì í ṣe pàtàkì)",
+      "photos": "Àwọn fọ́tò (kì í ṣe pàtàkì, títí dé {{max}})",
+      "tooBig": "\"{{name}}\" ju {{max}}MB lọ.",
+      "addPhotos": "Fi àwọn fọ́tò kún · {{max}}MB fún ọ̀kọ̀ọ̀kan",
+      "photosFull": "A ti yan àwọn fọ́tò {{max}}",
+      "removePhoto": "Yọ {{name}} kúrò",
+      "genericError": "A kò lè ṣẹ̀dá ẹ̀bẹ̀. Ṣàyẹ̀wò àwọn nǹkan tí o kọ, kí o sì gbìyànjú lẹ́ẹ̀kan sí i.",
+      "submit": "Kéde ẹ̀bẹ̀"
+    }
+  },
+
+  "issuesPage": {
+    "eyebrow": "Tábìlì Ìṣòro",
+    "title": "Pátákó ìfìhàn agbègbè",
+    "reportBtn": "+ Ròyìn Ìṣòro",
+    "joinCommunityFirst": "Darapọ̀ mọ́ agbègbè lákọ̀ọ́kọ́",
+    "noCommunityBanner": "O kò tíì darapọ̀ mọ́ agbègbè kankan.",
+    "pickOne": "Yan ọ̀kan",
+    "toStart": "láti bẹ̀rẹ̀ ìròyìn ìṣòro.",
+    "filteredHeading": "Àwọn ìròyìn tí a ṣàyẹ̀wò",
+    "recentHeading": "Àwọn ìròyìn tuntun",
+    "filters": {
+      "allStatus": "Gbogbo ipò",
+      "allCategories": "Gbogbo ẹ̀ka"
+    },
+    "sort": {
+      "newest": "Tuntun jùlọ",
+      "oldest": "Àtijọ́ jùlọ",
+      "upvotes": "Àtìlẹ́yìn jùlọ",
+      "comments": "Ọ̀rọ̀ jùlọ"
+    },
+    "empty": {
+      "noMatch": "Kò sí ìṣòro tí ó bá àwọn ìdálẹ́ mu.",
+      "noneYet": "Kò sí ìṣòro ṣíṣí. Lo bọ́tìnnì ní òkè láti ròyìn àkọ́kọ́.",
+      "needCommunity": "Darapọ̀ mọ́ agbègbè láti rí àwọn ìròyìn agbègbè."
+    },
+    "meta": {
+      "upvotes_one": "Àtìlẹ́yìn {{count}}",
+      "upvotes_other": "Àwọn àtìlẹ́yìn {{count}}"
+    },
+    "modal": {
+      "title": "Ròyìn ìṣòro",
+      "titleLabel": "Àkọlé",
+      "titlePlaceholder": "Iná òpópó ti kú lórí Adeniran",
+      "description": "Àpèjúwe",
+      "descriptionPlaceholder": "Kí ni ó ń ṣẹlẹ̀, bí ó sì ṣe ń kan àwọn ènìyàn?",
+      "category": "Ẹ̀ka",
+      "location": "Ibi (kì í ṣe pàtàkì)",
+      "locationPlaceholder": "Òpópó, àmì, tàbí àwòrán ìlà",
+      "photos": "Àwọn fọ́tò (kì í ṣe pàtàkì, títí dé {{max}})",
+      "tooBig": "\"{{name}}\" ju {{max}}MB lọ.",
+      "addPhotos": "Fi àwọn fọ́tò kún · {{max}}MB fún ọ̀kọ̀ọ̀kan",
+      "photosFull": "A ti yan àwọn fọ́tò {{max}}",
+      "removePhoto": "Yọ {{name}} kúrò",
+      "genericError": "A kò lè ṣẹ̀dá ìṣòro. Ṣàyẹ̀wò àwọn nǹkan tí o kọ, kí o sì gbìyànjú lẹ́ẹ̀kan sí i.",
+      "submit": "Ròyìn ìṣòro"
+    }
+  },
+
+  "communityPage": {
+    "eyebrow": "Agbègbè",
+    "findYours": "Wá agbègbè rẹ",
+    "memberSub": "Ó jẹ́ ọmọ ẹgbẹ́ {{name}} ({{lga}}, {{state}}). Àwọn ìròyìn àti ẹ̀bẹ̀ tí o dá yóò jẹ́ ti agbègbè yìí.",
+    "joinPrompt": "Darapọ̀ mọ́ agbègbè kan láti bẹ̀rẹ̀ láti ròyìn àwọn ìṣòro àti fọwọ́sí ẹ̀bẹ̀.",
+    "newCommunity": "+ Agbègbè tuntun",
+    "yourCommunity": "Agbègbè rẹ",
+    "stats": {
+      "state": "Ìpínlẹ̀",
+      "lga": "LGA",
+      "country": "Orílẹ̀-èdè"
+    },
+    "switchCommunity": "Yí agbègbè padà",
+    "switchSub": "O lè lọ sí agbègbè mìíràn nígbàkígbà.",
+    "availableCommunities": "Àwọn agbègbè tí ó wà",
+    "empty": "Kò sí agbègbè kankan ṣíṣí. Padà wá kíákíá.",
+    "actions": {
+      "join": "Darapọ̀",
+      "switch": "Yípadà"
+    },
+    "joinError": "A kò lè darapọ̀. Jọ̀wọ́ gbìyànjú lẹ́ẹ̀kan sí i.",
+    "modal": {
+      "title": "Agbègbè tuntun",
+      "name": "Orúkọ",
+      "namePlaceholder": "Ikeja Central",
+      "slug": "Slug",
+      "slugPlaceholder": "ikeja-central",
+      "slugHint": "Àwọn lẹ́tà kékeré, àwọn nọ́mbà, àti hyphen nìkan.",
+      "slugTaken": "Ó ti lo slug \"{{slug}}\" tẹ́lẹ̀. Yan mìíràn.",
+      "state": "Ìpínlẹ̀",
+      "statePlaceholder": "Lagos",
+      "lga": "LGA",
+      "lgaPlaceholder": "Ikeja",
+      "description": "Àpèjúwe",
+      "descriptionOptional": "(kì í ṣe pàtàkì)",
+      "descriptionPlaceholder": "Kí ni agbègbè yìí jẹ́",
+      "genericError": "A kò lè ṣẹ̀dá agbègbè. Jọ̀wọ́ gbìyànjú lẹ́ẹ̀kan sí i.",
+      "create": "Ṣẹ̀dá agbègbè"
+    }
+  },
+
+  "profilePage": {
+    "eyebrow": "Profáìlì Aráàlú",
+    "loadingProfile": "À ń kó profáìlì rẹ…",
+    "loadError": "A kò lè kó profáìlì rẹ. Gbìyànjú láti wọlé lẹ́ẹ̀kan sí i.",
+    "account": "Àkáǹtì",
+    "editAccount": "Ṣàtúnṣe àkáǹtì",
+    "fields": {
+      "fullName": "Orúkọ kíkún",
+      "email": "Ímeèlì",
+      "role": "Ipò",
+      "memberSince": "Ọmọ ẹgbẹ́ láti"
+    },
+    "saveChanges": "Fi ìyípadà pamọ́",
+    "errors": {
+      "emailInUse": "A ti forúkọsílẹ̀ ímeèlì yìí fún àkáǹtì mìíràn.",
+      "validation": "Jọ̀wọ́ ṣàyẹ̀wò àwọn nǹkan tí o kọ.",
+      "generic": "A kò lè fi àwọn ìyípadà pamọ́. Jọ̀wọ́ gbìyànjú lẹ́ẹ̀kan sí i."
+    },
+    "community": {
+      "heading": "Agbègbè",
+      "change": "Yí agbègbè padà",
+      "empty": "O kò tíì darapọ̀ mọ́ agbègbè kankan.",
+      "findMine": "Wá agbègbè rẹ"
+    },
+    "session": {
+      "heading": "Ìjókòó",
+      "sub": "Jáde láti CivicOS lórí ohun èlò yìí.",
+      "signOut": "Jáde"
+    }
+  },
+
+  "notificationsPage": {
+    "eyebrow": "Ibùdó Ìfìmọ̀ràn",
+    "title": "Àkójọpọ̀ ìṣẹ́ ẹgbẹ́",
+    "unreadCount_one": "{{count}} kò tíì kà",
+    "unreadCount_other": "{{count}} kò tíì kà",
+    "allCaughtUp": "O ti kà gbogbo rẹ̀.",
+    "markAllRead": "Fi hàn pé o ti kà gbogbo rẹ̀",
+    "recent": "Tuntun",
+    "empty": "O kò tíì ní àwọn ìfìmọ̀ràn. Wọn yóò farahàn níbí nígbà tí ìṣẹ́ bá dé bá ọ.",
+    "unread": "Kò tíì kà"
+  },
+
   "nav": {
     "brandSubtitle": "Àkọsílẹ̀ Gbangba · Tì bẹ̀rẹ̀ 2026",
     "links": {

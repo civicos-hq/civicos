@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { AlertCircle, FileText, MapPin } from 'lucide-react';
 import { Button } from '@civicos/ui';
 import type { ApiResponse, Issue, Petition } from '@civicos/types';
 import { api } from '../lib/api';
 import { useMe } from '../hooks/useMe';
+import { useEnumLabels } from '../hooks/useEnumLabels';
+import { useRelativeTime } from '../hooks/useRelativeTime';
 
 type Tier = 'COMMUNITY' | 'LGA' | 'STATE' | 'COUNTRY';
 
@@ -36,18 +39,7 @@ type KindFilter = 'all' | 'issue' | 'petition';
 
 const PAGE_SIZE = 20;
 
-const KIND_LABEL: Record<KindFilter, string> = {
-  all: 'All types',
-  issue: 'Issues',
-  petition: 'Petitions',
-};
-
-const TIER_LABEL: Record<Tier, string> = {
-  COMMUNITY: 'In your community',
-  LGA: 'Near you · same LGA',
-  STATE: 'Across the state',
-  COUNTRY: 'Elsewhere',
-};
+const KIND_KEYS: KindFilter[] = ['all', 'issue', 'petition'];
 
 const TIER_TONE: Record<Tier, string> = {
   COMMUNITY: 'bg-civic-100 text-civic-700',
@@ -97,19 +89,8 @@ function useTierFeed(tier: Tier, communityId: string | undefined, kind: KindFilt
   });
 }
 
-function timeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const minutes = Math.round(diff / 60_000);
-  if (minutes < 1) return 'just now';
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.round(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.round(hours / 24);
-  if (days < 30) return `${days}d ago`;
-  return new Date(iso).toLocaleDateString();
-}
-
 export function DiscoverPage() {
+  const { t } = useTranslation();
   const meQuery = useMe();
   const communityId = meQuery.data?.communityId;
   const [tier, setTier] = useState<TierFilter>('ALL');
@@ -118,40 +99,44 @@ export function DiscoverPage() {
   return (
     <section className="space-y-6">
       <header className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-civic-700">Discover</p>
-        <h1 className="mt-2 text-3xl font-semibold text-slate-900">What's happening near you</h1>
-        <p className="mt-2 max-w-2xl text-sm text-slate-600">
-          A live feed of issues and petitions, ranked by how close they are to your community.
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-civic-700">
+          {t('discoverPage.eyebrow')}
         </p>
+        <h1 className="mt-2 text-3xl font-semibold text-slate-900">{t('discoverPage.title')}</h1>
+        <p className="mt-2 max-w-2xl text-sm text-slate-600">{t('discoverPage.subtitle')}</p>
         {!meQuery.isLoading && !communityId && (
           <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
-            You haven't joined a community yet —{' '}
+            {t('discoverPage.noCommunityBefore')}{' '}
             <Link to="/community" className="font-semibold underline">
-              pick one
+              {t('discoverPage.noCommunityLink')}
             </Link>{' '}
-            and this feed will start sorting by proximity.
+            {t('discoverPage.noCommunityAfter')}
           </p>
         )}
 
         <div className="mt-4 flex flex-wrap gap-2">
-          <TierPill active={tier === 'ALL'} onClick={() => setTier('ALL')} label="All" />
-          {TIER_ORDER.map((t) => (
+          <TierPill
+            active={tier === 'ALL'}
+            onClick={() => setTier('ALL')}
+            label={t('discoverPage.tiers.ALL')}
+          />
+          {TIER_ORDER.map((tk) => (
             <TierPill
-              key={t}
-              active={tier === t}
-              onClick={() => setTier(t)}
-              label={TIER_LABEL[t]}
-              tone={TIER_TONE[t]}
+              key={tk}
+              active={tier === tk}
+              onClick={() => setTier(tk)}
+              label={t(`discoverPage.tiers.${tk}`)}
+              tone={TIER_TONE[tk]}
             />
           ))}
         </div>
         <div className="mt-2 flex flex-wrap gap-2">
-          {(Object.keys(KIND_LABEL) as KindFilter[]).map((k) => (
+          {KIND_KEYS.map((k) => (
             <TierPill
               key={k}
               active={kind === k}
               onClick={() => setKind(k)}
-              label={KIND_LABEL[k]}
+              label={t(`discoverPage.kinds.${k}`)}
             />
           ))}
         </div>
@@ -167,6 +152,7 @@ export function DiscoverPage() {
 }
 
 function GroupedView({ communityId, kind }: { communityId?: string; kind: KindFilter }) {
+  const { t } = useTranslation();
   const feedQuery = useGroupedFeed(communityId, kind);
   const items = feedQuery.data ?? [];
 
@@ -176,31 +162,31 @@ function GroupedView({ communityId, kind }: { communityId?: string; kind: KindFi
   }
 
   if (feedQuery.isLoading) {
-    return <p className="text-sm text-slate-500">Loading…</p>;
+    return <p className="text-sm text-slate-500">{t('common.loading')}</p>;
   }
   if (items.length === 0) {
     return (
       <article className="rounded-2xl border border-dashed border-slate-300 bg-white/60 p-8 text-center text-sm text-slate-500">
-        Nothing to discover yet. Once issues and petitions start appearing, they'll show up here.
+        {t('discoverPage.empty.grouped')}
       </article>
     );
   }
 
   return (
     <>
-      {TIER_ORDER.map((tier) => {
-        const tierItems = grouped[tier];
+      {TIER_ORDER.map((tk) => {
+        const tierItems = grouped[tk];
         if (!tierItems || tierItems.length === 0) return null;
         return (
-          <section key={tier} className="space-y-3">
+          <section key={tk} className="space-y-3">
             <div className="flex items-center gap-2">
               <span
-                className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide ${TIER_TONE[tier]}`}
+                className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide ${TIER_TONE[tk]}`}
               >
-                {TIER_LABEL[tier]}
+                {t(`discoverPage.tiers.${tk}`)}
               </span>
               <span className="text-xs text-slate-500">
-                {tierItems.length} {tierItems.length === 1 ? 'item' : 'items'}
+                {t('discoverPage.itemCount', { count: tierItems.length })}
               </span>
             </div>
             <div className="grid gap-3 md:grid-cols-2">
@@ -224,17 +210,18 @@ function TierView({
   communityId?: string;
   kind: KindFilter;
 }) {
+  const { t } = useTranslation();
   const feed = useTierFeed(tier, communityId, kind);
   const pages = feed.data?.pages ?? [];
   const items = pages.flatMap((p) => p.items);
 
   if (feed.isLoading) {
-    return <p className="text-sm text-slate-500">Loading…</p>;
+    return <p className="text-sm text-slate-500">{t('common.loading')}</p>;
   }
   if (items.length === 0) {
     return (
       <article className="rounded-2xl border border-dashed border-slate-300 bg-white/60 p-8 text-center text-sm text-slate-500">
-        No items in this tier yet.
+        {t('discoverPage.empty.tier')}
       </article>
     );
   }
@@ -245,10 +232,10 @@ function TierView({
         <span
           className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide ${TIER_TONE[tier]}`}
         >
-          {TIER_LABEL[tier]}
+          {t(`discoverPage.tiers.${tier}`)}
         </span>
         <span className="text-xs text-slate-500">
-          {items.length} {items.length === 1 ? 'item' : 'items'} loaded
+          {t('discoverPage.itemsLoaded', { count: items.length })}
         </span>
       </div>
 
@@ -266,7 +253,7 @@ function TierView({
             loading={feed.isFetchingNextPage}
             onClick={() => feed.fetchNextPage()}
           >
-            Load more
+            {t('discoverPage.loadMore')}
           </Button>
         </div>
       )}
@@ -325,6 +312,8 @@ function IssueCard({
   community?: CommunitySummary;
   createdAt: string;
 }) {
+  const { t } = useTranslation();
+  const enums = useEnumLabels();
   return (
     <Link
       to={`/issues/${issue.id}`}
@@ -333,13 +322,15 @@ function IssueCard({
       <div className="flex items-start gap-2">
         <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-rose-500" />
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-rose-600">Issue</p>
+          <p className="text-[10px] font-bold uppercase tracking-wide text-rose-600">
+            {t('discoverPage.labels.issue')}
+          </p>
           <h3 className="mt-0.5 line-clamp-2 font-semibold text-slate-900">{issue.title}</h3>
           <p className="mt-1 line-clamp-2 text-sm text-slate-600">{issue.description}</p>
           <CardMeta community={community} createdAt={createdAt}>
-            <span>{issue.upvoteCount} upvotes</span>
+            <span>{t('discoverPage.meta.upvotes', { count: issue.upvoteCount })}</span>
             <span>·</span>
-            <span>{issue.status}</span>
+            <span>{enums.issueStatus(issue.status)}</span>
           </CardMeta>
         </div>
       </div>
@@ -356,6 +347,7 @@ function PetitionCard({
   community?: CommunitySummary;
   createdAt: string;
 }) {
+  const { t } = useTranslation();
   const progress = Math.min(100, Math.round((petition.signatureCount / petition.goal) * 100));
   return (
     <Link
@@ -365,7 +357,9 @@ function PetitionCard({
       <div className="flex items-start gap-2">
         <FileText className="mt-0.5 h-4 w-4 flex-shrink-0 text-civic-600" />
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-civic-700">Petition</p>
+          <p className="text-[10px] font-bold uppercase tracking-wide text-civic-700">
+            {t('discoverPage.labels.petition')}
+          </p>
           <h3 className="mt-0.5 line-clamp-2 font-semibold text-slate-900">{petition.title}</h3>
           <p className="mt-1 line-clamp-2 text-sm text-slate-600">{petition.description}</p>
           <div className="mt-3 h-1.5 rounded-full bg-slate-100">
@@ -376,7 +370,10 @@ function PetitionCard({
           </div>
           <CardMeta community={community} createdAt={createdAt}>
             <span>
-              {petition.signatureCount.toLocaleString()}/{petition.goal.toLocaleString()} signatures
+              {t('discoverPage.meta.signaturesOf', {
+                signatures: petition.signatureCount.toLocaleString(),
+                goal: petition.goal.toLocaleString(),
+              })}
             </span>
             <span>·</span>
             <span>{progress}%</span>
@@ -396,6 +393,7 @@ function CardMeta({
   createdAt: string;
   children?: React.ReactNode;
 }) {
+  const relative = useRelativeTime();
   return (
     <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500">
       {community && (
@@ -405,7 +403,7 @@ function CardMeta({
         </span>
       )}
       <span>·</span>
-      <span>{timeAgo(createdAt)}</span>
+      <span>{relative(createdAt)}</span>
       {children && <span className="ml-auto inline-flex items-center gap-1">{children}</span>}
     </div>
   );

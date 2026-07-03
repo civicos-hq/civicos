@@ -1,17 +1,12 @@
 import { Link } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@civicos/ui';
 import { NotificationType, type Notification } from '@civicos/types';
 import { api } from '../lib/api';
 import { useNotifications } from '../hooks/useNotifications';
-
-const TYPE_LABEL: Record<NotificationType, string> = {
-  [NotificationType.ISSUE_UPDATE]: 'Issue update',
-  [NotificationType.PETITION_UPDATE]: 'Petition update',
-  [NotificationType.REPRESENTATIVE_RESPONSE]: 'Representative response',
-  [NotificationType.COMMUNITY_UPDATE]: 'Community update',
-  [NotificationType.SYSTEM]: 'System',
-};
+import { useEnumLabels } from '../hooks/useEnumLabels';
+import { useRelativeTime } from '../hooks/useRelativeTime';
 
 const TYPE_TONE: Record<NotificationType, string> = {
   [NotificationType.ISSUE_UPDATE]: 'bg-rose-100 text-rose-700',
@@ -21,19 +16,8 @@ const TYPE_TONE: Record<NotificationType, string> = {
   [NotificationType.SYSTEM]: 'bg-slate-200 text-slate-700',
 };
 
-function timeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const minutes = Math.round(diff / 60_000);
-  if (minutes < 1) return 'just now';
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.round(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.round(hours / 24);
-  if (days < 30) return `${days}d ago`;
-  return new Date(iso).toLocaleDateString();
-}
-
 export function NotificationsPage() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const notificationsQuery = useNotifications();
 
@@ -64,11 +48,15 @@ export function NotificationsPage() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-civic-700">
-              Notification Center
+              {t('notificationsPage.eyebrow')}
             </p>
-            <h1 className="mt-2 text-3xl font-semibold text-slate-900">Civic activity feed</h1>
+            <h1 className="mt-2 text-3xl font-semibold text-slate-900">
+              {t('notificationsPage.title')}
+            </h1>
             <p className="mt-1 text-sm text-slate-500">
-              {unreadCount > 0 ? `${unreadCount} unread` : 'All caught up.'}
+              {unreadCount > 0
+                ? t('notificationsPage.unreadCount', { count: unreadCount })
+                : t('notificationsPage.allCaughtUp')}
             </p>
           </div>
           <Button
@@ -78,19 +66,17 @@ export function NotificationsPage() {
             loading={markAll.isPending}
             onClick={() => markAll.mutate()}
           >
-            Mark all as read
+            {t('notificationsPage.markAllRead')}
           </Button>
         </div>
       </header>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-900">Recent</h2>
+        <h2 className="text-lg font-semibold text-slate-900">{t('notificationsPage.recent')}</h2>
         {notificationsQuery.isLoading ? (
-          <p className="mt-4 text-sm text-slate-500">Loading…</p>
+          <p className="mt-4 text-sm text-slate-500">{t('common.loading')}</p>
         ) : notifications.length === 0 ? (
-          <p className="mt-4 text-sm text-slate-500">
-            You don't have any notifications yet. They'll appear here when activity reaches you.
-          </p>
+          <p className="mt-4 text-sm text-slate-500">{t('notificationsPage.empty')}</p>
         ) : (
           <div className="mt-4 grid gap-3">
             {notifications.map((n) => (
@@ -114,6 +100,10 @@ function NotificationRow({
   notification: Notification;
   onClick: () => void;
 }) {
+  const { t } = useTranslation();
+  const enums = useEnumLabels();
+  const relative = useRelativeTime();
+
   const content = (
     <article
       className={`flex flex-wrap items-start justify-between gap-3 rounded-xl border p-4 ${notification.read ? 'border-slate-200 bg-slate-50/40' : 'border-civic-200 bg-white'}`}
@@ -123,13 +113,16 @@ function NotificationRow({
           <span
             className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${TYPE_TONE[notification.type]}`}
           >
-            {TYPE_LABEL[notification.type]}
+            {enums.notificationType(notification.type)}
           </span>
           {!notification.read && (
-            <span className="h-2 w-2 rounded-full bg-civic-600" aria-label="Unread" />
+            <span
+              className="h-2 w-2 rounded-full bg-civic-600"
+              aria-label={t('notificationsPage.unread')}
+            />
           )}
           <span className="ml-auto text-xs font-medium text-slate-500">
-            {timeAgo(notification.createdAt)}
+            {relative(notification.createdAt)}
           </span>
         </div>
         <h3 className="mt-2 font-semibold text-slate-900">{notification.title}</h3>

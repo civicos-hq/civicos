@@ -1,4 +1,357 @@
 {
+  "common": {
+    "loading": "Na-ebubata…",
+    "loadingMore": "Na-ebubata ọzọ…",
+    "retry": "Nwaa ọzọ",
+    "save": "Chekwaa",
+    "saving": "Na-echekwa…",
+    "saved": "E chekwara",
+    "cancel": "Kagbuo",
+    "close": "Mechie",
+    "delete": "Hichapụ",
+    "edit": "Dezie",
+    "back": "Laghachi",
+    "next": "Ihu",
+    "yes": "Ee",
+    "no": "Mba",
+    "search": "Chọọ",
+    "filter": "Nzacha",
+    "clearFilters": "Kpochapụ nzacha",
+    "sortBy": "Hazie site na",
+    "commentCount_one": "Okwu {{count}}",
+    "commentCount_other": "Okwu {{count}}",
+    "memberCount_one": "Onye otu {{count}}",
+    "memberCount_other": "Ndị otu {{count}}"
+  },
+
+  "time": {
+    "justNow": "ugbu a",
+    "minutesAgo_one": "nkeji {{count}} gara aga",
+    "minutesAgo_other": "nkeji {{count}} gara aga",
+    "hoursAgo_one": "awa {{count}} gara aga",
+    "hoursAgo_other": "awa {{count}} gara aga",
+    "daysAgo_one": "ụbọchị {{count}} gara aga",
+    "daysAgo_other": "ụbọchị {{count}} gara aga",
+    "weeksAgo_one": "izu {{count}} gara aga",
+    "weeksAgo_other": "izu {{count}} gara aga",
+    "monthsAgo_one": "ọnwa {{count}} gara aga",
+    "monthsAgo_other": "ọnwa {{count}} gara aga",
+    "yearsAgo_one": "afọ {{count}} gara aga",
+    "yearsAgo_other": "afọ {{count}} gara aga"
+  },
+
+  "enums": {
+    "issueStatus": {
+      "OPEN": "Emeghere",
+      "UNDER_REVIEW": "Na nlele",
+      "IN_PROGRESS": "Na-aga n'ihu",
+      "RESOLVED": "Edoziri",
+      "CLOSED": "Mechiri"
+    },
+    "issueCategory": {
+      "INFRASTRUCTURE": "Akụrụngwa",
+      "HEALTH": "Ahụike",
+      "EDUCATION": "Agụmakwụkwọ",
+      "SECURITY": "Nchekwa",
+      "ENVIRONMENT": "Gburugburu",
+      "UTILITIES": "Ngwongwo",
+      "TRANSPORT": "Njem",
+      "OTHER": "Ọzọ"
+    },
+    "petitionStatus": {
+      "DRAFT": "Nnyocha",
+      "ACTIVE": "Na-arụ ọrụ",
+      "CLOSED": "Mechiri",
+      "SUCCESSFUL": "Ihe ịga nke ọma"
+    },
+    "userRole": {
+      "CITIZEN": "Nwa amaala",
+      "REPRESENTATIVE": "Onye nnọchi anya",
+      "GOVERNMENT_ADMIN": "Onye nlekọta gọọmentị",
+      "NGO": "NGO",
+      "MODERATOR": "Onye nlekọta",
+      "PLATFORM_ADMIN": "Onye nlekọta ikpo okwu"
+    },
+    "notificationType": {
+      "ISSUE_UPDATE": "Mmelite okwu",
+      "PETITION_UPDATE": "Mmelite akwụkwọ arịrịọ",
+      "REPRESENTATIVE_RESPONSE": "Azịza onye nnọchi anya",
+      "COMMUNITY_UPDATE": "Mmelite obodo",
+      "SYSTEM": "Sistemu"
+    }
+  },
+
+  "discoverPage": {
+    "eyebrow": "Chọpụta",
+    "title": "Ihe na-eme n'akụkụ gị",
+    "subtitle": "Ndepụta na-ebi ndụ nke okwu na akwụkwọ arịrịọ, hazie site na otu ha si dị nso na obodo gị.",
+    "noCommunityBefore": "Ị sonyebeghị n'obodo ọ bụla —",
+    "noCommunityLink": "họrọ otu",
+    "noCommunityAfter": "ka ndepụta a bido ihazi site na nsonso.",
+    "tiers": {
+      "ALL": "Niile",
+      "COMMUNITY": "N'obodo gị",
+      "LGA": "N'akụkụ gị · otu LGA",
+      "STATE": "N'ofe steeti",
+      "COUNTRY": "Ebe ọzọ"
+    },
+    "kinds": {
+      "all": "Ụdị niile",
+      "issue": "Okwu",
+      "petition": "Akwụkwọ arịrịọ"
+    },
+    "itemCount_one": "Ihe {{count}}",
+    "itemCount_other": "Ihe {{count}}",
+    "itemsLoaded_one": "Ebubatara ihe {{count}}",
+    "itemsLoaded_other": "Ebubatara ihe {{count}}",
+    "empty": {
+      "grouped": "Enweghị ihe ị ga-achọpụta ugbu a. Ozugbo okwu na akwụkwọ arịrịọ ga-abịa, ha ga-egosi ebe a.",
+      "tier": "Enweghị ihe n'ọkwa a ugbu a."
+    },
+    "loadMore": "Bubata karịa",
+    "labels": {
+      "issue": "Okwu",
+      "petition": "Akwụkwọ arịrịọ"
+    },
+    "meta": {
+      "upvotes_one": "Nkwado {{count}}",
+      "upvotes_other": "Nkwado {{count}}",
+      "signaturesOf": "Aha {{signatures}}/{{goal}}"
+    }
+  },
+
+  "representativesPage": {
+    "eyebrow": "Bọọdụ Ndị Nnọchi Anya",
+    "title": "Onye na-eji ihe niile",
+    "subtitle": "Soro ndị isi a họpụtara n'obodo gị, ihe ha na-elekwasị anya, na otu ha si eme ngwa ngwa aza.",
+    "newBtn": "+ Onye nnọchi anya ọhụrụ",
+    "noCommunityBefore": "Sonye n'obodo n'ibe",
+    "noCommunityLink": "Obodo",
+    "noCommunityAfter": "ka ị hụ ndị nnọchi anya gị mpaghara.",
+    "empty": "Etinyebeghị ndị nnọchi anya ọ bụla maka obodo gị.",
+    "card": {
+      "responseRate": "Ọnụọgụ nzaghachi {{rate}}%",
+      "followerCount_one": "Onye na-eso {{count}}",
+      "followerCount_other": "Ndị na-eso {{count}}"
+    },
+    "follow": {
+      "follow": "+ Soro",
+      "following": "✓ Na-eso"
+    },
+    "modal": {
+      "title": "Tinye onye nnọchi anya",
+      "changePhoto": "Gbanwee foto",
+      "uploadPhoto": "Bulite foto",
+      "avatarTooBig": "\"{{name}}\" karịrị 5MB.",
+      "avatarPreview": "Nlele foto",
+      "fields": {
+        "title": "Utu aha",
+        "titlePlaceholder": "Hon.",
+        "fullName": "Aha zuru oke",
+        "fullNamePlaceholder": "Amina Yusuf",
+        "position": "Ọkwa",
+        "positionPlaceholder": "Onyeisi Kansụl Mpaghara",
+        "constituency": "Mpaghara nhọpụta",
+        "constituencyPlaceholder": "Lekki Phase 1",
+        "party": "Otu (nhọrọ)",
+        "partyPlaceholder": "PDP",
+        "bio": "Akụkọ ndụ (nhọrọ)",
+        "bioPlaceholder": "Akụkọ ndụ dị mkpirikpi maka ụmụ amaala ịmụta karịa."
+      },
+      "contact": {
+        "legend": "Kpọtụrụ (nhọrọ)",
+        "email": "Ozi-e",
+        "emailPlaceholder": "rep@example.org",
+        "phone": "Ekwentị",
+        "phonePlaceholder": "+234 800 000 0000",
+        "website": "Weebụsaịtị",
+        "websitePlaceholder": "https://representative.example.org"
+      },
+      "genericError": "Anyị enweghị ike imepụta onye nnọchi anya. Lelee ntinye gị ma nwaa ọzọ.",
+      "submit": "Tinye onye nnọchi anya"
+    }
+  },
+
+  "petitionsPage": {
+    "eyebrow": "Ụlọ Ọrụ Akwụkwọ Arịrịọ",
+    "title": "Hazie olu obodo",
+    "newBtn": "+ Akwụkwọ Arịrịọ Ọhụrụ",
+    "joinCommunityFirst": "Sonye n'obodo mbụ",
+    "noCommunityBanner": "Ị sonyebeghị n'obodo ọ bụla.",
+    "pickOne": "Họrọ otu",
+    "toStart": "ka ịmalite akwụkwọ arịrịọ.",
+    "filters": {
+      "all": "Niile"
+    },
+    "clear": "Kpochapụ",
+    "sort": {
+      "newest": "Kachasị ọhụrụ",
+      "oldest": "Kachasị ochie",
+      "signatures": "Kacha bịnye aka",
+      "deadline": "Emechi n'oge na-adịghị anya"
+    },
+    "empty": {
+      "noMatch": "Enweghị akwụkwọ arịrịọ dabara na nzacha ndị a.",
+      "noneYet": "Enweghị akwụkwọ arịrịọ ọ bụla. Malite nke mbụ n'obodo gị.",
+      "needCommunity": "Sonye n'obodo ka ị hụ akwụkwọ arịrịọ mpaghara."
+    },
+    "signaturesOf": "Aha {{count}} n'ime ebumnobi {{goal}}",
+    "percentComplete": "{{percent}}% zuru oke",
+    "deadline": {
+      "endsToday": "Emechiri taa",
+      "daysLeft_one": "Ụbọchị {{count}} fọdụrụ",
+      "daysLeft_other": "Ụbọchị {{count}} fọdụrụ"
+    },
+    "modal": {
+      "title": "Bido akwụkwọ arịrịọ",
+      "titleLabel": "Isiokwu",
+      "titlePlaceholder": "Dozie ụzọ ntinye n'ụlọ akwụkwọ praịmarị",
+      "description": "Nkọwa",
+      "descriptionPlaceholder": "Kọwaa mgbanwe ị chọrọ na ihe kpatara ọ ji dị mkpa.",
+      "signatureGoal": "Ebumnuche aha ndị bịnyere",
+      "deadline": "Oge njedebe (nhọrọ)",
+      "photos": "Foto (nhọrọ, ruo {{max}})",
+      "tooBig": "\"{{name}}\" karịrị {{max}}MB.",
+      "addPhotos": "Tinye foto · {{max}}MB kacha maka nke ọ bụla",
+      "photosFull": "A họpụtala foto {{max}}",
+      "removePhoto": "Wepụ {{name}}",
+      "genericError": "Anyị enweghị ike imepụta akwụkwọ arịrịọ. Lelee ntinye gị ma nwaa ọzọ.",
+      "submit": "Bipụta akwụkwọ arịrịọ"
+    }
+  },
+
+  "issuesPage": {
+    "eyebrow": "Tebụl Okwu",
+    "title": "Bọọdụ akara obodo",
+    "reportBtn": "+ Kọọ Okwu",
+    "joinCommunityFirst": "Sonye n'obodo mbụ",
+    "noCommunityBanner": "Ị sonyebeghị n'obodo ọ bụla.",
+    "pickOne": "Họrọ otu",
+    "toStart": "ka ịmalite ịkọ okwu.",
+    "filteredHeading": "Akụkọ enyochara",
+    "recentHeading": "Akụkọ ọhụrụ",
+    "filters": {
+      "allStatus": "Ọnọdụ niile",
+      "allCategories": "Ụdị niile"
+    },
+    "sort": {
+      "newest": "Kachasị ọhụrụ",
+      "oldest": "Kachasị ochie",
+      "upvotes": "Nkwado kacha",
+      "comments": "Mkparịta ụka kacha"
+    },
+    "empty": {
+      "noMatch": "Enweghị okwu dabara na nzacha ndị a.",
+      "noneYet": "Enweghị okwu ọ bụla ugbu a. Jiri bọtịnụ dị n'elu kọọ nke mbụ.",
+      "needCommunity": "Sonye n'obodo ka ị hụ akụkọ mpaghara."
+    },
+    "meta": {
+      "upvotes_one": "Nkwado {{count}}",
+      "upvotes_other": "Nkwado {{count}}"
+    },
+    "modal": {
+      "title": "Kọọ okwu",
+      "titleLabel": "Isiokwu",
+      "titlePlaceholder": "Ọkụ okporo ụzọ anwụọla n'Adeniran",
+      "description": "Nkọwa",
+      "descriptionPlaceholder": "Kedu ihe na-eme, ma otu o si emetụta ndị mmadụ?",
+      "category": "Ụdị",
+      "location": "Ebe (nhọrọ)",
+      "locationPlaceholder": "Okporo ụzọ, akara, ma ọ bụ nhazi",
+      "photos": "Foto (nhọrọ, ruo {{max}})",
+      "tooBig": "\"{{name}}\" karịrị {{max}}MB.",
+      "addPhotos": "Tinye foto · {{max}}MB kacha maka nke ọ bụla",
+      "photosFull": "A họpụtala foto {{max}}",
+      "removePhoto": "Wepụ {{name}}",
+      "genericError": "Anyị enweghị ike imepụta okwu. Lelee ntinye gị ma nwaa ọzọ.",
+      "submit": "Kọọ okwu"
+    }
+  },
+
+  "communityPage": {
+    "eyebrow": "Obodo",
+    "findYours": "Chọta obodo gị",
+    "memberSub": "Ị bụ onye otu {{name}} ({{lga}}, {{state}}). Akụkọ na akwụkwọ arịrịọ i mepụtara ga-abụ nke obodo a.",
+    "joinPrompt": "Sonye n'obodo ka ịmalite ịkọ okwu ma bịnye aka n'akwụkwọ arịrịọ.",
+    "newCommunity": "+ Obodo ọhụrụ",
+    "yourCommunity": "Obodo gị",
+    "stats": {
+      "state": "Steeti",
+      "lga": "LGA",
+      "country": "Obodo"
+    },
+    "switchCommunity": "Gbanwee obodo",
+    "switchSub": "Ị nwere ike ịkwaga obodo ọzọ mgbe ọ bụla.",
+    "availableCommunities": "Obodo dị",
+    "empty": "Obodo ọ bụla adịbeghị ugbu a. Lelee ọzọ n'oge na-adịghị anya.",
+    "actions": {
+      "join": "Sonye",
+      "switch": "Kwaga"
+    },
+    "joinError": "Anyị enweghị ike isonye. Biko nwaa ọzọ.",
+    "modal": {
+      "title": "Obodo ọhụrụ",
+      "name": "Aha",
+      "namePlaceholder": "Ikeja Central",
+      "slug": "Slug",
+      "slugPlaceholder": "ikeja-central",
+      "slugHint": "Naanị mkpụrụedemede obere, ọnụọgụgụ, na hyphen.",
+      "slugTaken": "Ejila slug \"{{slug}}\". Họrọ nke ọzọ.",
+      "state": "Steeti",
+      "statePlaceholder": "Lagos",
+      "lga": "LGA",
+      "lgaPlaceholder": "Ikeja",
+      "description": "Nkọwa",
+      "descriptionOptional": "(nhọrọ)",
+      "descriptionPlaceholder": "Ihe obodo a bụ",
+      "genericError": "Anyị enweghị ike imepụta obodo. Biko nwaa ọzọ.",
+      "create": "Mepụta obodo"
+    }
+  },
+
+  "profilePage": {
+    "eyebrow": "Profaịlụ Nwa Amaala",
+    "loadingProfile": "Na-ebubata profaịlụ gị…",
+    "loadError": "Anyị enweghị ike ibubata profaịlụ gị. Nwaa ịbanye ọzọ.",
+    "account": "Akaụntụ",
+    "editAccount": "Dezie akaụntụ",
+    "fields": {
+      "fullName": "Aha zuru oke",
+      "email": "Ozi-e",
+      "role": "Ọrụ",
+      "memberSince": "Bụ onye otu site"
+    },
+    "saveChanges": "Chekwaa mgbanwe",
+    "errors": {
+      "emailInUse": "Edebanyela ozi-e ahụ na akaụntụ ọzọ.",
+      "validation": "Biko lelee ihe ndị i dere ọzọ.",
+      "generic": "Anyị enweghị ike ichekwa mgbanwe. Biko nwaa ọzọ."
+    },
+    "community": {
+      "heading": "Obodo",
+      "change": "Gbanwee obodo",
+      "empty": "Ị sonyebeghị n'obodo ọ bụla.",
+      "findMine": "Chọta obodo gị"
+    },
+    "session": {
+      "heading": "Nnọkọ",
+      "sub": "Pụọ na CivicOS na ngwaọrụ a.",
+      "signOut": "Pụọ"
+    }
+  },
+
+  "notificationsPage": {
+    "eyebrow": "Ebe Ọkwa",
+    "title": "Ndepụta ọrụ obodo",
+    "unreadCount_one": "{{count}} agụghị agụ",
+    "unreadCount_other": "{{count}} agụghị agụ",
+    "allCaughtUp": "Ị gụchara ihe niile.",
+    "markAllRead": "Kama ihe niile ka a gụrụ",
+    "recent": "Nke ọhụrụ",
+    "empty": "Ị nweghị ọkwa ọ bụla ugbu a. Ha ga-apụta ebe a mgbe ọrụ ruru gị.",
+    "unread": "Agụghị agụ"
+  },
+
   "nav": {
     "brandSubtitle": "Akwụkwọ Ọha · Site n'afọ 2026",
     "links": {

@@ -1,4 +1,357 @@
 {
+  "common": {
+    "loading": "Loading…",
+    "loadingMore": "Loading more…",
+    "retry": "Try again",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "cancel": "Cancel",
+    "close": "Close",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "yes": "Yes",
+    "no": "No",
+    "search": "Search",
+    "filter": "Filter",
+    "clearFilters": "Clear filters",
+    "sortBy": "Sort by",
+    "commentCount_one": "{{count}} comment",
+    "commentCount_other": "{{count}} comments",
+    "memberCount_one": "{{count}} member",
+    "memberCount_other": "{{count}} members"
+  },
+
+  "time": {
+    "justNow": "just now",
+    "minutesAgo_one": "{{count}} min ago",
+    "minutesAgo_other": "{{count}} min ago",
+    "hoursAgo_one": "{{count}} hour ago",
+    "hoursAgo_other": "{{count}} hours ago",
+    "daysAgo_one": "{{count}} day ago",
+    "daysAgo_other": "{{count}} days ago",
+    "weeksAgo_one": "{{count}} week ago",
+    "weeksAgo_other": "{{count}} weeks ago",
+    "monthsAgo_one": "{{count}} month ago",
+    "monthsAgo_other": "{{count}} months ago",
+    "yearsAgo_one": "{{count}} year ago",
+    "yearsAgo_other": "{{count}} years ago"
+  },
+
+  "enums": {
+    "issueStatus": {
+      "OPEN": "Open",
+      "UNDER_REVIEW": "Under review",
+      "IN_PROGRESS": "In progress",
+      "RESOLVED": "Resolved",
+      "CLOSED": "Closed"
+    },
+    "issueCategory": {
+      "INFRASTRUCTURE": "Infrastructure",
+      "HEALTH": "Health",
+      "EDUCATION": "Education",
+      "SECURITY": "Security",
+      "ENVIRONMENT": "Environment",
+      "UTILITIES": "Utilities",
+      "TRANSPORT": "Transport",
+      "OTHER": "Other"
+    },
+    "petitionStatus": {
+      "DRAFT": "Draft",
+      "ACTIVE": "Active",
+      "CLOSED": "Closed",
+      "SUCCESSFUL": "Successful"
+    },
+    "userRole": {
+      "CITIZEN": "Citizen",
+      "REPRESENTATIVE": "Representative",
+      "GOVERNMENT_ADMIN": "Government admin",
+      "NGO": "NGO",
+      "MODERATOR": "Moderator",
+      "PLATFORM_ADMIN": "Platform admin"
+    },
+    "notificationType": {
+      "ISSUE_UPDATE": "Issue update",
+      "PETITION_UPDATE": "Petition update",
+      "REPRESENTATIVE_RESPONSE": "Representative response",
+      "COMMUNITY_UPDATE": "Community update",
+      "SYSTEM": "System"
+    }
+  },
+
+  "discoverPage": {
+    "eyebrow": "Discover",
+    "title": "What's happening near you",
+    "subtitle": "A live feed of issues and petitions, ranked by how close they are to your community.",
+    "noCommunityBefore": "You haven't joined a community yet —",
+    "noCommunityLink": "pick one",
+    "noCommunityAfter": "and this feed will start sorting by proximity.",
+    "tiers": {
+      "ALL": "All",
+      "COMMUNITY": "In your community",
+      "LGA": "Near you · same LGA",
+      "STATE": "Across the state",
+      "COUNTRY": "Elsewhere"
+    },
+    "kinds": {
+      "all": "All types",
+      "issue": "Issues",
+      "petition": "Petitions"
+    },
+    "itemCount_one": "{{count}} item",
+    "itemCount_other": "{{count}} items",
+    "itemsLoaded_one": "{{count}} item loaded",
+    "itemsLoaded_other": "{{count}} items loaded",
+    "empty": {
+      "grouped": "Nothing to discover yet. Once issues and petitions start appearing, they'll show up here.",
+      "tier": "No items in this tier yet."
+    },
+    "loadMore": "Load more",
+    "labels": {
+      "issue": "Issue",
+      "petition": "Petition"
+    },
+    "meta": {
+      "upvotes_one": "{{count}} upvote",
+      "upvotes_other": "{{count}} upvotes",
+      "signaturesOf": "{{signatures}}/{{goal}} signatures"
+    }
+  },
+
+  "representativesPage": {
+    "eyebrow": "Representative Board",
+    "title": "Who is accountable for what",
+    "subtitle": "Track elected officials in your community, their focus, and how quickly they respond.",
+    "newBtn": "+ New representative",
+    "noCommunityBefore": "Join a community on the",
+    "noCommunityLink": "Community",
+    "noCommunityAfter": "page to see your local representatives.",
+    "empty": "No representatives have been added for your community yet.",
+    "card": {
+      "responseRate": "{{rate}}% response rate",
+      "followerCount_one": "{{count}} follower",
+      "followerCount_other": "{{count}} followers"
+    },
+    "follow": {
+      "follow": "+ Follow",
+      "following": "✓ Following"
+    },
+    "modal": {
+      "title": "Add a representative",
+      "changePhoto": "Change photo",
+      "uploadPhoto": "Upload photo",
+      "avatarTooBig": "\"{{name}}\" is over 5MB.",
+      "avatarPreview": "Avatar preview",
+      "fields": {
+        "title": "Title",
+        "titlePlaceholder": "Hon.",
+        "fullName": "Full name",
+        "fullNamePlaceholder": "Amina Yusuf",
+        "position": "Position",
+        "positionPlaceholder": "Local Council Chair",
+        "constituency": "Constituency",
+        "constituencyPlaceholder": "Lekki Phase 1",
+        "party": "Party (optional)",
+        "partyPlaceholder": "PDP",
+        "bio": "Bio (optional)",
+        "bioPlaceholder": "A short bio for citizens to learn more."
+      },
+      "contact": {
+        "legend": "Contact (optional)",
+        "email": "Email",
+        "emailPlaceholder": "rep@example.org",
+        "phone": "Phone",
+        "phonePlaceholder": "+234 800 000 0000",
+        "website": "Website",
+        "websitePlaceholder": "https://representative.example.org"
+      },
+      "genericError": "Could not create representative. Check your inputs and try again.",
+      "submit": "Add representative"
+    }
+  },
+
+  "petitionsPage": {
+    "eyebrow": "Petition Studio",
+    "title": "Organize collective voice",
+    "newBtn": "+ New Petition",
+    "joinCommunityFirst": "Join a community first",
+    "noCommunityBanner": "You haven't joined a community yet.",
+    "pickOne": "Pick one",
+    "toStart": "to start petitions.",
+    "filters": {
+      "all": "All"
+    },
+    "clear": "Clear",
+    "sort": {
+      "newest": "Newest",
+      "oldest": "Oldest",
+      "signatures": "Most signed",
+      "deadline": "Closing soon"
+    },
+    "empty": {
+      "noMatch": "No petitions match the current filter.",
+      "noneYet": "No petitions yet. Start the first one in your community.",
+      "needCommunity": "Join a community to see local petitions."
+    },
+    "signaturesOf": "{{count}} signatures out of {{goal}} target",
+    "percentComplete": "{{percent}}% complete",
+    "deadline": {
+      "endsToday": "Ends today",
+      "daysLeft_one": "{{count}} day left",
+      "daysLeft_other": "{{count}} days left"
+    },
+    "modal": {
+      "title": "Start a petition",
+      "titleLabel": "Title",
+      "titlePlaceholder": "Repair primary school access road",
+      "description": "Description",
+      "descriptionPlaceholder": "Explain the change you want and why it matters.",
+      "signatureGoal": "Signature goal",
+      "deadline": "Deadline (optional)",
+      "photos": "Photos (optional, up to {{max}})",
+      "tooBig": "\"{{name}}\" is over {{max}}MB.",
+      "addPhotos": "Add photos · {{max}}MB max each",
+      "photosFull": "Maximum {{max}} photos selected",
+      "removePhoto": "Remove {{name}}",
+      "genericError": "Could not create petition. Check your inputs and try again.",
+      "submit": "Publish petition"
+    }
+  },
+
+  "issuesPage": {
+    "eyebrow": "Issue Desk",
+    "title": "Community signal board",
+    "reportBtn": "+ Report Issue",
+    "joinCommunityFirst": "Join a community first",
+    "noCommunityBanner": "You haven't joined a community yet.",
+    "pickOne": "Pick one",
+    "toStart": "to start reporting issues.",
+    "filteredHeading": "Filtered reports",
+    "recentHeading": "Recent reports",
+    "filters": {
+      "allStatus": "All status",
+      "allCategories": "All categories"
+    },
+    "sort": {
+      "newest": "Newest",
+      "oldest": "Oldest",
+      "upvotes": "Most upvoted",
+      "comments": "Most discussed"
+    },
+    "empty": {
+      "noMatch": "No issues match the current filters.",
+      "noneYet": "No issues yet. Use the button above to report the first one.",
+      "needCommunity": "Join a community to see local reports."
+    },
+    "meta": {
+      "upvotes_one": "{{count}} upvote",
+      "upvotes_other": "{{count}} upvotes"
+    },
+    "modal": {
+      "title": "Report an issue",
+      "titleLabel": "Title",
+      "titlePlaceholder": "Streetlight outage on Adeniran",
+      "description": "Description",
+      "descriptionPlaceholder": "What's happening, and how is it affecting people?",
+      "category": "Category",
+      "location": "Location (optional)",
+      "locationPlaceholder": "Street, landmark, or coordinates",
+      "photos": "Photos (optional, up to {{max}})",
+      "tooBig": "\"{{name}}\" is over {{max}}MB.",
+      "addPhotos": "Add photos · {{max}}MB max each",
+      "photosFull": "Maximum {{max}} photos selected",
+      "removePhoto": "Remove {{name}}",
+      "genericError": "Could not create issue. Check your inputs and try again.",
+      "submit": "Report issue"
+    }
+  },
+
+  "communityPage": {
+    "eyebrow": "Community",
+    "findYours": "Find your community",
+    "memberSub": "You're a member of {{name}} ({{lga}}, {{state}}). Reports and petitions you create will belong to this community.",
+    "joinPrompt": "Join a community to start reporting issues and signing petitions.",
+    "newCommunity": "+ New community",
+    "yourCommunity": "Your community",
+    "stats": {
+      "state": "State",
+      "lga": "LGA",
+      "country": "Country"
+    },
+    "switchCommunity": "Switch community",
+    "switchSub": "You can move to another community at any time.",
+    "availableCommunities": "Available communities",
+    "empty": "No communities are available yet. Check back soon.",
+    "actions": {
+      "join": "Join",
+      "switch": "Switch"
+    },
+    "joinError": "Could not join. Please try again.",
+    "modal": {
+      "title": "New community",
+      "name": "Name",
+      "namePlaceholder": "Ikeja Central",
+      "slug": "Slug",
+      "slugPlaceholder": "ikeja-central",
+      "slugHint": "Lowercase letters, numbers, and hyphens only.",
+      "slugTaken": "Slug \"{{slug}}\" is already in use. Pick another.",
+      "state": "State",
+      "statePlaceholder": "Lagos",
+      "lga": "LGA",
+      "lgaPlaceholder": "Ikeja",
+      "description": "Description",
+      "descriptionOptional": "(optional)",
+      "descriptionPlaceholder": "What this community is about",
+      "genericError": "Could not create community. Please try again.",
+      "create": "Create community"
+    }
+  },
+
+  "profilePage": {
+    "eyebrow": "Civic Profile",
+    "loadingProfile": "Loading your profile…",
+    "loadError": "Could not load your profile. Try signing in again.",
+    "account": "Account",
+    "editAccount": "Edit account",
+    "fields": {
+      "fullName": "Full name",
+      "email": "Email",
+      "role": "Role",
+      "memberSince": "Member since"
+    },
+    "saveChanges": "Save changes",
+    "errors": {
+      "emailInUse": "That email is already registered to another account.",
+      "validation": "Please double-check the values you entered.",
+      "generic": "Could not save changes. Please try again."
+    },
+    "community": {
+      "heading": "Community",
+      "change": "Change community",
+      "empty": "You haven't joined a community yet.",
+      "findMine": "Find your community"
+    },
+    "session": {
+      "heading": "Session",
+      "sub": "Sign out of CivicOS on this device.",
+      "signOut": "Sign out"
+    }
+  },
+
+  "notificationsPage": {
+    "eyebrow": "Notification Center",
+    "title": "Civic activity feed",
+    "unreadCount_one": "{{count}} unread",
+    "unreadCount_other": "{{count}} unread",
+    "allCaughtUp": "All caught up.",
+    "markAllRead": "Mark all as read",
+    "recent": "Recent",
+    "empty": "You don't have any notifications yet. They'll appear here when activity reaches you.",
+    "unread": "Unread"
+  },
+
   "nav": {
     "brandSubtitle": "Public Record · Est. 2026",
     "links": {

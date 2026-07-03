@@ -1,4 +1,357 @@
 {
+  "common": {
+    "loading": "Dey load…",
+    "loadingMore": "Dey load more…",
+    "retry": "Try again",
+    "save": "Save",
+    "saving": "Dey save…",
+    "saved": "Don save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Go back",
+    "next": "Next",
+    "yes": "Yes",
+    "no": "No",
+    "search": "Search",
+    "filter": "Filter",
+    "clearFilters": "Clear filters",
+    "sortBy": "Arrange by",
+    "commentCount_one": "{{count}} comment",
+    "commentCount_other": "{{count}} comments",
+    "memberCount_one": "{{count}} member",
+    "memberCount_other": "{{count}} members"
+  },
+
+  "time": {
+    "justNow": "just now",
+    "minutesAgo_one": "{{count}} min ago",
+    "minutesAgo_other": "{{count}} min ago",
+    "hoursAgo_one": "{{count}} hour ago",
+    "hoursAgo_other": "{{count}} hours ago",
+    "daysAgo_one": "{{count}} day ago",
+    "daysAgo_other": "{{count}} days ago",
+    "weeksAgo_one": "{{count}} week ago",
+    "weeksAgo_other": "{{count}} weeks ago",
+    "monthsAgo_one": "{{count}} month ago",
+    "monthsAgo_other": "{{count}} months ago",
+    "yearsAgo_one": "{{count}} year ago",
+    "yearsAgo_other": "{{count}} years ago"
+  },
+
+  "enums": {
+    "issueStatus": {
+      "OPEN": "Open",
+      "UNDER_REVIEW": "Dey under review",
+      "IN_PROGRESS": "Dey progress",
+      "RESOLVED": "Don resolve",
+      "CLOSED": "Don close"
+    },
+    "issueCategory": {
+      "INFRASTRUCTURE": "Infrastructure",
+      "HEALTH": "Health",
+      "EDUCATION": "Education",
+      "SECURITY": "Security",
+      "ENVIRONMENT": "Environment",
+      "UTILITIES": "Utilities",
+      "TRANSPORT": "Transport",
+      "OTHER": "Other"
+    },
+    "petitionStatus": {
+      "DRAFT": "Draft",
+      "ACTIVE": "Active",
+      "CLOSED": "Close",
+      "SUCCESSFUL": "Successful"
+    },
+    "userRole": {
+      "CITIZEN": "Citizen",
+      "REPRESENTATIVE": "Rep",
+      "GOVERNMENT_ADMIN": "Government admin",
+      "NGO": "NGO",
+      "MODERATOR": "Moderator",
+      "PLATFORM_ADMIN": "Platform admin"
+    },
+    "notificationType": {
+      "ISSUE_UPDATE": "Issue update",
+      "PETITION_UPDATE": "Petition update",
+      "REPRESENTATIVE_RESPONSE": "Rep response",
+      "COMMUNITY_UPDATE": "Community update",
+      "SYSTEM": "System"
+    }
+  },
+
+  "discoverPage": {
+    "eyebrow": "Discover",
+    "title": "Wetin dey happen near you",
+    "subtitle": "Live feed of issues and petitions, arrange based on how close dem dey to your community.",
+    "noCommunityBefore": "You never join any community —",
+    "noCommunityLink": "pick one",
+    "noCommunityAfter": "so this feed go start to arrange by nearness.",
+    "tiers": {
+      "ALL": "All",
+      "COMMUNITY": "For your community",
+      "LGA": "Near you · same LGA",
+      "STATE": "Across the state",
+      "COUNTRY": "Elsewhere"
+    },
+    "kinds": {
+      "all": "All types",
+      "issue": "Issues",
+      "petition": "Petitions"
+    },
+    "itemCount_one": "{{count}} item",
+    "itemCount_other": "{{count}} items",
+    "itemsLoaded_one": "{{count}} item don load",
+    "itemsLoaded_other": "{{count}} items don load",
+    "empty": {
+      "grouped": "Nothing to discover yet. Once issues and petitions start to show, dem go appear here.",
+      "tier": "No item for this tier yet."
+    },
+    "loadMore": "Load more",
+    "labels": {
+      "issue": "Issue",
+      "petition": "Petition"
+    },
+    "meta": {
+      "upvotes_one": "{{count}} upvote",
+      "upvotes_other": "{{count}} upvotes",
+      "signaturesOf": "{{signatures}}/{{goal}} signatures"
+    }
+  },
+
+  "representativesPage": {
+    "eyebrow": "Representative Board",
+    "title": "Who dey accountable for wetin",
+    "subtitle": "Track elected officials for your community, wetin dem dey focus on, and how fast dem dey reply.",
+    "newBtn": "+ New representative",
+    "noCommunityBefore": "Join community for the",
+    "noCommunityLink": "Community",
+    "noCommunityAfter": "page make you see your local reps.",
+    "empty": "No representative dey for your community yet.",
+    "card": {
+      "responseRate": "{{rate}}% response rate",
+      "followerCount_one": "{{count}} follower",
+      "followerCount_other": "{{count}} followers"
+    },
+    "follow": {
+      "follow": "+ Follow",
+      "following": "✓ Dey follow"
+    },
+    "modal": {
+      "title": "Add representative",
+      "changePhoto": "Change photo",
+      "uploadPhoto": "Upload photo",
+      "avatarTooBig": "\"{{name}}\" pass 5MB.",
+      "avatarPreview": "Avatar preview",
+      "fields": {
+        "title": "Title",
+        "titlePlaceholder": "Hon.",
+        "fullName": "Full name",
+        "fullNamePlaceholder": "Amina Yusuf",
+        "position": "Position",
+        "positionPlaceholder": "Local Council Chair",
+        "constituency": "Constituency",
+        "constituencyPlaceholder": "Lekki Phase 1",
+        "party": "Party (optional)",
+        "partyPlaceholder": "PDP",
+        "bio": "Bio (optional)",
+        "bioPlaceholder": "Small bio wey citizens go read to know am better."
+      },
+      "contact": {
+        "legend": "Contact (optional)",
+        "email": "Email",
+        "emailPlaceholder": "rep@example.org",
+        "phone": "Phone",
+        "phonePlaceholder": "+234 800 000 0000",
+        "website": "Website",
+        "websitePlaceholder": "https://representative.example.org"
+      },
+      "genericError": "We no fit create the rep. Check wetin you enter and try again.",
+      "submit": "Add representative"
+    }
+  },
+
+  "petitionsPage": {
+    "eyebrow": "Petition Studio",
+    "title": "Organize collective voice",
+    "newBtn": "+ New Petition",
+    "joinCommunityFirst": "Join community first",
+    "noCommunityBanner": "You never join any community.",
+    "pickOne": "Pick one",
+    "toStart": "so you fit start petitions.",
+    "filters": {
+      "all": "All"
+    },
+    "clear": "Clear",
+    "sort": {
+      "newest": "Newest",
+      "oldest": "Oldest",
+      "signatures": "Most signed",
+      "deadline": "Dey close soon"
+    },
+    "empty": {
+      "noMatch": "No petition match this filter.",
+      "noneYet": "No petition dey yet. Start the first one for your community.",
+      "needCommunity": "Join community make you see local petitions."
+    },
+    "signaturesOf": "{{count}} signatures out of {{goal}} target",
+    "percentComplete": "{{percent}}% don complete",
+    "deadline": {
+      "endsToday": "E dey end today",
+      "daysLeft_one": "{{count}} day remain",
+      "daysLeft_other": "{{count}} days remain"
+    },
+    "modal": {
+      "title": "Start petition",
+      "titleLabel": "Title",
+      "titlePlaceholder": "Repair primary school entrance road",
+      "description": "Description",
+      "descriptionPlaceholder": "Explain the change you want and why e matter.",
+      "signatureGoal": "Signature goal",
+      "deadline": "Deadline (optional)",
+      "photos": "Photos (optional, up to {{max}})",
+      "tooBig": "\"{{name}}\" pass {{max}}MB.",
+      "addPhotos": "Add photos · {{max}}MB max each",
+      "photosFull": "You don select {{max}} photos already",
+      "removePhoto": "Remove {{name}}",
+      "genericError": "We no fit create the petition. Check wetin you enter and try again.",
+      "submit": "Publish petition"
+    }
+  },
+
+  "issuesPage": {
+    "eyebrow": "Issue Desk",
+    "title": "Community signal board",
+    "reportBtn": "+ Report Issue",
+    "joinCommunityFirst": "Join community first",
+    "noCommunityBanner": "You never join any community.",
+    "pickOne": "Pick one",
+    "toStart": "so you fit start to report issues.",
+    "filteredHeading": "Filtered reports",
+    "recentHeading": "Recent reports",
+    "filters": {
+      "allStatus": "All status",
+      "allCategories": "All categories"
+    },
+    "sort": {
+      "newest": "Newest",
+      "oldest": "Oldest",
+      "upvotes": "Most upvoted",
+      "comments": "Most discussed"
+    },
+    "empty": {
+      "noMatch": "No issue match this filters.",
+      "noneYet": "No issue dey yet. Use the button on top to report the first one.",
+      "needCommunity": "Join community make you see local reports."
+    },
+    "meta": {
+      "upvotes_one": "{{count}} upvote",
+      "upvotes_other": "{{count}} upvotes"
+    },
+    "modal": {
+      "title": "Report issue",
+      "titleLabel": "Title",
+      "titlePlaceholder": "Streetlight don spoil for Adeniran",
+      "description": "Description",
+      "descriptionPlaceholder": "Wetin dey happen, and how e dey affect people?",
+      "category": "Category",
+      "location": "Location (optional)",
+      "locationPlaceholder": "Street, landmark, or coordinates",
+      "photos": "Photos (optional, up to {{max}})",
+      "tooBig": "\"{{name}}\" pass {{max}}MB.",
+      "addPhotos": "Add photos · {{max}}MB max each",
+      "photosFull": "You don select {{max}} photos already",
+      "removePhoto": "Remove {{name}}",
+      "genericError": "We no fit create the issue. Check wetin you enter and try again.",
+      "submit": "Report issue"
+    }
+  },
+
+  "communityPage": {
+    "eyebrow": "Community",
+    "findYours": "Find your community",
+    "memberSub": "You be member of {{name}} ({{lga}}, {{state}}). Reports and petitions wey you create go belong to this community.",
+    "joinPrompt": "Join community make you fit start to report issues and sign petitions.",
+    "newCommunity": "+ New community",
+    "yourCommunity": "Your community",
+    "stats": {
+      "state": "State",
+      "lga": "LGA",
+      "country": "Country"
+    },
+    "switchCommunity": "Switch community",
+    "switchSub": "You fit move to another community anytime.",
+    "availableCommunities": "Communities wey dey",
+    "empty": "No community dey yet. Come check again small time.",
+    "actions": {
+      "join": "Join",
+      "switch": "Switch"
+    },
+    "joinError": "We no fit join. Try again.",
+    "modal": {
+      "title": "New community",
+      "name": "Name",
+      "namePlaceholder": "Ikeja Central",
+      "slug": "Slug",
+      "slugPlaceholder": "ikeja-central",
+      "slugHint": "Small letters, numbers, and hyphens only.",
+      "slugTaken": "Somebody don take slug \"{{slug}}\". Pick another one.",
+      "state": "State",
+      "statePlaceholder": "Lagos",
+      "lga": "LGA",
+      "lgaPlaceholder": "Ikeja",
+      "description": "Description",
+      "descriptionOptional": "(optional)",
+      "descriptionPlaceholder": "Wetin this community be about",
+      "genericError": "We no fit create community. Try again.",
+      "create": "Create community"
+    }
+  },
+
+  "profilePage": {
+    "eyebrow": "Civic Profile",
+    "loadingProfile": "Dey load your profile…",
+    "loadError": "We no fit load your profile. Try sign in again.",
+    "account": "Account",
+    "editAccount": "Edit account",
+    "fields": {
+      "fullName": "Full name",
+      "email": "Email",
+      "role": "Role",
+      "memberSince": "Member since"
+    },
+    "saveChanges": "Save changes",
+    "errors": {
+      "emailInUse": "Somebody don register that email for another account.",
+      "validation": "Abeg check the tins you enter.",
+      "generic": "We no fit save the changes. Abeg try again."
+    },
+    "community": {
+      "heading": "Community",
+      "change": "Change community",
+      "empty": "You never join any community.",
+      "findMine": "Find your community"
+    },
+    "session": {
+      "heading": "Session",
+      "sub": "Sign out from CivicOS on this device.",
+      "signOut": "Sign out"
+    }
+  },
+
+  "notificationsPage": {
+    "eyebrow": "Notification Center",
+    "title": "Civic activity feed",
+    "unreadCount_one": "{{count}} never read",
+    "unreadCount_other": "{{count}} never read",
+    "allCaughtUp": "You don read everything.",
+    "markAllRead": "Mark all as read",
+    "recent": "Recent",
+    "empty": "You never get any notification. Dem go show here when activity reach you.",
+    "unread": "Never read"
+  },
+
   "nav": {
     "brandSubtitle": "Public Record · Start 2026",
     "links": {

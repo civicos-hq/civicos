@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { Button, Input } from '@civicos/ui';
 import { UserRole, type ApiResponse, type Representative } from '@civicos/types';
 import { api, uploadImage, uploadUrl } from '../lib/api';
@@ -28,6 +29,7 @@ function useRepresentatives(communityId?: string) {
 }
 
 export function RepresentativesPage() {
+  const { t } = useTranslation();
   const meQuery = useMe();
   const communityId = meQuery.data?.communityId;
   const repsQuery = useRepresentatives(communityId);
@@ -45,37 +47,35 @@ export function RepresentativesPage() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-civic-700">
-              Representative Board
+              {t('representativesPage.eyebrow')}
             </p>
             <h1 className="mt-2 text-3xl font-semibold text-slate-900">
-              Who is accountable for what
+              {t('representativesPage.title')}
             </h1>
-            <p className="mt-3 text-sm text-slate-600">
-              Track elected officials in your community, their focus, and how quickly they respond.
-            </p>
+            <p className="mt-3 text-sm text-slate-600">{t('representativesPage.subtitle')}</p>
           </div>
           {isAdmin && (
             <Button size="sm" onClick={() => setModalOpen(true)} disabled={!hasCommunity}>
-              + New representative
+              {t('representativesPage.newBtn')}
             </Button>
           )}
         </div>
         {!meQuery.isLoading && !hasCommunity && (
           <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
-            Join a community on the{' '}
+            {t('representativesPage.noCommunityBefore')}{' '}
             <Link to="/community" className="font-semibold underline">
-              Community
+              {t('representativesPage.noCommunityLink')}
             </Link>{' '}
-            page to see your local representatives.
+            {t('representativesPage.noCommunityAfter')}
           </p>
         )}
       </header>
 
       {repsQuery.isLoading ? (
-        <p className="text-sm text-slate-500">Loading…</p>
+        <p className="text-sm text-slate-500">{t('common.loading')}</p>
       ) : reps.length === 0 ? (
         <article className="rounded-2xl border border-dashed border-slate-300 bg-white/60 p-8 text-center text-sm text-slate-500">
-          No representatives have been added for your community yet.
+          {t('representativesPage.empty')}
         </article>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
@@ -102,9 +102,13 @@ export function RepresentativesPage() {
                   </p>
                 )}
                 <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-500">
-                  <span>{rep.responseRate}% response rate</span>
+                  <span>
+                    {t('representativesPage.card.responseRate', { rate: rep.responseRate })}
+                  </span>
                   <span>·</span>
-                  <span>{rep.followerCount.toLocaleString()} followers</span>
+                  <span>
+                    {t('representativesPage.card.followerCount', { count: rep.followerCount })}
+                  </span>
                 </div>
               </div>
             </Link>
@@ -128,6 +132,7 @@ export function FollowButton({
   representativeId: string;
   isFollowing: boolean;
 }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const toggle = useMutation({
     mutationFn: async () => {
@@ -155,7 +160,9 @@ export function FollowButton({
         toggle.mutate();
       }}
     >
-      {isFollowing ? '✓ Following' : '+ Follow'}
+      {isFollowing
+        ? t('representativesPage.follow.following')
+        : t('representativesPage.follow.follow')}
     </Button>
   );
 }
@@ -198,6 +205,7 @@ function NewRepresentativeModal({
   communityId: string;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [name, setName] = useState('');
   const [title, setTitle] = useState('Hon.');
@@ -223,7 +231,7 @@ function NewRepresentativeModal({
     e.target.value = '';
     setError('');
     if (file && file.size > 5 * 1024 * 1024) {
-      setError(`"${file.name}" is over 5MB.`);
+      setError(t('representativesPage.modal.avatarTooBig', { name: file.name }));
       return;
     }
     setAvatar(file);
@@ -250,7 +258,7 @@ function NewRepresentativeModal({
       queryClient.invalidateQueries({ queryKey: ['representatives'] });
       onClose();
     },
-    onError: () => setError('Could not create representative. Check your inputs and try again.'),
+    onError: () => setError(t('representativesPage.modal.genericError')),
   });
 
   function handleSubmit(e: FormEvent) {
@@ -260,13 +268,13 @@ function NewRepresentativeModal({
   }
 
   return (
-    <Modal title="Add a representative" onClose={onClose}>
+    <Modal title={t('representativesPage.modal.title')} onClose={onClose}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex items-center gap-4">
           {preview ? (
             <img
               src={preview}
-              alt="Avatar preview"
+              alt={t('representativesPage.modal.avatarPreview')}
               className="h-16 w-16 rounded-full object-cover ring-2 ring-slate-100"
             />
           ) : (
@@ -274,54 +282,56 @@ function NewRepresentativeModal({
           )}
           <label className="cursor-pointer text-sm font-semibold text-civic-700 hover:underline">
             <input type="file" accept="image/*" className="hidden" onChange={onAvatarChange} />
-            {avatar ? 'Change photo' : 'Upload photo'}
+            {avatar
+              ? t('representativesPage.modal.changePhoto')
+              : t('representativesPage.modal.uploadPhoto')}
           </label>
         </div>
 
         <div className="grid gap-4 md:grid-cols-[100px,1fr]">
           <Input
-            label="Title"
+            label={t('representativesPage.modal.fields.title')}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Hon."
+            placeholder={t('representativesPage.modal.fields.titlePlaceholder')}
             required
           />
           <Input
-            label="Full name"
+            label={t('representativesPage.modal.fields.fullName')}
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Amina Yusuf"
+            placeholder={t('representativesPage.modal.fields.fullNamePlaceholder')}
             required
             minLength={2}
           />
         </div>
 
         <Input
-          label="Position"
+          label={t('representativesPage.modal.fields.position')}
           value={position}
           onChange={(e) => setPosition(e.target.value)}
-          placeholder="Local Council Chair"
+          placeholder={t('representativesPage.modal.fields.positionPlaceholder')}
           required
         />
         <div className="grid gap-4 md:grid-cols-2">
           <Input
-            label="Constituency"
+            label={t('representativesPage.modal.fields.constituency')}
             value={constituency}
             onChange={(e) => setConstituency(e.target.value)}
-            placeholder="Lekki Phase 1"
+            placeholder={t('representativesPage.modal.fields.constituencyPlaceholder')}
             required
           />
           <Input
-            label="Party (optional)"
+            label={t('representativesPage.modal.fields.party')}
             value={party}
             onChange={(e) => setParty(e.target.value)}
-            placeholder="PDP"
+            placeholder={t('representativesPage.modal.fields.partyPlaceholder')}
           />
         </div>
 
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-gray-700" htmlFor="bio">
-            Bio (optional)
+            {t('representativesPage.modal.fields.bio')}
           </label>
           <textarea
             id="bio"
@@ -329,37 +339,37 @@ function NewRepresentativeModal({
             rows={3}
             value={bio}
             onChange={(e) => setBio(e.target.value)}
-            placeholder="A short bio for citizens to learn more."
+            placeholder={t('representativesPage.modal.fields.bioPlaceholder')}
           />
         </div>
 
         <fieldset className="rounded-lg border border-slate-200 p-3">
           <legend className="px-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-            Contact (optional)
+            {t('representativesPage.modal.contact.legend')}
           </legend>
           <div className="grid gap-3 sm:grid-cols-2">
             <Input
-              label="Email"
+              label={t('representativesPage.modal.contact.email')}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="rep@example.org"
+              placeholder={t('representativesPage.modal.contact.emailPlaceholder')}
             />
             <Input
-              label="Phone"
+              label={t('representativesPage.modal.contact.phone')}
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="+234 800 000 0000"
+              placeholder={t('representativesPage.modal.contact.phonePlaceholder')}
             />
           </div>
           <div className="mt-3">
             <Input
-              label="Website"
+              label={t('representativesPage.modal.contact.website')}
               type="url"
               value={website}
               onChange={(e) => setWebsite(e.target.value)}
-              placeholder="https://representative.example.org"
+              placeholder={t('representativesPage.modal.contact.websitePlaceholder')}
             />
           </div>
         </fieldset>
@@ -368,10 +378,10 @@ function NewRepresentativeModal({
 
         <div className="flex justify-end gap-2 pt-2">
           <Button type="button" variant="secondary" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button type="submit" loading={mutation.isPending}>
-            Add representative
+            {t('representativesPage.modal.submit')}
           </Button>
         </div>
       </form>

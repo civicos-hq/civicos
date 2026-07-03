@@ -2,10 +2,12 @@ import { useState, type FormEvent } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { Button, Input } from '@civicos/ui';
 import type { ApiResponse, Community, User } from '@civicos/types';
-import { api } from '../lib/api';
+import { api, signOut as signOutRemote } from '../lib/api';
 import { useMe } from '../hooks/useMe';
+import { useEnumLabels } from '../hooks/useEnumLabels';
 
 function useCommunity(id: string | undefined) {
   return useQuery({
@@ -25,14 +27,6 @@ function initials(name: string): string {
   return (parts[0]![0]! + parts[parts.length - 1]![0]!).toUpperCase();
 }
 
-function formatJoined(iso: string): string {
-  return new Date(iso).toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-}
-
 const ROLE_TONE: Record<string, string> = {
   CITIZEN: 'bg-slate-100 text-slate-700',
   REPRESENTATIVE: 'bg-amber-100 text-amber-700',
@@ -43,25 +37,25 @@ const ROLE_TONE: Record<string, string> = {
 };
 
 export function ProfilePage() {
+  const { t, i18n } = useTranslation();
+  const enums = useEnumLabels();
   const navigate = useNavigate();
   const meQuery = useMe();
   const me = meQuery.data;
   const communityQuery = useCommunity(me?.communityId);
 
-  function signOut() {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+  async function signOut() {
+    // Server-side revoke of the refresh-token family, then wipe local state.
+    await signOutRemote();
     navigate('/login');
   }
 
   if (meQuery.isLoading) {
-    return <p className="text-sm text-slate-500">Loading your profile…</p>;
+    return <p className="text-sm text-slate-500">{t('profilePage.loadingProfile')}</p>;
   }
 
   if (!me) {
-    return (
-      <p className="text-sm text-red-600">Could not load your profile. Try signing in again.</p>
-    );
+    return <p className="text-sm text-red-600">{t('profilePage.loadError')}</p>;
   }
 
   const roleTone = ROLE_TONE[me.role] ?? 'bg-slate-100 text-slate-700';
@@ -76,7 +70,7 @@ export function ProfilePage() {
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-civic-700">
-              Civic Profile
+              {t('profilePage.eyebrow')}
             </p>
             <h1 className="mt-1 text-2xl font-semibold text-slate-900">{me.name}</h1>
             <p className="text-sm text-slate-500">{me.email}</p>
@@ -84,18 +78,20 @@ export function ProfilePage() {
           <span
             className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide ${roleTone}`}
           >
-            {me.role.replace('_', ' ')}
+            {enums.userRole(me.role)}
           </span>
         </div>
       </header>
 
       <div className="grid gap-4 lg:grid-cols-[1.2fr,0.8fr]">
-        <AccountSection user={me} />
+        <AccountSection user={me} language={i18n.language} />
 
         <aside className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-900">Community</h2>
+          <h2 className="text-lg font-semibold text-slate-900">
+            {t('profilePage.community.heading')}
+          </h2>
           {communityQuery.isLoading ? (
-            <p className="mt-3 text-sm text-slate-500">Loading…</p>
+            <p className="mt-3 text-sm text-slate-500">{t('common.loading')}</p>
           ) : community ? (
             <div className="mt-3 space-y-2 text-sm text-slate-700">
               <p className="text-base font-semibold text-slate-900">{community.name}</p>
@@ -109,17 +105,17 @@ export function ProfilePage() {
                 to="/community"
                 className="mt-2 inline-block text-sm font-semibold text-civic-700 hover:text-civic-800"
               >
-                Change community →
+                {t('profilePage.community.change')} →
               </Link>
             </div>
           ) : (
             <div className="mt-3 space-y-2 text-sm text-slate-600">
-              <p>You haven't joined a community yet.</p>
+              <p>{t('profilePage.community.empty')}</p>
               <Link
                 to="/community"
                 className="inline-block text-sm font-semibold text-civic-700 hover:text-civic-800"
               >
-                Find your community →
+                {t('profilePage.community.findMine')} →
               </Link>
             </div>
           )}
@@ -127,10 +123,10 @@ export function ProfilePage() {
       </div>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-900">Session</h2>
-        <p className="mt-2 text-sm text-slate-600">Sign out of CivicOS on this device.</p>
+        <h2 className="text-lg font-semibold text-slate-900">{t('profilePage.session.heading')}</h2>
+        <p className="mt-2 text-sm text-slate-600">{t('profilePage.session.sub')}</p>
         <Button variant="secondary" size="sm" className="mt-4" onClick={signOut}>
-          Sign out
+          {t('profilePage.session.signOut')}
         </Button>
       </section>
     </section>
@@ -146,7 +142,9 @@ function Field({ label, value }: { label: string; value: string }) {
   );
 }
 
-function AccountSection({ user }: { user: User }) {
+function AccountSection({ user, language }: { user: User; language: string }) {
+  const { t } = useTranslation();
+  const enums = useEnumLabels();
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(user.name);
@@ -180,19 +178,18 @@ function AccountSection({ user }: { user: User }) {
     },
     onError: (err: unknown) => {
       if (axios.isAxiosError(err)) {
-        // Service responses are flat { code }; the gateway wraps as { error: { code } }.
         const data = err.response?.data;
         const code: string | undefined = data?.error?.code ?? data?.code;
         if (code === 'EMAIL_ALREADY_IN_USE') {
-          setError('That email is already registered to another account.');
+          setError(t('profilePage.errors.emailInUse'));
           return;
         }
         if (code === 'VALIDATION_ERROR') {
-          setError('Please double-check the values you entered.');
+          setError(t('profilePage.errors.validation'));
           return;
         }
       }
-      setError('Could not save changes. Please try again.');
+      setError(t('profilePage.errors.generic'));
     },
   });
 
@@ -202,20 +199,26 @@ function AccountSection({ user }: { user: User }) {
     mutation.mutate();
   }
 
+  const formatJoined = new Intl.DateTimeFormat(language, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }).format(new Date(user.createdAt));
+
   if (!editing) {
     return (
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex items-start justify-between gap-3">
-          <h2 className="text-lg font-semibold text-slate-900">Account</h2>
+          <h2 className="text-lg font-semibold text-slate-900">{t('profilePage.account')}</h2>
           <Button size="sm" variant="secondary" onClick={startEdit}>
-            Edit
+            {t('common.edit')}
           </Button>
         </div>
         <dl className="mt-4 grid gap-3 sm:grid-cols-2">
-          <Field label="Full name" value={user.name} />
-          <Field label="Email" value={user.email} />
-          <Field label="Role" value={user.role.replace('_', ' ')} />
-          <Field label="Member since" value={formatJoined(user.createdAt)} />
+          <Field label={t('profilePage.fields.fullName')} value={user.name} />
+          <Field label={t('profilePage.fields.email')} value={user.email} />
+          <Field label={t('profilePage.fields.role')} value={enums.userRole(user.role)} />
+          <Field label={t('profilePage.fields.memberSince')} value={formatJoined} />
         </dl>
       </section>
     );
@@ -225,10 +228,10 @@ function AccountSection({ user }: { user: User }) {
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h2 className="text-lg font-semibold text-slate-900">Edit account</h2>
+      <h2 className="text-lg font-semibold text-slate-900">{t('profilePage.editAccount')}</h2>
       <form className="mt-4 grid gap-3 sm:grid-cols-2" onSubmit={submit}>
         <label className="text-sm text-slate-700">
-          Full name
+          {t('profilePage.fields.fullName')}
           <Input
             className="mt-1.5"
             value={name}
@@ -239,7 +242,7 @@ function AccountSection({ user }: { user: User }) {
           />
         </label>
         <label className="text-sm text-slate-700">
-          Email
+          {t('profilePage.fields.email')}
           <Input
             className="mt-1.5"
             type="email"
@@ -253,10 +256,10 @@ function AccountSection({ user }: { user: User }) {
 
         <div className="sm:col-span-2 mt-2 flex items-center justify-end gap-2">
           <Button type="button" variant="secondary" size="sm" onClick={cancel}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button type="submit" size="sm" loading={mutation.isPending} disabled={!dirty}>
-            Save changes
+            {t('profilePage.saveChanges')}
           </Button>
         </div>
       </form>

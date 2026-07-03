@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { Button, Input } from '@civicos/ui';
 import { UserRole, type ApiResponse, type Community } from '@civicos/types';
 import { api } from '../lib/api';
@@ -31,6 +32,7 @@ function slugify(value: string): string {
 }
 
 export function CommunityPage() {
+  const { t } = useTranslation();
   const meQuery = useMe();
   const communitiesQuery = useCommunities();
   const queryClient = useQueryClient();
@@ -56,35 +58,41 @@ export function CommunityPage() {
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-civic-700">
-              Community
+              {t('communityPage.eyebrow')}
             </p>
             <h1 className="mt-2 text-3xl font-semibold text-slate-900">
-              {myCommunity ? myCommunity.name : 'Find your community'}
+              {myCommunity ? myCommunity.name : t('communityPage.findYours')}
             </h1>
             <p className="mt-3 max-w-2xl text-sm text-slate-600">
               {myCommunity
-                ? `You're a member of ${myCommunity.name} (${myCommunity.lga}, ${myCommunity.state}). Reports and petitions you create will belong to this community.`
-                : 'Join a community to start reporting issues and signing petitions.'}
+                ? t('communityPage.memberSub', {
+                    name: myCommunity.name,
+                    lga: myCommunity.lga,
+                    state: myCommunity.state,
+                  })
+                : t('communityPage.joinPrompt')}
             </p>
           </div>
           {isAdmin && (
             <Button size="sm" onClick={() => setNewOpen(true)}>
-              + New community
+              {t('communityPage.newCommunity')}
             </Button>
           )}
         </div>
       </header>
 
       {meQuery.isLoading || communitiesQuery.isLoading ? (
-        <p className="text-sm text-slate-500">Loading…</p>
+        <p className="text-sm text-slate-500">{t('common.loading')}</p>
       ) : myCommunity ? (
         <>
           <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-slate-900">Your community</h2>
+            <h2 className="text-lg font-semibold text-slate-900">
+              {t('communityPage.yourCommunity')}
+            </h2>
             <div className="mt-3 grid gap-4 md:grid-cols-3">
-              <Stat label="State" value={myCommunity.state} />
-              <Stat label="LGA" value={myCommunity.lga} />
-              <Stat label="Country" value={myCommunity.country} />
+              <Stat label={t('communityPage.stats.state')} value={myCommunity.state} />
+              <Stat label={t('communityPage.stats.lga')} value={myCommunity.lga} />
+              <Stat label={t('communityPage.stats.country')} value={myCommunity.country} />
             </div>
             {myCommunity.description && (
               <p className="mt-4 text-sm text-slate-600">{myCommunity.description}</p>
@@ -92,10 +100,10 @@ export function CommunityPage() {
           </article>
 
           <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-slate-900">Switch community</h2>
-            <p className="mt-1 text-sm text-slate-500">
-              You can move to another community at any time.
-            </p>
+            <h2 className="text-lg font-semibold text-slate-900">
+              {t('communityPage.switchCommunity')}
+            </h2>
+            <p className="mt-1 text-sm text-slate-500">{t('communityPage.switchSub')}</p>
             <div className="mt-4 grid gap-3">
               {communities
                 .filter((c) => c.id !== myCommunity.id)
@@ -103,7 +111,7 @@ export function CommunityPage() {
                   <CommunityRow
                     key={c.id}
                     community={c}
-                    actionLabel="Switch"
+                    actionLabel={t('communityPage.actions.switch')}
                     loading={joinMutation.isPending && joinMutation.variables === c.id}
                     onAction={() => joinMutation.mutate(c.id)}
                   />
@@ -113,18 +121,18 @@ export function CommunityPage() {
         </>
       ) : (
         <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-900">Available communities</h2>
+          <h2 className="text-lg font-semibold text-slate-900">
+            {t('communityPage.availableCommunities')}
+          </h2>
           {communities.length === 0 ? (
-            <p className="mt-4 text-sm text-slate-500">
-              No communities are available yet. Check back soon.
-            </p>
+            <p className="mt-4 text-sm text-slate-500">{t('communityPage.empty')}</p>
           ) : (
             <div className="mt-4 grid gap-3">
               {communities.map((c) => (
                 <CommunityRow
                   key={c.id}
                   community={c}
-                  actionLabel="Join"
+                  actionLabel={t('communityPage.actions.join')}
                   loading={joinMutation.isPending && joinMutation.variables === c.id}
                   onAction={() => joinMutation.mutate(c.id)}
                 />
@@ -132,7 +140,7 @@ export function CommunityPage() {
             </div>
           )}
           {joinMutation.isError && (
-            <p className="mt-3 text-sm text-red-600">Could not join. Please try again.</p>
+            <p className="mt-3 text-sm text-red-600">{t('communityPage.joinError')}</p>
           )}
         </section>
       )}
@@ -189,6 +197,7 @@ function NewCommunityModal({
   existingSlugs: string[];
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
@@ -220,29 +229,29 @@ function NewCommunityModal({
     e.preventDefault();
     setError('');
     if (existingSlugs.includes(effectiveSlug)) {
-      setError(`Slug "${effectiveSlug}" is already in use. Pick another.`);
+      setError(t('communityPage.modal.slugTaken', { slug: effectiveSlug }));
       return;
     }
     mutation.mutate();
   }
 
   return (
-    <Modal title="New community" onClose={onClose}>
+    <Modal title={t('communityPage.modal.title')} onClose={onClose}>
       <form className="grid gap-3" onSubmit={submit}>
         <label className="text-sm text-slate-700">
-          Name
+          {t('communityPage.modal.name')}
           <Input
             className="mt-1.5"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Ikeja Central"
+            placeholder={t('communityPage.modal.namePlaceholder')}
             required
             minLength={2}
           />
         </label>
 
         <label className="text-sm text-slate-700">
-          Slug
+          {t('communityPage.modal.slug')}
           <Input
             className="mt-1.5"
             value={effectiveSlug}
@@ -250,62 +259,61 @@ function NewCommunityModal({
               setSlugTouched(true);
               setSlug(slugify(e.target.value));
             }}
-            placeholder="ikeja-central"
+            placeholder={t('communityPage.modal.slugPlaceholder')}
             required
             minLength={2}
             pattern="[a-z0-9-]+"
           />
           <span className="mt-1 block text-xs text-slate-500">
-            Lowercase letters, numbers, and hyphens only.
+            {t('communityPage.modal.slugHint')}
           </span>
         </label>
 
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="text-sm text-slate-700">
-            State
+            {t('communityPage.modal.state')}
             <Input
               className="mt-1.5"
               value={state}
               onChange={(e) => setState(e.target.value)}
-              placeholder="Lagos"
+              placeholder={t('communityPage.modal.statePlaceholder')}
               required
             />
           </label>
           <label className="text-sm text-slate-700">
-            LGA
+            {t('communityPage.modal.lga')}
             <Input
               className="mt-1.5"
               value={lga}
               onChange={(e) => setLga(e.target.value)}
-              placeholder="Ikeja"
+              placeholder={t('communityPage.modal.lgaPlaceholder')}
               required
             />
           </label>
         </div>
 
         <label className="text-sm text-slate-700">
-          Description <span className="text-slate-400">(optional)</span>
+          {t('communityPage.modal.description')}{' '}
+          <span className="text-slate-400">{t('communityPage.modal.descriptionOptional')}</span>
           <textarea
             className="mt-1.5 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
             rows={3}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="What this community is about"
+            placeholder={t('communityPage.modal.descriptionPlaceholder')}
           />
         </label>
 
         {(error || mutation.isError) && (
-          <p className="text-sm text-red-600">
-            {error || 'Could not create community. Please try again.'}
-          </p>
+          <p className="text-sm text-red-600">{error || t('communityPage.modal.genericError')}</p>
         )}
 
         <div className="mt-2 flex items-center justify-end gap-2">
           <Button type="button" variant="secondary" size="sm" onClick={onClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button type="submit" size="sm" loading={mutation.isPending}>
-            Create community
+            {t('communityPage.modal.create')}
           </Button>
         </div>
       </form>
