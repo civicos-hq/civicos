@@ -228,7 +228,8 @@
     "post": "Post comment",
     "empty": "No comments yet — start the conversation.",
     "officialResponse": "Official response",
-    "postError": "Could not post your comment. Try again."
+    "postError": "Could not post your comment. Try again.",
+    "removed": "This comment was removed by a moderator."
   },
 
   "search": {

@@ -122,34 +122,49 @@ export function CommentsSection({
         ) : comments.length === 0 ? (
           <EmptyState icon={<MessageSquare className="h-5 w-5" />} title={t('comments.empty')} />
         ) : (
-          comments.map((c) => (
-            <div
-              key={c.id}
-              className={`flex gap-3 rounded-xl border p-3 ${c.isOfficialResponse ? 'border-civic-200 bg-civic-50/40' : 'border-slate-200 bg-slate-50/60'}`}
-            >
-              <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-civic-100 text-xs font-semibold text-civic-700 ring-1 ring-civic-200">
-                {initials(c.authorName)}
+          comments.map((c) =>
+            c.isHidden ? (
+              <div
+                key={c.id}
+                className="flex items-center gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50/40 p-3 text-xs italic text-slate-500"
+                data-hidden="true"
+              >
+                <MessageSquare className="h-3.5 w-3.5" aria-hidden="true" />
+                <span>{t('comments.removed')}</span>
+                <span className="ml-auto text-[10px] text-slate-400">{relative(c.createdAt)}</span>
               </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-baseline gap-2">
-                  <p className="text-sm font-semibold text-slate-900">{c.authorName}</p>
-                  <span className="text-xs text-slate-600">{enums.userRole(c.authorRole)}</span>
-                  {c.isOfficialResponse && (
-                    <span className="rounded-full bg-civic-700 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
-                      {t('comments.officialResponse')}
-                    </span>
-                  )}
-                  <span className="ml-auto text-xs text-slate-400">{relative(c.createdAt)}</span>
+            ) : (
+              <div
+                key={c.id}
+                className={`flex gap-3 rounded-xl border p-3 ${c.isOfficialResponse ? 'border-civic-200 bg-civic-50/40' : 'border-slate-200 bg-slate-50/60'}`}
+              >
+                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-civic-100 text-xs font-semibold text-civic-700 ring-1 ring-civic-200">
+                  {initials(c.authorName)}
                 </div>
-                <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700">{c.content}</p>
-                {!c.isOfficialResponse && (
-                  <div className="mt-2 flex justify-end">
-                    <ReportButton contentType={REPORTABLE_BY_ENTITY[entityType]} contentId={c.id} />
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-baseline gap-2">
+                    <p className="text-sm font-semibold text-slate-900">{c.authorName}</p>
+                    <span className="text-xs text-slate-600">{enums.userRole(c.authorRole)}</span>
+                    {c.isOfficialResponse && (
+                      <span className="rounded-full bg-civic-700 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                        {t('comments.officialResponse')}
+                      </span>
+                    )}
+                    <span className="ml-auto text-xs text-slate-400">{relative(c.createdAt)}</span>
                   </div>
-                )}
+                  <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700">{c.content}</p>
+                  {!c.isOfficialResponse && (
+                    <div className="mt-2 flex justify-end">
+                      <ReportButton
+                        contentType={REPORTABLE_BY_ENTITY[entityType]}
+                        contentId={c.id}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))
+            ),
+          )
         )}
       </div>
     </article>
