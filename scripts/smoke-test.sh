@@ -483,6 +483,57 @@ req GET "/api/v1/projects/$PROJ_ID/progress-updates" ""
 check "GET /projects/:id/progress-updates (public)" "200"
 
 # ═══════════════════════════════════════════════════════════════════════════
+# 13B. MODERATION INFRASTRUCTURE — content flags + audit log
+# ═══════════════════════════════════════════════════════════════════════════
+section "13B. Moderation — content flags + audit log"
+
+# Citizen flags an issue comment (any UUID target is accepted — flags are
+# not FK-constrained to specific content tables, so this exercises the
+# happy path without needing a real comment row).
+FLAG_TARGET_ID=$(uuidgen | tr '[:upper:]' '[:lower:]')
+
+req POST "/api/v1/flags" "$CITIZEN_JWT" "{
+  \"contentType\": \"ISSUE_COMMENT\",
+  \"contentId\": \"$FLAG_TARGET_ID\",
+  \"reason\": \"SPAM\",
+  \"description\": \"Automated smoke test flag\"
+}"
+check "POST /flags (citizen)" "201"
+FLAG_ID=$(json_get "$BODY_FILE" "data.flag.id")
+
+req POST "/api/v1/flags" "$CITIZEN_JWT" "{
+  \"contentType\": \"ISSUE_COMMENT\",
+  \"contentId\": \"$FLAG_TARGET_ID\",
+  \"reason\": \"ABUSE\"
+}"
+check "POST /flags dedup (same user, same content) → 409" "409"
+
+req GET "/api/v1/flags" "$CITIZEN_JWT"
+check "GET /flags (citizen) → 403" "403"
+
+req GET "/api/v1/flags?status=PENDING" "$ADMIN_JWT"
+check "GET /flags?status=PENDING (admin)" "200"
+
+req GET "/api/v1/flags/counts" "$ADMIN_JWT"
+check "GET /flags/counts (admin)" "200"
+
+req PATCH "/api/v1/flags/$FLAG_ID" "$ADMIN_JWT" '{"status":"HIDDEN","resolutionNote":"content removed by smoke test"}'
+check "PATCH /flags/:id resolve (admin)" "200"
+
+# The resolution should have written an audit-log entry.
+req GET "/api/v1/audit-logs?action=flag&targetId=$FLAG_ID" "$ADMIN_JWT"
+check "GET /audit-logs?action=flag" "200"
+AUDIT_TOTAL=$(json_get "$BODY_FILE" "data.total")
+if [[ "$AUDIT_TOTAL" -ge 1 ]]; then
+  pass "audit log has $AUDIT_TOTAL entry for flag.resolved"
+else
+  fail "audit log entry for flag.resolved" "expected ≥1, got $AUDIT_TOTAL"
+fi
+
+req GET "/api/v1/audit-logs" "$CITIZEN_JWT"
+check "GET /audit-logs (citizen) → 403" "403"
+
+# ═══════════════════════════════════════════════════════════════════════════
 # 14. RATE LIMITING
 # ═══════════════════════════════════════════════════════════════════════════
 section "14. Rate limiting (Strict — /forgot-password)"
@@ -559,12 +610,15 @@ else
   # counts the target rows in RETURNING); the summary line reports what we
   # explicitly asked for, which is enough to prove cleanup happened.
   declare -a DELETES=(
-    "organizations|id='${ORG_ID:-}'"     # cascades: org_members, announcements, projects, issue_assignments, progress_updates
-    "representatives|id='${REP_ID:-}'"   # cascades: representative_comments, representative_followers
-    "petitions|id='${PET_ID:-}'"         # cascades: petition_signatures, petition_comments
-    "issues|id='${ISSUE_ID:-}'"          # cascades: issue_upvotes, issue_comments
-    "communities|id='${COMM_ID:-}'"      # SET NULL on users.community_id; requires above deletes first
-    "users|id='${CITIZEN_ID:-}'"         # cascades: refresh_tokens, notifications, remaining membership rows
+    "audit_logs|target_id='${FLAG_ID:-}'"  # audit rows written for the flag.resolved
+    "content_flags|id='${FLAG_ID:-}'"      # the flag itself
+    "organizations|id='${ORG_ID:-}'"       # cascades: org_members, announcements, projects, issue_assignments, progress_updates
+    "representatives|id='${REP_ID:-}'"     # cascades: representative_comments, representative_followers
+    "petitions|id='${PET_ID:-}'"           # cascades: petition_signatures, petition_comments
+    "issues|id='${ISSUE_ID:-}'"            # cascades: issue_upvotes, issue_comments
+    "communities|id='${COMM_ID:-}'"        # SET NULL on users.community_id; requires above deletes first
+    "content_flags|reporter_id='${CITIZEN_ID:-}'"  # any flags the citizen filed
+    "users|id='${CITIZEN_ID:-}'"           # cascades: refresh_tokens, notifications, remaining membership rows
   )
   total_deleted=0
   for entry in "${DELETES[@]}"; do

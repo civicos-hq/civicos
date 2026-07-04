@@ -84,6 +84,77 @@ func (r *RefreshToken) IsUsable(now time.Time) bool {
 	return now.Before(r.ExpiresAt)
 }
 
+// ── Moderation infrastructure ────────────────────────────────────────────
+// AuditLog is the immutable trail of administrative actions across the
+// platform. Every PLATFORM_ADMIN write records a row here so that
+// admin power is transparent and reviewable — a Phase 1 "Trust" objective
+// baked in from day one.
+//
+// Cross-service note: community-service and organization-service can
+// write to this table by re-declaring the model without AutoMigrate;
+// identity-service is the source of truth for the schema.
+type AuditLog struct {
+	ID         string    `gorm:"type:uuid;primaryKey" json:"id"`
+	ActorID    string    `gorm:"type:uuid;not null;index" json:"actorId"`
+	ActorName  string    `gorm:"not null" json:"actorName"`
+	ActorRole  string    `gorm:"not null" json:"actorRole"`
+	Action     string    `gorm:"not null;index" json:"action"`
+	TargetType string    `gorm:"not null;index" json:"targetType"`
+	TargetID   string    `gorm:"type:uuid;not null;index" json:"targetId"`
+	Metadata   string    `gorm:"type:jsonb;default:'{}'" json:"metadata"`
+	IPAddress  *string   `json:"ipAddress,omitempty"`
+	UserAgent  *string   `json:"userAgent,omitempty"`
+	CreatedAt  time.Time `json:"createdAt"`
+}
+
+type FlagReason string
+type FlagStatus string
+type FlaggableType string
+
+const (
+	FlagReasonSpam    FlagReason = "SPAM"
+	FlagReasonAbuse   FlagReason = "ABUSE"
+	FlagReasonMisinfo FlagReason = "MISINFO"
+	FlagReasonHate    FlagReason = "HATE"
+	FlagReasonOther   FlagReason = "OTHER"
+
+	FlagStatusPending   FlagStatus = "PENDING"
+	FlagStatusReviewed  FlagStatus = "REVIEWED"
+	FlagStatusHidden    FlagStatus = "HIDDEN"
+	FlagStatusDismissed FlagStatus = "DISMISSED"
+
+	FlaggableIssue          FlaggableType = "ISSUE"
+	FlaggableIssueComment   FlaggableType = "ISSUE_COMMENT"
+	FlaggablePetition       FlaggableType = "PETITION"
+	FlaggablePetitionComment FlaggableType = "PETITION_COMMENT"
+	FlaggableRepComment     FlaggableType = "REPRESENTATIVE_COMMENT"
+	FlaggableAnnouncement   FlaggableType = "ANNOUNCEMENT"
+	FlaggableProgressUpdate FlaggableType = "PROGRESS_UPDATE"
+)
+
+// ContentFlag is a citizen's report of content that violates the
+// platform's rules. Compound uniqueness ({content_type, content_id,
+// reporter_id}) enforces one flag per user per content — repeated
+// signal escalates via the reporter's next action, not by mashing the
+// button. Moderators consume the flag queue via /api/v1/flags; the
+// resolution is another row in the AuditLog.
+type ContentFlag struct {
+	ID             string        `gorm:"type:uuid;primaryKey" json:"id"`
+	ContentType    FlaggableType `gorm:"type:varchar(30);not null;uniqueIndex:idx_flag_dedup;index" json:"contentType"`
+	ContentID      string        `gorm:"type:uuid;not null;uniqueIndex:idx_flag_dedup;index" json:"contentId"`
+	ReporterID     string        `gorm:"type:uuid;not null;uniqueIndex:idx_flag_dedup" json:"reporterId"`
+	ReporterName   string        `gorm:"not null" json:"reporterName"`
+	Reason         FlagReason    `gorm:"type:varchar(20);not null" json:"reason"`
+	Description    *string       `json:"description,omitempty"`
+	Status         FlagStatus    `gorm:"type:varchar(20);default:'PENDING';index" json:"status"`
+	ResolvedByID   *string       `gorm:"type:uuid" json:"resolvedById,omitempty"`
+	ResolvedByName *string       `json:"resolvedByName,omitempty"`
+	ResolutionNote *string       `json:"resolutionNote,omitempty"`
+	ResolvedAt     *time.Time    `json:"resolvedAt,omitempty"`
+	CreatedAt      time.Time     `json:"createdAt"`
+	UpdatedAt      time.Time     `json:"updatedAt"`
+}
+
 func (u *User) ToPublic() PublicUser {
 	return PublicUser{
 		ID:              u.ID,

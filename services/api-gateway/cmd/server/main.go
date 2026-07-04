@@ -96,6 +96,16 @@ func main() {
 	r.PATCH("/api/v1/auth/me", authMiddleware, limitStandard, identityProtected)
 	r.POST("/api/v1/auth/me/community", authMiddleware, limitStandard, identityProtected)
 
+	// --- Moderation infrastructure (identity-service owns these) ---
+	// Content flags — Strict tier on the POST to prevent flag spam.
+	r.POST("/api/v1/flags", authMiddleware, limitStrict, identityProtected)
+	r.GET("/api/v1/flags", authMiddleware, identityProtected)
+	r.GET("/api/v1/flags/counts", authMiddleware, identityProtected)
+	r.GET("/api/v1/flags/:id", authMiddleware, identityProtected)
+	r.PATCH("/api/v1/flags/:id", authMiddleware, limitStandard, identityProtected)
+	// Audit log — admin-only read surface.
+	r.GET("/api/v1/audit-logs", authMiddleware, identityProtected)
+
 	// --- Community Service ---
 	communityProxy := proxy.NewReverseProxy(cfg.CommunityServiceURL, "/api")
 

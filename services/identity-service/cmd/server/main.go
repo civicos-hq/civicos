@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/civicos/identity-service/internal/audit"
+	"github.com/civicos/identity-service/internal/auditlogs"
 	"github.com/civicos/identity-service/internal/auth"
+	"github.com/civicos/identity-service/internal/flags"
 	"github.com/civicos/identity-service/internal/middleware"
 	"github.com/civicos/identity-service/pkg/config"
 	"github.com/civicos/identity-service/pkg/database"
@@ -32,6 +35,17 @@ func main() {
 	authSvc := auth.NewService(authRepo, refreshRepo, cfg, mail)
 	authHandler := auth.NewHandler(authSvc)
 
+	// Moderation infrastructure — shared audit writer, then the flag +
+	// audit-log modules that build on top of it.
+	auditor := audit.New(db)
+
+	flagRepo := flags.NewRepository(db)
+	flagSvc := flags.NewService(flagRepo, auditor)
+	flagHandler := flags.NewHandler(flagSvc, auditor)
+
+	auditRepo := auditlogs.NewRepository(db)
+	auditHandler := auditlogs.NewHandler(auditRepo)
+
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
@@ -45,8 +59,16 @@ func main() {
 		c.JSON(200, gin.H{"status": "ok", "service": "identity-service"})
 	})
 
+	authMiddleware := middleware.JWTAuth(cfg)
+	requireVerified := middleware.RequireVerified()
+	requireAdmin := middleware.RequireRole("PLATFORM_ADMIN")
+
 	authGroup := r.Group("/v1/auth")
-	authHandler.RegisterRoutes(authGroup, middleware.JWTAuth(cfg))
+	authHandler.RegisterRoutes(authGroup, authMiddleware)
+
+	v1 := r.Group("/v1")
+	flagHandler.RegisterRoutes(v1.Group("/flags"), authMiddleware, requireVerified, requireAdmin)
+	auditHandler.RegisterRoutes(v1.Group("/audit-logs"), authMiddleware, requireAdmin)
 
 	addr := fmt.Sprintf(":%d", cfg.Port)
 	log.Printf("🚀 Identity Service running on %s", addr)
