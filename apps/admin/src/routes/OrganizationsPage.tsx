@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CheckCircle2, XCircle } from 'lucide-react';
 import { apiGet, apiPatch } from '../lib/api';
@@ -100,7 +101,12 @@ export function OrganizationsPage() {
               {rows.map((o) => (
                 <tr key={o.id}>
                   <td>
-                    <div className="font-medium">{o.name}</div>
+                    <Link
+                      to={`/organizations/${o.id}`}
+                      className="font-medium text-civic-700 hover:underline"
+                    >
+                      {o.name}
+                    </Link>
                     <div className="mono text-xs text-slate-500">{o.slug}</div>
                   </td>
                   <td>

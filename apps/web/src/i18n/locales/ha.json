@@ -2,7 +2,6 @@
   "pageHeader": {
     "publicRecord": "Jama'a"
   },
-
   "rateLimit": {
     "title": "Yi hankali kaɗan.",
     "body": "Kana yi da sauri sosai. Sake gwadawa cikin {{seconds}}s.",
@@ -10,7 +9,6 @@
     "bodyCountdown": "Sake gwadawa cikin {{seconds}}s.",
     "genericBody": "Kana yi da sauri sosai. Da fatan jira ɗan lokaci."
   },
-
   "common": {
     "mainNav": "Babban kewayawa",
     "topbar": "Sandar sama",
@@ -37,7 +35,6 @@
     "memberCount_one": "Memba {{count}}",
     "memberCount_other": "Membobi {{count}}"
   },
-
   "time": {
     "justNow": "yanzu-yanzu",
     "minutesAgo_one": "mintuna {{count}} da suka wuce",
@@ -53,7 +50,6 @@
     "yearsAgo_one": "shekara {{count}} da suka wuce",
     "yearsAgo_other": "shekaru {{count}} da suka wuce"
   },
-
   "enums": {
     "issueStatus": {
       "OPEN": "A buɗe",
@@ -94,7 +90,6 @@
       "SYSTEM": "Tsarin"
     }
   },
-
   "representativeDetail": {
     "backToRepresentatives": "← Koma zuwa wakilai",
     "loadError": "Ba mu iya ɗora wannan wakilin ba.",
@@ -130,7 +125,6 @@
       "save": "Ajiye"
     }
   },
-
   "petitionDetail": {
     "backToPetitions": "← Koma zuwa koƙe-koƙe",
     "loadError": "Ba mu iya ɗora wannan koƙen ba. Wataƙila an cire shi.",
@@ -150,7 +144,6 @@
     "onlyActive": "Za a iya sa hannu kan koƙe-koƙen da suke aiki kaɗai",
     "signError": "Ba mu iya sa hannu ba. Da fatan sake gwadawa."
   },
-
   "issueDetail": {
     "backToIssues": "← Koma zuwa matsaloli",
     "loadError": "Ba mu iya ɗora wannan matsalar ba. Wataƙila an cire ta.",
@@ -168,7 +161,6 @@
     "updateStatus": "Sabunta matsayi",
     "updateStatusError": "Ba mu iya sabuntawa ba."
   },
-
   "comments": {
     "heading": "Tattaunawa",
     "placeholder": "Ƙara wa tattaunawar…",
@@ -178,7 +170,6 @@
     "officialResponse": "Amsar hukuma",
     "postError": "Ba mu iya aika sharhinka ba. Sake gwadawa."
   },
-
   "search": {
     "placeholder": "Nemi matsaloli, koƙe-koƙe, wakilai…",
     "typeToSearch": "Rubuta aƙalla haruffa 2 don nema",
@@ -190,7 +181,6 @@
       "representatives": "Wakilai"
     }
   },
-
   "discoverPage": {
     "eyebrow": "Gano",
     "title": "Abin da ke faruwa kusa da kai",
@@ -229,7 +219,6 @@
       "signaturesOf": "Sa hannu {{signatures}}/{{goal}}"
     }
   },
-
   "representativesPage": {
     "eyebrow": "Allo na Wakilai",
     "title": "Wa ne ke da alhaki na abin",
@@ -281,7 +270,6 @@
       "submit": "Ƙara wakili"
     }
   },
-
   "petitionsPage": {
     "eyebrow": "Ɗakin Koƙe",
     "title": "Tsara muryar jama'a",
@@ -329,7 +317,6 @@
       "submit": "Fitar da koƙe"
     }
   },
-
   "issuesPage": {
     "eyebrow": "Tebulin Matsala",
     "title": "Allon sanarwar al'umma",
@@ -377,7 +364,6 @@
       "submit": "Bayar da rahoto"
     }
   },
-
   "communityPage": {
     "eyebrow": "Al'umma",
     "findYours": "Nemo al'ummarka",
@@ -418,7 +404,6 @@
       "create": "Ƙirƙira al'umma"
     }
   },
-
   "profilePage": {
     "eyebrow": "Bayanin Ɗan Ƙasa",
     "loadingProfile": "Ana ɗora bayanin martabarka…",
@@ -449,7 +434,6 @@
       "signOut": "Fita"
     }
   },
-
   "notificationsPage": {
     "eyebrow": "Cibiyar Sanarwa",
     "title": "Jerin ayyukan jama'a",
@@ -461,7 +445,6 @@
     "empty": "Ba ka da wata sanarwa tukuna. Za su bayyana anan idan ayyuka suka isa gare ka.",
     "unread": "Ba a karanta ba"
   },
-
   "nav": {
     "brandSubtitle": "Bayanin Jama'a · An kafa 2026",
     "links": {
@@ -473,7 +456,6 @@
     "signIn": "Shiga",
     "register": "Yi rajista"
   },
-
   "hero": {
     "masthead": "Mujallar 01 · Lamba 001 · Tsarin Jama'a a Bayyane",
     "headline": "Dimokuradiyya tana <em>kowace rana</em>, ba ranar zaɓe kaɗai ba.",
@@ -483,7 +465,6 @@
     "trust": "Lambar buɗewa · Asusu da aka tabbatar · Bayanai a lokacin UTC",
     "signatureCaption": "An sanya hannu — jama'a"
   },
-
   "docket": {
     "title": "Jadawalin yau",
     "live": "Kai tsaye · An sabunta da ƙarfe {{time}} WAT",
@@ -495,7 +476,6 @@
       "resolved": "An warware"
     }
   },
-
   "parties": {
     "marker": "§ 01 — Masu ruwa da tsaki",
     "title": "An gina shi don kowa a rayuwar jama'a",
@@ -520,7 +500,6 @@
       "body": "Tara siginar al'umma, shirya koƙe-koƙe, kuma auna tasiri da bayanan jama'a masu tsari maimakon labari kaɗai."
     }
   },
-
   "articles": {
     "marker": "§ 02 — Labarai",
     "title": "Shiga ci gaba, ba lokacin zaɓe kaɗai ba",
@@ -549,7 +528,6 @@
       "body": "Kowane mu'amala yana da alamar lokaci kuma ana iya bin diddiginsa. Bayanan jama'a sun rage na jama'a; bayanan sirri sun rage na sirri."
     }
   },
-
   "principles": {
     "marker": "§ 03 — Ƙa'idodin tushe",
     "title": "Ƙa'idodi biyar, an rubuta su kafin lambar",
@@ -562,7 +540,6 @@
     },
     "note": "Kamar yadda bankin dijital ya sabunta yadda muke motsa kuɗi, <em>CivicOS yana sabunta yadda muke shiga cikin dimokuradiyya</em> — bayyane, mai samuwa, kuma an gina shi don ya dawwama."
   },
-
   "steps": {
     "marker": "§ 04 — Tsari",
     "title": "Daga rajista zuwa aikin jama'a cikin minti biyar",
@@ -588,7 +565,6 @@
     },
     "stepLabel": "Mataki na {{n}}"
   },
-
   "faq": {
     "marker": "§ 05 — Tambayoyi",
     "title": "Tambayoyi, a kan rikodin",
@@ -618,7 +594,6 @@
       "a": "Ana tabbatar da kowane asusu da shaida a yayin rajista. Sharhi da gabatarwa suna da iyaka, ana sarrafa su a kan ƙa'idodin al'umma, kuma ana iya bin diddiginsu zuwa ainihin asusu. Koƙe-koƙe suna buƙatar sa hannu na musamman — ɗan ƙasa ɗaya, sa hannu ɗaya."
     }
   },
-
   "newsletter": {
     "marker": "§ 06 — Sanarwar jama'a",
     "title": "Yi rajista zuwa The Dispatch — ka zama na farko da ka sani lokacin da CivicOS ta zo yankinka",
@@ -629,7 +604,6 @@
     "doneTitle": "Kana cikin jerin.",
     "doneSub": "Za mu tuntube ka yayin da muke faɗaɗawa."
   },
-
   "cta": {
     "eyebrow": "Yi rajistar muryarka",
     "title": "Shin a shirye kake ka <em>shiga</em>?",
@@ -637,13 +611,13 @@
     "ctaPrimary": "Ƙirƙira asusunka",
     "ctaSecondary": "Shiga"
   },
-
   "footer": {
     "mission": "Ƙarfafa shiga dimokuradiyya ta hanyar tsarin dijital mai aminci, bayyane, kuma mai samuwa.",
     "meta": "© {{year}} CivicOS — Tsarin jama'a a bayyane",
     "legal": {
       "label": "Doka",
-      "privacy": "Sirri"
+      "privacy": "Sirri",
+      "terms": "Sharuɗa"
     },
     "checks": {
       "privacy": "Mai mutunta sirri",
@@ -651,7 +625,6 @@
       "open": "An gina shi a bayyane"
     }
   },
-
   "auth": {
     "fields": {
       "fullName": "Cikakken suna",
@@ -770,7 +743,6 @@
       "bannerCompact": "Tabbatar da imel ɗinka don yin rahoto, sa hannu, da yin sharhi."
     }
   },
-
   "sidebar": {
     "discover": "Gano",
     "community": "Al'umma",
@@ -782,7 +754,6 @@
     "profile": "Bayani",
     "signOut": "Fita"
   },
-
   "language": {
     "label": "Harshe",
     "en": "English",

@@ -1,5 +1,14 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { Building2, ClipboardList, Flag, LayoutDashboard, LogOut, Users } from 'lucide-react';
+import {
+  Building2,
+  ClipboardList,
+  EyeOff,
+  Flag,
+  LayoutDashboard,
+  LogOut,
+  MapPin,
+  Users,
+} from 'lucide-react';
 import { clearSession, getSession } from '../lib/api';
 
 export function AdminShell() {
@@ -23,10 +32,12 @@ export function AdminShell() {
 
         <p className="admin-nav-section">People</p>
         <NavLinkItem to="/users" icon={Users} label="Users" />
+        <NavLinkItem to="/communities" icon={MapPin} label="Communities" />
         <NavLinkItem to="/organizations" icon={Building2} label="Organizations" />
 
         <p className="admin-nav-section">Trust</p>
         <NavLinkItem to="/flags" icon={Flag} label="Moderation queue" />
+        <NavLinkItem to="/moderation/direct-hide" icon={EyeOff} label="Direct hide" />
         <NavLinkItem to="/audit" icon={ClipboardList} label="Audit log" />
       </aside>
 

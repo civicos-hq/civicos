@@ -19,6 +19,7 @@ import { ForgotPasswordPage } from './routes/ForgotPasswordPage';
 import { ResetPasswordPage } from './routes/ResetPasswordPage';
 import { OnboardingPage } from './routes/OnboardingPage';
 import { PrivacyPage } from './routes/PrivacyPage';
+import { TermsPage } from './routes/TermsPage';
 import { OrganizationsPage } from './routes/OrganizationsPage';
 import { OrganizationDetailPage } from './routes/OrganizationDetailPage';
 import { RateLimitToast } from './components/RateLimitToast';
@@ -73,6 +74,7 @@ function AppRoutes() {
 
       {/* Privacy policy — always reachable regardless of auth state. */}
       <Route path="/privacy" element={<PrivacyPage />} />
+      <Route path="/terms" element={<TermsPage />} />
 
       {/* Authenticated */}
       <Route element={<RequireAuth />}>

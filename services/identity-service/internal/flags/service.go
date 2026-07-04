@@ -41,6 +41,16 @@ type ResolveInput struct {
 	ResolutionNote *string `json:"resolutionNote"`
 }
 
+// DirectHideInput is the admin's proactive-moderation shortcut. The
+// admin has already decided the content should be hidden; this creates
+// the flag and immediately marks it HIDDEN in one call.
+type DirectHideInput struct {
+	ContentType    string  `json:"contentType" binding:"required"`
+	ContentID      string  `json:"contentId" binding:"required,uuid"`
+	Reason         string  `json:"reason" binding:"required"`
+	ResolutionNote *string `json:"resolutionNote"`
+}
+
 func (s *Service) List(f ListFilters) ([]domain.ContentFlag, error) {
 	return s.repo.Find(f)
 }
@@ -120,6 +130,42 @@ func (s *Service) Resolve(id string, input ResolveInput, actor audit.Actor) (*do
 		return nil, err
 	}
 	return s.Get(id)
+}
+
+// DirectHide creates a flag and immediately resolves it as HIDDEN — the
+// admin's one-shot proactive-moderation path. Actor is both reporter
+// and resolver. Returns the created row so the handler can emit an
+// audit entry with all the right metadata (see handler.go).
+func (s *Service) DirectHide(input DirectHideInput, actor domain.User) (*domain.ContentFlag, error) {
+	ct := strings.ToUpper(input.ContentType)
+	if !validFlaggable(ct) {
+		return nil, &AppError{Code: "INVALID_CONTENT_TYPE", Message: "Unknown content type", Status: http.StatusBadRequest}
+	}
+	reason := strings.ToUpper(input.Reason)
+	if !validReason(reason) {
+		return nil, &AppError{Code: "INVALID_REASON", Message: "Unknown flag reason", Status: http.StatusBadRequest}
+	}
+	now := time.Now().UTC()
+	f := &domain.ContentFlag{
+		ID:             uuid.New().String(),
+		ContentType:    domain.FlaggableType(ct),
+		ContentID:      input.ContentID,
+		ReporterID:     actor.ID,
+		ReporterName:   actor.Name,
+		Reason:         domain.FlagReason(reason),
+		Status:         domain.FlagStatusHidden,
+		ResolvedByID:   &actor.ID,
+		ResolvedByName: &actor.Name,
+		ResolutionNote: input.ResolutionNote,
+		ResolvedAt:     &now,
+	}
+	if err := s.repo.Create(f); err != nil {
+		if strings.Contains(err.Error(), "duplicate key") || strings.Contains(err.Error(), "idx_flag_dedup") {
+			return nil, &AppError{Code: "ALREADY_FLAGGED", Message: "This content is already flagged by this actor", Status: http.StatusConflict}
+		}
+		return nil, err
+	}
+	return f, nil
 }
 
 func validReason(r string) bool {

@@ -28,6 +28,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, authMiddleware gin.Handler
 	rg.POST("/reset-password", h.resetPassword)
 	rg.GET("/me", authMiddleware, h.me)
 	rg.PATCH("/me", authMiddleware, h.updateMe)
+	rg.DELETE("/me", authMiddleware, h.deleteMe)
 	rg.POST("/me/community", authMiddleware, h.joinCommunity)
 }
 
@@ -83,11 +84,39 @@ func (h *Handler) refresh(c *gin.Context) {
 				"Your account has been suspended. Contact support if you believe this is a mistake.")
 			return
 		}
+		if err.Error() == "ACCOUNT_DELETED" {
+			response.Error(c, http.StatusForbidden, "ACCOUNT_DELETED",
+				"This account has been deleted and cannot sign in.")
+			return
+		}
 		response.Error(c, http.StatusUnauthorized, "INVALID_REFRESH_TOKEN", "Token is invalid or expired")
 		return
 	}
 
 	response.Success(c, http.StatusOK, gin.H{"tokens": tokens})
+}
+
+// deleteMe is the citizen-initiated self-service delete. Requires an
+// authenticated Bearer token. Body accepts an optional { reason }. On
+// success, response is 200 with an empty payload; the client is
+// expected to clear its own local session state and navigate home.
+func (h *Handler) deleteMe(c *gin.Context) {
+	var body struct {
+		Reason *string `json:"reason"`
+	}
+	// Body is optional — deleting without a reason is a valid choice.
+	_ = c.ShouldBindJSON(&body)
+
+	userID, _ := c.Get("userID")
+	if err := h.service.DeleteAccount(userID.(string), body.Reason); err != nil {
+		if err.Error() == "USER_NOT_FOUND" {
+			response.Error(c, http.StatusNotFound, "USER_NOT_FOUND", "User not found")
+			return
+		}
+		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to delete account")
+		return
+	}
+	response.Success(c, http.StatusOK, gin.H{"ok": true})
 }
 
 func (h *Handler) me(c *gin.Context) {

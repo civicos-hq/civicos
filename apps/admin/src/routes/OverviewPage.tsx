@@ -41,34 +41,34 @@ function useHealth() {
   });
 }
 
-interface FlagCountsResponse {
-  counts: Record<string, number>;
+interface PlatformMetrics {
+  users: {
+    total: number;
+    newToday: number;
+    newThisWeek: number;
+    verifiedRate: number;
+    bannedTotal: number;
+  };
+  communities: { total: number };
+  issues: { total: number; byStatus: Record<string, number>; responseRate: number };
+  petitions: { total: number; signaturesTotal: number; signaturesThisWeek: number };
+  representatives: { total: number };
+  organizations: { total: number; verified: number };
+  moderation: { pendingFlags: number; hiddenAllTime: number; auditLogEntries: number };
 }
 
-function useFlagCounts() {
+function useMetrics() {
   return useQuery({
-    queryKey: ['admin-flag-counts'],
-    queryFn: () => apiGet<FlagCountsResponse>('/api/v1/flags/counts'),
+    queryKey: ['admin-metrics'],
+    queryFn: () => apiGet<{ metrics: PlatformMetrics }>('/api/v1/admin/metrics'),
     refetchInterval: 30_000,
-  });
-}
-
-interface AuditListResponse {
-  auditLogs: unknown[];
-  total: number;
-}
-
-function useAuditCount() {
-  return useQuery({
-    queryKey: ['admin-audit-count'],
-    queryFn: () => apiGet<AuditListResponse>('/api/v1/audit-logs?limit=1'),
   });
 }
 
 export function OverviewPage() {
   const health = useHealth();
-  const flags = useFlagCounts();
-  const audit = useAuditCount();
+  const metrics = useMetrics();
+  const m = metrics.data?.metrics;
 
   return (
     <>
@@ -76,8 +76,8 @@ export function OverviewPage() {
         <p className="admin-page-eyebrow">Section — Overview</p>
         <h1 className="admin-page-title">Platform overview</h1>
         <p className="admin-page-sub">
-          Live health of the four backend services + a snapshot of the moderation queue and admin
-          activity.
+          Live health of the four backend services + a snapshot of platform activity, moderation
+          queue, and admin actions.
         </p>
       </header>
 
@@ -98,30 +98,101 @@ export function OverviewPage() {
         )}
       </section>
 
+      <h2
+        className="text-xs font-semibold text-slate-500 mono mb-2"
+        style={{ letterSpacing: '0.16em' }}
+      >
+        PLATFORM
+      </h2>
+      <section className="admin-stat-grid" aria-label="Platform counters">
+        <StatCard
+          label="Citizens"
+          value={m?.users.total ?? 0}
+          sub={`${m?.users.newThisWeek ?? 0} joined this week · ${m?.users.verifiedRate ?? 0}% verified`}
+        />
+        <StatCard
+          label="Communities"
+          value={m?.communities.total ?? 0}
+          sub="Every LGA/community on the platform"
+        />
+        <StatCard
+          label="Issues"
+          value={m?.issues.total ?? 0}
+          sub={`${m?.issues.responseRate ?? 0}% received an official response`}
+        />
+        <StatCard
+          label="Petitions"
+          value={m?.petitions.total ?? 0}
+          sub={`${m?.petitions.signaturesTotal ?? 0} signatures collected`}
+        />
+        <StatCard
+          label="Representatives"
+          value={m?.representatives.total ?? 0}
+          sub="Elected officials on record"
+        />
+        <StatCard
+          label="Organizations"
+          value={m?.organizations.total ?? 0}
+          sub={`${m?.organizations.verified ?? 0} verified`}
+        />
+      </section>
+
+      <h2
+        className="text-xs font-semibold text-slate-500 mono mt-6 mb-2"
+        style={{ letterSpacing: '0.16em' }}
+      >
+        MODERATION
+      </h2>
       <section className="admin-stat-grid" aria-label="Moderation counters">
         <StatCard
           label="Pending flags"
-          value={flags.data?.counts.PENDING ?? 0}
+          value={m?.moderation.pendingFlags ?? 0}
           sub="Content awaiting moderator review"
         />
         <StatCard
           label="Hidden (all time)"
-          value={flags.data?.counts.HIDDEN ?? 0}
+          value={m?.moderation.hiddenAllTime ?? 0}
           sub="Flags where content was removed"
         />
         <StatCard
-          label="Dismissed"
-          value={flags.data?.counts.DISMISSED ?? 0}
-          sub="Flags where content was kept"
+          label="Banned users"
+          value={m?.users.bannedTotal ?? 0}
+          sub="Accounts currently suspended"
         />
         <StatCard
           label="Audit log entries"
-          value={audit.data?.total ?? 0}
+          value={m?.moderation.auditLogEntries ?? 0}
           sub="Every admin action recorded"
         />
       </section>
+
+      {m?.issues.byStatus && Object.keys(m.issues.byStatus).length > 0 && (
+        <>
+          <h2
+            className="text-xs font-semibold text-slate-500 mono mt-6 mb-2"
+            style={{ letterSpacing: '0.16em' }}
+          >
+            ISSUES BY STATUS
+          </h2>
+          <section className="admin-stat-grid" aria-label="Issue status breakdown">
+            {(['OPEN', 'UNDER_REVIEW', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'] as const).map((s) => (
+              <StatCard
+                key={s}
+                label={s.replace(/_/g, ' ')}
+                value={m.issues.byStatus[s] ?? 0}
+                sub={pctOf(m.issues.byStatus[s] ?? 0, m.issues.total)}
+              />
+            ))}
+          </section>
+        </>
+      )}
     </>
   );
+}
+
+function pctOf(n: number, total: number): string {
+  if (total <= 0) return '—';
+  return `${Math.round((n * 100) / total)}% of ${total.toLocaleString()}`;
 }
 
 function StatCard({ label, value, sub }: { label: string; value: number; sub: string }) {

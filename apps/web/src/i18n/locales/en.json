@@ -500,6 +500,22 @@
       "heading": "Session",
       "sub": "Sign out of CivicOS on this device.",
       "signOut": "Sign out"
+    },
+    "delete": {
+      "heading": "Delete account",
+      "sub": "This closes your CivicOS account permanently. Once complete, you cannot recover it.",
+      "bullets": {
+        "pii": "Your email, name, phone, and avatar will be anonymized within seconds.",
+        "content": "Issues, petitions, and comments you filed stay in the public record but appear as \"[Removed]\".",
+        "sessions": "Every session on every device is signed out immediately.",
+        "irreversible": "The account cannot be recovered. Reuse of your email is not guaranteed."
+      },
+      "reasonLabel": "Reason for leaving (optional, stays internal)",
+      "reasonPlaceholder": "e.g. no longer live in this community, changed my mind about signing up, moving to a different platform.",
+      "confirmLabel": "Type {{confirm}} to confirm",
+      "button": "Delete my account",
+      "pending": "Deleting…",
+      "errorGeneric": "Couldn't delete your account. Try again in a moment."
     }
   },
 
@@ -703,12 +719,74 @@
     "meta": "© {{year}} CivicOS — Open civic infrastructure",
     "legal": {
       "label": "Legal",
-      "privacy": "Privacy"
+      "privacy": "Privacy",
+      "terms": "Terms"
     },
     "checks": {
       "privacy": "Privacy-respecting",
       "audit": "Audit-friendly",
       "open": "Built in the open"
+    }
+  },
+
+  "terms": {
+    "eyebrow": "The Public Record — Terms of Service",
+    "title": "Terms of service",
+    "effective": "Effective {{date}}",
+    "intro": "These are the rules for using CivicOS. Plain English, no fine print, and specific to how the platform actually works. Where privacy is covered separately, see the <privacy>privacy notice</privacy>.",
+    "sections": {
+      "who": {
+        "title": "Who we are",
+        "body": "<p>CivicOS is open civic infrastructure operated at civicos.ng — a public register for citizen action between elections. In these terms, \"we\" is CivicOS; \"you\" is anyone who signs up, reads, reports, signs, or comments here.</p>"
+      },
+      "what": {
+        "title": "What CivicOS is (and isn't)",
+        "body": "<p>CivicOS is an informational platform for civic engagement. It lets citizens report community issues, sign petitions, follow representatives, and see public responses from organizations. It is <strong>not</strong> a substitute for emergency services, legal advice, or government complaint channels. If you or someone else is in danger, call the appropriate emergency number, not CivicOS.</p>"
+      },
+      "eligibility": {
+        "title": "Who can use CivicOS",
+        "body": "<p>CivicOS is intended for people 18 and older. You need a valid email address and, in most cases, a community in Nigeria you're associated with. Representatives, government administrators, NGO staff, and organization members hold elevated accounts — those roles are granted, not self-claimed.</p>"
+      },
+      "account": {
+        "title": "Your account",
+        "body": "<p>One account per person. You're responsible for keeping your password safe; we secure passwords with bcrypt and never store them in the clear (see the privacy notice for details). You must give truthful information — impersonating another person, a representative, or an organization is grounds for immediate account termination.</p>"
+      },
+      "content": {
+        "title": "Content you post",
+        "body": "<p>Everything you file — issues, petitions, comments — becomes part of the public record when it's public by design. You keep authorship, but you grant CivicOS a non-exclusive, worldwide, royalty-free license to display and share your public contributions for the purpose of running the platform.</p><p>You are responsible for what you post. Do not publish anything you don't have the right to share, do not include private information about others without consent, and understand that anything public may be quoted, screenshotted, or shared.</p>"
+      },
+      "conduct": {
+        "title": "Prohibited conduct",
+        "body": "<p>You may not use CivicOS to: post spam or repetitive commercial content; harass, threaten, or dox other people; publish content that incites violence; publish demonstrably false claims about identifiable people or events; impersonate anyone; evade a moderation decision by creating another account; scrape at rates that impact service for others.</p><p>Filing false reports, upvoting your own content through multiple accounts, or coordinating inauthentic activity are also prohibited.</p>"
+      },
+      "moderation": {
+        "title": "Moderation",
+        "body": "<p>Moderators may hide content, remove it entirely, or restrict accounts that violate these terms. Every moderation decision is logged to an audit trail that CivicOS staff can review. If you believe a decision was wrong, write to <mail>hello@civicos.ng</mail> with the content ID and your reasoning; we will review, but final decisions rest with the moderation team.</p>"
+      },
+      "reps": {
+        "title": "Representatives and organizations",
+        "body": "<p>Accounts marked as representatives or verified organizations carry public trust — citizens use the badge to distinguish real officials from impersonators. Misusing a verified account — pretending to speak for the person or org, posting non-civic commercial content, or coordinating to deceive citizens — will cause the verified status to be revoked and, in serious cases, the account terminated.</p>"
+      },
+      "petitions": {
+        "title": "Petitions",
+        "body": "<p>Petitions on CivicOS are civic voice, not legal instruments. Signing a petition does not compel any government body to act, and hitting a signature target does not create any obligation. Petitions still matter — they surface priorities to elected representatives, journalists, and the public — but do not treat them as binding decisions.</p>"
+      },
+      "availability": {
+        "title": "Availability and changes",
+        "body": "<p>We do our best to keep CivicOS reliable but we make no uptime guarantee. Planned maintenance, outages, or intentional degradations (e.g. rate limits during abuse spikes) may make the platform temporarily unavailable.</p><p>We may change these terms. Material changes will be posted on this page and, where they affect what you can do with your account, notified to registered users by email at least 14 days before they take effect. The effective date at the top of these terms always reflects the current version.</p>"
+      },
+      "termination": {
+        "title": "Termination",
+        "body": "<p>You can leave CivicOS at any time — the delete-account button in your profile anonymizes your public contributions and purges your PII within 30 days (see privacy §7 for the exact retention picture).</p><p>We may suspend or terminate an account that violates these terms. In most cases we will attempt to notify you and explain the reason. In cases involving credible threats, coordinated abuse, or legal risk, we may act immediately without notice.</p>"
+      },
+      "law": {
+        "title": "Governing law",
+        "body": "<p>These terms are governed by the laws of the Federal Republic of Nigeria. Disputes arising out of your use of CivicOS will be resolved in the courts of Lagos State unless a different venue is required by law.</p>"
+      },
+      "contact": {
+        "title": "Contact",
+        "body": "<p><mail>hello@civicos.ng</mail> — our team.</p><p>CivicOS · Nigeria</p>"
+      }
     }
   },
 

@@ -140,6 +140,10 @@ export function RegisterPage() {
             <Link to="/privacy" className="auth-link auth-link--muted">
               {t('footer.legal.privacy')}
             </Link>
+            {' · '}
+            <Link to="/terms" className="auth-link auth-link--muted">
+              {t('footer.legal.terms')}
+            </Link>
           </p>
         </form>
       </div>

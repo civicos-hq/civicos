@@ -31,7 +31,7 @@ func isBanned(db *gorm.DB, userID string) bool {
 	}
 	var count int64
 	if err := db.Raw(
-		"SELECT COUNT(1) FROM users WHERE id = ? AND banned_at IS NOT NULL",
+		"SELECT COUNT(1) FROM users WHERE id = ? AND (banned_at IS NOT NULL OR deleted_at IS NOT NULL)",
 		userID,
 	).Scan(&count).Error; err != nil {
 		return false

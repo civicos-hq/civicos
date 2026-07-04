@@ -2,7 +2,6 @@
   "pageHeader": {
     "publicRecord": "Ọha"
   },
-
   "rateLimit": {
     "title": "Weda ngwa ngwa.",
     "body": "Ị na-eme ya ngwa ngwa. Nwaa ọzọ mgbe {{seconds}}s gasịrị.",
@@ -10,7 +9,6 @@
     "bodyCountdown": "Nwaa ọzọ mgbe {{seconds}}s gasịrị.",
     "genericBody": "Ị na-eme ya ngwa ngwa. Biko chere obere oge."
   },
-
   "common": {
     "mainNav": "Isi ngagharị",
     "topbar": "Ngwaọrụ elu",
@@ -37,7 +35,6 @@
     "memberCount_one": "Onye otu {{count}}",
     "memberCount_other": "Ndị otu {{count}}"
   },
-
   "time": {
     "justNow": "ugbu a",
     "minutesAgo_one": "nkeji {{count}} gara aga",
@@ -53,7 +50,6 @@
     "yearsAgo_one": "afọ {{count}} gara aga",
     "yearsAgo_other": "afọ {{count}} gara aga"
   },
-
   "enums": {
     "issueStatus": {
       "OPEN": "Emeghere",
@@ -94,7 +90,6 @@
       "SYSTEM": "Sistemu"
     }
   },
-
   "representativeDetail": {
     "backToRepresentatives": "← Laghachi na ndị nnọchi anya",
     "loadError": "Anyị enweghị ike ibubata onye nnọchi anya a.",
@@ -130,7 +125,6 @@
       "save": "Chekwaa"
     }
   },
-
   "petitionDetail": {
     "backToPetitions": "← Laghachi na akwụkwọ arịrịọ",
     "loadError": "Anyị enweghị ike ibubata akwụkwọ arịrịọ a. Enwere ike ewepụrụ ya.",
@@ -150,7 +144,6 @@
     "onlyActive": "Ọ bụ naanị akwụkwọ arịrịọ na-arụ ọrụ ka enwere ike ibinye aka",
     "signError": "Anyị enweghị ike ibinye aka. Biko nwaa ọzọ."
   },
-
   "issueDetail": {
     "backToIssues": "← Laghachi na okwu",
     "loadError": "Anyị enweghị ike ibubata okwu a. Enwere ike ewepụrụ ya.",
@@ -168,7 +161,6 @@
     "updateStatus": "Melite ọnọdụ",
     "updateStatusError": "Anyị enweghị ike imelite."
   },
-
   "comments": {
     "heading": "Mkparịta ụka",
     "placeholder": "Tinye na mkparịta ụka…",
@@ -178,7 +170,6 @@
     "officialResponse": "Azịza nke gọọmentị",
     "postError": "Anyị enweghị ike izipu okwu gị. Nwaa ọzọ."
   },
-
   "search": {
     "placeholder": "Chọọ okwu, akwụkwọ arịrịọ, ndị nnọchi anya…",
     "typeToSearch": "Pịnye opekata mpe mkpụrụedemede 2 iji chọọ",
@@ -190,7 +181,6 @@
       "representatives": "Ndị nnọchi anya"
     }
   },
-
   "discoverPage": {
     "eyebrow": "Chọpụta",
     "title": "Ihe na-eme n'akụkụ gị",
@@ -229,7 +219,6 @@
       "signaturesOf": "Aha {{signatures}}/{{goal}}"
     }
   },
-
   "representativesPage": {
     "eyebrow": "Bọọdụ Ndị Nnọchi Anya",
     "title": "Onye na-eji ihe niile",
@@ -281,7 +270,6 @@
       "submit": "Tinye onye nnọchi anya"
     }
   },
-
   "petitionsPage": {
     "eyebrow": "Ụlọ Ọrụ Akwụkwọ Arịrịọ",
     "title": "Hazie olu obodo",
@@ -329,7 +317,6 @@
       "submit": "Bipụta akwụkwọ arịrịọ"
     }
   },
-
   "issuesPage": {
     "eyebrow": "Tebụl Okwu",
     "title": "Bọọdụ akara obodo",
@@ -377,7 +364,6 @@
       "submit": "Kọọ okwu"
     }
   },
-
   "communityPage": {
     "eyebrow": "Obodo",
     "findYours": "Chọta obodo gị",
@@ -418,7 +404,6 @@
       "create": "Mepụta obodo"
     }
   },
-
   "profilePage": {
     "eyebrow": "Profaịlụ Nwa Amaala",
     "loadingProfile": "Na-ebubata profaịlụ gị…",
@@ -449,7 +434,6 @@
       "signOut": "Pụọ"
     }
   },
-
   "notificationsPage": {
     "eyebrow": "Ebe Ọkwa",
     "title": "Ndepụta ọrụ obodo",
@@ -461,7 +445,6 @@
     "empty": "Ị nweghị ọkwa ọ bụla ugbu a. Ha ga-apụta ebe a mgbe ọrụ ruru gị.",
     "unread": "Agụghị agụ"
   },
-
   "nav": {
     "brandSubtitle": "Akwụkwọ Ọha · Site n'afọ 2026",
     "links": {
@@ -473,7 +456,6 @@
     "signIn": "Banye",
     "register": "Debanye aha"
   },
-
   "hero": {
     "masthead": "Mpịakọta 01 · Nke 001 · Akụrụngwa Ọha Mepere Emepe",
     "headline": "Ọchịchị onye kwuo uche ya bụ ihe <em>kwa ụbọchị</em>, ọ bụghị naanị n'oge ntuli aka.",
@@ -483,7 +465,6 @@
     "trust": "Mmepe mepere emepe · Akaụntụ ndị akwadoro · Ndekọ ego nke UTC",
     "signatureCaption": "Ndị mmadụ bịanyere aka"
   },
-
   "docket": {
     "title": "Akwụkwọ taa",
     "live": "Dị ndụ · Emelitere n'elekere {{time}} WAT",
@@ -495,7 +476,6 @@
       "resolved": "Edozigharịrị"
     }
   },
-
   "parties": {
     "marker": "§ 01 — Ndị metụtara",
     "title": "Arụrụ maka onye ọ bụla nọ n'ọhà",
@@ -520,7 +500,6 @@
       "body": "Chịkọta okwu ndị obodo, hazie akwụkwọ arịrịọ, ma tụọ mmetụta site na data ọhà ahaziri n'ọnọdụ akụkọ naanị."
     }
   },
-
   "articles": {
     "marker": "§ 02 — Edemede",
     "title": "Itinye aka mgbe niile, ọ bụghị naanị n'oge ntuli aka",
@@ -549,7 +528,6 @@
       "body": "Mmekọrịta ọ bụla nwere oge edenyere ma nwee ike ịchọpụta. Ozi ọha na-anọgide bụrụ nke ọha; data nkeonwe na-anọgide bụrụ nzuzo."
     }
   },
-
   "principles": {
     "marker": "§ 03 — Ụkpụrụ ntọala",
     "title": "Ụkpụrụ ise, ndị edere tupu koodu",
@@ -562,7 +540,6 @@
     },
     "note": "Dịka ụlọ akụ dijitalụ si megharịa otu anyị si akwaga ego, <em>CivicOS na-emegharị otu anyị si etinye aka n'ọchịchị onye kwuo uche ya</em> — ihe doro anya, nwere ohere, edobere ka ọ dị ogologo oge."
   },
-
   "steps": {
     "marker": "§ 04 — Usoro",
     "title": "Site na ịdebanye aha ruo na ọrụ ọha n'okpuru nkeji ise",
@@ -588,7 +565,6 @@
     },
     "stepLabel": "Nzọụkwụ {{n}}"
   },
-
   "faq": {
     "marker": "§ 05 — Ajụjụ",
     "title": "Ajụjụ, na ndekọ",
@@ -618,7 +594,6 @@
       "a": "A na-akwado njirimara akaụntụ ọ bụla n'oge ndebanye aha. A na-akpachapụ anya na okwu na ihe e nyere, gbasoo ụkpụrụ obodo, ma nwee ike ịchọpụta ya n'akaụntụ. Akwụkwọ arịrịọ chọrọ mbinye aka pụrụ iche — otu nwa amaala, otu mbinye aka."
     }
   },
-
   "newsletter": {
     "marker": "§ 06 — Ozi ọha",
     "title": "Debanye aha maka The Dispatch — bụrụ onye mbụ ịmara mgbe CivicOS rutere ebe gị",
@@ -629,7 +604,6 @@
     "doneTitle": "Ị nọ n'ndepụta.",
     "doneSub": "Anyị ga-akpọtụrụ gị ka anyị na-agbasa."
   },
-
   "cta": {
     "eyebrow": "Debanye olu gị",
     "title": "Ị dị njikere isonye n'<em>akụkụ</em>?",
@@ -637,13 +611,13 @@
     "ctaPrimary": "Mepee akaụntụ gị",
     "ctaSecondary": "Banye"
   },
-
   "footer": {
     "mission": "Imesi ntinye aka n'ọchịchị onye kwuo uche ya site n'akụrụngwa dijitalụ echekwara, doro anya, na enwere ohere.",
     "meta": "© {{year}} CivicOS — Akụrụngwa ọha mepere emepe",
     "legal": {
       "label": "Iwu",
-      "privacy": "Nzuzo"
+      "privacy": "Nzuzo",
+      "terms": "Iwu"
     },
     "checks": {
       "privacy": "Na-akwanyere nzuzo ùgwù",
@@ -651,7 +625,6 @@
       "open": "Ewuru ya n'ìhè"
     }
   },
-
   "auth": {
     "fields": {
       "fullName": "Aha zuru oke",
@@ -770,7 +743,6 @@
       "bannerCompact": "Kwado ozi-e gị iji kọọ, bịnye aka, na kwuo okwu."
     }
   },
-
   "sidebar": {
     "discover": "Chọpụta",
     "community": "Obodo",
@@ -782,7 +754,6 @@
     "profile": "Profaịlụ",
     "signOut": "Pụta"
   },
-
   "language": {
     "label": "Asụsụ",
     "en": "English",

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/civicos/identity-service/internal/adminmetrics"
 	"github.com/civicos/identity-service/internal/audit"
 	"github.com/civicos/identity-service/internal/auditlogs"
 	"github.com/civicos/identity-service/internal/auth"
@@ -51,6 +52,9 @@ func main() {
 	userSvc := users.NewService(userRepo)
 	userHandler := users.NewHandler(userSvc, auditor)
 
+	metricsRepo := adminmetrics.NewRepository(db)
+	metricsHandler := adminmetrics.NewHandler(metricsRepo)
+
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
@@ -75,6 +79,7 @@ func main() {
 	flagHandler.RegisterRoutes(v1.Group("/flags"), authMiddleware, requireVerified, requireAdmin)
 	auditHandler.RegisterRoutes(v1.Group("/audit-logs"), authMiddleware, requireAdmin)
 	userHandler.RegisterRoutes(v1.Group("/users"), authMiddleware, requireAdmin)
+	metricsHandler.RegisterRoutes(v1.Group("/admin"), authMiddleware, requireAdmin)
 
 	addr := fmt.Sprintf(":%d", cfg.Port)
 	log.Printf("🚀 Identity Service running on %s", addr)

@@ -719,6 +719,7 @@ export function Footer() {
         <p>{t('footer.meta', { year: new Date().getFullYear() })}</p>
         <nav className="home-footer-links" aria-label={t('footer.legal.label')}>
           <Link to="/privacy">{t('footer.legal.privacy')}</Link>
+          <Link to="/terms">{t('footer.legal.terms')}</Link>
         </nav>
         <p className="home-footer-checks">
           <span>

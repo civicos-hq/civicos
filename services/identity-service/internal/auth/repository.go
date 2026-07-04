@@ -117,3 +117,31 @@ func (r *Repository) ResetPassword(userID, newPasswordHash string) error {
 		"password_reset_expires_at": gorm.Expr("NULL"),
 	}).Error
 }
+
+// SoftDelete anonymizes PII and stamps deleted_at in a single update.
+// The row survives so authorship links (issues, petitions, comments)
+// keep pointing at a valid FK. Post-delete queries see:
+//   - email = "deleted-<uuid>@civicos.deleted" (unique, non-recoverable)
+//   - name  = "[Deleted user]"
+//   - avatar_url + community_id = NULL
+//   - password_hash = argon2-style dummy (login refuses anyway)
+//   - deleted_at, deletion_reason recorded
+func (r *Repository) SoftDelete(userID string, reason *string) error {
+	now := time.Now().UTC()
+	updates := map[string]any{
+		"deleted_at":                    now,
+		"email":                         "deleted-" + userID + "@civicos.deleted",
+		"name":                          "[Deleted user]",
+		"password_hash":                 "x", // never matches bcrypt.CompareHashAndPassword
+		"avatar_url":                    gorm.Expr("NULL"),
+		"community_id":                  gorm.Expr("NULL"),
+		"email_verification_token_hash": gorm.Expr("NULL"),
+		"email_verification_expires_at": gorm.Expr("NULL"),
+		"password_reset_token_hash":     gorm.Expr("NULL"),
+		"password_reset_expires_at":     gorm.Expr("NULL"),
+	}
+	if reason != nil {
+		updates["deletion_reason"] = *reason
+	}
+	return r.db.Model(&domain.User{}).Where("id = ?", userID).Updates(updates).Error
+}

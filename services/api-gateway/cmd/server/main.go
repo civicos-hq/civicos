@@ -94,6 +94,10 @@ func main() {
 	r.POST("/api/v1/auth/reset-password", limitStandard, identityPublic)
 	r.GET("/api/v1/auth/me", authMiddleware, identityProtected)
 	r.PATCH("/api/v1/auth/me", authMiddleware, limitStandard, identityProtected)
+	// Citizen-initiated account deletion — soft-deletes the user (PII
+	// anonymized, refresh tokens revoked). Strict-tier because a runaway
+	// script that hammers DELETE would nuke accounts en masse.
+	r.DELETE("/api/v1/auth/me", authMiddleware, limitStrict, identityProtected)
 	r.POST("/api/v1/auth/me/community", authMiddleware, limitStandard, identityProtected)
 
 	// --- Moderation infrastructure (identity-service owns these) ---
@@ -103,8 +107,17 @@ func main() {
 	r.GET("/api/v1/flags/counts", authMiddleware, identityProtected)
 	r.GET("/api/v1/flags/:id", authMiddleware, identityProtected)
 	r.PATCH("/api/v1/flags/:id", authMiddleware, limitStandard, identityProtected)
+	// Admin's proactive-moderation shortcut — flag + hide in one call.
+	// Distinct from POST /flags (which requires verified + rate-limits at
+	// Strict); this one's admin-only and standard-tier since abuse-by-
+	// admin is a different threat model.
+	r.POST("/api/v1/flags/direct-hide", authMiddleware, limitStandard, identityProtected)
 	// Audit log — admin-only read surface.
 	r.GET("/api/v1/audit-logs", authMiddleware, identityProtected)
+
+	// Platform-wide metrics + per-community stats — admin-only reads.
+	r.GET("/api/v1/admin/metrics", authMiddleware, identityProtected)
+	r.GET("/api/v1/admin/communities/:id/stats", authMiddleware, identityProtected)
 
 	// User administration — admin-only. Ban/unban and role change all
 	// write to the audit log inside the identity-service handlers.

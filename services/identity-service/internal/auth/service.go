@@ -41,6 +41,7 @@ type UserStore interface {
 	SetPasswordResetToken(userID, tokenHash string, expiresAt time.Time) error
 	FindByPasswordResetTokenHash(tokenHash string) (*domain.User, error)
 	ResetPassword(userID, newPasswordHash string) error
+	SoftDelete(userID string, reason *string) error
 }
 
 // RefreshStore is the subset of RefreshRepository the service depends on.
@@ -50,6 +51,7 @@ type RefreshStore interface {
 	FindByHash(hash string) (*domain.RefreshToken, error)
 	Consume(id string, at time.Time) (int64, error)
 	RevokeFamily(familyID string, at time.Time) error
+	RevokeAllForUser(userID string, at time.Time) error
 }
 
 type Service struct {
@@ -293,6 +295,14 @@ func (s *Service) Login(input LoginInput) (*domain.PublicUser, *TokenPair, error
 		return nil, nil, errors.New("INVALID_CREDENTIALS")
 	}
 
+	// Deleted account: the row still exists (to keep FK integrity for
+	// authored content) but sign-in must refuse. The email was already
+	// rewritten so this branch is really a defence in depth against
+	// races between delete and login.
+	if user.DeletedAt != nil {
+		return nil, nil, errors.New("INVALID_CREDENTIALS")
+	}
+
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(input.Password)); err != nil {
 		return nil, nil, errors.New("INVALID_CREDENTIALS")
 	}
@@ -304,6 +314,36 @@ func (s *Service) Login(input LoginInput) (*domain.PublicUser, *TokenPair, error
 
 	public := user.ToPublic()
 	return &public, tokens, nil
+}
+
+// DeleteAccount is the citizen-initiated self-service delete. Reason is
+// optional and stored for record-keeping (not shown to anyone else).
+// Steps:
+//  1. SoftDelete the user (anonymizes PII, stamps deleted_at)
+//  2. Revoke every live refresh token for them
+//
+// Never returns success for an already-deleted user — callers can treat
+// it as idempotent because the anonymization is idempotent-safe.
+func (s *Service) DeleteAccount(userID string, reason *string) error {
+	if userID == "" {
+		return errors.New("USER_NOT_FOUND")
+	}
+	user, err := s.repo.FindByID(userID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("USER_NOT_FOUND")
+		}
+		return err
+	}
+	if user.DeletedAt != nil {
+		// Idempotent — no error, no double-work.
+		return nil
+	}
+	if err := s.repo.SoftDelete(userID, reason); err != nil {
+		return err
+	}
+	_ = s.refresh.RevokeAllForUser(userID, time.Now().UTC())
+	return nil
 }
 
 // RefreshTokens performs rotation:
@@ -354,6 +394,14 @@ func (s *Service) RefreshTokens(rawRefresh string) (*TokenPair, error) {
 	user, err := s.repo.FindByID(tok.UserID)
 	if err != nil {
 		return nil, errors.New("INVALID_REFRESH_TOKEN")
+	}
+	// Deleted account: revoke the family and refuse. Distinct error code
+	// so the client can show a "your account has been deleted" message
+	// rather than the generic "signed out" one.
+	if user.DeletedAt != nil {
+		log.Printf("[auth.RefreshTokens] refusing refresh for deleted user=%s — revoking family=%s", tok.UserID, tok.FamilyID)
+		_ = s.refresh.RevokeFamily(tok.FamilyID, now.UTC())
+		return nil, errors.New("ACCOUNT_DELETED")
 	}
 	// Banned user: refuse the refresh AND revoke the whole family so no
 	// stale token in that chain can ever mint a new pair. The user's

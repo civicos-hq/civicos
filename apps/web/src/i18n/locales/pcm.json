@@ -2,7 +2,6 @@
   "pageHeader": {
     "publicRecord": "Public"
   },
-
   "rateLimit": {
     "title": "Slow down small.",
     "body": "You dey do am too fast. Try again in {{seconds}}s.",
@@ -10,7 +9,6 @@
     "bodyCountdown": "Try again in {{seconds}}s.",
     "genericBody": "You dey do am too fast. Abeg wait small."
   },
-
   "common": {
     "mainNav": "Main navigation",
     "topbar": "Top toolbar",
@@ -37,7 +35,6 @@
     "memberCount_one": "{{count}} member",
     "memberCount_other": "{{count}} members"
   },
-
   "time": {
     "justNow": "just now",
     "minutesAgo_one": "{{count}} min ago",
@@ -53,7 +50,6 @@
     "yearsAgo_one": "{{count}} year ago",
     "yearsAgo_other": "{{count}} years ago"
   },
-
   "enums": {
     "issueStatus": {
       "OPEN": "Open",
@@ -94,7 +90,6 @@
       "SYSTEM": "System"
     }
   },
-
   "representativeDetail": {
     "backToRepresentatives": "← Go back to reps",
     "loadError": "We no fit load this rep.",
@@ -130,7 +125,6 @@
       "save": "Save"
     }
   },
-
   "petitionDetail": {
     "backToPetitions": "← Go back to petitions",
     "loadError": "We no fit load this petition. Maybe dem don remove am.",
@@ -150,7 +144,6 @@
     "onlyActive": "Na only active petitions you fit sign",
     "signError": "We no fit sign. Abeg try again."
   },
-
   "issueDetail": {
     "backToIssues": "← Go back to issues",
     "loadError": "We no fit load this issue. Maybe dem don remove am.",
@@ -168,7 +161,6 @@
     "updateStatus": "Update status",
     "updateStatusError": "We no fit update."
   },
-
   "comments": {
     "heading": "Discussion",
     "placeholder": "Add to the discussion…",
@@ -178,7 +170,6 @@
     "officialResponse": "Official response",
     "postError": "We no fit post your comment. Try again."
   },
-
   "search": {
     "placeholder": "Search issues, petitions, reps…",
     "typeToSearch": "Type at least 2 characters to search",
@@ -190,7 +181,6 @@
       "representatives": "Representatives"
     }
   },
-
   "discoverPage": {
     "eyebrow": "Discover",
     "title": "Wetin dey happen near you",
@@ -229,7 +219,6 @@
       "signaturesOf": "{{signatures}}/{{goal}} signatures"
     }
   },
-
   "representativesPage": {
     "eyebrow": "Representative Board",
     "title": "Who dey accountable for wetin",
@@ -281,7 +270,6 @@
       "submit": "Add representative"
     }
   },
-
   "petitionsPage": {
     "eyebrow": "Petition Studio",
     "title": "Organize collective voice",
@@ -329,7 +317,6 @@
       "submit": "Publish petition"
     }
   },
-
   "issuesPage": {
     "eyebrow": "Issue Desk",
     "title": "Community signal board",
@@ -377,7 +364,6 @@
       "submit": "Report issue"
     }
   },
-
   "communityPage": {
     "eyebrow": "Community",
     "findYours": "Find your community",
@@ -418,7 +404,6 @@
       "create": "Create community"
     }
   },
-
   "profilePage": {
     "eyebrow": "Civic Profile",
     "loadingProfile": "Dey load your profile…",
@@ -449,7 +434,6 @@
       "signOut": "Sign out"
     }
   },
-
   "notificationsPage": {
     "eyebrow": "Notification Center",
     "title": "Civic activity feed",
@@ -461,7 +445,6 @@
     "empty": "You never get any notification. Dem go show here when activity reach you.",
     "unread": "Never read"
   },
-
   "nav": {
     "brandSubtitle": "Public Record · Start 2026",
     "links": {
@@ -473,7 +456,6 @@
     "signIn": "Sign in",
     "register": "Register"
   },
-
   "hero": {
     "masthead": "Vol. 01 · No. 001 · Open Civic Infrastructure",
     "headline": "Democracy na <em>everyday</em> tin, no be only election day.",
@@ -483,7 +465,6 @@
     "trust": "Open source · Verified accounts · Audit trail for UTC",
     "signatureCaption": "The people don sign am"
   },
-
   "docket": {
     "title": "Today docket",
     "live": "Live · We update am for {{time}} WAT",
@@ -495,7 +476,6 @@
       "resolved": "Resolved"
     }
   },
-
   "parties": {
     "marker": "§ 01 — People for record",
     "title": "We build am for everybody for public life",
@@ -520,7 +500,6 @@
       "body": "Gather community signals, organise petitions, and measure impact with structured civic data, no be only story story."
     }
   },
-
   "articles": {
     "marker": "§ 02 — Articles",
     "title": "Continuous participation, no be election time alone",
@@ -549,7 +528,6 @@
       "body": "Every interaction get timestamp and we fit trace am. Public information dey public; personal data dey private."
     }
   },
-
   "principles": {
     "marker": "§ 03 — Founding principles",
     "title": "Five principles, we write before the code",
@@ -562,7 +540,6 @@
     },
     "note": "Just as digital banking change how we dey move money, <em>CivicOS dey change how we dey take part for democracy</em> — transparent, accessible, and built to last."
   },
-
   "steps": {
     "marker": "§ 04 — Procedure",
     "title": "From sign-up to civic action under five minutes",
@@ -588,7 +565,6 @@
     },
     "stepLabel": "Step {{n}}"
   },
-
   "faq": {
     "marker": "§ 05 — Questions",
     "title": "Questions, on the record",
@@ -618,7 +594,6 @@
       "a": "Every account na identity verified for sign-up. Comments and submissions get rate limit, we dey moderate dem against community guidelines, and dem dey traceable to real account. Petitions need unique signature — one citizen, one signature."
     }
   },
-
   "newsletter": {
     "marker": "§ 06 — Public dispatch",
     "title": "Subscribe to The Dispatch — be the first to know when CivicOS reach your area",
@@ -629,7 +604,6 @@
     "doneTitle": "You don dey list.",
     "doneSub": "We go reach you as we dey expand coverage."
   },
-
   "cta": {
     "eyebrow": "Register your voice",
     "title": "Ready to take <em>part</em>?",
@@ -637,13 +611,13 @@
     "ctaPrimary": "Create your account",
     "ctaSecondary": "Sign in"
   },
-
   "footer": {
     "mission": "Dey strengthen democratic participation through secure, transparent, accessible digital infrastructure.",
     "meta": "© {{year}} CivicOS — Open civic infrastructure",
     "legal": {
       "label": "Legal",
-      "privacy": "Privacy"
+      "privacy": "Privacy",
+      "terms": "Terms"
     },
     "checks": {
       "privacy": "E respect privacy",
@@ -651,7 +625,6 @@
       "open": "Built for the open"
     }
   },
-
   "auth": {
     "fields": {
       "fullName": "Full name",
@@ -770,7 +743,6 @@
       "bannerCompact": "Verify your email to file, sign, and comment."
     }
   },
-
   "sidebar": {
     "discover": "Discover",
     "community": "Community",
@@ -782,7 +754,6 @@
     "profile": "Profile",
     "signOut": "Sign out"
   },
-
   "language": {
     "label": "Language",
     "en": "English",

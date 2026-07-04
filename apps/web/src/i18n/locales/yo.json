@@ -2,7 +2,6 @@
   "pageHeader": {
     "publicRecord": "Gbangba"
   },
-
   "rateLimit": {
     "title": "Fa fún ìṣẹ́jú kan.",
     "body": "O ń ṣe é kíákíá jù. Gbìyànjú lẹ́ẹ̀kan sí i lẹ́yìn {{seconds}}s.",
@@ -10,7 +9,6 @@
     "bodyCountdown": "Gbìyànjú lẹ́ẹ̀kan sí i lẹ́yìn {{seconds}}s.",
     "genericBody": "O ń ṣe é kíákíá jù. Jọ̀wọ́ dúró fún ìṣẹ́jú kan."
   },
-
   "common": {
     "mainNav": "Ìlànà àkọ́kọ́",
     "topbar": "Ọ̀pá irinṣẹ́ òkè",
@@ -37,7 +35,6 @@
     "memberCount_one": "Ọmọ ẹgbẹ́ {{count}}",
     "memberCount_other": "Àwọn ọmọ ẹgbẹ́ {{count}}"
   },
-
   "time": {
     "justNow": "báyìí",
     "minutesAgo_one": "ìṣẹ́jú {{count}} sẹ́yìn",
@@ -53,7 +50,6 @@
     "yearsAgo_one": "ọdún {{count}} sẹ́yìn",
     "yearsAgo_other": "ọdún {{count}} sẹ́yìn"
   },
-
   "enums": {
     "issueStatus": {
       "OPEN": "Ṣíṣí",
@@ -94,7 +90,6 @@
       "SYSTEM": "Ètò"
     }
   },
-
   "representativeDetail": {
     "backToRepresentatives": "← Padà sí àwọn aṣojú",
     "loadError": "A kò lè kó aṣojú yìí.",
@@ -130,7 +125,6 @@
       "save": "Fi pamọ́"
     }
   },
-
   "petitionDetail": {
     "backToPetitions": "← Padà sí àwọn ẹ̀bẹ̀",
     "loadError": "A kò lè kó ẹ̀bẹ̀ yìí. Ó lè jẹ́ pé a ti pa á rẹ́.",
@@ -150,7 +144,6 @@
     "onlyActive": "Àwọn ẹ̀bẹ̀ tí ó ń ṣíṣẹ́ nìkan la lè fọwọ́sí",
     "signError": "A kò lè fọwọ́sí. Jọ̀wọ́ gbìyànjú lẹ́ẹ̀kan sí i."
   },
-
   "issueDetail": {
     "backToIssues": "← Padà sí àwọn ìṣòro",
     "loadError": "A kò lè kó ìṣòro yìí. Ó lè jẹ́ pé a ti pa á rẹ́.",
@@ -168,7 +161,6 @@
     "updateStatus": "Ṣàtúnṣe ipò",
     "updateStatusError": "A kò lè ṣàtúnṣe."
   },
-
   "comments": {
     "heading": "Ìjíròrò",
     "placeholder": "Fi kún ìjíròrò…",
@@ -178,7 +170,6 @@
     "officialResponse": "Ìdáhùn ìjọba",
     "postError": "A kò lè fi ọ̀rọ̀ rẹ ránṣẹ́. Gbìyànjú lẹ́ẹ̀kan sí i."
   },
-
   "search": {
     "placeholder": "Wá àwọn ìṣòro, ẹ̀bẹ̀, àwọn aṣojú…",
     "typeToSearch": "Tẹ lẹ́tà méjì ó kéré jù láti wá",
@@ -190,7 +181,6 @@
       "representatives": "Àwọn Aṣojú"
     }
   },
-
   "discoverPage": {
     "eyebrow": "Ṣàwárí",
     "title": "Ohun tí ń ṣẹlẹ̀ létí",
@@ -229,7 +219,6 @@
       "signaturesOf": "Àwọn ìfowọ́sí {{signatures}}/{{goal}}"
     }
   },
-
   "representativesPage": {
     "eyebrow": "Pátákó Aṣojú",
     "title": "Tani ó ń ṣàkóso kí",
@@ -281,7 +270,6 @@
       "submit": "Fi aṣojú kún"
     }
   },
-
   "petitionsPage": {
     "eyebrow": "Ọ́fíìsì Ẹ̀bẹ̀",
     "title": "Ṣètò ohùn ẹgbẹ́",
@@ -329,7 +317,6 @@
       "submit": "Kéde ẹ̀bẹ̀"
     }
   },
-
   "issuesPage": {
     "eyebrow": "Tábìlì Ìṣòro",
     "title": "Pátákó ìfìhàn agbègbè",
@@ -377,7 +364,6 @@
       "submit": "Ròyìn ìṣòro"
     }
   },
-
   "communityPage": {
     "eyebrow": "Agbègbè",
     "findYours": "Wá agbègbè rẹ",
@@ -418,7 +404,6 @@
       "create": "Ṣẹ̀dá agbègbè"
     }
   },
-
   "profilePage": {
     "eyebrow": "Profáìlì Aráàlú",
     "loadingProfile": "À ń kó profáìlì rẹ…",
@@ -449,7 +434,6 @@
       "signOut": "Jáde"
     }
   },
-
   "notificationsPage": {
     "eyebrow": "Ibùdó Ìfìmọ̀ràn",
     "title": "Àkójọpọ̀ ìṣẹ́ ẹgbẹ́",
@@ -461,7 +445,6 @@
     "empty": "O kò tíì ní àwọn ìfìmọ̀ràn. Wọn yóò farahàn níbí nígbà tí ìṣẹ́ bá dé bá ọ.",
     "unread": "Kò tíì kà"
   },
-
   "nav": {
     "brandSubtitle": "Àkọsílẹ̀ Gbangba · Tì bẹ̀rẹ̀ 2026",
     "links": {
@@ -473,7 +456,6 @@
     "signIn": "Wọlé",
     "register": "Forúkọsílẹ̀"
   },
-
   "hero": {
     "masthead": "Ìdìpọ̀ 01 · No. 001 · Àkójọpọ̀ Ìjọba Gbangba",
     "headline": "Ìṣàkóso ènìyàn jẹ́ ohun <em>ojoojúmọ́</em>, kì í ṣe ọjọ́ ìdìbò nìkan.",
@@ -483,7 +465,6 @@
     "trust": "Àfihàn gbangba · Àwọn àkáǹtì tí a ti rí gbà · Àkọsílẹ̀ àkókò UTC",
     "signatureCaption": "Fọwọ́sí — láti ọwọ́ àwọn ènìyàn"
   },
-
   "docket": {
     "title": "Àkọsílẹ̀ òní",
     "live": "Ó ń ṣiṣẹ́ · Sí gégé ní {{time}} WAT",
@@ -495,7 +476,6 @@
       "resolved": "Tún ṣe"
     }
   },
-
   "parties": {
     "marker": "§ 01 — Àwọn olùdíró",
     "title": "A kọ́ ọ fún gbogbo ènìyàn nínú ìgbé ayé gbangba",
@@ -520,7 +500,6 @@
       "body": "Kó àwọn ìmọ̀ràn agbègbè jọ, ṣètò àwọn ẹ̀bẹ̀, kí o sì díwọ̀n ipa pẹ̀lú dátà gbangba tí a ṣètò dípò ìtàn lásán."
     }
   },
-
   "articles": {
     "marker": "§ 02 — Àwọn Àpilẹ̀kọ",
     "title": "Ìkópa tí kò ní òpin, kì í ṣe ní àkókò ìdìbò nìkan",
@@ -549,7 +528,6 @@
       "body": "Gbogbo ìbáraẹnisọ̀rọ̀ ní àkókò àkọsílẹ̀ àti àyẹ̀wò. Ìròyìn gbangba ó wà ní gbangba; dátà ti ara ẹni ó wà ní ìkọ̀kọ̀."
     }
   },
-
   "principles": {
     "marker": "§ 03 — Àwọn ìpilẹ̀ṣẹ̀",
     "title": "Àwọn ìpilẹ̀ márùn, tí a kọ kí kóòdù tó bẹ̀rẹ̀",
@@ -562,7 +540,6 @@
     },
     "note": "Bí ilé ìfowópamọ́ dijítà ṣe ṣẹ̀dá ọ̀nà tuntun fún ìfijíṣẹ́ owó, <em>CivicOS ń ṣẹ̀dá ọ̀nà tuntun fún ìkópa wa nínú ìṣàkóso ènìyàn</em> — gbangba, ráyètó, àti tí a kọ́ láti pẹ́."
   },
-
   "steps": {
     "marker": "§ 04 — Ìlànà",
     "title": "Láti forúkọsílẹ̀ sí ìṣe gbangba láàárín ìṣẹ́jú márùn",
@@ -588,7 +565,6 @@
     },
     "stepLabel": "Ìgbésẹ̀ {{n}}"
   },
-
   "faq": {
     "marker": "§ 05 — Àwọn Ìbéèrè",
     "title": "Àwọn ìbéèrè, lórí àkọsílẹ̀",
@@ -618,7 +594,6 @@
       "a": "A ń rí ìdánimọ̀ àkáǹtì kọ̀ọ̀kan gbà ní ìforúkọsílẹ̀. A ń díwọ̀n àwọn ọ̀rọ̀ àti ìfisílẹ̀, ṣàkóso wọn lòdì sí àwọn ìlànà agbègbè, tí wọ́n sì lè wá kiri sí àkáǹtì gidi. Àwọn ẹ̀bẹ̀ nílò àwọn ìfowọ́sí tí ó yàtọ̀ — ọmọ orílẹ̀-èdè kan, ìfowọ́sí kan."
     }
   },
-
   "newsletter": {
     "marker": "§ 06 — Ìfìmọ̀ràn gbangba",
     "title": "Forúkọsílẹ̀ fún The Dispatch — kọ́kọ́ mọ̀ nígbà tí CivicOS bá dé agbègbè rẹ",
@@ -629,7 +604,6 @@
     "doneTitle": "O wà lórí àkójọpọ̀.",
     "doneSub": "À óò kàn sí ọ bí à ti ń gbòòrò sí i."
   },
-
   "cta": {
     "eyebrow": "Forúkọsílẹ̀ ohùn rẹ",
     "title": "Ṣé o ti múra láti <em>kópa</em>?",
@@ -637,13 +611,13 @@
     "ctaPrimary": "Ṣẹ̀dá àkáǹtì rẹ",
     "ctaSecondary": "Wọlé"
   },
-
   "footer": {
     "mission": "Mímú ìkópa ìṣàkóso ènìyàn lágbára nípasẹ̀ àkójọpọ̀ dijítà tó nírẹ̀wẹ̀sì, gbangba, àti ráyètó.",
     "meta": "© {{year}} CivicOS — Àkójọpọ̀ ìjọba gbangba",
     "legal": {
       "label": "Òfin",
-      "privacy": "Àṣírí"
+      "privacy": "Àṣírí",
+      "terms": "Òfin"
     },
     "checks": {
       "privacy": "Ó bọ̀wọ̀ fún àṣírí",
@@ -651,7 +625,6 @@
       "open": "A kọ́ ọ ní gbangba"
     }
   },
-
   "auth": {
     "fields": {
       "fullName": "Orúkọ kíkún",
@@ -770,7 +743,6 @@
       "bannerCompact": "Ṣe ìjẹ́rìí ímeèlì rẹ láti ròyìn, fọwọ́sí, àti kọ ọ̀rọ̀."
     }
   },
-
   "sidebar": {
     "discover": "Ṣàwárí",
     "community": "Agbègbè",
@@ -782,7 +754,6 @@
     "profile": "Profáìlì",
     "signOut": "Jáde"
   },
-
   "language": {
     "label": "Èdè",
     "en": "English",

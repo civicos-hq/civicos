@@ -7,9 +7,16 @@ import (
 	"strings"
 
 	"github.com/civicos/identity-service/internal/audit"
+	"github.com/civicos/identity-service/internal/domain"
 	"github.com/civicos/identity-service/pkg/response"
 	"github.com/gin-gonic/gin"
 )
+
+// domainUser adapts an audit.Actor into the domain.User shape the
+// flags service expects for DirectHide. Only ID + Name are read.
+func domainUser(a audit.Actor) domain.User {
+	return domain.User{ID: a.ID, Name: a.Name}
+}
 
 type Handler struct {
 	svc     *Service
@@ -30,6 +37,42 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth, requireVerified, req
 	rg.GET("/counts", auth, requireAdmin, h.counts)
 	rg.GET("/:id", auth, requireAdmin, h.get)
 	rg.PATCH("/:id", auth, requireAdmin, h.resolve)
+
+	// Admin's proactive-moderation shortcut: create+hide in one call.
+	rg.POST("/direct-hide", auth, requireAdmin, h.directHide)
+}
+
+// directHide creates a flag and immediately resolves it as HIDDEN, with
+// the admin as both reporter and resolver. Writes an audit entry with
+// the "flag.direct_hide" action so it's distinguishable in the audit
+// log from citizen-filed flags that were later resolved.
+func (h *Handler) directHide(c *gin.Context) {
+	var input DirectHideInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", err.Error())
+		return
+	}
+	actor := audit.FromContext(c)
+	// The service expects a domain.User for the actor; only ID and Name
+	// are actually read.
+	f, err := h.svc.DirectHide(input, domainUser(actor))
+	if handleAppErr(c, err) {
+		return
+	}
+	h.auditor.Log(audit.Entry{
+		Actor:      actor,
+		Action:     "flag.direct_hide",
+		TargetType: "CONTENT_FLAG",
+		TargetID:   f.ID,
+		Metadata: map[string]any{
+			"contentType":    input.ContentType,
+			"contentId":      input.ContentID,
+			"reason":         input.Reason,
+			"resolutionNote": input.ResolutionNote,
+		},
+		Request: c.Request,
+	})
+	response.Success(c, http.StatusCreated, gin.H{"flag": f})
 }
 
 func (h *Handler) create(c *gin.Context) {

@@ -41,6 +41,14 @@ type User struct {
 	BanReason    *string    `json:"banReason,omitempty"`
 	BannedByID   *string    `gorm:"type:uuid" json:"bannedById,omitempty"`
 
+	// DeletedAt is the user-initiated soft-delete timestamp. Once set,
+	// the user cannot log in and cannot refresh; every authenticated
+	// path checks this flag. Content authored before deletion stays in
+	// place with Name replaced by a placeholder — the audit trail +
+	// public record survive, PII is scrubbed.
+	DeletedAt      *time.Time `gorm:"index" json:"deletedAt,omitempty"`
+	DeletionReason *string    `json:"deletionReason,omitempty"`
+
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }

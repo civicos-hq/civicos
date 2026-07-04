@@ -132,6 +132,105 @@ export function ProfilePage() {
           {t('profilePage.session.signOut')}
         </Button>
       </section>
+
+      <DangerZone />
+    </section>
+  );
+}
+
+// DangerZone — self-service account deletion. Requires typing "DELETE"
+// so an accidental button press can't purge anyone. On success, the
+// server anonymizes PII + revokes refresh tokens; the client clears its
+// own local session and navigates to the homepage. Matches the
+// commitment in the privacy notice (§7 — deletion within 30 days).
+function DangerZone() {
+  const { t } = useTranslation();
+  const [confirmText, setConfirmText] = useState('');
+  const [reason, setReason] = useState('');
+  const [error, setError] = useState('');
+  const [pending, setPending] = useState(false);
+  const CONFIRM = 'DELETE';
+
+  async function handleDelete() {
+    setError('');
+    setPending(true);
+    try {
+      await api.delete('/api/v1/auth/me', {
+        data: { reason: reason.trim() || undefined },
+      });
+      // Clear local session state and bounce to the marketing homepage.
+      try {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+      } catch {
+        // ignore
+      }
+      window.location.href = '/';
+    } catch (err) {
+      const msg =
+        (err as { response?: { data?: { message?: string } } }).response?.data?.message ??
+        t('profilePage.delete.errorGeneric');
+      setError(msg);
+      setPending(false);
+    }
+  }
+
+  return (
+    <section className="rounded-2xl border border-red-200 bg-red-50/50 p-6 shadow-sm">
+      <h2 className="text-lg font-semibold text-red-900">{t('profilePage.delete.heading')}</h2>
+      <p className="mt-2 text-sm text-red-800">{t('profilePage.delete.sub')}</p>
+      <ul className="mt-3 list-disc pl-5 text-sm text-red-800 space-y-1">
+        <li>{t('profilePage.delete.bullets.pii')}</li>
+        <li>{t('profilePage.delete.bullets.content')}</li>
+        <li>{t('profilePage.delete.bullets.sessions')}</li>
+        <li>{t('profilePage.delete.bullets.irreversible')}</li>
+      </ul>
+
+      <div className="mt-4 space-y-3">
+        <div>
+          <label htmlFor="delete-reason" className="block text-xs font-semibold text-slate-700">
+            {t('profilePage.delete.reasonLabel')}
+          </label>
+          <textarea
+            id="delete-reason"
+            rows={2}
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-red-400"
+            placeholder={t('profilePage.delete.reasonPlaceholder')}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="delete-confirm" className="block text-xs font-semibold text-slate-700">
+            {t('profilePage.delete.confirmLabel', { confirm: CONFIRM })}
+          </label>
+          <input
+            id="delete-confirm"
+            value={confirmText}
+            onChange={(e) => setConfirmText(e.target.value)}
+            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-red-400 mono"
+            placeholder={CONFIRM}
+            autoComplete="off"
+          />
+        </div>
+
+        {error && (
+          <p className="text-sm text-red-900 bg-red-100 border border-red-300 rounded-lg p-2">
+            {error}
+          </p>
+        )}
+
+        <Button
+          variant="primary"
+          size="sm"
+          onClick={handleDelete}
+          disabled={confirmText !== CONFIRM || pending}
+          className="bg-red-600 hover:bg-red-700 focus:ring-red-400"
+        >
+          {pending ? t('profilePage.delete.pending') : t('profilePage.delete.button')}
+        </Button>
+      </div>
     </section>
   );
 }

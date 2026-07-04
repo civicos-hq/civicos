@@ -54,3 +54,12 @@ func (r *RefreshRepository) RevokeFamily(familyID string, at time.Time) error {
 		Where("family_id = ? AND revoked_at IS NULL", familyID).
 		Update("revoked_at", at).Error
 }
+
+// RevokeAllForUser slams every live refresh token for a user. Used on
+// account deletion — the user has decided to leave, so no live session
+// should survive.
+func (r *RefreshRepository) RevokeAllForUser(userID string, at time.Time) error {
+	return r.db.Model(&domain.RefreshToken{}).
+		Where("user_id = ? AND revoked_at IS NULL", userID).
+		Update("revoked_at", at).Error
+}
