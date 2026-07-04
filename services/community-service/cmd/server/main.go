@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/civicos/community-service/internal/audit"
 	"github.com/civicos/community-service/internal/communities"
 	"github.com/civicos/community-service/internal/discover"
 	"github.com/civicos/community-service/internal/domain"
@@ -51,9 +52,13 @@ func main() {
 	communitySvc := communities.NewService(communityRepo)
 	communityHandler := communities.NewHandler(communitySvc)
 
+	// Shared audit writer — every service uses this Auditor to record
+	// admin actions to the identity-service-owned audit_logs table.
+	auditor := audit.New(db)
+
 	issueRepo := issues.NewRepository(db)
 	issueSvc := issues.NewService(issueRepo)
-	issueHandler := issues.NewHandler(issueSvc, notificationSvc)
+	issueHandler := issues.NewHandler(issueSvc, notificationSvc, auditor)
 
 	petitionRepo := petitions.NewRepository(db)
 	petitionSvc := petitions.NewService(petitionRepo)
@@ -74,7 +79,7 @@ func main() {
 	}
 	uploadsHandler := uploads.NewHandler(uploadsDir)
 
-	authMiddleware := middleware.JWTAuth(cfg)
+	authMiddleware := middleware.JWTAuth(cfg, db)
 	requireVerified := middleware.RequireVerified()
 	requireAdminRole := middleware.RequireRole("GOVERNMENT_ADMIN", "PLATFORM_ADMIN", "NGO")
 

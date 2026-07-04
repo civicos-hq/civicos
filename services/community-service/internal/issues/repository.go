@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/civicos/community-service/internal/domain"
+	"github.com/civicos/community-service/internal/moderation"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -148,18 +149,32 @@ func (r *Repository) UpdateStatus(id string, status domain.IssueStatus) error {
 }
 
 func (r *Repository) ListComments(issueID string) ([]domain.IssueComment, error) {
-	// Filter out comments a moderator has resolved as HIDDEN. content_flags
-	// lives in identity-service's schema but the shared-DB architecture
-	// lets us cross-reference it. If services move to isolated DBs later,
-	// this becomes an HTTP call to identity-service or a materialized
-	// hidden-content view kept in sync via NATS.
+	// Fetch all comments, then discover which ones a moderator has marked
+	// HIDDEN and replace their content with a placeholder in-place. This
+	// preserves conversation flow ("something used to be here") while
+	// hiding what was actually said. content_flags lives in identity-
+	// service's schema; the shared-DB architecture lets us join. If
+	// services split DBs later this becomes a two-hop fetch.
 	var list []domain.IssueComment
-	return list, r.db.
+	if err := r.db.
 		Where("issue_id = ?", issueID).
-		Where("id NOT IN (SELECT content_id FROM content_flags WHERE content_type = ? AND status = ?)",
-			"ISSUE_COMMENT", "HIDDEN").
 		Order("created_at asc").
-		Find(&list).Error
+		Find(&list).Error; err != nil {
+		return nil, err
+	}
+	ids := make([]string, len(list))
+	for i, c := range list {
+		ids[i] = c.ID
+	}
+	hidden := moderation.HiddenSet(r.db, "ISSUE_COMMENT", ids)
+	for i := range list {
+		if _, ok := hidden[list[i].ID]; ok {
+			list[i].IsHidden = true
+			list[i].Content = moderation.PlaceholderContent
+			list[i].AuthorName = moderation.PlaceholderAuthorName
+		}
+	}
+	return list, nil
 }
 
 func (r *Repository) AddComment(comment *domain.IssueComment) error {

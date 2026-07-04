@@ -20,6 +20,7 @@ import { useMe } from '../hooks/useMe';
 import { useRelativeTime } from '../hooks/useRelativeTime';
 import { Modal } from '../components/Modal';
 import { EmptyState } from '../components/EmptyState';
+import { ReportButton } from '../components/civic/ReportButton';
 
 const PLATFORM_ADMIN_ROLE: UserRole = UserRole.PLATFORM_ADMIN;
 
@@ -274,9 +275,12 @@ function AnnouncementList({
             </p>
           )}
           <p className="mt-2 whitespace-pre-wrap text-sm text-slate-700">{a.body}</p>
-          <p className="mt-3 text-xs text-slate-500">
-            {t('organizationDetail.byAuthor', { name: a.authorName })}
-          </p>
+          <div className="mt-3 flex items-center justify-between gap-2">
+            <p className="text-xs text-slate-500">
+              {t('organizationDetail.byAuthor', { name: a.authorName })}
+            </p>
+            <ReportButton contentType="ANNOUNCEMENT" contentId={a.id} />
+          </div>
         </article>
       ))}
     </div>

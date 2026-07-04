@@ -5,18 +5,20 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/civicos/organization-service/internal/audit"
 	"github.com/civicos/organization-service/internal/organizations"
 	"github.com/civicos/organization-service/pkg/response"
 	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
-	svc  *Service
-	orgs *organizations.Service
+	svc     *Service
+	orgs    *organizations.Service
+	auditor *audit.Auditor
 }
 
-func NewHandler(svc *Service, orgs *organizations.Service) *Handler {
-	return &Handler{svc: svc, orgs: orgs}
+func NewHandler(svc *Service, orgs *organizations.Service, auditor *audit.Auditor) *Handler {
+	return &Handler{svc: svc, orgs: orgs, auditor: auditor}
 }
 
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth gin.HandlerFunc) {
@@ -133,6 +135,14 @@ func (h *Handler) publish(c *gin.Context) {
 	if handleAppErr(c, err) {
 		return
 	}
+	h.auditor.Log(audit.Entry{
+		Actor:      audit.FromContext(c),
+		Action:     "announcement.published",
+		TargetType: "ANNOUNCEMENT",
+		TargetID:   id,
+		Metadata:   map[string]any{"orgId": a.OrganizationID, "title": a.Title},
+		Request:    c.Request,
+	})
 	response.Success(c, http.StatusOK, gin.H{"announcement": item})
 }
 
@@ -152,6 +162,14 @@ func (h *Handler) archive(c *gin.Context) {
 	if handleAppErr(c, err) {
 		return
 	}
+	h.auditor.Log(audit.Entry{
+		Actor:      audit.FromContext(c),
+		Action:     "announcement.archived",
+		TargetType: "ANNOUNCEMENT",
+		TargetID:   id,
+		Metadata:   map[string]any{"orgId": a.OrganizationID, "title": a.Title},
+		Request:    c.Request,
+	})
 	response.Success(c, http.StatusOK, gin.H{"announcement": item})
 }
 
@@ -170,6 +188,14 @@ func (h *Handler) delete(c *gin.Context) {
 	if err := h.svc.Delete(id); handleAppErr(c, err) {
 		return
 	}
+	h.auditor.Log(audit.Entry{
+		Actor:      audit.FromContext(c),
+		Action:     "announcement.deleted",
+		TargetType: "ANNOUNCEMENT",
+		TargetID:   id,
+		Metadata:   map[string]any{"orgId": a.OrganizationID, "title": a.Title},
+		Request:    c.Request,
+	})
 	response.Success(c, http.StatusOK, gin.H{"ok": true})
 }
 

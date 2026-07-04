@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/civicos/community-service/internal/domain"
+	"github.com/civicos/community-service/internal/moderation"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -100,14 +101,27 @@ func (r *Repository) FindFollowerIDs(repID string) ([]string, error) {
 }
 
 func (r *Repository) ListComments(repID string) ([]domain.RepresentativeComment, error) {
-	// See issues/repository.go for the hide-filter rationale.
+	// See issues/repository.go for the hide-placeholder rationale.
 	var list []domain.RepresentativeComment
-	return list, r.db.
+	if err := r.db.
 		Where("representative_id = ?", repID).
-		Where("id NOT IN (SELECT content_id FROM content_flags WHERE content_type = ? AND status = ?)",
-			"REPRESENTATIVE_COMMENT", "HIDDEN").
 		Order("created_at asc").
-		Find(&list).Error
+		Find(&list).Error; err != nil {
+		return nil, err
+	}
+	ids := make([]string, len(list))
+	for i, c := range list {
+		ids[i] = c.ID
+	}
+	hidden := moderation.HiddenSet(r.db, "REPRESENTATIVE_COMMENT", ids)
+	for i := range list {
+		if _, ok := hidden[list[i].ID]; ok {
+			list[i].IsHidden = true
+			list[i].Content = moderation.PlaceholderContent
+			list[i].AuthorName = moderation.PlaceholderAuthorName
+		}
+	}
+	return list, nil
 }
 
 func (r *Repository) AddComment(comment *domain.RepresentativeComment) error {

@@ -21,6 +21,7 @@ import { useUpvotedIssues } from '../hooks/useUpvotedIssues';
 import { useEnumLabels } from '../hooks/useEnumLabels';
 import { useRelativeTime } from '../hooks/useRelativeTime';
 import { useIssueProgressUpdates } from './OrganizationDetailPage';
+import { ReportButton } from '../components/civic/ReportButton';
 
 const STAFF_ROLES = new Set<UserRole>([
   UserRole.REPRESENTATIVE,
@@ -325,9 +326,12 @@ function OfficialProgressSection({ issueId }: { issueId: string }) {
                 <span className="text-xs text-slate-500">{relative(u.createdAt)}</span>
               </div>
               <p className="mt-2 whitespace-pre-wrap text-sm text-slate-700">{u.body}</p>
-              <p className="mt-2 text-xs text-slate-500">
-                {t('issueDetail.officialProgress.byAuthor', { name: u.authorName })}
-              </p>
+              <div className="mt-2 flex items-center justify-between gap-2">
+                <p className="text-xs text-slate-500">
+                  {t('issueDetail.officialProgress.byAuthor', { name: u.authorName })}
+                </p>
+                <ReportButton contentType="PROGRESS_UPDATE" contentId={u.id} />
+              </div>
             </li>
           );
         })}

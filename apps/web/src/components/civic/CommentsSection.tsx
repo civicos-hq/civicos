@@ -13,9 +13,19 @@ import { useEnumLabels } from '../../hooks/useEnumLabels';
 import { useRelativeTime } from '../../hooks/useRelativeTime';
 import { EmptyState } from '../EmptyState';
 import { MessageSquare } from 'lucide-react';
+import { ReportButton } from './ReportButton';
+import type { ReportableType } from './ReportModal';
 
 type EntityType = 'issues' | 'petitions' | 'representatives';
 type AnyComment = IssueComment | PetitionComment | RepresentativeComment;
+
+// Maps the CommentsSection entityType to the moderation flag content
+// type. Used by the per-comment Report button.
+const REPORTABLE_BY_ENTITY: Record<EntityType, ReportableType> = {
+  issues: 'ISSUE_COMMENT',
+  petitions: 'PETITION_COMMENT',
+  representatives: 'REPRESENTATIVE_COMMENT',
+};
 
 const COMMENT_MAX = 2000;
 
@@ -132,6 +142,11 @@ export function CommentsSection({
                   <span className="ml-auto text-xs text-slate-400">{relative(c.createdAt)}</span>
                 </div>
                 <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700">{c.content}</p>
+                {!c.isOfficialResponse && (
+                  <div className="mt-2 flex justify-end">
+                    <ReportButton contentType={REPORTABLE_BY_ENTITY[entityType]} contentId={c.id} />
+                  </div>
+                )}
               </div>
             </div>
           ))

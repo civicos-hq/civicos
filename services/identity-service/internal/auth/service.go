@@ -355,6 +355,15 @@ func (s *Service) RefreshTokens(rawRefresh string) (*TokenPair, error) {
 	if err != nil {
 		return nil, errors.New("INVALID_REFRESH_TOKEN")
 	}
+	// Banned user: refuse the refresh AND revoke the whole family so no
+	// stale token in that chain can ever mint a new pair. The user's
+	// existing access token still works until it naturally expires — the
+	// JWTAuth middleware's per-write ban check catches that window.
+	if user.BannedAt != nil {
+		log.Printf("[auth.RefreshTokens] refusing refresh for banned user=%s — revoking family=%s", tok.UserID, tok.FamilyID)
+		_ = s.refresh.RevokeFamily(tok.FamilyID, now.UTC())
+		return nil, errors.New("ACCOUNT_BANNED")
+	}
 	return s.issueTokenPair(user, tok.FamilyID)
 }
 

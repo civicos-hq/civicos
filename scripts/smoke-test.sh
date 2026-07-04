@@ -604,6 +604,54 @@ else
 fi
 
 # ═══════════════════════════════════════════════════════════════════════════
+# 13D. CROSS-SERVICE AUDIT — actions in community/org services land in the log
+# ═══════════════════════════════════════════════════════════════════════════
+section "13D. Cross-service audit — community + org admin actions write to audit_logs"
+
+# Section 4 patched an issue status via community-service. That should
+# have landed an issue.status_changed row from the community-service
+# process (not identity-service). Prove it.
+req GET "/api/v1/audit-logs?action=issue.status_changed&targetId=$ISSUE_ID" "$ADMIN_JWT"
+check "GET /audit-logs issue.status_changed" "200"
+ISSUE_AUDIT=$(json_get "$BODY_FILE" "data.total")
+if [[ "$ISSUE_AUDIT" -ge 1 ]]; then
+  pass "community-service wrote issue.status_changed ($ISSUE_AUDIT entry)"
+else
+  fail "community-service audit for issue status change" "expected ≥1, got $ISSUE_AUDIT"
+fi
+
+# Section 9 created an org via org-service.
+req GET "/api/v1/audit-logs?action=org.created&targetId=$ORG_ID" "$ADMIN_JWT"
+ORG_CREATED=$(json_get "$BODY_FILE" "data.total")
+if [[ "$ORG_CREATED" -ge 1 ]]; then
+  pass "org-service wrote org.created ($ORG_CREATED entry)"
+else
+  fail "org.created audit" "expected ≥1, got $ORG_CREATED"
+fi
+
+# Section 9 patched the org's description. That should have landed a
+# generic org.updated (not the verify-specific one). Prove it. Distinct-
+# action-name coverage for org.verified is exercised by the admin e2e
+# suite (organizations.spec.ts) instead of here — this smoke test's
+# admin JWT is nearly out of Standard-tier budget by this point.
+req GET "/api/v1/audit-logs?action=org.updated&targetId=$ORG_ID" "$ADMIN_JWT"
+ORG_UPDATED=$(json_get "$BODY_FILE" "data.total")
+if [[ "$ORG_UPDATED" -ge 1 ]]; then
+  pass "org-service wrote org.updated ($ORG_UPDATED entry)"
+else
+  fail "org.updated audit" "expected ≥1, got $ORG_UPDATED"
+fi
+
+# Section 10 published an announcement via org-service.
+req GET "/api/v1/audit-logs?action=announcement.published&targetId=$ANN_ID" "$ADMIN_JWT"
+ANN_PUB=$(json_get "$BODY_FILE" "data.total")
+if [[ "$ANN_PUB" -ge 1 ]]; then
+  pass "org-service wrote announcement.published ($ANN_PUB entry)"
+else
+  fail "announcement.published audit" "expected ≥1, got $ANN_PUB"
+fi
+
+# ═══════════════════════════════════════════════════════════════════════════
 # 14. RATE LIMITING
 # ═══════════════════════════════════════════════════════════════════════════
 section "14. Rate limiting (Strict — /forgot-password)"
@@ -683,6 +731,9 @@ else
     "audit_logs|target_id='${FLAG_ID:-}'"          # audit for flag.resolved
     "audit_logs|target_id='${HIDE_FLAG_ID:-}'"     # audit for comment-hide
     "audit_logs|target_id='${HIDE_ANN_FLAG_ID:-}'" # audit for announcement-hide
+    "audit_logs|target_id='${ISSUE_ID:-}'"         # community-service issue.status_changed
+    "audit_logs|target_id='${ORG_ID:-}'"           # org-service org.created / org.verified / org.updated
+    "audit_logs|target_id='${ANN_ID:-}'"           # announcement.published
     "content_flags|id='${FLAG_ID:-}'"              # the queue-only flag
     "content_flags|id='${HIDE_FLAG_ID:-}'"         # the comment-hide flag
     "content_flags|id='${HIDE_ANN_FLAG_ID:-}'"     # the announcement-hide flag

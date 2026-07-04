@@ -175,6 +175,52 @@
     }
   },
 
+  "report": {
+    "buttonLabel": "Report",
+    "buttonAria": "Report this content to moderators",
+    "intro": "Reports are reviewed by moderators. False reports can result in restrictions on your account.",
+    "reasonLegend": "What's wrong with this content?",
+    "descriptionLabel": "Anything else moderators should know? (optional)",
+    "descriptionPlaceholder": "e.g. this comment names a private individual and is misleading",
+    "submit": "Send report",
+    "reasons": {
+      "SPAM": {
+        "label": "Spam",
+        "hint": "Unwanted advertising, unrelated links, or bulk messaging."
+      },
+      "ABUSE": {
+        "label": "Abuse or harassment",
+        "hint": "Personal attacks, threats, or targeted harassment."
+      },
+      "MISINFO": {
+        "label": "Misinformation",
+        "hint": "Verifiably false claims about people or events."
+      },
+      "HATE": {
+        "label": "Hate speech",
+        "hint": "Attacks on identity — ethnicity, religion, gender, orientation."
+      },
+      "OTHER": {
+        "label": "Something else",
+        "hint": "Doesn't match the above — describe below."
+      }
+    },
+    "modal": {
+      "title": "Report to moderators"
+    },
+    "success": {
+      "title": "Report received",
+      "body": "A moderator will review this shortly. Thanks for helping keep the record honest.",
+      "close": "Close"
+    },
+    "errors": {
+      "alreadyFlagged": "You've already reported this content. A moderator will review it.",
+      "emailNotVerified": "Verify your email address before filing reports. Check your inbox — or go to Profile to resend the verification email.",
+      "rateLimited": "You've filed several reports recently. Try again in {{seconds}} seconds.",
+      "generic": "Couldn't send the report. Please try again in a moment."
+    }
+  },
+
   "comments": {
     "heading": "Discussion",
     "placeholder": "Add to the discussion…",

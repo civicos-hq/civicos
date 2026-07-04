@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/civicos/community-service/internal/audit"
 	"github.com/civicos/community-service/internal/domain"
 	"github.com/civicos/community-service/pkg/response"
 	"github.com/gin-gonic/gin"
@@ -19,10 +20,11 @@ type Notifier interface {
 type Handler struct {
 	svc      *Service
 	notifier Notifier
+	auditor  *audit.Auditor
 }
 
-func NewHandler(svc *Service, notifier Notifier) *Handler {
-	return &Handler{svc: svc, notifier: notifier}
+func NewHandler(svc *Service, notifier Notifier, auditor *audit.Auditor) *Handler {
+	return &Handler{svc: svc, notifier: notifier, auditor: auditor}
 }
 
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth, verified gin.HandlerFunc) {
@@ -172,9 +174,30 @@ func (h *Handler) updateStatus(c *gin.Context) {
 		return
 	}
 	issueID := c.Param("id")
+	// Capture the pre-change status so the audit metadata can show the
+	// exact transition (OPEN → RESOLVED, etc). If Get fails we still let
+	// the status change proceed — audit is never a gate.
+	previous, _ := h.svc.Get(issueID)
 	if err := h.svc.UpdateStatus(issueID, body.Status); err != nil {
 		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to update status")
 		return
+	}
+
+	// Every issue status change is a governance-visible admin action.
+	if h.auditor != nil {
+		meta := map[string]any{"newStatus": body.Status}
+		if previous != nil {
+			meta["previousStatus"] = previous.Status
+			meta["title"] = previous.Title
+		}
+		h.auditor.Log(audit.Entry{
+			Actor:      audit.FromContext(c),
+			Action:     "issue.status_changed",
+			TargetType: "ISSUE",
+			TargetID:   issueID,
+			Metadata:   meta,
+			Request:    c.Request,
+		})
 	}
 
 	if h.notifier != nil {

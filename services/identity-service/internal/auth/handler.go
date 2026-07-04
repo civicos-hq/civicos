@@ -78,6 +78,11 @@ func (h *Handler) refresh(c *gin.Context) {
 
 	tokens, err := h.service.RefreshTokens(body.RefreshToken)
 	if err != nil {
+		if err.Error() == "ACCOUNT_BANNED" {
+			response.Error(c, http.StatusForbidden, "ACCOUNT_BANNED",
+				"Your account has been suspended. Contact support if you believe this is a mistake.")
+			return
+		}
 		response.Error(c, http.StatusUnauthorized, "INVALID_REFRESH_TOKEN", "Token is invalid or expired")
 		return
 	}

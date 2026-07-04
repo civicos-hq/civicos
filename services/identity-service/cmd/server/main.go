@@ -64,7 +64,7 @@ func main() {
 		c.JSON(200, gin.H{"status": "ok", "service": "identity-service"})
 	})
 
-	authMiddleware := middleware.JWTAuth(cfg)
+	authMiddleware := middleware.JWTAuth(cfg, db)
 	requireVerified := middleware.RequireVerified()
 	requireAdmin := middleware.RequireRole("PLATFORM_ADMIN")
 

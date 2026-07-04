@@ -53,6 +53,7 @@ func (h *Handler) list(c *gin.Context) {
 	items, err := h.svc.List(ListFilters{
 		Status:      strings.ToUpper(c.Query("status")),
 		ContentType: strings.ToUpper(c.Query("contentType")),
+		ReporterID:  c.Query("reporterId"),
 		Limit:       limit,
 		Offset:      offset,
 	})

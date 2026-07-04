@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Ban, Undo2 } from 'lucide-react';
 import { apiGet, apiPatch, apiPost } from '../lib/api';
@@ -132,7 +133,12 @@ export function UsersPage() {
               {rows.map((u) => (
                 <tr key={u.id}>
                   <td>
-                    <span className="mono text-slate-700">{u.email}</span>
+                    <Link
+                      to={`/users/${u.id}`}
+                      className="mono text-slate-700 hover:text-civic-700 hover:underline"
+                    >
+                      {u.email}
+                    </Link>
                     {u.emailVerified && (
                       <span className="admin-chip admin-chip-verified ml-2">verified</span>
                     )}

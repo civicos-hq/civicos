@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { LoginPage } from './routes/LoginPage';
 import { OverviewPage } from './routes/OverviewPage';
 import { UsersPage } from './routes/UsersPage';
+import { UserDetailPage } from './routes/UserDetailPage';
 import { OrganizationsPage } from './routes/OrganizationsPage';
 import { FlagsPage } from './routes/FlagsPage';
 import { AuditPage } from './routes/AuditPage';
@@ -16,6 +17,7 @@ export function App() {
         <Route element={<AdminShell />}>
           <Route index element={<OverviewPage />} />
           <Route path="/users" element={<UsersPage />} />
+          <Route path="/users/:id" element={<UserDetailPage />} />
           <Route path="/organizations" element={<OrganizationsPage />} />
           <Route path="/flags" element={<FlagsPage />} />
           <Route path="/audit" element={<AuditPage />} />

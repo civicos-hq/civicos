@@ -87,6 +87,12 @@ type IssueComment struct {
 	AuthorName         string    `gorm:"not null" json:"authorName"`
 	AuthorRole         string    `gorm:"not null" json:"authorRole"`
 	IsOfficialResponse bool      `gorm:"default:false" json:"isOfficialResponse"`
+	// IsHidden is computed at query time from content_flags — never stored.
+	// When true the repository has already replaced Content and AuthorName
+	// with placeholders so the citizen surface sees "[Removed by moderator]"
+	// instead of the raw content while the row remains in-place (preserves
+	// conversation flow and preserves the audit trail).
+	IsHidden           bool      `gorm:"-" json:"isHidden"`
 	CreatedAt          time.Time `json:"createdAt"`
 }
 
@@ -98,6 +104,7 @@ type RepresentativeComment struct {
 	AuthorName         string    `gorm:"not null" json:"authorName"`
 	AuthorRole         string    `gorm:"not null" json:"authorRole"`
 	IsOfficialResponse bool      `gorm:"default:false" json:"isOfficialResponse"`
+	IsHidden           bool      `gorm:"-" json:"isHidden"`
 	CreatedAt          time.Time `json:"createdAt"`
 }
 
@@ -109,6 +116,7 @@ type PetitionComment struct {
 	AuthorName         string    `gorm:"not null" json:"authorName"`
 	AuthorRole         string    `gorm:"not null" json:"authorRole"`
 	IsOfficialResponse bool      `gorm:"default:false" json:"isOfficialResponse"`
+	IsHidden           bool      `gorm:"-" json:"isHidden"`
 	CreatedAt          time.Time `json:"createdAt"`
 }
 

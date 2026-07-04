@@ -5,6 +5,7 @@ import (
 
 	"github.com/civicos/organization-service/internal/announcements"
 	"github.com/civicos/organization-service/internal/assignments"
+	"github.com/civicos/organization-service/internal/audit"
 	"github.com/civicos/organization-service/internal/domain"
 	"github.com/civicos/organization-service/internal/middleware"
 	"github.com/civicos/organization-service/internal/organizations"
@@ -31,15 +32,18 @@ func main() {
 		log.Fatalf("migration failed: %v", err)
 	}
 
+	// Shared audit writer.
+	auditor := audit.New(db)
+
 	// Organizations (registry + membership).
 	orgRepo := organizations.NewRepository(db)
 	orgSvc := organizations.NewService(orgRepo)
-	orgHandler := organizations.NewHandler(orgSvc)
+	orgHandler := organizations.NewHandler(orgSvc, auditor)
 
 	// Announcements — depend on orgSvc for member/admin checks.
 	annRepo := announcements.NewRepository(db)
 	annSvc := announcements.NewService(annRepo, orgSvc)
-	annHandler := announcements.NewHandler(annSvc, orgSvc)
+	annHandler := announcements.NewHandler(annSvc, orgSvc, auditor)
 
 	// Projects.
 	projRepo := projects.NewRepository(db)
@@ -56,7 +60,7 @@ func main() {
 	progSvc := progress.NewService(progRepo, orgSvc)
 	progHandler := progress.NewHandler(progSvc, orgSvc)
 
-	authMiddleware := middleware.JWTAuth(cfg)
+	authMiddleware := middleware.JWTAuth(cfg, db)
 	// Roles allowed to create a brand-new organization. Anyone inside the
 	// org can be promoted to ADMIN once it exists; this only gates who can
 	// register a new one.
