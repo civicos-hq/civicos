@@ -534,6 +534,76 @@ req GET "/api/v1/audit-logs" "$CITIZEN_JWT"
 check "GET /audit-logs (citizen) → 403" "403"
 
 # ═══════════════════════════════════════════════════════════════════════════
+# 13C. HIDE ENFORCEMENT — HIDDEN flag actually removes content from lists
+# ═══════════════════════════════════════════════════════════════════════════
+section "13C. Hide enforcement — HIDDEN flag removes content from queries"
+
+# Post a citizen comment on the issue we already created, then flag it as
+# ABUSE and resolve as HIDDEN. The GET /issues/:id/comments query must
+# return one fewer row after the resolution.
+req POST "/api/v1/issues/$ISSUE_ID/comments" "$CITIZEN_JWT" '{"content":"Spam comment to be hidden by smoke test."}'
+check "POST /issues/:id/comments (target for hide)" "201"
+HIDE_COMMENT_ID=$(json_get "$BODY_FILE" "data.comment.id")
+
+req GET "/api/v1/issues/$ISSUE_ID/comments" ""
+check "GET /issues/:id/comments before hide" "200"
+BEFORE_COUNT=$(json_get "$BODY_FILE" "data.comments.length")
+
+# Different citizen would normally file the flag, but any verified user
+# can flag any content; using our test citizen keeps setup minimal.
+req POST "/api/v1/flags" "$CITIZEN_JWT" "{
+  \"contentType\": \"ISSUE_COMMENT\",
+  \"contentId\": \"$HIDE_COMMENT_ID\",
+  \"reason\": \"ABUSE\"
+}"
+check "POST /flags on the comment" "201"
+HIDE_FLAG_ID=$(json_get "$BODY_FILE" "data.flag.id")
+
+req PATCH "/api/v1/flags/$HIDE_FLAG_ID" "$ADMIN_JWT" '{"status":"HIDDEN","resolutionNote":"smoke test hide"}'
+check "PATCH /flags/:id resolve HIDDEN" "200"
+
+req GET "/api/v1/issues/$ISSUE_ID/comments" ""
+check "GET /issues/:id/comments after hide" "200"
+AFTER_COUNT=$(json_get "$BODY_FILE" "data.comments.length")
+if [[ "$AFTER_COUNT" -lt "$BEFORE_COUNT" ]]; then
+  pass "hidden comment removed from list ($BEFORE_COUNT → $AFTER_COUNT)"
+else
+  fail "hidden comment removed from list" "expected fewer, got $AFTER_COUNT (was $BEFORE_COUNT)"
+fi
+
+# Also verify announcements are filtered. Create a draft-published
+# announcement, flag+hide it, confirm the public feed drops it.
+req POST "/api/v1/organizations/$ORG_ID/announcements" "$ADMIN_JWT" '{
+  "title": "Hide-me announcement",
+  "body": "This announcement will be hidden by the smoke test.",
+  "publish": true
+}'
+check "POST announcement (target for hide)" "201"
+HIDE_ANN_ID=$(json_get "$BODY_FILE" "data.announcement.id")
+
+req GET "/api/v1/announcements" ""
+BEFORE_ANN=$(json_get "$BODY_FILE" "data.announcements.length")
+
+req POST "/api/v1/flags" "$CITIZEN_JWT" "{
+  \"contentType\": \"ANNOUNCEMENT\",
+  \"contentId\": \"$HIDE_ANN_ID\",
+  \"reason\": \"MISINFO\"
+}"
+check "POST /flags on the announcement" "201"
+HIDE_ANN_FLAG_ID=$(json_get "$BODY_FILE" "data.flag.id")
+
+req PATCH "/api/v1/flags/$HIDE_ANN_FLAG_ID" "$ADMIN_JWT" '{"status":"HIDDEN"}'
+check "PATCH /flags/:id resolve HIDDEN (announcement)" "200"
+
+req GET "/api/v1/announcements" ""
+AFTER_ANN=$(json_get "$BODY_FILE" "data.announcements.length")
+if [[ "$AFTER_ANN" -lt "$BEFORE_ANN" ]]; then
+  pass "hidden announcement dropped from public feed ($BEFORE_ANN → $AFTER_ANN)"
+else
+  fail "hidden announcement drop" "expected fewer, got $AFTER_ANN (was $BEFORE_ANN)"
+fi
+
+# ═══════════════════════════════════════════════════════════════════════════
 # 14. RATE LIMITING
 # ═══════════════════════════════════════════════════════════════════════════
 section "14. Rate limiting (Strict — /forgot-password)"
@@ -610,8 +680,12 @@ else
   # counts the target rows in RETURNING); the summary line reports what we
   # explicitly asked for, which is enough to prove cleanup happened.
   declare -a DELETES=(
-    "audit_logs|target_id='${FLAG_ID:-}'"  # audit rows written for the flag.resolved
-    "content_flags|id='${FLAG_ID:-}'"      # the flag itself
+    "audit_logs|target_id='${FLAG_ID:-}'"          # audit for flag.resolved
+    "audit_logs|target_id='${HIDE_FLAG_ID:-}'"     # audit for comment-hide
+    "audit_logs|target_id='${HIDE_ANN_FLAG_ID:-}'" # audit for announcement-hide
+    "content_flags|id='${FLAG_ID:-}'"              # the queue-only flag
+    "content_flags|id='${HIDE_FLAG_ID:-}'"         # the comment-hide flag
+    "content_flags|id='${HIDE_ANN_FLAG_ID:-}'"     # the announcement-hide flag
     "organizations|id='${ORG_ID:-}'"       # cascades: org_members, announcements, projects, issue_assignments, progress_updates
     "representatives|id='${REP_ID:-}'"     # cascades: representative_comments, representative_followers
     "petitions|id='${PET_ID:-}'"           # cascades: petition_signatures, petition_comments

@@ -9,8 +9,14 @@ type Repository struct{ db *gorm.DB }
 
 func NewRepository(db *gorm.DB) *Repository { return &Repository{db: db} }
 
+// hideFilter drops any announcement that has a HIDDEN moderator flag.
+// content_flags lives in identity-service's schema; the shared-DB
+// architecture lets us cross-reference it. If services move to isolated
+// DBs later, this becomes an HTTP call or a NATS-fed materialized view.
+const hideFilter = `id NOT IN (SELECT content_id FROM content_flags WHERE content_type = 'ANNOUNCEMENT' AND status = 'HIDDEN')`
+
 func (r *Repository) FindByOrg(orgID string, includeDrafts bool) ([]domain.Announcement, error) {
-	q := r.db.Where("organization_id = ?", orgID)
+	q := r.db.Where("organization_id = ?", orgID).Where(hideFilter)
 	if !includeDrafts {
 		q = q.Where("status = ?", domain.AnnouncementPublished)
 	}
@@ -20,7 +26,9 @@ func (r *Repository) FindByOrg(orgID string, includeDrafts bool) ([]domain.Annou
 
 func (r *Repository) FindPublished(limit int) ([]domain.Announcement, error) {
 	var list []domain.Announcement
-	q := r.db.Where("status = ?", domain.AnnouncementPublished).
+	q := r.db.
+		Where("status = ?", domain.AnnouncementPublished).
+		Where(hideFilter).
 		Order("published_at desc")
 	if limit > 0 {
 		q = q.Limit(limit)

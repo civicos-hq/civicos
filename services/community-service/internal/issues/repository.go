@@ -148,9 +148,18 @@ func (r *Repository) UpdateStatus(id string, status domain.IssueStatus) error {
 }
 
 func (r *Repository) ListComments(issueID string) ([]domain.IssueComment, error) {
+	// Filter out comments a moderator has resolved as HIDDEN. content_flags
+	// lives in identity-service's schema but the shared-DB architecture
+	// lets us cross-reference it. If services move to isolated DBs later,
+	// this becomes an HTTP call to identity-service or a materialized
+	// hidden-content view kept in sync via NATS.
 	var list []domain.IssueComment
-	return list, r.db.Where("issue_id = ?", issueID).
-		Order("created_at asc").Find(&list).Error
+	return list, r.db.
+		Where("issue_id = ?", issueID).
+		Where("id NOT IN (SELECT content_id FROM content_flags WHERE content_type = ? AND status = ?)",
+			"ISSUE_COMMENT", "HIDDEN").
+		Order("created_at asc").
+		Find(&list).Error
 }
 
 func (r *Repository) AddComment(comment *domain.IssueComment) error {

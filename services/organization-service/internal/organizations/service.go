@@ -55,6 +55,12 @@ type UpdateInput struct {
 	Email        *string `json:"email"`
 	Phone        *string `json:"phone"`
 	Website      *string `json:"website"`
+	// Verified is set exclusively by platform admins from the admin
+	// console. The verified badge is a trust signal to citizens ("this
+	// really is the Lagos Water Corp") so the toggle is deliberately
+	// separate from other org edits — an audit-loggable action in its
+	// own right (see admin/organizations page).
+	Verified *bool `json:"verified"`
 }
 
 type AddMemberInput struct {
@@ -170,6 +176,9 @@ func (s *Service) Update(id string, input UpdateInput) (*domain.Organization, er
 	}
 	if input.Website != nil {
 		updates["website"] = *input.Website
+	}
+	if input.Verified != nil {
+		updates["verified"] = *input.Verified
 	}
 	if len(updates) > 0 {
 		if err := s.repo.Update(id, updates); err != nil {

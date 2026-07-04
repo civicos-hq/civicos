@@ -16,8 +16,11 @@ type ListFilters struct {
 	PublicOnly bool
 }
 
+// See announcements/repository.go for the hide-filter rationale.
+const hideFilter = `id NOT IN (SELECT content_id FROM content_flags WHERE content_type = 'PROGRESS_UPDATE' AND status = 'HIDDEN')`
+
 func (r *Repository) Find(f ListFilters) ([]domain.ProgressUpdate, error) {
-	q := r.db.Model(&domain.ProgressUpdate{})
+	q := r.db.Model(&domain.ProgressUpdate{}).Where(hideFilter)
 	if f.OrgID != "" {
 		q = q.Where("organization_id = ?", f.OrgID)
 	}

@@ -100,9 +100,14 @@ func (r *Repository) FindFollowerIDs(repID string) ([]string, error) {
 }
 
 func (r *Repository) ListComments(repID string) ([]domain.RepresentativeComment, error) {
+	// See issues/repository.go for the hide-filter rationale.
 	var list []domain.RepresentativeComment
-	return list, r.db.Where("representative_id = ?", repID).
-		Order("created_at asc").Find(&list).Error
+	return list, r.db.
+		Where("representative_id = ?", repID).
+		Where("id NOT IN (SELECT content_id FROM content_flags WHERE content_type = ? AND status = ?)",
+			"REPRESENTATIVE_COMMENT", "HIDDEN").
+		Order("created_at asc").
+		Find(&list).Error
 }
 
 func (r *Repository) AddComment(comment *domain.RepresentativeComment) error {

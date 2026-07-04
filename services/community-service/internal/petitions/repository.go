@@ -37,9 +37,14 @@ func (r *Repository) Create(p *domain.Petition) error {
 }
 
 func (r *Repository) ListComments(petitionID string) ([]domain.PetitionComment, error) {
+	// See issues/repository.go for the hide-filter rationale.
 	var list []domain.PetitionComment
-	return list, r.db.Where("petition_id = ?", petitionID).
-		Order("created_at asc").Find(&list).Error
+	return list, r.db.
+		Where("petition_id = ?", petitionID).
+		Where("id NOT IN (SELECT content_id FROM content_flags WHERE content_type = ? AND status = ?)",
+			"PETITION_COMMENT", "HIDDEN").
+		Order("created_at asc").
+		Find(&list).Error
 }
 
 func (r *Repository) AddComment(comment *domain.PetitionComment) error {

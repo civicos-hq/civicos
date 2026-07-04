@@ -32,6 +32,15 @@ type User struct {
 	PasswordResetTokenHash        *string    `gorm:"index" json:"-"`
 	PasswordResetExpiresAt        *time.Time `json:"-"`
 
+	// Moderation state — set by an admin, never by the user themselves.
+	// When BannedAt is non-nil the user is blocked from all authenticated
+	// actions (their JWT still works until it expires, so a ban is more
+	// of a soft-delete for now — the refresh-token consumption path
+	// enforces the block on next rotation).
+	BannedAt     *time.Time `gorm:"index" json:"bannedAt,omitempty"`
+	BanReason    *string    `json:"banReason,omitempty"`
+	BannedByID   *string    `gorm:"type:uuid" json:"bannedById,omitempty"`
+
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }

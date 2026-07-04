@@ -9,6 +9,7 @@ import (
 	"github.com/civicos/identity-service/internal/auth"
 	"github.com/civicos/identity-service/internal/flags"
 	"github.com/civicos/identity-service/internal/middleware"
+	"github.com/civicos/identity-service/internal/users"
 	"github.com/civicos/identity-service/pkg/config"
 	"github.com/civicos/identity-service/pkg/database"
 	"github.com/civicos/identity-service/pkg/mailer"
@@ -46,10 +47,14 @@ func main() {
 	auditRepo := auditlogs.NewRepository(db)
 	auditHandler := auditlogs.NewHandler(auditRepo)
 
+	userRepo := users.NewRepository(db)
+	userSvc := users.NewService(userRepo)
+	userHandler := users.NewHandler(userSvc, auditor)
+
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowOrigins:     []string{"http://localhost:5173", "http://localhost:5174"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		AllowCredentials: true,
@@ -69,6 +74,7 @@ func main() {
 	v1 := r.Group("/v1")
 	flagHandler.RegisterRoutes(v1.Group("/flags"), authMiddleware, requireVerified, requireAdmin)
 	auditHandler.RegisterRoutes(v1.Group("/audit-logs"), authMiddleware, requireAdmin)
+	userHandler.RegisterRoutes(v1.Group("/users"), authMiddleware, requireAdmin)
 
 	addr := fmt.Sprintf(":%d", cfg.Port)
 	log.Printf("🚀 Identity Service running on %s", addr)

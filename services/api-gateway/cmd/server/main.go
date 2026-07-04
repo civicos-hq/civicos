@@ -43,7 +43,7 @@ func main() {
 	r.Use(func(c *gin.Context) {
 		// Allow frontend origins
 		origin := c.Request.Header.Get("Origin")
-		if origin == "http://localhost:5173" || origin == "http://localhost:5174" {
+		if origin == "http://localhost:5173" || origin == "http://localhost:5174" || origin == "http://localhost:5175" {
 			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
 			c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		} else if origin != "" {
@@ -105,6 +105,14 @@ func main() {
 	r.PATCH("/api/v1/flags/:id", authMiddleware, limitStandard, identityProtected)
 	// Audit log — admin-only read surface.
 	r.GET("/api/v1/audit-logs", authMiddleware, identityProtected)
+
+	// User administration — admin-only. Ban/unban and role change all
+	// write to the audit log inside the identity-service handlers.
+	r.GET("/api/v1/users", authMiddleware, identityProtected)
+	r.GET("/api/v1/users/:id", authMiddleware, identityProtected)
+	r.PATCH("/api/v1/users/:id/role", authMiddleware, limitStandard, identityProtected)
+	r.POST("/api/v1/users/:id/ban", authMiddleware, limitStandard, identityProtected)
+	r.POST("/api/v1/users/:id/unban", authMiddleware, limitStandard, identityProtected)
 
 	// --- Community Service ---
 	communityProxy := proxy.NewReverseProxy(cfg.CommunityServiceURL, "/api")
