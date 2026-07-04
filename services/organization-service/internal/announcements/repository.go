@@ -37,8 +37,16 @@ func (r *Repository) FindPublished(limit int) ([]domain.Announcement, error) {
 }
 
 func (r *Repository) FindByID(id string) (*domain.Announcement, error) {
+	// Deep-link protection: an announcement flagged HIDDEN by a moderator
+	// must return the same "not found" as a genuinely missing row from
+	// the citizen surface. Members + admins can still see it via the
+	// draft-inclusive queries because admins pull through the queue
+	// path, not GET-by-id.
 	var a domain.Announcement
-	return &a, r.db.Where("id = ?", id).First(&a).Error
+	return &a, r.db.
+		Where("id = ?", id).
+		Where(hideFilter).
+		First(&a).Error
 }
 
 func (r *Repository) Create(a *domain.Announcement) error {

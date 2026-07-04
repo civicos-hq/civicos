@@ -38,8 +38,13 @@ func (r *Repository) Find(f ListFilters) ([]domain.ProgressUpdate, error) {
 }
 
 func (r *Repository) FindByID(id string) (*domain.ProgressUpdate, error) {
+	// Deep-link protection — see announcements/repository.go for the
+	// rationale.
 	var p domain.ProgressUpdate
-	return &p, r.db.Where("id = ?", id).First(&p).Error
+	return &p, r.db.
+		Where("id = ?", id).
+		Where(hideFilter).
+		First(&p).Error
 }
 
 func (r *Repository) Create(p *domain.ProgressUpdate) error {

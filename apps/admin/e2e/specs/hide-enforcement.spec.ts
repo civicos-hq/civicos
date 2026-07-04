@@ -72,11 +72,29 @@ test.describe('hide enforcement — moderator hide removes content from citizen 
       })
       .toBe('HIDDEN');
 
-    // Citizen-facing list no longer returns the comment.
+    // Citizen-facing list still returns the comment as a placeholder row
+    // (isHidden=true, content + authorName replaced). The original
+    // content and author name must NOT appear anywhere in the response
+    // — that's the actual privacy/moderation guarantee.
     const after = await fetch(`http://localhost:3000/api/v1/issues/${issueId}/comments`).then(
-      (r) => r.json() as Promise<{ data: { comments: unknown[] } }>,
+      (r) =>
+        r.json() as Promise<{
+          data: {
+            comments: Array<{
+              id: string;
+              content: string;
+              authorName: string;
+              isHidden?: boolean;
+            }>;
+          };
+        }>,
     );
-    expect(after.data.comments.length).toBe(0);
+    expect(after.data.comments.length).toBe(1);
+    const hiddenRow = after.data.comments[0];
+    expect(hiddenRow.isHidden).toBe(true);
+    expect(hiddenRow.content).toBe('[Removed by moderator]');
+    expect(hiddenRow.authorName).toBe('[Removed]');
+    expect(hiddenRow.content).not.toContain('This comment will be hidden');
 
     // Cleanup — reverse dependency order.
     sql(`DELETE FROM audit_logs WHERE target_id='${flagId}';`);

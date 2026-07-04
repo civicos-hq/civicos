@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/civicos/community-service/internal/domain"
+	"github.com/civicos/community-service/internal/moderation"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )

@@ -141,6 +141,11 @@ export interface Comment {
   authorName: string;
   authorRole: UserRole;
   isOfficialResponse: boolean;
+  // isHidden is true when a moderator has hidden this comment. The
+  // server replaces content and authorName with placeholders on the way
+  // out; the UI just needs this flag to render the row in a muted style
+  // (see CommentsSection).
+  isHidden?: boolean;
   createdAt: ISODateTime;
 }
 

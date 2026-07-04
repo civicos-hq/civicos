@@ -15,17 +15,22 @@ export function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      // Same /auth/login endpoint the citizen app uses. We just enforce
-      // an extra role gate on the response before storing the session.
+      // Same /auth/login endpoint the citizen app uses. Response shape
+      // is `{user, tokens: {accessToken, refreshToken, expiresIn}}` —
+      // the accessToken lives under `tokens`, NOT at the top of data.
+      // Reading it from the wrong path silently stored `undefined`
+      // (see git blame here for the exact bug that made the dashboard
+      // flash for a millisecond then bounce back to login).
       const res = await api.post<{
         success: boolean;
         data: {
-          accessToken: string;
+          tokens: { accessToken: string; refreshToken: string; expiresIn: number };
           user: { id: string; email: string; name: string; role: string; emailVerified: boolean };
         };
       }>('/api/v1/auth/login', { email, password });
 
-      const { accessToken, user } = res.data.data;
+      const { tokens, user } = res.data.data;
+      const accessToken = tokens.accessToken;
 
       if (user.role !== 'PLATFORM_ADMIN') {
         setError(
