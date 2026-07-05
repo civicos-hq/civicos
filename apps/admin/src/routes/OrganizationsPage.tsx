@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { CheckCircle2, XCircle } from 'lucide-react';
+import { CheckCircle2, Plus, XCircle } from 'lucide-react';
 import { apiGet, apiPatch } from '../lib/api';
 
 interface AdminOrganization {
@@ -52,12 +52,20 @@ export function OrganizationsPage() {
   return (
     <>
       <header className="admin-page-header">
-        <p className="admin-page-eyebrow">Section — Organizations</p>
-        <h1 className="admin-page-title">Organization management</h1>
-        <p className="admin-page-sub">
-          Grant or revoke the verified badge that citizens see on government agencies, utilities,
-          and NGOs. Each change is audited.
-        </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="admin-page-eyebrow">Section — Organizations</p>
+            <h1 className="admin-page-title">Organization management</h1>
+            <p className="admin-page-sub">
+              Grant or revoke the verified badge that citizens see on government agencies,
+              utilities, and NGOs. Each change is audited.
+            </p>
+          </div>
+          <Link to="/organizations/new" className="admin-btn admin-btn-primary">
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            New organization
+          </Link>
+        </div>
       </header>
 
       <div className="admin-table-shell">

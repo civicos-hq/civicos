@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   LogOut,
   MapPin,
+  UserSquare2,
   Users,
 } from 'lucide-react';
 import { clearSession, getSession } from '../lib/api';
@@ -33,6 +34,7 @@ export function AdminShell() {
         <p className="admin-nav-section">People</p>
         <NavLinkItem to="/users" icon={Users} label="Users" />
         <NavLinkItem to="/communities" icon={MapPin} label="Communities" />
+        <NavLinkItem to="/representatives" icon={UserSquare2} label="Representatives" />
         <NavLinkItem to="/organizations" icon={Building2} label="Organizations" />
 
         <p className="admin-nav-section">Trust</p>

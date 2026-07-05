@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { Plus } from 'lucide-react';
 import { apiGet } from '../lib/api';
 
 interface AdminCommunity {
@@ -37,12 +38,20 @@ export function CommunitiesPage() {
   return (
     <>
       <header className="admin-page-header">
-        <p className="admin-page-eyebrow">Section — Communities</p>
-        <h1 className="admin-page-title">Communities</h1>
-        <p className="admin-page-sub">
-          Every community on the platform. Click a row to see its per-community breakdown — issue
-          volume, petitions, representatives, citizen count.
-        </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="admin-page-eyebrow">Section — Communities</p>
+            <h1 className="admin-page-title">Communities</h1>
+            <p className="admin-page-sub">
+              Every community on the platform. Click a row to see its per-community breakdown —
+              issue volume, petitions, representatives, citizen count.
+            </p>
+          </div>
+          <Link to="/communities/new" className="admin-btn admin-btn-primary">
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            New community
+          </Link>
+        </div>
       </header>
 
       <div className="admin-table-shell">
