@@ -2,7 +2,6 @@
   "pageHeader": {
     "publicRecord": "Public"
   },
-
   "rateLimit": {
     "title": "Slow down for a moment.",
     "body": "You're doing that too fast. Try again in {{seconds}}s.",
@@ -10,7 +9,6 @@
     "bodyCountdown": "Try again in {{seconds}}s.",
     "genericBody": "You're doing that too fast. Please wait a moment."
   },
-
   "common": {
     "mainNav": "Main navigation",
     "topbar": "Top toolbar",
@@ -37,7 +35,6 @@
     "memberCount_one": "{{count}} member",
     "memberCount_other": "{{count}} members"
   },
-
   "time": {
     "justNow": "just now",
     "minutesAgo_one": "{{count}} min ago",
@@ -53,7 +50,6 @@
     "yearsAgo_one": "{{count}} year ago",
     "yearsAgo_other": "{{count}} years ago"
   },
-
   "enums": {
     "issueStatus": {
       "OPEN": "Open",
@@ -94,7 +90,6 @@
       "SYSTEM": "System"
     }
   },
-
   "representativeDetail": {
     "backToRepresentatives": "← Back to representatives",
     "loadError": "Couldn't load this representative.",
@@ -130,7 +125,6 @@
       "save": "Save"
     }
   },
-
   "petitionDetail": {
     "backToPetitions": "← Back to petitions",
     "loadError": "Couldn't load this petition. It may have been removed.",
@@ -150,7 +144,6 @@
     "onlyActive": "Only active petitions can be signed",
     "signError": "Could not sign. Please try again."
   },
-
   "issueDetail": {
     "backToIssues": "← Back to issues",
     "loadError": "Couldn't load this issue. It may have been removed.",
@@ -174,7 +167,6 @@
       "orgFallback": "View organization"
     }
   },
-
   "report": {
     "buttonLabel": "Report",
     "buttonAria": "Report this content to moderators",
@@ -220,7 +212,6 @@
       "generic": "Couldn't send the report. Please try again in a moment."
     }
   },
-
   "comments": {
     "heading": "Discussion",
     "placeholder": "Add to the discussion…",
@@ -231,7 +222,6 @@
     "postError": "Could not post your comment. Try again.",
     "removed": "This comment was removed by a moderator."
   },
-
   "search": {
     "placeholder": "Search issues, petitions, representatives…",
     "typeToSearch": "Type at least 2 characters to search",
@@ -243,7 +233,6 @@
       "representatives": "Representatives"
     }
   },
-
   "discoverPage": {
     "eyebrow": "Discover",
     "title": "What's happening near you",
@@ -282,7 +271,6 @@
       "signaturesOf": "{{signatures}}/{{goal}} signatures"
     }
   },
-
   "representativesPage": {
     "eyebrow": "Representative Board",
     "title": "Who is accountable for what",
@@ -334,7 +322,6 @@
       "submit": "Add representative"
     }
   },
-
   "petitionsPage": {
     "eyebrow": "Petition Studio",
     "title": "Organize collective voice",
@@ -382,11 +369,10 @@
       "submit": "Publish petition"
     }
   },
-
   "issuesPage": {
     "eyebrow": "Issue Desk",
     "title": "Community signal board",
-    "reportBtn": "+ Report Issue",
+    "reportBtn": "+ Raise an issue",
     "joinCommunityFirst": "Join a community first",
     "noCommunityBanner": "You haven't joined a community yet.",
     "pickOne": "Pick one",
@@ -413,7 +399,7 @@
       "upvotes_other": "{{count}} upvotes"
     },
     "modal": {
-      "title": "Report an issue",
+      "title": "Raise an issue",
       "titleLabel": "Title",
       "titlePlaceholder": "Streetlight outage on Adeniran",
       "description": "Description",
@@ -427,10 +413,9 @@
       "photosFull": "Maximum {{max}} photos selected",
       "removePhoto": "Remove {{name}}",
       "genericError": "Could not create issue. Check your inputs and try again.",
-      "submit": "Report issue"
+      "submit": "Post issue"
     }
   },
-
   "communityPage": {
     "eyebrow": "Community",
     "findYours": "Find your community",
@@ -471,7 +456,6 @@
       "create": "Create community"
     }
   },
-
   "profilePage": {
     "eyebrow": "Civic Profile",
     "loadingProfile": "Loading your profile…",
@@ -518,7 +502,6 @@
       "errorGeneric": "Couldn't delete your account. Try again in a moment."
     }
   },
-
   "notificationsPage": {
     "eyebrow": "Notification Center",
     "title": "Civic activity feed",
@@ -530,7 +513,6 @@
     "empty": "You don't have any notifications yet. They'll appear here when activity reaches you.",
     "unread": "Unread"
   },
-
   "nav": {
     "brandSubtitle": "Public Record · Est. 2026",
     "links": {
@@ -542,7 +524,6 @@
     "signIn": "Sign in",
     "register": "Register"
   },
-
   "hero": {
     "masthead": "Vol. 01 · No. 001 · Open Civic Infrastructure",
     "headline": "Democracy is <em>daily</em>, not just on election day.",
@@ -559,7 +540,6 @@
       "footer": "80 ON RECORD · 16 ACTIVE THIS WEEK"
     }
   },
-
   "docket": {
     "title": "Today's docket",
     "live": "Live · Updated {{time}} WAT",
@@ -569,9 +549,19 @@
       "petition": "Petition",
       "response": "Response",
       "resolved": "Resolved"
+    },
+    "chromeUrl": "civicos.gov · My Community",
+    "eyebrow": "Live activity",
+    "district": "Communities across Nigeria",
+    "liveLabel": "Live",
+    "reportedAt": "Reported at {{time}}",
+    "pill": {
+      "issue": "Under review",
+      "petition": "Open",
+      "response": "Responded",
+      "resolved": "Resolved"
     }
   },
-
   "parties": {
     "marker": "§ 01 — Parties of record",
     "title": "Built for everyone in public life",
@@ -596,7 +586,6 @@
       "body": "Aggregate community signals, organise petitions, and measure impact with structured civic data instead of anecdote."
     }
   },
-
   "articles": {
     "marker": "§ 02 — Articles",
     "title": "Continuous participation, not just at election time",
@@ -625,7 +614,6 @@
       "body": "Every interaction is timestamped and traceable. Public information stays public; personal data stays private."
     }
   },
-
   "principles": {
     "marker": "§ 03 — Founding principles",
     "title": "Five principles, written before the code",
@@ -638,7 +626,6 @@
     },
     "note": "Just as digital banking modernised how we move money, <em>CivicOS modernises how we participate in democracy</em> — transparent, accessible, and built to last."
   },
-
   "steps": {
     "marker": "§ 04 — Procedure",
     "title": "From sign-up to civic action in under five minutes",
@@ -664,7 +651,6 @@
     },
     "stepLabel": "Step {{n}}"
   },
-
   "faq": {
     "marker": "§ 05 — Queries",
     "title": "Questions, on the record",
@@ -694,7 +680,6 @@
       "a": "Every account is identity-verified at sign-up. Comments and submissions are rate-limited, moderated against community guidelines, and traceable to a real account. Petitions require unique signatures — one citizen, one signature."
     }
   },
-
   "newsletter": {
     "marker": "§ 06 — Public dispatch",
     "title": "Subscribe to The Dispatch — be first to know when CivicOS lands in your area",
@@ -705,7 +690,6 @@
     "doneTitle": "You're on the list.",
     "doneSub": "We'll be in touch as we expand coverage."
   },
-
   "cta": {
     "eyebrow": "Register your voice",
     "title": "Ready to take <em>part</em>?",
@@ -713,7 +697,6 @@
     "ctaPrimary": "Create your account",
     "ctaSecondary": "Sign in"
   },
-
   "footer": {
     "mission": "Strengthening democratic participation through secure, transparent, accessible digital infrastructure.",
     "meta": "© {{year}} CivicOS — Open civic infrastructure",
@@ -728,7 +711,6 @@
       "open": "Built in the open"
     }
   },
-
   "terms": {
     "eyebrow": "The Public Record — Terms of Service",
     "title": "Terms of service",
@@ -789,7 +771,6 @@
       }
     }
   },
-
   "privacy": {
     "eyebrow": "The Public Record — Privacy Notice",
     "title": "Privacy notice",
@@ -847,7 +828,6 @@
       }
     }
   },
-
   "auth": {
     "fields": {
       "fullName": "Full name",
@@ -966,7 +946,6 @@
       "bannerCompact": "Verify your email to file, sign, and comment."
     }
   },
-
   "sidebar": {
     "discover": "Discover",
     "community": "Community",
@@ -978,7 +957,6 @@
     "profile": "Profile",
     "signOut": "Sign out"
   },
-
   "organizationsPage": {
     "eyebrow": "Section — Organizations",
     "title": "The organizations on the record",
@@ -1024,7 +1002,6 @@
       }
     }
   },
-
   "organizationDetail": {
     "backToList": "← Back to organizations",
     "loadError": "We couldn't load this organization.",
@@ -1082,7 +1059,6 @@
       "REJECTED": "Rejected"
     }
   },
-
   "language": {
     "label": "Language",
     "en": "English",

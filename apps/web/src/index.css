@@ -489,25 +489,26 @@ button {
 */
 
 .home-shell {
-  /* Electric-navy palette — direct port of the LinkiSwap V2 tokens.
-     The Public Record structure stays; the light changes. */
-  --pr-bg:        #00071F;
-  --pr-panel:     #060C22;
-  --pr-card:      #0D1635;
-  --pr-card-up:   #14185A;
+  /* Dark graph-paper palette — inspired by Render's startups page.
+     Near-black background with a subtle white grid overlay, geometric sans
+     throughout (Space Grotesk stands in for their PP Neue Montreal). */
+  --pr-bg:        #0D0D0D;
+  --pr-panel:     #141414;
+  --pr-card:      #191919;
+  --pr-card-up:   #272727;
 
-  --pr-text:      #EEF2FF;
-  --pr-muted:     #8BA2F9;
-  --pr-faint:     #545969;
+  --pr-text:      #FFFFFF;
+  --pr-muted:     #A3A3A3;
+  --pr-faint:     #545454;
 
-  --pr-primary:   #424AF6;
-  --pr-cyan:      #61E5FC;
-  --pr-mint:      #7CF6B5;
-  --pr-lavender:  #C4C7FC;
+  --pr-primary:   #3B82F6;
+  --pr-cyan:      #38BDF8;
+  --pr-mint:      #7DD3FC;
+  --pr-lavender:  #E2E2E2;
 
-  --pr-border:    rgba(196, 199, 252, 0.10);
-  --pr-border-cy: rgba(97, 229, 252, 0.30);
-  --pr-border-bl: rgba(66, 74, 246, 0.40);
+  --pr-border:    rgba(255, 255, 255, 0.08);
+  --pr-border-cy: rgba(56, 189, 248, 0.30);
+  --pr-border-bl: rgba(59, 130, 246, 0.40);
 
   /* Legacy aliases so the rest of the home stylesheet keeps working
      without a full rename pass. */
@@ -515,25 +516,30 @@ button {
   --pr-ink-soft:   var(--pr-muted);
   --pr-ink-mute:   var(--pr-faint);
   --pr-paper:      var(--pr-card);
-  --pr-paper-soft: rgba(13, 22, 53, 0.55);
-  --pr-paper-deep: rgba(20, 24, 90, 0.55);
+  --pr-paper-soft: rgba(25, 25, 25, 0.55);
+  --pr-paper-deep: rgba(39, 39, 39, 0.55);
   --pr-rule:       var(--pr-border);
   --pr-rule-soft:  var(--pr-border);
-  --pr-rule-hair:  rgba(196, 199, 252, 0.08);
+  --pr-rule-hair:  rgba(255, 255, 255, 0.04);
   --pr-stamp:      var(--pr-cyan);
   --pr-seal:       var(--pr-mint);
 
   --pr-mono:  'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  --pr-serif: 'Instrument Serif', Georgia, serif;
-  --pr-sans:  'Inter', system-ui, sans-serif;
+  --pr-serif: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  --pr-sans:  'Space Grotesk', 'Inter', system-ui, sans-serif;
   --pr-pad:   clamp(1.25rem, 4vw, 2.5rem);
-  --pr-max:   1200px;
+  --pr-max:   1320px;
 
   position: relative;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--pr-bg);
+  /* Subtle 40px graph-paper grid over the near-black base — 1px lines at
+     8% white alpha, exactly the pattern Render uses on their startups page. */
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 0) 0 0 / 40px 40px,
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05) 1px, transparent 0) 0 0 / 40px 40px,
+    var(--pr-bg);
   color: var(--pr-text);
   font-family: var(--pr-sans);
   font-weight: 400;
@@ -553,7 +559,7 @@ button {
   align-items: center;
   gap: 1.25rem;
   padding: 0.7rem var(--pr-pad);
-  background: rgba(0, 7, 31, 0.78);
+  background: rgba(13, 13, 13, 0.78);
   backdrop-filter: blur(10px) saturate(140%);
   -webkit-backdrop-filter: blur(10px) saturate(140%);
   border-bottom: 1px solid var(--pr-border);
@@ -575,7 +581,7 @@ button {
   border-radius: 10px;
   background: #ffffff;
   padding: 3px;
-  box-shadow: 0 6px 22px rgba(66, 74, 246, 0.32);
+  box-shadow: 0 6px 22px rgba(59, 130, 246, 0.32);
   overflow: hidden;
   flex: none;
 }
@@ -674,7 +680,7 @@ button {
 }
 
 .home-btn:hover {
-  border-color: rgba(97, 229, 252, 0.6);
+  border-color: rgba(56, 189, 248, 0.6);
 }
 
 .home-btn-lg {
@@ -687,14 +693,14 @@ button {
   color: var(--pr-bg);
   font-weight: 600;
   border: none;
-  box-shadow: 0 8px 28px rgba(66, 74, 246, 0.4);
+  box-shadow: 0 8px 28px rgba(59, 130, 246, 0.4);
   position: relative;
   overflow: hidden;
 }
 
 .home-btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 36px rgba(66, 74, 246, 0.55);
+  box-shadow: 0 12px 36px rgba(59, 130, 246, 0.55);
   color: var(--pr-bg);
 }
 
@@ -725,8 +731,8 @@ button {
 }
 
 .home-btn-on-dark:hover {
-  border-color: rgba(97, 229, 252, 0.6);
-  background: rgba(97, 229, 252, 0.06);
+  border-color: rgba(56, 189, 248, 0.6);
+  background: rgba(56, 189, 248, 0.06);
   color: var(--pr-text);
 }
 
@@ -768,7 +774,7 @@ button {
 .home-hero-title em {
   font-style: italic;
   font-weight: 400;
-  background: linear-gradient(110deg, #424AF6, #8BA2F9, #61E5FC, #7CF6B5, #61E5FC, #424AF6);
+  background: linear-gradient(110deg, #3B82F6, #93C5FD, #38BDF8, #7DD3FC, #38BDF8, #3B82F6);
   background-size: 300% 300%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -805,7 +811,7 @@ button {
 
 .home-hero-art { display: none; }
 
-/* ── Hero body: copy on the left, citizen-register card on the right ── */
+/* Hero body: copy on the left, live docket on the right at wide widths. */
 .home-hero-body {
   display: block;
 }
@@ -814,126 +820,123 @@ button {
   min-width: 0;
 }
 
-.hero-art {
-  margin: 2rem auto 0;
-  width: 100%;
-  max-width: 380px;
+/* When the docket sits inside the hero body it's a live "receipt" beside
+   the headline, not the section-wide signature element that trails the copy
+   on mobile. Overrides here scope only to that hero-column context. */
+.home-hero-body > .docket {
+  margin-top: 2rem;
   animation: pr-rise 640ms 220ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
-}
-
-.hero-art svg {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-.hero-art-header {
-  font-family: var(--pr-mono);
-  font-size: 10px;
-  letter-spacing: 2px;
-  fill: rgba(196, 199, 252, 0.7);
-}
-
-.hero-art-live-text {
-  font-family: var(--pr-mono);
-  font-size: 10px;
-  letter-spacing: 2px;
-  fill: rgba(97, 229, 252, 0.9);
-}
-
-.hero-art-live circle {
-  animation: pr-pulse-dot 2s ease-in-out infinite;
-}
-
-.hero-art-signature {
-  fill: none;
-  stroke: var(--pr-cyan);
-  stroke-width: 1.4;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  filter: drop-shadow(0 0 4px rgba(97, 229, 252, 0.4));
-  stroke-dasharray: 520;
-  stroke-dashoffset: 520;
-  animation: pr-sign-draw 1600ms cubic-bezier(0.5, 0, 0.5, 1) 1500ms both;
-}
-
-.hero-art-stamp-primary {
-  font-family: var(--pr-mono);
-  font-size: 9px;
-  letter-spacing: 1.5px;
-  fill: rgba(124, 246, 181, 0.92);
-  font-weight: 600;
-}
-
-.hero-art-stamp-secondary {
-  font-family: var(--pr-mono);
-  font-size: 7px;
-  letter-spacing: 1.6px;
-  fill: rgba(124, 246, 181, 0.66);
-}
-
-.hero-art-footer {
-  font-family: var(--pr-mono);
-  font-size: 8px;
-  letter-spacing: 2px;
-  fill: rgba(196, 199, 252, 0.42);
 }
 
 @media (min-width: 960px) {
   .home-hero-body {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
-    gap: clamp(2rem, 4vw, 3.5rem);
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 460px);
+    gap: clamp(4rem, 7vw, 6rem);
     align-items: start;
   }
-  .hero-art {
-    margin: 0;
-    max-width: 100%;
+  .home-hero-body > .docket {
+    margin-top: 0;
   }
 }
 
-/* ── DOCKET (signature element) ── */
+/* ── DOCKET · "My Community" browser-chrome preview card ──
+   Warm parchment body sitting inside a mock browser chrome. Designed to
+   read as a screenshot of the citizen app — dark forest header (matches
+   the page's green background), cream card body, and up to two live
+   record cards showing what community activity looks like in situ. */
 .docket {
+  --dk-chrome:      #0A3826;
+  --dk-chrome-dot:  #7A8B7C;
+  --dk-chrome-url:  #B8C4B0;
+  --dk-paper:       #FAF7EE;
+  --dk-paper-soft:  #FCFAF3;
+  --dk-rule:        #E8E1CE;
+  --dk-ink:         #1F2419;
+  --dk-ink-soft:    #6B6E5F;
+  --dk-live:        #2E7D32;
+  --dk-review-bg:   #F0E5C8;
+  --dk-review-ink:  #6B5A2A;
+  --dk-open-bg:     #DBEEDA;
+  --dk-open-ink:    #2E5F30;
+  --dk-progress-done:    #3A5A32;
+  --dk-progress-pending: #D9CFAE;
+
   margin-top: clamp(2.5rem, 5vw, 4rem);
-  border: 1px solid var(--pr-border);
-  border-radius: 16px;
-  background: var(--pr-card);
-  box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.04) inset,
-    0 20px 60px rgba(0, 7, 31, 0.5);
+  border-radius: 14px;
+  background: var(--dk-paper);
+  color: var(--dk-ink);
   overflow: hidden;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 24px 60px rgba(2, 20, 12, 0.55),
+    0 6px 18px rgba(2, 20, 12, 0.35);
 }
 
-.docket-head {
+.docket-chrome {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.72rem 0.95rem;
+  background: var(--dk-chrome);
+  font-family: var(--pr-sans);
+  font-size: 0.78rem;
+  color: var(--dk-chrome-url);
+}
+
+.docket-chrome-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 999px;
+  background: var(--dk-chrome-dot);
+  opacity: 0.72;
+}
+
+.docket-chrome-url {
+  margin-left: 0.7rem;
+  letter-spacing: 0.005em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.docket-body {
+  padding: 1.15rem 1.15rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.docket-meta {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.5rem 1rem;
-  padding: 0.8rem 1.1rem;
-  border-bottom: 1px solid var(--pr-rule);
-  font-family: var(--pr-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.18em;
+  gap: 0.75rem;
+  font-family: var(--pr-sans);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--pr-ink);
+  color: var(--dk-ink-soft);
 }
 
-.docket-title { font-weight: 600; }
+.docket-eyebrow { font-weight: 600; }
 
 .docket-live {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  color: var(--pr-ink-soft);
+  gap: 0.4rem;
+  color: var(--dk-live);
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  text-transform: none;
+  font-size: 0.78rem;
 }
 
-.docket-live::before {
-  content: '';
+.docket-live-dot {
   width: 0.45rem;
   height: 0.45rem;
-  background: var(--pr-stamp);
   border-radius: 999px;
+  background: var(--dk-live);
   animation: docket-pulse 1.6s ease-in-out infinite;
 }
 
@@ -943,70 +946,197 @@ button {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .docket-live::before { animation: none; }
+  .docket-live-dot { animation: none; }
 }
 
-.docket-list { display: flex; flex-direction: column; }
-
-.docket-row {
-  display: grid;
-  grid-template-columns: 4.5rem 5.5rem 6rem 1fr;
-  gap: 0.85rem;
-  align-items: baseline;
-  padding: 0.75rem 1.1rem;
-  border-top: 1px solid var(--pr-rule-hair);
-  font-family: var(--pr-mono);
-  font-size: 0.78rem;
-  color: var(--pr-ink);
+.docket-district {
+  margin: 0;
+  font-family: var(--pr-serif);
+  font-weight: 700;
+  font-size: clamp(1.55rem, 3vw, 1.95rem);
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  color: var(--dk-ink);
 }
 
-.docket-row:first-child { border-top: none; }
-
-.docket-time,
-.docket-code {
-  color: var(--pr-ink-soft);
-  letter-spacing: 0.04em;
+.docket-records {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
-.docket-type {
-  display: inline-block;
-  font-size: 0.62rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  padding: 0.18rem 0.5rem;
-  border: 1px solid var(--pr-ink);
-  text-align: center;
+.docket-record {
+  background: var(--dk-paper-soft);
+  border: 1px solid var(--dk-rule);
+  border-radius: 10px;
+  padding: 0.85rem 0.95rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.docket-record.is-new {
+  animation: docket-record-in 640ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes docket-record-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.docket-record-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.65rem;
+}
+
+.docket-record-title {
+  margin: 0;
+  font-family: var(--pr-sans);
   font-weight: 600;
-  font-family: var(--pr-mono);
+  font-size: 0.98rem;
+  line-height: 1.32;
+  color: var(--dk-ink);
+  letter-spacing: -0.005em;
+}
+
+.docket-pill {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.22rem 0.6rem;
+  border-radius: 999px;
+  font-family: var(--pr-sans);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.005em;
   white-space: nowrap;
 }
 
-.docket-type--issue    { color: var(--pr-cyan); border-color: rgba(97, 229, 252, 0.5); }
-.docket-type--petition { color: var(--pr-lavender); border-color: rgba(196, 199, 252, 0.4); }
-.docket-type--response { color: var(--pr-mint); border-color: rgba(124, 246, 181, 0.4); background: rgba(124, 246, 181, 0.06); }
-.docket-type--resolved { color: var(--pr-bg); background: var(--pr-mint); border-color: var(--pr-mint); font-weight: 600; }
+.docket-pill--issue     { background: var(--dk-review-bg); color: var(--dk-review-ink); }
+.docket-pill--petition  { background: var(--dk-open-bg);   color: var(--dk-open-ink); }
+.docket-pill--response  { background: var(--dk-open-bg);   color: var(--dk-open-ink); }
+.docket-pill--resolved  { background: var(--dk-progress-done); color: var(--dk-paper); }
 
-.docket-title-cell {
-  font-family: var(--pr-sans);
-  font-size: 0.93rem;
-  color: var(--pr-ink);
-  font-weight: 500;
-  letter-spacing: -0.005em;
-  line-height: 1.4;
+.docket-progress {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.35rem;
 }
 
-@media (max-width: 720px) {
-  .docket-row {
-    grid-template-columns: auto auto auto;
-    grid-template-areas:
-      "time code type"
-      "title title title";
-    gap: 0.45rem 0.7rem;
-  }
-  .docket-time      { grid-area: time; }
-  .docket-code      { grid-area: code; }
-  .docket-type      { grid-area: type; justify-self: start; }
-  .docket-title-cell{ grid-area: title; padding-top: 0.15rem; }
+.docket-progress-seg {
+  height: 0.32rem;
+  border-radius: 2px;
+  background: var(--dk-progress-pending);
+}
+
+.docket-progress-seg.is-done {
+  background: var(--dk-progress-done);
+}
+
+.docket-record-meta {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-family: var(--pr-sans);
+  font-size: 0.78rem;
+  color: var(--dk-ink-soft);
+}
+
+.docket-record-code {
+  font-family: var(--pr-mono);
+  letter-spacing: 0.04em;
+}
+
+/* ─── Motion additions ────────────────────────────────────────────────
+   Layer of subtle animations added on top of the base homepage motion.
+   Everything here respects prefers-reduced-motion via the shell-level
+   opt-out at the bottom of the homepage stylesheet.  */
+
+/* ── Hero cursor spotlight ── */
+/* A soft blue radial glow that follows the pointer across the hero. --mx /
+   --my are set from JS (useHeroSpotlight). The pseudo sits below content
+   via z-index and only fires on fine pointers — touch skips the effect. */
+.home-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(
+    520px circle at var(--mx, 50%) var(--my, 30%),
+    rgba(59, 130, 246, 0.18),
+    rgba(59, 130, 246, 0.06) 30%,
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 320ms ease;
+}
+.home-hero:hover::before { opacity: 1; }
+@media (hover: none) {
+  .home-hero::before { display: none; }
+}
+.home-hero > * { position: relative; z-index: 1; }
+
+/* ── Primary CTA — breathing glow ── */
+/* Existing hover-shimmer stays. Adds an ambient shadow pulse so the CTA
+   quietly draws the eye when the visitor is idle. */
+.home-btn-primary {
+  animation: cta-breathe 4.6s ease-in-out infinite;
+}
+@keyframes cta-breathe {
+  0%, 100% { box-shadow: 0 8px 28px rgba(59, 130, 246, 0.35); }
+  50%      { box-shadow: 0 12px 40px rgba(59, 130, 246, 0.6); }
+}
+.home-btn-primary:hover { animation: none; }
+
+/* ── Docket record — hover lift + blue border ── */
+.docket-record {
+  transition:
+    transform 220ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    border-color 220ms ease,
+    box-shadow 220ms ease;
+}
+.home-hero-body > .docket .docket-record:hover {
+  transform: translateY(-2px);
+  border-color: rgba(59, 130, 246, 0.35);
+  box-shadow: 0 8px 22px rgba(59, 130, 246, 0.14);
+}
+
+/* ── Docket progress bars — cascade draw ── */
+/* Each of the four segments scales from left with a stagger so the bar
+   feels like it's "compiling" — reinforces the "live record" story. */
+.docket-progress-seg {
+  transform-origin: left;
+  animation: pr-seg-draw 520ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.docket-progress-seg:nth-child(1) { animation-delay: 200ms; }
+.docket-progress-seg:nth-child(2) { animation-delay: 340ms; }
+.docket-progress-seg:nth-child(3) { animation-delay: 480ms; }
+.docket-progress-seg:nth-child(4) { animation-delay: 620ms; }
+@keyframes pr-seg-draw {
+  from { transform: scaleX(0); opacity: 0.4; }
+  to   { transform: scaleX(1); opacity: 1;  }
+}
+
+/* ── Nav — scroll polish ── */
+/* Once past the hero (~80px scroll), thicken the backdrop-blur and add a
+   soft bottom shadow so the nav visually separates from content below. */
+.home-nav {
+  transition:
+    background 240ms ease,
+    backdrop-filter 240ms ease,
+    box-shadow 240ms ease,
+    border-color 240ms ease;
+}
+.home-nav.is-scrolled {
+  background: rgba(13, 13, 13, 0.9);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  border-bottom-color: rgba(255, 255, 255, 0.12);
 }
 
 /* ── Sections ── */
@@ -1428,7 +1558,7 @@ button {
 
 .home-newsletter-form:focus-within {
   border-color: var(--pr-cyan);
-  box-shadow: 0 0 0 3px rgba(97, 229, 252, 0.18);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.18);
 }
 
 .home-newsletter-input {
@@ -1459,7 +1589,7 @@ button {
 
 .home-newsletter-form .home-btn:hover {
   transform: none;
-  box-shadow: 0 0 24px rgba(97, 229, 252, 0.4) inset;
+  box-shadow: 0 0 24px rgba(56, 189, 248, 0.4) inset;
   color: var(--pr-bg);
 }
 
@@ -1467,8 +1597,8 @@ button {
   display: inline-flex;
   align-items: flex-start;
   gap: 0.85rem;
-  background: rgba(124, 246, 181, 0.06);
-  border: 1px solid rgba(124, 246, 181, 0.4);
+  background: rgba(125, 211, 252, 0.06);
+  border: 1px solid rgba(125, 211, 252, 0.4);
   color: var(--pr-mint);
   padding: 1.1rem 1.3rem;
   border-radius: 12px;
@@ -1486,9 +1616,9 @@ button {
   margin: 0;
   padding: clamp(3rem, 6vw, 5rem) var(--pr-pad);
   background:
-    radial-gradient(circle at 90% 0%, rgba(97, 229, 252, 0.18), transparent 45%),
-    radial-gradient(circle at 0% 100%, rgba(66, 74, 246, 0.22), transparent 50%),
-    linear-gradient(135deg, #060C22 0%, #14185A 100%);
+    radial-gradient(circle at 90% 0%, rgba(56, 189, 248, 0.18), transparent 45%),
+    radial-gradient(circle at 0% 100%, rgba(59, 130, 246, 0.22), transparent 50%),
+    linear-gradient(135deg, #141414 0%, #272727 100%);
   color: var(--pr-text);
   position: relative;
   overflow: hidden;
@@ -1543,7 +1673,7 @@ button {
 .home-cta-title em {
   font-style: italic;
   font-weight: 400;
-  background: linear-gradient(110deg, #424AF6, #8BA2F9, #61E5FC, #7CF6B5, #61E5FC, #424AF6);
+  background: linear-gradient(110deg, #3B82F6, #93C5FD, #38BDF8, #7DD3FC, #38BDF8, #3B82F6);
   background-size: 300% 300%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -1749,7 +1879,7 @@ button {
 .privacy-link {
   color: var(--pr-cyan);
   text-decoration: underline;
-  text-decoration-color: rgba(97, 229, 252, 0.4);
+  text-decoration-color: rgba(56, 189, 248, 0.4);
   text-underline-offset: 3px;
 }
 
@@ -1762,7 +1892,7 @@ button {
 
 /* selection & focus — cyan glow */
 .home-shell ::selection {
-  background: rgba(97, 229, 252, 0.28);
+  background: rgba(56, 189, 248, 0.28);
   color: var(--pr-text);
 }
 .home-shell :focus-visible {
@@ -1825,14 +1955,14 @@ button {
   top: -16%; left: 8%;
   width: clamp(380px, 50vw, 750px);
   aspect-ratio: 1;
-  background: radial-gradient(circle, rgba(66, 74, 246, 0.22) 0%, transparent 65%);
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.22) 0%, transparent 65%);
   animation: pr-orb-drift-1 14s ease-in-out infinite;
 }
 .home-hero-orb--2 {
   top: 22%; right: -10%;
   width: clamp(320px, 42vw, 600px);
   aspect-ratio: 1;
-  background: radial-gradient(circle, rgba(97, 229, 252, 0.14) 0%, transparent 65%);
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.14) 0%, transparent 65%);
   animation: pr-orb-drift-2 18s ease-in-out infinite;
 }
 .home-hero > *:not(.home-hero-orb) { position: relative; z-index: 1; }
@@ -1868,7 +1998,7 @@ button {
   left: 0; right: 0; top: 0;
   height: 1px;
   background: linear-gradient(90deg,
-    transparent, rgba(97, 229, 252, 0.85), rgba(97, 229, 252, 0.85), transparent);
+    transparent, rgba(56, 189, 248, 0.85), rgba(56, 189, 248, 0.85), transparent);
   transform-origin: left center;
   animation: pr-rule-draw 480ms 720ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
   pointer-events: none;
@@ -1966,11 +2096,11 @@ button {
   height: 1px;
   background: linear-gradient(90deg,
     transparent 0%,
-    rgba(97, 229, 252, 0.05) 20%,
+    rgba(56, 189, 248, 0.05) 20%,
     var(--pr-cyan) 50%,
-    rgba(97, 229, 252, 0.05) 80%,
+    rgba(56, 189, 248, 0.05) 80%,
     transparent 100%);
-  box-shadow: 0 0 14px rgba(97, 229, 252, 0.55);
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.55);
   opacity: 0;
   pointer-events: none;
   z-index: 2;
@@ -2043,7 +2173,7 @@ button {
   stroke-width: 1.6;
   stroke-linecap: round;
   stroke-linejoin: round;
-  filter: drop-shadow(0 0 6px rgba(97, 229, 252, 0.45));
+  filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.45));
   stroke-dasharray: 720;
   stroke-dashoffset: 720;
   animation: pr-sign-draw 1600ms cubic-bezier(0.5, 0, 0.5, 1) 1360ms both;

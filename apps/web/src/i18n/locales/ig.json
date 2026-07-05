@@ -320,7 +320,7 @@
   "issuesPage": {
     "eyebrow": "Tebụl Okwu",
     "title": "Bọọdụ akara obodo",
-    "reportBtn": "+ Kọọ Okwu",
+    "reportBtn": "+ Weli okwu",
     "joinCommunityFirst": "Sonye n'obodo mbụ",
     "noCommunityBanner": "Ị sonyebeghị n'obodo ọ bụla.",
     "pickOne": "Họrọ otu",
@@ -347,7 +347,7 @@
       "upvotes_other": "Nkwado {{count}}"
     },
     "modal": {
-      "title": "Kọọ okwu",
+      "title": "Weli okwu",
       "titleLabel": "Isiokwu",
       "titlePlaceholder": "Ọkụ okporo ụzọ anwụọla n'Adeniran",
       "description": "Nkọwa",
@@ -361,7 +361,7 @@
       "photosFull": "A họpụtala foto {{max}}",
       "removePhoto": "Wepụ {{name}}",
       "genericError": "Anyị enweghị ike imepụta okwu. Lelee ntinye gị ma nwaa ọzọ.",
-      "submit": "Kọọ okwu"
+      "submit": "Bipụta okwu"
     }
   },
   "communityPage": {
@@ -474,6 +474,17 @@
       "petition": "Akwụkwọ Arịrịọ",
       "response": "Azịza",
       "resolved": "Edozigharịrị"
+    },
+    "chromeUrl": "civicos.gov · Obodo M",
+    "eyebrow": "Ihe na-eme ugbu a",
+    "district": "Obodo dị iche iche na Naịjirịa",
+    "liveLabel": "Ndụ",
+    "reportedAt": "Kọrọ na {{time}}",
+    "pill": {
+      "issue": "Na-enyocha",
+      "petition": "Emepere",
+      "response": "Azaghachiri",
+      "resolved": "Dozieziri"
     }
   },
   "parties": {

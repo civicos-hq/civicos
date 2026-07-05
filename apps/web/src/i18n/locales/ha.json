@@ -320,7 +320,7 @@
   "issuesPage": {
     "eyebrow": "Tebulin Matsala",
     "title": "Allon sanarwar al'umma",
-    "reportBtn": "+ Bayar da rahoto",
+    "reportBtn": "+ Ɗaga matsala",
     "joinCommunityFirst": "Shiga al'umma tukuna",
     "noCommunityBanner": "Ba ka shiga wata al'umma ba tukuna.",
     "pickOne": "Zaɓi ɗaya",
@@ -347,7 +347,7 @@
       "upvotes_other": "Goyon baya {{count}}"
     },
     "modal": {
-      "title": "Bayar da rahoton matsala",
+      "title": "Ɗaga matsala",
       "titleLabel": "Take",
       "titlePlaceholder": "Fitilar titi ta mutu a Adeniran",
       "description": "Bayani",
@@ -361,7 +361,7 @@
       "photosFull": "An zaɓi hotuna {{max}}",
       "removePhoto": "Cire {{name}}",
       "genericError": "Ba mu iya ƙirƙirar matsala ba. Duba shigarwar ka kuma sake gwadawa.",
-      "submit": "Bayar da rahoto"
+      "submit": "Aika matsala"
     }
   },
   "communityPage": {
@@ -473,6 +473,17 @@
       "issue": "Matsala",
       "petition": "Koƙe",
       "response": "Amsa",
+      "resolved": "An warware"
+    },
+    "chromeUrl": "civicos.gov · Ƙauyena",
+    "eyebrow": "Ayyuka kai tsaye",
+    "district": "Al'ummomi a faɗin Najeriya",
+    "liveLabel": "Kai tsaye",
+    "reportedAt": "An bayar da rahoto {{time}}",
+    "pill": {
+      "issue": "Ana bincike",
+      "petition": "A buɗe",
+      "response": "An amsa",
       "resolved": "An warware"
     }
   },

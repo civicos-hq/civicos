@@ -103,6 +103,42 @@ function useScrollToHash() {
   }, [hash]);
 }
 
+// Mouse-tracked radial glow that follows the cursor across the hero. The
+// CSS reads --mx / --my as pixel offsets and paints a soft blue spotlight
+// through them. Fine-pointer + reduced-motion aware — no work on touch
+// screens or when motion is opted out.
+function useHeroSpotlight() {
+  const ref = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (!window.matchMedia('(pointer: fine)').matches) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const handler = (e: PointerEvent) => {
+      const rect = el.getBoundingClientRect();
+      el.style.setProperty('--mx', `${e.clientX - rect.left}px`);
+      el.style.setProperty('--my', `${e.clientY - rect.top}px`);
+    };
+    el.addEventListener('pointermove', handler);
+    return () => el.removeEventListener('pointermove', handler);
+  }, []);
+  return ref;
+}
+
+// True once the user has scrolled past the given threshold. Used to give
+// the nav bar a stronger backdrop-blur + shadow once you leave the hero,
+// so it separates from the content beneath.
+function useScrolledPast(threshold: number) {
+  const [past, setPast] = useState(false);
+  useEffect(() => {
+    const handler = () => setPast(window.scrollY > threshold);
+    handler();
+    window.addEventListener('scroll', handler, { passive: true });
+    return () => window.removeEventListener('scroll', handler);
+  }, [threshold]);
+  return past;
+}
+
 function useScrollReveal() {
   useEffect(() => {
     const targets = document.querySelectorAll<HTMLElement>('.reveal');
@@ -129,8 +165,9 @@ function useScrollReveal() {
 
 export function TopNav() {
   const { t } = useTranslation();
+  const scrolled = useScrolledPast(80);
   return (
-    <header className="home-nav">
+    <header className={`home-nav${scrolled ? ' is-scrolled' : ''}`}>
       <Link to="/" className="home-brand" aria-label="CivicOS home">
         <span className="home-brand-mark" aria-hidden="true">
           <img src="/civicos-mark.png" alt="" />
@@ -164,6 +201,7 @@ export function TopNav() {
 
 function Hero() {
   const { t, i18n } = useTranslation();
+  const spotlightRef = useHeroSpotlight();
   const today = new Date()
     .toLocaleDateString(i18n.language || 'en-GB', {
       weekday: 'short',
@@ -174,7 +212,7 @@ function Hero() {
     .toUpperCase();
 
   return (
-    <section className="home-hero">
+    <section className="home-hero" ref={spotlightRef}>
       <div className="home-hero-orb home-hero-orb--1" aria-hidden="true" />
       <div className="home-hero-orb home-hero-orb--2" aria-hidden="true" />
 
@@ -211,130 +249,9 @@ function Hero() {
           </p>
         </div>
 
-        <HeroArt />
+        <Docket />
       </div>
-
-      <Docket />
     </section>
-  );
-}
-
-// A stylized "Citizens' Register" card that sits beside the hero copy at
-// wide widths. Communicates community without a stock photo: 80 citizen
-// dots (~20% highlighted by engagement tier), a signature stroke, and a
-// stamped seal. Purely decorative — hidden from screen readers. Swap the
-// contents for an <img> if you have a real community photograph.
-function HeroArt() {
-  const { t } = useTranslation();
-  const TOTAL = 80;
-  const COLS = 8;
-  const CELL_W = 40;
-  const CELL_H = 34;
-  const GRID_ORIGIN_X = 30;
-  const GRID_ORIGIN_Y = 80;
-
-  // Deterministic highlights so the composition renders identically each
-  // load; index → tier tag. Rough 20% highlight density, spatially spread.
-  const highlights: Record<number, 'cyan' | 'mint' | 'lavender'> = {
-    4: 'cyan',
-    11: 'cyan',
-    22: 'cyan',
-    37: 'cyan',
-    53: 'cyan',
-    67: 'cyan',
-    8: 'mint',
-    17: 'mint',
-    31: 'mint',
-    45: 'mint',
-    58: 'mint',
-    72: 'mint',
-    14: 'lavender',
-    28: 'lavender',
-    43: 'lavender',
-    61: 'lavender',
-  };
-  const FILL = {
-    base: 'rgba(196, 199, 252, 0.22)',
-    cyan: '#61E5FC',
-    mint: '#7CF6B5',
-    lavender: '#C4C7FC',
-  } as const;
-
-  return (
-    <div className="hero-art" aria-hidden="true">
-      <svg viewBox="0 0 380 500" xmlns="http://www.w3.org/2000/svg">
-        <rect
-          x="0.5"
-          y="0.5"
-          width="379"
-          height="499"
-          rx="4"
-          fill="rgba(13, 22, 53, 0.55)"
-          stroke="rgba(97, 229, 252, 0.22)"
-        />
-
-        <text x="20" y="30" className="hero-art-header">
-          {t('hero.art.header')}
-        </text>
-        <g className="hero-art-live" transform="translate(360, 30)">
-          <circle cx="-4" cy="-4" r="3.2" fill="#61E5FC" />
-          <text x="-14" y="0" textAnchor="end" className="hero-art-live-text">
-            {t('hero.art.live')}
-          </text>
-        </g>
-        <line x1="20" y1="42" x2="360" y2="42" stroke="rgba(97, 229, 252, 0.3)" />
-
-        <g>
-          {Array.from({ length: TOTAL }).map((_, i) => {
-            const col = i % COLS;
-            const row = Math.floor(i / COLS);
-            const cx = GRID_ORIGIN_X + col * CELL_W + CELL_W / 2;
-            const cy = GRID_ORIGIN_Y + row * CELL_H + CELL_H / 2;
-            const h = highlights[i];
-            return (
-              <g key={i}>
-                {h && <circle cx={cx} cy={cy} r={10} fill={FILL[h]} opacity={0.14} />}
-                <circle cx={cx} cy={cy} r={h ? 5 : 3.6} fill={h ? FILL[h] : FILL.base} />
-              </g>
-            );
-          })}
-        </g>
-
-        <path
-          className="hero-art-signature"
-          d="M 30 428 C 55 410, 78 448, 108 424 S 158 402, 192 424 Q 214 442, 240 422 T 300 418 C 322 420, 336 430, 350 424"
-        />
-
-        <g className="hero-art-stamp" transform="translate(288, 372) rotate(-7)">
-          <circle
-            cx="0"
-            cy="0"
-            r="50"
-            fill="none"
-            stroke="rgba(124, 246, 181, 0.68)"
-            strokeWidth="1.8"
-          />
-          <circle
-            cx="0"
-            cy="0"
-            r="42"
-            fill="none"
-            stroke="rgba(124, 246, 181, 0.34)"
-            strokeWidth="0.75"
-          />
-          <text x="0" y="-4" textAnchor="middle" className="hero-art-stamp-primary">
-            {t('hero.art.stamp')}
-          </text>
-          <text x="0" y="10" textAnchor="middle" className="hero-art-stamp-secondary">
-            {t('hero.art.stampSub')}
-          </text>
-        </g>
-
-        <text x="20" y="482" className="hero-art-footer">
-          {t('hero.art.footer')}
-        </text>
-      </svg>
-    </div>
   );
 }
 
@@ -418,7 +335,6 @@ function Docket() {
     })),
   );
   const [entries, setEntries] = useState<DocketEntry[]>(initial.current);
-  const [updatedAt, setUpdatedAt] = useState('10:42');
   const [paused, setPaused] = useState(false);
   const [newKey, setNewKey] = useState<number | null>(null);
   const pausedRef = useRef(paused);
@@ -434,40 +350,68 @@ function Docket() {
       poolIdx += 1;
       const key = Date.now();
       const time = nowWAT();
+      // Keep 4 records — panel now spans the hero column and needs enough
+      // to feel alive without scrolling.
       setEntries((prev) => [{ ...next, key, time }, ...prev.slice(0, 3)]);
-      setUpdatedAt(time);
       setNewKey(key);
     }, 8000);
     return () => window.clearInterval(id);
   }, []);
 
+  const visible = entries.slice(0, 4);
+
   return (
-    <div
+    <aside
       id="docket"
       className={`docket${paused ? ' is-paused' : ''}`}
       aria-label={t('docket.title')}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      <div className="docket-head">
-        <span className="docket-title">{t('docket.title')}</span>
-        <span className="docket-live">
-          {paused ? t('docket.paused') : t('docket.live', { time: updatedAt })}
-        </span>
+      <header className="docket-chrome" aria-hidden="true">
+        <span className="docket-chrome-dot" />
+        <span className="docket-chrome-dot" />
+        <span className="docket-chrome-dot" />
+        <span className="docket-chrome-url">{t('docket.chromeUrl')}</span>
+      </header>
+
+      <div className="docket-body">
+        <div className="docket-meta">
+          <span className="docket-eyebrow">{t('docket.eyebrow')}</span>
+          <span className="docket-live">
+            <span className="docket-live-dot" aria-hidden="true" />
+            {t('docket.liveLabel')}
+          </span>
+        </div>
+
+        <h2 className="docket-district">{t('docket.district')}</h2>
+
+        <div className="docket-records">
+          {visible.map((e) => (
+            <article key={e.key} className={`docket-record${e.key === newKey ? ' is-new' : ''}`}>
+              <div className="docket-record-head">
+                <h3 className="docket-record-title">{e.title}</h3>
+                <span className={`docket-pill docket-pill--${e.type}`}>
+                  {t(`docket.pill.${e.type}`)}
+                </span>
+              </div>
+              {(e.type === 'issue' || e.type === 'petition') && (
+                <div className="docket-progress" aria-hidden="true">
+                  <span className="docket-progress-seg is-done" />
+                  <span className="docket-progress-seg is-done" />
+                  <span className="docket-progress-seg" />
+                  <span className="docket-progress-seg" />
+                </div>
+              )}
+              <p className="docket-record-meta">
+                <span>{t('docket.reportedAt', { time: e.time })}</span>
+                <span className="docket-record-code">{e.code}</span>
+              </p>
+            </article>
+          ))}
+        </div>
       </div>
-      <div className="docket-list">
-        {entries.map((e) => (
-          <div key={e.key} className={`docket-row${e.key === newKey ? ' is-new' : ''}`}>
-            <span className="docket-time">{e.time}</span>
-            <span className="docket-code">{e.code}</span>
-            <span className={`docket-type docket-type--${e.type}`}>
-              {t(`docket.types.${e.type}`)}
-            </span>
-            <span className="docket-title-cell">{e.title}</span>
-          </div>
-        ))}
-      </div>
-    </div>
+    </aside>
   );
 }
 

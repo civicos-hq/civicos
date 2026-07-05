@@ -320,7 +320,7 @@
   "issuesPage": {
     "eyebrow": "Issue Desk",
     "title": "Community signal board",
-    "reportBtn": "+ Report Issue",
+    "reportBtn": "+ Raise issue",
     "joinCommunityFirst": "Join community first",
     "noCommunityBanner": "You never join any community.",
     "pickOne": "Pick one",
@@ -347,7 +347,7 @@
       "upvotes_other": "{{count}} upvotes"
     },
     "modal": {
-      "title": "Report issue",
+      "title": "Raise issue",
       "titleLabel": "Title",
       "titlePlaceholder": "Streetlight don spoil for Adeniran",
       "description": "Description",
@@ -361,7 +361,7 @@
       "photosFull": "You don select {{max}} photos already",
       "removePhoto": "Remove {{name}}",
       "genericError": "We no fit create the issue. Check wetin you enter and try again.",
-      "submit": "Report issue"
+      "submit": "Post issue"
     }
   },
   "communityPage": {
@@ -474,6 +474,17 @@
       "petition": "Petition",
       "response": "Reply",
       "resolved": "Resolved"
+    },
+    "chromeUrl": "civicos.gov · My Community",
+    "eyebrow": "Wetin dey happen",
+    "district": "Communities for Naija",
+    "liveLabel": "Live",
+    "reportedAt": "Reported for {{time}}",
+    "pill": {
+      "issue": "Dey review am",
+      "petition": "Open",
+      "response": "Dem don respond",
+      "resolved": "Don resolve"
     }
   },
   "parties": {

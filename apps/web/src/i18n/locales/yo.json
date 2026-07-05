@@ -320,7 +320,7 @@
   "issuesPage": {
     "eyebrow": "Tábìlì Ìṣòro",
     "title": "Pátákó ìfìhàn agbègbè",
-    "reportBtn": "+ Ròyìn Ìṣòro",
+    "reportBtn": "+ Gbé ìṣòro sókè",
     "joinCommunityFirst": "Darapọ̀ mọ́ agbègbè lákọ̀ọ́kọ́",
     "noCommunityBanner": "O kò tíì darapọ̀ mọ́ agbègbè kankan.",
     "pickOne": "Yan ọ̀kan",
@@ -347,7 +347,7 @@
       "upvotes_other": "Àwọn àtìlẹ́yìn {{count}}"
     },
     "modal": {
-      "title": "Ròyìn ìṣòro",
+      "title": "Gbé ìṣòro sókè",
       "titleLabel": "Àkọlé",
       "titlePlaceholder": "Iná òpópó ti kú lórí Adeniran",
       "description": "Àpèjúwe",
@@ -361,7 +361,7 @@
       "photosFull": "A ti yan àwọn fọ́tò {{max}}",
       "removePhoto": "Yọ {{name}} kúrò",
       "genericError": "A kò lè ṣẹ̀dá ìṣòro. Ṣàyẹ̀wò àwọn nǹkan tí o kọ, kí o sì gbìyànjú lẹ́ẹ̀kan sí i.",
-      "submit": "Ròyìn ìṣòro"
+      "submit": "Fi ìṣòro ránṣẹ́"
     }
   },
   "communityPage": {
@@ -474,6 +474,17 @@
       "petition": "Ẹ̀bẹ̀",
       "response": "Ìdáhùn",
       "resolved": "Tún ṣe"
+    },
+    "chromeUrl": "civicos.gov · Àdúgbò Mi",
+    "eyebrow": "Ìṣẹ̀lẹ̀ ààyè",
+    "district": "Àwọn àdúgbò káàkiri Nàìjíríà",
+    "liveLabel": "Ààyè",
+    "reportedAt": "Ròyìn ní {{time}}",
+    "pill": {
+      "issue": "Ń wo",
+      "petition": "Ṣí",
+      "response": "Fèsì",
+      "resolved": "Yanjú"
     }
   },
   "parties": {
