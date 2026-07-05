@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Trans, useTranslation } from 'react-i18next';
 import {
@@ -23,6 +23,7 @@ export function HomePage() {
     <div className="home-shell">
       <TopNav />
       <Hero />
+      <Manifesto />
       <Parties />
       <Articles />
       <Principles />
@@ -59,6 +60,79 @@ function TypedMarker({
         </span>
       ))}
     </p>
+  );
+}
+
+// The emphasized word in the hero headline ("daily" in English) cycles
+// through Monday → Sunday and lands back on the resting word — a visual
+// literalization of the copy "democracy is daily, not just on election
+// day". Day names are pulled per-locale via Intl.DateTimeFormat so
+// Yoruba/Igbo/Hausa/Pidgin visitors see their own week. Rendered as an
+// inline-grid so the container is sized to the widest day; individual
+// words crossfade with a small upward slide. Screen readers only hear
+// the resting word via aria-label — the visible cycle is aria-hidden.
+function CyclingHeroEm({ children }: { children?: React.ReactNode }) {
+  const { i18n } = useTranslation();
+  const restingWord = typeof children === 'string' ? children : 'daily';
+
+  const dayNames = useMemo(() => {
+    const fmt = new Intl.DateTimeFormat(i18n.language || 'en-GB', { weekday: 'long' });
+    // Jan 1 2024 fell on a Monday — anchor and walk forward 7 days.
+    return Array.from({ length: 7 }, (_, i) => fmt.format(new Date(2024, 0, 1 + i)));
+  }, [i18n.language]);
+
+  const words = useMemo(() => [restingWord, ...dayNames], [restingWord, dayNames]);
+  const [idx, setIdx] = useState(0);
+  const [width, setWidth] = useState<number | null>(null);
+  const containerRef = useRef<HTMLElement>(null);
+
+  // Cycle the word.
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    // The resting word lingers 2.4s (the copy's punchline). Each day gets 1.4s.
+    const delay = idx === 0 ? 2400 : 1400;
+    const id = window.setTimeout(() => {
+      setIdx((prev) => (prev + 1) % words.length);
+    }, delay);
+    return () => window.clearTimeout(id);
+  }, [idx, words.length]);
+
+  // Measure the active word's natural width AFTER paint so the container's
+  // explicit pixel width smoothly transitions from the old word's width to
+  // the new one on the next frame. useLayoutEffect would collapse the two
+  // paints and defeat the CSS width transition — we want the transition.
+  useEffect(() => {
+    const activeEl = containerRef.current?.querySelector<HTMLSpanElement>(
+      '.hero-daily-swap-word.is-active',
+    );
+    if (activeEl) {
+      setWidth(activeEl.getBoundingClientRect().width);
+    }
+  }, [idx, words]);
+
+  return (
+    <em
+      ref={containerRef}
+      className="hero-daily-swap"
+      style={width !== null ? { width: `${width}px` } : undefined}
+      aria-label={restingWord}
+    >
+      {/* Height driver — invisible, in flow. Keeps the container's line
+          height correct without an anchor width. Its content mirrors the
+          active word so height stays accurate across font-size clamps. */}
+      <span className="hero-daily-swap-void" aria-hidden="true">
+        {words[idx]}
+      </span>
+      {words.map((w, i) => (
+        <span
+          key={w}
+          className={`hero-daily-swap-word${i === idx ? ' is-active' : ''}`}
+          aria-hidden="true"
+        >
+          {w}
+        </span>
+      ))}
+    </em>
   );
 }
 
@@ -226,7 +300,7 @@ function Hero() {
           </div>
 
           <h1 className="home-hero-title">
-            <Trans i18nKey="hero.headline" components={{ em: <em /> }} />
+            <Trans i18nKey="hero.headline" components={{ em: <CyclingHeroEm /> }} />
           </h1>
 
           <HeroSignature />
@@ -412,6 +486,34 @@ function Docket() {
         </div>
       </div>
     </aside>
+  );
+}
+
+// § 00 preamble that positions CivicOS above the numbered sections. Big
+// serif-sans pull quote, blue-shimmer emphasis on the thesis phrase, and
+// a short body identifying the four constituencies (governments, unis,
+// NGOs, communities). Uses the standard .reveal system so it fades in
+// via the clerk's-scan pattern; actor tags stagger in after.
+function Manifesto() {
+  const { t } = useTranslation();
+  const actorKeys = ['governments', 'universities', 'ngos', 'communities'] as const;
+  return (
+    <section className="home-section home-section-manifesto reveal">
+      <TypedMarker text={t('manifesto.marker')} />
+      <div className="home-manifesto">
+        <h2 className="home-manifesto-title">
+          <Trans i18nKey="manifesto.headline" components={{ em: <em /> }} />
+        </h2>
+        <p className="home-manifesto-body">{t('manifesto.body')}</p>
+        <ul className="home-manifesto-actors" aria-label="Who CivicOS is for">
+          {actorKeys.map((k) => (
+            <li key={k} className="home-manifesto-actor">
+              {t(`manifesto.actors.${k}`)}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
   );
 }
 

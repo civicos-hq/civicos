@@ -772,5 +772,16 @@
     "yo": "Yorùbá",
     "pcm": "Pidgin",
     "ha": "Hausa"
+  },
+  "manifesto": {
+    "marker": "§ 00 — Nkwuputa",
+    "headline": "Usoro ọrụ maka <em>ntinye aka obodo</em>.",
+    "body": "CivicOS bụ akụrụngwa dijitalụ e kekọrọ ọnụ nke na-enye ọchịchị, mahadum, NGO na obodo ike iwulite ahụmịhe obodo a tụkwasịrị obi — nke a haziri gburugburu ebe ndị mmadụ na-ebi n'ezie.",
+    "actors": {
+      "governments": "Ọchịchị",
+      "universities": "Mahadum",
+      "ngos": "NGO",
+      "communities": "Obodo"
+    }
   }
 }

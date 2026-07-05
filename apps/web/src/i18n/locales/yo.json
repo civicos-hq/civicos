@@ -772,5 +772,16 @@
     "yo": "Yorùbá",
     "pcm": "Pidgin",
     "ha": "Hausa"
+  },
+  "manifesto": {
+    "marker": "§ 00 — Ìkéde",
+    "headline": "Ètò iṣẹ́ fún <em>ìlàkàkà aráàlú</em>.",
+    "body": "CivicOS jẹ́ ìdásílẹ̀ oníṣẹ̀ ẹrọ ọ̀nà tí ó ń jẹ́ kí ìjọba, yunifásítì, NGO àti àdúgbò kọ́ ìrírí aráàlú tí ó gbẹ́kẹ̀lé — tí a tò lórí ilẹ̀ tí àwọn ènìyàn ń gbé gan-an.",
+    "actors": {
+      "governments": "Ìjọba",
+      "universities": "Yunifásítì",
+      "ngos": "NGO",
+      "communities": "Àdúgbò"
+    }
   }
 }

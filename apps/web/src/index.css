@@ -774,12 +774,55 @@ button {
 .home-hero-title em {
   font-style: italic;
   font-weight: 400;
+}
+
+/* ── Hero "daily → Mon/Tue/…/Sun → daily" cycling word ──
+   Container has an explicit pixel width driven from JS (measured off the
+   active word). CSS transition on `width` interpolates smoothly from the
+   old word's width to the new one on each swap — the comma that follows
+   the em slides left/right in sympathy, like the LinkiSwap hero. */
+.hero-daily-swap {
+  display: inline-block;
+  position: relative;
+  vertical-align: baseline;
+  padding: 0 0.02em; /* slight breathing room for italic descenders */
+  transition: width 420ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  overflow: visible; /* let the crossfading word overhang briefly */
+}
+
+/* Invisible spacer that drives the container's vertical extent so the em
+   never collapses vertically when all words are absolutely positioned. */
+.hero-daily-swap-void {
+  display: inline-block;
+  visibility: hidden;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.hero-daily-swap-word {
+  position: absolute;
+  top: 0;
+  left: 0;
+  white-space: nowrap;
   background: linear-gradient(110deg, #3B82F6, #93C5FD, #38BDF8, #7DD3FC, #38BDF8, #3B82F6);
   background-size: 300% 300%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   animation: pr-gradient-shift 6s ease infinite;
+  opacity: 0;
+  transform: translateY(0.5em);
+  transition:
+    opacity 340ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    transform 420ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    filter 420ms ease;
+  filter: blur(2px);
+  will-change: opacity, transform, filter;
+}
+.hero-daily-swap-word.is-active {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
 }
 
 .home-hero-sub {
@@ -1137,6 +1180,110 @@ button {
   -webkit-backdrop-filter: blur(16px) saturate(160%);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
   border-bottom-color: rgba(255, 255, 255, 0.12);
+}
+
+/* ── § 00 Manifesto — pull-quote preamble ── */
+.home-section-manifesto {
+  padding-top: clamp(4rem, 7vw, 6rem);
+  padding-bottom: clamp(3rem, 5vw, 4.5rem);
+  text-align: center;
+}
+.home-section-manifesto .home-section-marker {
+  text-align: center;
+}
+
+.home-manifesto {
+  max-width: 62ch;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.8rem;
+}
+
+.home-manifesto-title {
+  margin: 0;
+  font-family: var(--pr-sans);
+  font-weight: 500;
+  font-size: clamp(2.2rem, 5vw, 4rem);
+  line-height: 1.05;
+  letter-spacing: -0.028em;
+  color: var(--pr-ink);
+}
+
+/* Thesis phrase gets the same blue shimmer treatment as the hero em. */
+.home-manifesto-title em {
+  font-style: normal;
+  font-weight: 500;
+  background: linear-gradient(110deg, #3B82F6, #93C5FD, #38BDF8, #7DD3FC, #38BDF8, #3B82F6);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: pr-gradient-shift 6s ease infinite;
+}
+
+.home-manifesto-body {
+  margin: 0;
+  color: var(--pr-ink-soft);
+  font-size: clamp(1.05rem, 1.6vw, 1.2rem);
+  line-height: 1.6;
+  max-width: 58ch;
+}
+
+/* Four audience tags. Each carries a subtle border and lifts on hover to
+   reinforce that CivicOS is shared infrastructure for distinct actors. */
+.home-manifesto-actors {
+  list-style: none;
+  padding: 0;
+  margin: 0.4rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.home-manifesto-actor {
+  padding: 0.42rem 0.85rem;
+  border: 1px solid var(--pr-border);
+  border-radius: 999px;
+  font-family: var(--pr-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pr-ink-soft);
+  background: rgba(255, 255, 255, 0.02);
+  transition:
+    color 200ms ease,
+    border-color 200ms ease,
+    background 200ms ease,
+    transform 220ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  cursor: default;
+}
+
+.home-manifesto-actor:hover {
+  color: var(--pr-ink);
+  border-color: rgba(59, 130, 246, 0.45);
+  background: rgba(59, 130, 246, 0.08);
+  transform: translateY(-2px);
+}
+
+/* Stagger actor tags in after the section reveals. */
+.reveal .home-manifesto-actor {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.reveal.in-view .home-manifesto-actor {
+  animation: pr-actor-in 480ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.reveal.in-view .home-manifesto-actor:nth-child(1) { animation-delay: 620ms; }
+.reveal.in-view .home-manifesto-actor:nth-child(2) { animation-delay: 740ms; }
+.reveal.in-view .home-manifesto-actor:nth-child(3) { animation-delay: 860ms; }
+.reveal.in-view .home-manifesto-actor:nth-child(4) { animation-delay: 980ms; }
+@keyframes pr-actor-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ── Sections ── */
@@ -2069,8 +2216,97 @@ button {
 .home-party { transition: background 200ms ease; }
 .home-party:hover { background: var(--pr-paper); }
 
-.home-step { transition: background 200ms ease; }
-.home-step:hover { background: var(--pr-paper-soft); }
+/* ── Steps · animated ── */
+/* Cards ship in staggered from below, numbers stamp in with a per-step
+   delay, and arrows fade between them once the last card lands. Reads as
+   "the record signing itself, step by step". */
+.home-step {
+  position: relative;
+  transition:
+    background 200ms ease,
+    transform 260ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    border-color 200ms ease,
+    box-shadow 220ms ease;
+}
+.home-step:hover {
+  background: var(--pr-paper-soft);
+  transform: translateY(-3px);
+  border-color: rgba(59, 130, 246, 0.35);
+  box-shadow: 0 10px 26px rgba(59, 130, 246, 0.14);
+  z-index: 1;
+}
+
+/* Stagger entrance — flat until the section reveals, then cascade in. */
+.home-step {
+  opacity: 0;
+  transform: translateY(24px);
+}
+.reveal.in-view .home-step {
+  animation: pr-step-in 620ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.reveal.in-view .home-step:nth-child(1) { animation-delay: 320ms; }
+.reveal.in-view .home-step:nth-child(2) { animation-delay: 460ms; }
+.reveal.in-view .home-step:nth-child(3) { animation-delay: 600ms; }
+.reveal.in-view .home-step:nth-child(4) { animation-delay: 740ms; }
+@keyframes pr-step-in {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Step number gets the ink-stamp treatment, per-step delayed so each
+   card lands its own "STEP 0N" beat. */
+.home-step-num { display: inline-block; transform-origin: 55% 60%; }
+.reveal.in-view .home-step:nth-child(1) .home-step-num { animation: pr-stamp 500ms cubic-bezier(0.34, 1.56, 0.64, 1) 520ms both; }
+.reveal.in-view .home-step:nth-child(2) .home-step-num { animation: pr-stamp 500ms cubic-bezier(0.34, 1.56, 0.64, 1) 660ms both; }
+.reveal.in-view .home-step:nth-child(3) .home-step-num { animation: pr-stamp 500ms cubic-bezier(0.34, 1.56, 0.64, 1) 800ms both; }
+.reveal.in-view .home-step:nth-child(4) .home-step-num { animation: pr-stamp 500ms cubic-bezier(0.34, 1.56, 0.64, 1) 940ms both; }
+
+/* Connector arrow between adjacent step cards on desktop. Fires after
+   the last card lands so the flow direction is only revealed once every
+   step is on the page. */
+@media (min-width: 1020px) {
+  .home-step:not(:last-child)::after {
+    content: '→';
+    position: absolute;
+    right: -0.72rem;
+    top: 2.7rem;
+    color: var(--pr-primary);
+    font-family: var(--pr-mono);
+    font-size: 1.15rem;
+    font-weight: 700;
+    opacity: 0;
+    z-index: 2;
+    background: var(--pr-bg);
+    padding: 0 0.4rem;
+    pointer-events: none;
+  }
+  .reveal.in-view .home-step:nth-child(1)::after { animation: pr-arrow-in 500ms cubic-bezier(0.2, 0.7, 0.2, 1) 1080ms both; }
+  .reveal.in-view .home-step:nth-child(2)::after { animation: pr-arrow-in 500ms cubic-bezier(0.2, 0.7, 0.2, 1) 1220ms both; }
+  .reveal.in-view .home-step:nth-child(3)::after { animation: pr-arrow-in 500ms cubic-bezier(0.2, 0.7, 0.2, 1) 1360ms both; }
+  @keyframes pr-arrow-in {
+    from { opacity: 0; transform: translateX(-6px); }
+    to   { opacity: 0.7; transform: translateX(0); }
+  }
+}
+
+/* Meta caption gains a thin blue underline that wipes across on hover. */
+.home-step-meta {
+  position: relative;
+  padding-bottom: 0.12rem;
+}
+.home-step-meta::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 1px;
+  width: 100%;
+  background: var(--pr-primary);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 400ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.home-step:hover .home-step-meta::after { transform: scaleX(1); }
 
 .home-faq-item { transition: background 160ms ease; }
 .home-faq-item:hover { background: var(--pr-paper-soft); }

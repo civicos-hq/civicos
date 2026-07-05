@@ -772,5 +772,16 @@
     "yo": "Yorùbá",
     "pcm": "Pidgin",
     "ha": "Hausa"
+  },
+  "manifesto": {
+    "marker": "§ 00 — Sanarwa",
+    "headline": "Tsarin aiki don <em>shiga cikin al'umma</em>.",
+    "body": "CivicOS shine kayan aikin dijital da aka raba wanda ke ba da damar gwamnatoci, jami'o'i, NGOs, da al'ummomi su gina abubuwan al'umma masu aminci — waɗanda aka tsara a kusa da wuraren da mutane suke zaune da gaske.",
+    "actors": {
+      "governments": "Gwamnatoci",
+      "universities": "Jami'o'i",
+      "ngos": "NGOs",
+      "communities": "Al'ummomi"
+    }
   }
 }

@@ -772,5 +772,16 @@
     "yo": "Yorùbá",
     "pcm": "Pidgin",
     "ha": "Hausa"
+  },
+  "manifesto": {
+    "marker": "§ 00 — Manifesto",
+    "headline": "One operating system for <em>civic participation</em>.",
+    "body": "CivicOS na shared digital infrastructure wey dey allow governments, universities, NGOs, and communities build trusted civic experiences — organized around the places wey people dey really live.",
+    "actors": {
+      "governments": "Governments",
+      "universities": "Universities",
+      "ngos": "NGOs",
+      "communities": "Communities"
+    }
   }
 }
