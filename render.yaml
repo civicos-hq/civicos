@@ -185,7 +185,11 @@ services:
     name: civicos-web
     runtime: static
     branch: main
-    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @civicos/web... build
+    # `corepack pnpm` runs the packageManager-pinned pnpm (9.4.0) without
+    # `corepack enable`, which fails on Render's read-only /usr/bin.
+    # COREPACK_ENABLE_DOWNLOAD_PROMPT=0 skips the interactive download
+    # confirmation, which would hang a non-TTY CI build.
+    buildCommand: export COREPACK_ENABLE_DOWNLOAD_PROMPT=0 && corepack pnpm install --frozen-lockfile && corepack pnpm --filter @civicos/web... build
     staticPublishPath: ./apps/web/dist
     routes:
       - type: rewrite
@@ -207,7 +211,7 @@ services:
     name: civicos-admin
     runtime: static
     branch: main
-    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @civicos/admin... build
+    buildCommand: export COREPACK_ENABLE_DOWNLOAD_PROMPT=0 && corepack pnpm install --frozen-lockfile && corepack pnpm --filter @civicos/admin... build
     staticPublishPath: ./apps/admin/dist
     routes:
       - type: rewrite
