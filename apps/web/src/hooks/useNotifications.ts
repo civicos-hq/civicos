@@ -1,9 +1,12 @@
 import { useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { ApiResponse, Notification } from '@civicos/types';
-import { api, refreshAccessToken } from '../lib/api';
+import { API_BASE, api, refreshAccessToken } from '../lib/api';
 
-const apiBase = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+// Reuse the scheme-resolved base from lib/api — VITE_API_URL is a bare host
+// on Render, and a scheme-less EventSource URL resolves relative to the
+// static-site origin instead of the gateway.
+const apiBase = API_BASE;
 
 export function useNotifications() {
   return useQuery({

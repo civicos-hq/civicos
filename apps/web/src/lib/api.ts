@@ -10,11 +10,14 @@ function resolveApiBase(): string {
   if (raw.startsWith('http://') || raw.startsWith('https://')) return raw;
   return `https://${raw}`;
 }
-const API_BASE = resolveApiBase();
+export const API_BASE = resolveApiBase();
 
+// No `withCredentials` — auth rides the Authorization header (localStorage
+// JWT), never cookies. Credentialed mode would also fail CORS in production:
+// the gateway reflects unknown origins with Allow-Credentials: false, and
+// browsers reject credentialed responses unless that header is exactly "true".
 export const api = axios.create({
   baseURL: API_BASE,
-  withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
 });
 
