@@ -1,11 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
-import { apiGet } from '../lib/api';
+import { API_BASE, apiGet } from '../lib/api';
 
+// All probes go through the gateway — it checks the internal services
+// server-side (/health/<name>), since the browser can't reach them.
 const SERVICES = [
-  { name: 'gateway', url: 'http://localhost:3000/health' },
-  { name: 'identity', url: 'http://localhost:3001/health' },
-  { name: 'community', url: 'http://localhost:3002/health' },
-  { name: 'organization', url: 'http://localhost:3003/health' },
+  { name: 'gateway', url: `${API_BASE}/health` },
+  { name: 'identity', url: `${API_BASE}/health/identity` },
+  { name: 'community', url: `${API_BASE}/health/community` },
+  { name: 'organization', url: `${API_BASE}/health/organization` },
 ];
 
 interface HealthResult {

@@ -22,6 +22,30 @@ func NewStreamingProxy(targetURL, stripPrefix string) gin.HandlerFunc {
 	return newProxy(targetURL, stripPrefix, -1)
 }
 
+// healthClient bounds upstream health probes so a slow or sleeping service
+// can't hold the admin dashboard's health panel open indefinitely.
+var healthClient = &http.Client{Timeout: 10 * time.Second}
+
+// NewHealthProxy returns a handler that probes the upstream's /health
+// server-side. Browsers can't reach the internal services directly (and
+// shouldn't need to know their URLs), so the gateway answers on their behalf.
+func NewHealthProxy(targetURL string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		req, err := http.NewRequestWithContext(c.Request.Context(), http.MethodGet, targetURL+"/health", nil)
+		if err != nil {
+			c.JSON(http.StatusBadGateway, gin.H{"status": "down"})
+			return
+		}
+		resp, err := healthClient.Do(req)
+		if err != nil {
+			c.JSON(http.StatusBadGateway, gin.H{"status": "down"})
+			return
+		}
+		defer resp.Body.Close()
+		c.DataFromReader(resp.StatusCode, resp.ContentLength, "application/json", resp.Body, nil)
+	}
+}
+
 func newProxy(targetURL, stripPrefix string, flushInterval time.Duration) gin.HandlerFunc {
 	target, err := url.Parse(targetURL)
 	if err != nil {

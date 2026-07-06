@@ -67,6 +67,12 @@ func main() {
 		c.JSON(200, gin.H{"status": "ok", "service": "api-gateway"})
 	})
 
+	// Server-side health probes for the admin console — the browser can't
+	// reach the internal services, so the gateway checks on its behalf.
+	r.GET("/health/identity", proxy.NewHealthProxy(cfg.IdentityServiceURL))
+	r.GET("/health/community", proxy.NewHealthProxy(cfg.CommunityServiceURL))
+	r.GET("/health/organization", proxy.NewHealthProxy(cfg.OrganizationServiceURL))
+
 	authMiddleware := middleware.JWTAuth(cfg)
 
 	// Rate-limit tiers — see internal/middleware/ratelimit.go for the budgets.

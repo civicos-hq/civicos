@@ -10,7 +10,7 @@ function resolveApiBase(): string {
   if (raw.startsWith('http://') || raw.startsWith('https://')) return raw;
   return `https://${raw}`;
 }
-const API_BASE = resolveApiBase();
+export const API_BASE = resolveApiBase();
 
 export const api = axios.create({
   baseURL: API_BASE,
