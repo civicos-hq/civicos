@@ -31,6 +31,16 @@ func newProxy(targetURL, stripPrefix string, flushInterval time.Duration) gin.Ha
 	rp := httputil.NewSingleHostReverseProxy(target)
 	rp.FlushInterval = flushInterval
 
+	// SingleHostReverseProxy rewrites req.URL.Host but not req.Host, so the
+	// outbound request keeps the client-facing Host header. Shared-edge
+	// platforms (Render) dispatch by Host, which would bounce the request
+	// straight back to this gateway. Pin Host to the upstream's own name.
+	director := rp.Director
+	rp.Director = func(req *http.Request) {
+		director(req)
+		req.Host = target.Host
+	}
+
 	rp.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadGateway)
