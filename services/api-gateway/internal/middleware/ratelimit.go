@@ -22,9 +22,11 @@ type Profile struct {
 
 var (
 	// Auth endpoints that are the most abused in the wild: register, login,
-	// forgot-password. A single client should never need more than a few per
-	// minute even legitimately.
-	Strict = Profile{Name: "strict", Limit: 5, Window: time.Minute}
+	// forgot-password. All strict routes share one bucket per IP, and many
+	// ISPs (notably Nigerian mobile carriers) put whole subscriber pools
+	// behind one CGNAT address — 5/min starved real users at launch.
+	// 20/min still throttles scripted brute force per IP.
+	Strict = Profile{Name: "strict", Limit: 20, Window: time.Minute}
 
 	// Standard authed writes: upvote, sign, follow, comment, upload, verify,
 	// resend. Enough headroom for typical bursts (skimming a feed and hitting
