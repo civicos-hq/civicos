@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -12,7 +12,7 @@ import {
   type Issue,
   type Organization,
 } from '@civicos/types';
-import { api } from '../lib/api';
+import { api, getApiError } from '../lib/api';
 import { CommentsSection } from '../components/civic/CommentsSection';
 import { ImageGallery } from '../components/ImageLightbox';
 import { ShareButton } from '../components/ShareButton';
@@ -77,6 +77,7 @@ export function IssueDetailPage() {
   const meQuery = useMe();
   const location = useLocation();
   const commentsRef = useRef<HTMLDivElement | null>(null);
+  const [upvoteError, setUpvoteError] = useState('');
 
   useEffect(() => {
     if (location.hash === '#comments' && commentsRef.current) {
@@ -89,6 +90,7 @@ export function IssueDetailPage() {
 
   const upvoteMutation = useMutation({
     mutationFn: async () => {
+      setUpvoteError('');
       const res = await api.post<ApiResponse<{ upvoted: boolean; upvoteCount: number }>>(
         `/api/v1/issues/${id}/upvote`,
       );
@@ -104,10 +106,17 @@ export function IssueDetailPage() {
       }
       return { prev };
     },
-    onError: (_err, _vars, ctx) => {
+    onError: (err, _vars, ctx) => {
       if (ctx?.prev) queryClient.setQueryData(['upvotedIssues'], ctx.prev);
+      const apiError = getApiError(err);
+      setUpvoteError(
+        apiError?.code === 'EMAIL_NOT_VERIFIED'
+          ? t('auth.verify.actionRequired')
+          : t('issueDetail.upvoteError'),
+      );
     },
     onSuccess: (data) => {
+      setUpvoteError('');
       if (id) {
         queryClient.setQueryData<Issue>(['issue', id], (prev) =>
           prev ? { ...prev, upvoteCount: data.upvoteCount } : prev,
@@ -249,6 +258,7 @@ export function IssueDetailPage() {
         >
           {hasUpvoted ? t('issueDetail.upvoted') : t('issueDetail.upvote')}
         </Button>
+        {upvoteError && <p className="w-full text-sm text-red-600">{upvoteError}</p>}
       </article>
 
       <OfficialProgressSection issueId={issue.id} />

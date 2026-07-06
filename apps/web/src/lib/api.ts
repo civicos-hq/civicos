@@ -98,6 +98,16 @@ function forceSignOut() {
 export type RateLimitEvent = { retryAfter: number };
 export const RATE_LIMIT_EVENT = 'civicos:ratelimited';
 
+export function getApiError(error: unknown): ApiError | null {
+  if (!axios.isAxiosError<ApiError>(error)) return null;
+  const data = error.response?.data;
+  if (!data || typeof data !== 'object') return null;
+  if (data.success !== false || typeof data.code !== 'string' || typeof data.message !== 'string') {
+    return null;
+  }
+  return data;
+}
+
 api.interceptors.response.use(
   (res) => res,
   async (error: AxiosError) => {

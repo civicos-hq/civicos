@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/civicos/community-service/internal/domain"
+	"github.com/civicos/community-service/internal/middleware"
 	"github.com/civicos/community-service/pkg/response"
 	"github.com/gin-gonic/gin"
 )
@@ -60,6 +61,9 @@ func (h *Handler) create(c *gin.Context) {
 		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", err.Error())
 		return
 	}
+	if !middleware.RequireActiveCommunityMatch(c, input.CommunityID) {
+		return
+	}
 	userID, _ := c.Get("userID")
 	item, err := h.svc.Create(input, userID.(string))
 	if err != nil {
@@ -96,6 +100,18 @@ func (h *Handler) addComment(c *gin.Context) {
 		role = "CITIZEN"
 	}
 	petitionID := c.Param("id")
+	petition, err := h.svc.Get(petitionID)
+	if err != nil {
+		if appErr, ok := err.(*AppError); ok {
+			response.Error(c, appErr.Status, appErr.Code, appErr.Message)
+			return
+		}
+		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to fetch petition")
+		return
+	}
+	if !middleware.RequireActiveCommunityMatch(c, petition.CommunityID) {
+		return
+	}
 	item, err := h.svc.AddComment(petitionID, userID.(string), name, role, input.Content)
 	if err != nil {
 		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to add comment")
@@ -103,13 +119,13 @@ func (h *Handler) addComment(c *gin.Context) {
 	}
 
 	if h.notifier != nil {
-		if p, gerr := h.svc.Get(petitionID); gerr == nil && p.CreatedByID != "" && p.CreatedByID != userID.(string) {
+		if petition.CreatedByID != "" && petition.CreatedByID != userID.(string) {
 			link := "/petitions/" + petitionID + "#comments"
 			if nerr := h.notifier.Emit(
-				p.CreatedByID,
+				petition.CreatedByID,
 				domain.NotificationPetitionUpdate,
 				"New comment on your petition",
-				name+" commented on \""+p.Title+"\"",
+				name+" commented on \""+petition.Title+"\"",
 				&link,
 			); nerr != nil {
 				log.Printf("notify petition comment: %v", nerr)
@@ -123,6 +139,18 @@ func (h *Handler) addComment(c *gin.Context) {
 func (h *Handler) sign(c *gin.Context) {
 	userID, _ := c.Get("userID")
 	petitionID := c.Param("id")
+	petition, err := h.svc.Get(petitionID)
+	if err != nil {
+		if appErr, ok := err.(*AppError); ok {
+			response.Error(c, appErr.Status, appErr.Code, appErr.Message)
+			return
+		}
+		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to fetch petition")
+		return
+	}
+	if !middleware.RequireActiveCommunityMatch(c, petition.CommunityID) {
+		return
+	}
 	res, err := h.svc.Sign(petitionID, userID.(string))
 	if err != nil {
 		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to sign petition")
@@ -130,27 +158,27 @@ func (h *Handler) sign(c *gin.Context) {
 	}
 
 	if res.Added && h.notifier != nil {
-		if p, gerr := h.svc.Get(petitionID); gerr == nil && p.CreatedByID != "" {
+		if petition.CreatedByID != "" {
 			link := "/petitions/" + petitionID
 			actor := userID.(string)
 
-			if p.CreatedByID != actor {
+			if petition.CreatedByID != actor {
 				if nerr := h.notifier.Emit(
-					p.CreatedByID,
+					petition.CreatedByID,
 					domain.NotificationPetitionUpdate,
 					"New signature on your petition",
-					"Your petition \""+p.Title+"\" reached "+itoa(res.NewCount)+" of "+itoa(p.Goal)+" signatures.",
+					"Your petition \""+petition.Title+"\" reached "+itoa(res.NewCount)+" of "+itoa(petition.Goal)+" signatures.",
 					&link,
 				); nerr != nil {
 					log.Printf("notify petition sign: %v", nerr)
 				}
 			}
 
-			if crossed := milestone(res.NewCount, p.Goal); crossed != "" {
+			if crossed := milestone(res.NewCount, petition.Goal); crossed != "" {
 				title := "Petition milestone: " + crossed
-				body := "\"" + p.Title + "\" hit " + crossed + " of its goal (" + itoa(res.NewCount) + "/" + itoa(p.Goal) + ")."
+				body := "\"" + petition.Title + "\" hit " + crossed + " of its goal (" + itoa(res.NewCount) + "/" + itoa(petition.Goal) + ")."
 				if nerr := h.notifier.Emit(
-					p.CreatedByID,
+					petition.CreatedByID,
 					domain.NotificationPetitionUpdate,
 					title,
 					body,

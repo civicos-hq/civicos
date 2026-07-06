@@ -61,7 +61,7 @@ export function IssuesPage() {
   const enums = useEnumLabels();
   const meta = useTodayMeta();
   const meQuery = useMe();
-  const communityId = meQuery.data?.communityId;
+  const communityId = meQuery.data?.activeCommunityId;
   const [params, setParams] = useSearchParams();
   const statusFilter = params.get('status') ?? '';
   const categoryFilter = params.get('category') ?? '';

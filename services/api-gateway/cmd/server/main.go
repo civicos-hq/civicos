@@ -105,6 +105,13 @@ func main() {
 	// script that hammers DELETE would nuke accounts en masse.
 	r.DELETE("/api/v1/auth/me", authMiddleware, limitStrict, identityProtected)
 	r.POST("/api/v1/auth/me/community", authMiddleware, limitStandard, identityProtected)
+	r.PATCH("/api/v1/auth/me/active-community", authMiddleware, limitStandard, identityProtected)
+	r.GET("/api/v1/applications/me", authMiddleware, identityProtected)
+	r.PUT("/api/v1/applications/me/representative", authMiddleware, limitStandard, identityProtected)
+	r.PUT("/api/v1/applications/me/organization", authMiddleware, limitStandard, identityProtected)
+	r.GET("/api/v1/admin/applications", authMiddleware, identityProtected)
+	r.GET("/api/v1/admin/applications/:kind/:id", authMiddleware, identityProtected)
+	r.PATCH("/api/v1/admin/applications/:kind/:id", authMiddleware, limitStandard, identityProtected)
 
 	// --- Moderation infrastructure (identity-service owns these) ---
 	// Content flags — Strict tier on the POST to prevent flag spam.

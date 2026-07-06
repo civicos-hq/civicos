@@ -45,6 +45,7 @@ func (r *Repository) Find(f ListFilters) ([]domain.User, int64, error) {
 	}
 	var list []domain.User
 	if err := q.
+		Preload("Memberships").
 		Order("created_at desc").
 		Limit(f.Limit).
 		Offset(f.Offset).
@@ -56,7 +57,7 @@ func (r *Repository) Find(f ListFilters) ([]domain.User, int64, error) {
 
 func (r *Repository) FindByID(id string) (*domain.User, error) {
 	var u domain.User
-	return &u, r.db.Where("id = ?", id).First(&u).Error
+	return &u, r.db.Preload("Memberships").Where("id = ?", id).First(&u).Error
 }
 
 func (r *Repository) Update(id string, updates map[string]any) error {

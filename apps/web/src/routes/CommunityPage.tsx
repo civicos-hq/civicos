@@ -1,9 +1,10 @@
 import { useState, type FormEvent } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Button, Input } from '@civicos/ui';
-import { UserRole, type ApiResponse, type Community } from '@civicos/types';
+import { UserRole, type Community } from '@civicos/types';
 import { api } from '../lib/api';
+import { useCommunities } from '../hooks/useCommunities';
 import { useMe } from '../hooks/useMe';
 import { Modal } from '../components/Modal';
 import { PageHeader, useTodayMeta } from '../components/PageHeader';
@@ -15,16 +16,6 @@ const ADMIN_ROLES = new Set<UserRole>([
   UserRole.PLATFORM_ADMIN,
   UserRole.NGO,
 ]);
-
-function useCommunities() {
-  return useQuery({
-    queryKey: ['communities'],
-    queryFn: async () => {
-      const res = await api.get<ApiResponse<{ communities: Community[] }>>('/api/v1/communities');
-      return res.data.data.communities;
-    },
-  });
-}
 
 function slugify(value: string): string {
   return value
@@ -47,26 +38,39 @@ export function CommunityPage() {
       await api.post('/api/v1/auth/me/community', { communityId });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['me'] });
+      queryClient.invalidateQueries();
+    },
+  });
+
+  const switchMutation = useMutation({
+    mutationFn: async (communityId: string) => {
+      await api.patch('/api/v1/auth/me/active-community', { communityId });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries();
     },
   });
 
   const me = meQuery.data;
   const communities = communitiesQuery.data ?? [];
-  const myCommunity = communities.find((c) => c.id === me?.communityId);
+  const memberships = me?.memberships ?? [];
+  const joinedCommunityIDs = new Set(memberships.map((membership) => membership.communityId));
+  const activeCommunity = communities.find((c) => c.id === me?.activeCommunityId);
+  const joinedCommunities = communities.filter((c) => joinedCommunityIDs.has(c.id));
+  const availableCommunities = communities.filter((c) => !joinedCommunityIDs.has(c.id));
   const isAdmin = me?.role ? ADMIN_ROLES.has(me.role) : false;
 
   return (
     <section className="space-y-6">
       <PageHeader
         eyebrow={t('communityPage.eyebrow')}
-        title={myCommunity ? myCommunity.name : t('communityPage.findYours')}
+        title={activeCommunity ? activeCommunity.name : t('communityPage.findYours')}
         subtitle={
-          myCommunity
+          activeCommunity
             ? t('communityPage.memberSub', {
-                name: myCommunity.name,
-                lga: myCommunity.lga,
-                state: myCommunity.state,
+                name: activeCommunity.name,
+                lga: activeCommunity.lga,
+                state: activeCommunity.state,
               })
             : t('communityPage.joinPrompt')
         }
@@ -82,40 +86,70 @@ export function CommunityPage() {
 
       {meQuery.isLoading || communitiesQuery.isLoading ? (
         <p className="text-sm text-slate-600">{t('common.loading')}</p>
-      ) : myCommunity ? (
+      ) : activeCommunity ? (
         <>
           <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-slate-900">
-              {t('communityPage.yourCommunity')}
+              {t('communityPage.activeCommunity')}
             </h2>
             <div className="mt-3 grid gap-4 md:grid-cols-3">
-              <Stat label={t('communityPage.stats.state')} value={myCommunity.state} />
-              <Stat label={t('communityPage.stats.lga')} value={myCommunity.lga} />
-              <Stat label={t('communityPage.stats.country')} value={myCommunity.country} />
+              <Stat label={t('communityPage.stats.state')} value={activeCommunity.state} />
+              <Stat label={t('communityPage.stats.lga')} value={activeCommunity.lga} />
+              <Stat label={t('communityPage.stats.country')} value={activeCommunity.country} />
             </div>
-            {myCommunity.description && (
-              <p className="mt-4 text-sm text-slate-600">{myCommunity.description}</p>
+            {activeCommunity.description && (
+              <p className="mt-4 text-sm text-slate-600">{activeCommunity.description}</p>
             )}
           </article>
 
           <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-slate-900">
-              {t('communityPage.switchCommunity')}
+              {t('communityPage.joinedCommunities')}
             </h2>
-            <p className="mt-1 text-sm text-slate-600">{t('communityPage.switchSub')}</p>
+            <p className="mt-1 text-sm text-slate-600">{t('communityPage.joinedSub')}</p>
             <div className="mt-4 grid gap-3">
-              {communities
-                .filter((c) => c.id !== myCommunity.id)
-                .map((c) => (
+              {joinedCommunities.map((c) => (
+                <CommunityRow
+                  key={c.id}
+                  community={c}
+                  actionLabel={
+                    c.id === me?.activeCommunityId
+                      ? t('communityPage.actions.active')
+                      : t('communityPage.actions.switch')
+                  }
+                  loading={switchMutation.isPending && switchMutation.variables === c.id}
+                  disabled={c.id === me?.activeCommunityId}
+                  onAction={() => switchMutation.mutate(c.id)}
+                />
+              ))}
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-slate-900">
+              {t('communityPage.availableCommunities')}
+            </h2>
+            <p className="mt-1 text-sm text-slate-600">{t('communityPage.availableSub')}</p>
+            {availableCommunities.length === 0 ? (
+              <div className="mt-4">
+                <EmptyState
+                  icon={<Home className="h-5 w-5" />}
+                  title={t('communityPage.emptyJoinedAll')}
+                />
+              </div>
+            ) : (
+              <div className="mt-4 grid gap-3">
+                {availableCommunities.map((c) => (
                   <CommunityRow
                     key={c.id}
                     community={c}
-                    actionLabel={t('communityPage.actions.switch')}
+                    actionLabel={t('communityPage.actions.join')}
                     loading={joinMutation.isPending && joinMutation.variables === c.id}
                     onAction={() => joinMutation.mutate(c.id)}
                   />
                 ))}
-            </div>
+              </div>
+            )}
           </section>
         </>
       ) : (
@@ -129,7 +163,7 @@ export function CommunityPage() {
             </div>
           ) : (
             <div className="mt-4 grid gap-3">
-              {communities.map((c) => (
+              {availableCommunities.map((c) => (
                 <CommunityRow
                   key={c.id}
                   community={c}
@@ -140,7 +174,7 @@ export function CommunityPage() {
               ))}
             </div>
           )}
-          {joinMutation.isError && (
+          {(joinMutation.isError || switchMutation.isError) && (
             <p className="mt-3 text-sm text-red-600">{t('communityPage.joinError')}</p>
           )}
         </section>
@@ -160,11 +194,13 @@ function CommunityRow({
   community,
   actionLabel,
   loading,
+  disabled,
   onAction,
 }: {
   community: Community;
   actionLabel: string;
   loading: boolean;
+  disabled?: boolean;
   onAction: () => void;
 }) {
   return (
@@ -175,7 +211,7 @@ function CommunityRow({
           {community.lga}, {community.state}
         </p>
       </div>
-      <Button size="sm" onClick={onAction} loading={loading}>
+      <Button size="sm" onClick={onAction} loading={loading} disabled={disabled}>
         {actionLabel}
       </Button>
     </article>

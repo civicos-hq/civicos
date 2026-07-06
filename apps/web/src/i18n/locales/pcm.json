@@ -157,6 +157,7 @@
     "upvotesCount_other": "upvotes",
     "upvote": "▲ Upvote",
     "upvoted": "✓ You don upvote",
+    "upvoteError": "We no fit upvote this issue. Try again.",
     "statusClosedNote": "Dem close this issue without resolve am.",
     "updateStatus": "Update status",
     "updateStatusError": "We no fit update."
@@ -370,6 +371,8 @@
     "memberSub": "You be member of {{name}} ({{lga}}, {{state}}). Reports and petitions wey you create go belong to this community.",
     "joinPrompt": "Join community make you fit start to report issues and sign petitions.",
     "newCommunity": "+ New community",
+    "activeCommunity": "Active community",
+    "activeSelect": "Active:",
     "yourCommunity": "Your community",
     "stats": {
       "state": "State",
@@ -378,11 +381,16 @@
     },
     "switchCommunity": "Switch community",
     "switchSub": "You fit move to another community anytime.",
+    "joinedCommunities": "Your communities",
+    "joinedSub": "Switch between communities wey you don join. Your active community control where you fit post and interact.",
     "availableCommunities": "Communities wey dey",
+    "availableSub": "Join more communities make you follow and participate for different places wey matter to you.",
     "empty": "No community dey yet. Come check again small time.",
+    "emptyJoinedAll": "You don join every available community.",
     "actions": {
       "join": "Join",
-      "switch": "Switch"
+      "switch": "Switch",
+      "active": "Active"
     },
     "joinError": "We no fit join. Try again.",
     "modal": {
@@ -425,6 +433,9 @@
     "community": {
       "heading": "Community",
       "change": "Change community",
+      "manage": "Manage communities",
+      "joinedCount_one": "{{count}} joined community",
+      "joinedCount_other": "{{count}} joined communities",
       "empty": "You never join any community.",
       "findMine": "Find your community"
     },
@@ -663,6 +674,27 @@
       "description": "Join your local community space, report issues faster, and shape public decisions between elections.",
       "cardTitle": "Create account",
       "cardSubtitle": "E no go pass one minute to start.",
+      "progress": {
+        "path": "Choose path",
+        "account": "Set account",
+        "review": "Add review details",
+        "finish": "Finish"
+      },
+      "sections": {
+        "account": {
+          "title": "Account details",
+          "sub": "Add the main details for sign in and notifications."
+        }
+      },
+      "citizenNotice": {
+        "title": "Citizen account no need admin approval.",
+        "body": "Once you verify your email after signup, you fit join communities and start participating sharp sharp."
+      },
+      "applicationNotice": {
+        "title": "Keep am simple.",
+        "body": "Na only the main verification details we need now. You fit still add public contact links and proof inside the optional section."
+      },
+      "optionalSection": "Add public contact and proof (optional)",
       "submit": "Create account",
       "submitting": "Dey create account…",
       "error": "We no fit create your account. Try different email or try again small time.",
@@ -670,7 +702,91 @@
       "emailInUseSignIn": "Sign in instead",
       "emailInUseForgot": "or reset your password",
       "footerHave": "You get account already?",
-      "footerSignIn": "Sign in"
+      "footerSignIn": "Sign in",
+      "accountType": {
+        "legend": "How you wan join CivicOS?",
+        "options": {
+          "CITIZEN": {
+            "label": "Citizen",
+            "hint": "Start to participate straight away."
+          },
+          "REPRESENTATIVE": {
+            "label": "Representative",
+            "hint": "Create account and request approval from the admin team."
+          },
+          "ORGANIZATION": {
+            "label": "Organization",
+            "hint": "Register your institution and submit am for approval."
+          }
+        }
+      },
+      "representative": {
+        "title": "Representative application",
+        "sub": "Tell us the office wey you hold. Your request go stay pending until admin review am.",
+        "loadingCommunities": "Dey load communities…",
+        "contactTitle": "Public contact",
+        "fields": {
+          "title": "Title",
+          "position": "Position",
+          "positionPlaceholder": "e.g. Senator",
+          "constituency": "Constituency",
+          "constituencyPlaceholder": "e.g. Lagos Central Senatorial District",
+          "community": "Linked community",
+          "communityPlaceholder": "Select community…",
+          "party": "Party (optional)",
+          "partyPlaceholder": "e.g. LP, APC, PDP",
+          "bio": "Short bio (optional)",
+          "bioPlaceholder": "Wetin citizens suppose know about your role?",
+          "officialEmail": "Official email (optional)",
+          "officialEmailPlaceholder": "office@example.gov.ng",
+          "officialPhone": "Official phone (optional)",
+          "officialPhonePlaceholder": "+234 800 000 0000",
+          "website": "Website (optional)",
+          "websitePlaceholder": "https://representative.example.org",
+          "proofUrls": "Proof links (optional)",
+          "proofUrlsPlaceholder": "Paste links, separate dem with comma"
+        }
+      },
+      "organization": {
+        "title": "Organization application",
+        "sub": "Add the organization details wey admin team go verify before approval.",
+        "contactTitle": "Public contact",
+        "fields": {
+          "name": "Organization name",
+          "namePlaceholder": "Lagos State Waste Management Authority",
+          "slug": "Slug",
+          "slugPlaceholder": "lagos-state-waste-management-authority",
+          "kind": "Kind",
+          "jurisdiction": "Jurisdiction",
+          "state": "State",
+          "statePlaceholder": "Select state…",
+          "lga": "LGA",
+          "lgaPlaceholder": "Select LGA…",
+          "description": "Description (optional)",
+          "descriptionPlaceholder": "Wetin this organization dey do?",
+          "officialEmail": "Official email (optional)",
+          "officialEmailPlaceholder": "info@example.gov.ng",
+          "officialPhone": "Official phone (optional)",
+          "officialPhonePlaceholder": "+234 800 000 0000",
+          "website": "Website (optional)",
+          "websitePlaceholder": "https://organization.example.org",
+          "proofUrls": "Proof links (optional)",
+          "proofUrlsPlaceholder": "Paste links, separate dem with comma"
+        },
+        "kinds": {
+          "GOVERNMENT": "Government",
+          "AGENCY": "Agency",
+          "NGO": "NGO",
+          "UTILITY": "Utility",
+          "OTHER": "Other"
+        },
+        "jurisdictions": {
+          "NATIONAL": "National",
+          "STATE": "State",
+          "LGA": "LGA",
+          "COMMUNITY": "Community"
+        }
+      }
     },
     "onboarding": {
       "eyebrow": "Find your community",
@@ -751,7 +867,8 @@
       "bannerSub": "We send link go {{email}}. Until you click am, you fit browse but you no fit file, sign, or comment.",
       "bannerResend": "Resend email",
       "bannerDismiss": "Hide for now",
-      "bannerCompact": "Verify your email to file, sign, and comment."
+      "bannerCompact": "Verify your email to file, sign, and comment.",
+      "actionRequired": "Verify your email before you fit upvote, sign petition, or join discussion. Check your inbox — or go Profile make you resend the verification email."
     }
   },
   "sidebar": {

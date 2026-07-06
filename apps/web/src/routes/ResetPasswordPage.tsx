@@ -139,8 +139,10 @@ export function ResetPasswordPage() {
               onClick={() => {
                 // If the just-reset user still has no community, drop them
                 // into the wizard rather than the empty-feed Discover.
-                const cached = queryClient.getQueryData<{ communityId?: string | null }>(['me']);
-                navigate(cached?.communityId ? '/discover' : '/onboarding');
+                const cached = queryClient.getQueryData<{ activeCommunityId?: string | null }>([
+                  'me',
+                ]);
+                navigate(cached?.activeCommunityId ? '/discover' : '/onboarding');
               }}
             >
               {t('auth.reset.successCta')}

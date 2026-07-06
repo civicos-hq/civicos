@@ -193,11 +193,14 @@
 .admin-chip-role-GOVERNMENT_ADMIN { background: #fff7ed; color: #9a3412; border-color: #fed7aa; }
 .admin-chip-role-NGO { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
 .admin-chip-role-REPRESENTATIVE { background: #eff6ff; color: #1e3a8a; border-color: #bfdbfe; }
+.admin-chip-role-ORGANIZATION { background: #eef2ff; color: #4338ca; border-color: #c7d2fe; }
 .admin-chip-role-MODERATOR { background: #fdf4ff; color: #86198f; border-color: #f5d0fe; }
 .admin-chip-role-CITIZEN { background: #f1f5f9; color: #334155; border-color: #cbd5e1; }
 .admin-chip-verified { background: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
 .admin-chip-banned { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
 .admin-chip-status-PENDING { background: #fff7ed; color: #9a3412; border-color: #fed7aa; }
+.admin-chip-status-APPROVED { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
+.admin-chip-status-REJECTED { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
 .admin-chip-status-HIDDEN { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
 .admin-chip-status-DISMISSED { background: #f1f5f9; color: #334155; border-color: #cbd5e1; }
 .admin-chip-status-REVIEWED { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }

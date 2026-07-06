@@ -8,7 +8,7 @@ import type {
   PetitionComment,
   RepresentativeComment,
 } from '@civicos/types';
-import { api } from '../../lib/api';
+import { api, getApiError } from '../../lib/api';
 import { useEnumLabels } from '../../hooks/useEnumLabels';
 import { useRelativeTime } from '../../hooks/useRelativeTime';
 import { EmptyState } from '../EmptyState';
@@ -70,9 +70,17 @@ export function CommentsSection({
     },
     onSuccess: () => {
       setContent('');
+      setError('');
       queryClient.invalidateQueries({ queryKey: ['comments', entityType, entityId] });
     },
-    onError: () => setError(t('comments.postError')),
+    onError: (err) => {
+      const apiError = getApiError(err);
+      setError(
+        apiError?.code === 'EMAIL_NOT_VERIFIED'
+          ? t('auth.verify.actionRequired')
+          : t('comments.postError'),
+      );
+    },
   });
 
   function handleSubmit(e: FormEvent) {

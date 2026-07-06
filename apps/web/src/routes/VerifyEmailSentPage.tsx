@@ -2,14 +2,17 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { MailCheck, Send } from 'lucide-react';
+import type { RequestedAccountType } from '@civicos/types';
 import { api } from '../lib/api';
 
-type LocationState = { email?: string };
+type LocationState = { email?: string; requestedAccountType?: RequestedAccountType };
 
 export function VerifyEmailSentPage() {
   const { t } = useTranslation();
   const location = useLocation();
-  const email = (location.state as LocationState)?.email ?? '';
+  const state = (location.state as LocationState | null) ?? null;
+  const email = state?.email ?? '';
+  const requestedAccountType = state?.requestedAccountType ?? 'CITIZEN';
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
 
   async function resend() {
@@ -37,6 +40,9 @@ export function VerifyEmailSentPage() {
             {t('auth.verify.sentSub', { email: email || 'your inbox' })}
           </p>
           <p className="verify-tip">{t('auth.verify.sentTip')}</p>
+          {requestedAccountType !== 'CITIZEN' && (
+            <p className="verify-tip">{t('auth.verify.pendingApproval')}</p>
+          )}
 
           <button
             type="button"

@@ -30,6 +30,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, authMiddleware gin.Handler
 	rg.PATCH("/me", authMiddleware, h.updateMe)
 	rg.DELETE("/me", authMiddleware, h.deleteMe)
 	rg.POST("/me/community", authMiddleware, h.joinCommunity)
+	rg.PATCH("/me/active-community", authMiddleware, h.setActiveCommunity)
 }
 
 func (h *Handler) register(c *gin.Context) {
@@ -41,8 +42,24 @@ func (h *Handler) register(c *gin.Context) {
 
 	user, tokens, err := h.service.Register(input)
 	if err != nil {
-		if err.Error() == "EMAIL_ALREADY_IN_USE" {
+		switch err.Error() {
+		case "EMAIL_ALREADY_IN_USE":
 			response.Error(c, http.StatusConflict, "EMAIL_ALREADY_IN_USE", "This email is already registered")
+			return
+		case "INVALID_REQUESTED_ACCOUNT_TYPE":
+			response.Error(c, http.StatusBadRequest, "INVALID_REQUESTED_ACCOUNT_TYPE", "Choose citizen, representative, or organization")
+			return
+		case "REPRESENTATIVE_APPLICATION_REQUIRED":
+			response.Error(c, http.StatusBadRequest, "REPRESENTATIVE_APPLICATION_REQUIRED", "Representative signup requires application details")
+			return
+		case "ORGANIZATION_APPLICATION_REQUIRED":
+			response.Error(c, http.StatusBadRequest, "ORGANIZATION_APPLICATION_REQUIRED", "Organization signup requires application details")
+			return
+		case "STATE_REQUIRED":
+			response.Error(c, http.StatusBadRequest, "STATE_REQUIRED", "This organization jurisdiction requires a state")
+			return
+		case "LGA_REQUIRED":
+			response.Error(c, http.StatusBadRequest, "LGA_REQUIRED", "This organization jurisdiction requires an LGA")
 			return
 		}
 		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Registration failed")
@@ -256,6 +273,27 @@ func (h *Handler) joinCommunity(c *gin.Context) {
 	user, err := h.service.JoinCommunity(userID.(string), body.CommunityID)
 	if err != nil {
 		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to join community")
+		return
+	}
+	response.Success(c, http.StatusOK, gin.H{"user": user})
+}
+
+func (h *Handler) setActiveCommunity(c *gin.Context) {
+	var body struct {
+		CommunityID string `json:"communityId" binding:"required,uuid4"`
+	}
+	if err := c.ShouldBindJSON(&body); err != nil {
+		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", err.Error())
+		return
+	}
+	userID, _ := c.Get("userID")
+	user, err := h.service.SetActiveCommunity(userID.(string), body.CommunityID)
+	if err != nil {
+		if err.Error() == "COMMUNITY_MEMBERSHIP_REQUIRED" {
+			response.Error(c, http.StatusBadRequest, "COMMUNITY_MEMBERSHIP_REQUIRED", "Join this community before switching to it")
+			return
+		}
+		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to switch active community")
 		return
 	}
 	response.Success(c, http.StatusOK, gin.H{"user": user})

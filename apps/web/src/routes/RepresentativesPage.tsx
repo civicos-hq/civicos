@@ -48,7 +48,7 @@ export function RepresentativesPage() {
   const { t } = useTranslation();
   const meta = useTodayMeta();
   const meQuery = useMe();
-  const communityId = meQuery.data?.communityId;
+  const communityId = meQuery.data?.activeCommunityId;
   const repsQuery = useRepresentatives(communityId);
   const followsQuery = useFollowedReps();
   const [isModalOpen, setModalOpen] = useState(false);

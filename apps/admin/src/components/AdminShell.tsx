@@ -4,6 +4,7 @@ import {
   ClipboardList,
   EyeOff,
   Flag,
+  Inbox,
   LayoutDashboard,
   LogOut,
   MapPin,
@@ -38,6 +39,7 @@ export function AdminShell() {
         <NavLinkItem to="/organizations" icon={Building2} label="Organizations" />
 
         <p className="admin-nav-section">Trust</p>
+        <NavLinkItem to="/applications" icon={Inbox} label="Applications" />
         <NavLinkItem to="/flags" icon={Flag} label="Moderation queue" />
         <NavLinkItem to="/moderation/direct-hide" icon={EyeOff} label="Direct hide" />
         <NavLinkItem to="/audit" icon={ClipboardList} label="Audit log" />

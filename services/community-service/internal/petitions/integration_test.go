@@ -181,6 +181,25 @@ ServiceReady:
 		t.Fatalf("sign token: %v", err)
 	}
 
+	db, err := sql.Open("pgx", dsn)
+	if err != nil {
+		t.Fatalf("open embedded postgres: %v", err)
+	}
+	defer db.Close()
+	if _, err := db.Exec(`
+		CREATE TABLE users (
+			id UUID PRIMARY KEY,
+			community_id UUID NULL,
+			banned_at TIMESTAMPTZ NULL,
+			deleted_at TIMESTAMPTZ NULL
+		)
+	`); err != nil {
+		t.Fatalf("create users table: %v", err)
+	}
+	if _, err := db.Exec(`INSERT INTO users (id) VALUES ($1)`, userID); err != nil {
+		t.Fatalf("seed auth user: %v", err)
+	}
+
 	// create a community through the service API so the route and schema are both exercised
 	communityURL := fmt.Sprintf("http://localhost:%d/v1/communities", servicePort)
 	communityBody := map[string]any{
@@ -228,6 +247,9 @@ ServiceReady:
 	communityID, ok := comm["id"].(string)
 	if !ok || communityID == "" {
 		t.Fatalf("community id not found or invalid in response: %s", string(body))
+	}
+	if _, err := db.Exec(`UPDATE users SET community_id = $1 WHERE id = $2`, communityID, userID); err != nil {
+		t.Fatalf("set active community: %v", err)
 	}
 
 	createURL := fmt.Sprintf("http://localhost:%d/v1/petitions", servicePort)

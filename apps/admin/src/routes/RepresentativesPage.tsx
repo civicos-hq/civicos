@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Plus } from 'lucide-react';
 import { apiGet } from '../lib/api';
 
 interface AdminRepresentative {
@@ -59,21 +58,12 @@ export function RepresentativesPage() {
   return (
     <>
       <header className="admin-page-header">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="admin-page-eyebrow">Section — Representatives</p>
-            <h1 className="admin-page-title">Elected officials on record</h1>
-            <p className="admin-page-sub">
-              Every representative is tied to a community and appears on the citizen app under{' '}
-              <span className="mono">/representatives</span>. Citizens can follow them, comment
-              publicly, and see their response rate.
-            </p>
-          </div>
-          <Link to="/representatives/new" className="admin-btn admin-btn-primary">
-            <Plus className="h-4 w-4" aria-hidden="true" />
-            New representative
-          </Link>
-        </div>
+        <p className="admin-page-eyebrow">Section — Representatives</p>
+        <h1 className="admin-page-title">Elected officials on record</h1>
+        <p className="admin-page-sub">
+          Representatives now enter through self-serve applications. Approved profiles appear here
+          for oversight alongside their public engagement metrics.
+        </p>
       </header>
 
       <div className="admin-table-shell">

@@ -32,8 +32,10 @@ const (
 type UserStore interface {
 	FindByEmail(email string) (*domain.User, error)
 	FindByID(id string) (*domain.User, error)
-	Create(user *domain.User) error
-	UpdateCommunity(userID, communityID string) error
+	CreateRegistration(user *domain.User, repApp *domain.RepresentativeApplication, orgApp *domain.OrganizationApplication) error
+	CreateNotification(userID, title, body string, linkURL *string) error
+	JoinCommunity(userID, communityID string) error
+	SetActiveCommunity(userID, communityID string) error
 	UpdateProfile(userID, name, email string) error
 	SetVerificationToken(userID, tokenHash string, expiresAt time.Time) error
 	FindByVerificationTokenHash(tokenHash string) (*domain.User, error)
@@ -66,9 +68,42 @@ func NewService(repo UserStore, refresh RefreshStore, cfg *config.Config, m mail
 }
 
 type RegisterInput struct {
-	Name     string `json:"name" binding:"required,min=2,max=100"`
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=8"`
+	Name                 string                                  `json:"name" binding:"required,min=2,max=100"`
+	Email                string                                  `json:"email" binding:"required,email"`
+	Password             string                                  `json:"password" binding:"required,min=8"`
+	RequestedAccountType string                                  `json:"requestedAccountType" binding:"omitempty,oneof=CITIZEN REPRESENTATIVE ORGANIZATION"`
+	Representative       *RepresentativeApplicationRegisterInput `json:"representativeApplication"`
+	Organization         *OrganizationApplicationRegisterInput   `json:"organizationApplication"`
+}
+
+type RepresentativeApplicationRegisterInput struct {
+	FullName      string   `json:"fullName" binding:"required,min=2,max=100"`
+	Title         string   `json:"title" binding:"required,min=2,max=50"`
+	Position      string   `json:"position" binding:"required,min=2,max=100"`
+	Constituency  string   `json:"constituency" binding:"required,min=2,max=120"`
+	CommunityID   string   `json:"communityId" binding:"required,uuid4"`
+	Party         *string  `json:"party"`
+	Bio           *string  `json:"bio"`
+	AvatarURL     *string  `json:"avatarUrl" binding:"omitempty,url"`
+	OfficialEmail *string  `json:"officialEmail" binding:"omitempty,email"`
+	OfficialPhone *string  `json:"officialPhone"`
+	Website       *string  `json:"website" binding:"omitempty,url"`
+	ProofURLs     []string `json:"proofUrls"`
+}
+
+type OrganizationApplicationRegisterInput struct {
+	Name          string   `json:"name" binding:"required,min=2,max=120"`
+	Slug          string   `json:"slug" binding:"required,min=2,max=120"`
+	Kind          string   `json:"kind" binding:"required,oneof=GOVERNMENT AGENCY NGO UTILITY OTHER"`
+	Jurisdiction  string   `json:"jurisdiction" binding:"required,oneof=NATIONAL STATE LGA COMMUNITY"`
+	State         *string  `json:"state"`
+	LGA           *string  `json:"lga"`
+	Description   *string  `json:"description"`
+	LogoURL       *string  `json:"logoUrl" binding:"omitempty,url"`
+	OfficialEmail *string  `json:"officialEmail" binding:"omitempty,email"`
+	OfficialPhone *string  `json:"officialPhone"`
+	Website       *string  `json:"website" binding:"omitempty,url"`
+	ProofURLs     []string `json:"proofUrls"`
 }
 
 type LoginInput struct {
@@ -101,21 +136,43 @@ func (s *Service) Register(input RegisterInput) (*domain.PublicUser, *TokenPair,
 		return nil, nil, err
 	}
 
+	requestedType, err := normalizeRequestedAccountType(input.RequestedAccountType)
+	if err != nil {
+		return nil, nil, err
+	}
+	if err := validateRegistrationApplications(requestedType, input); err != nil {
+		return nil, nil, err
+	}
+
 	hash, err := bcrypt.GenerateFromPassword([]byte(input.Password), 12)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to hash password: %w", err)
 	}
 
+	approvalStatus := domain.ApprovalStatusNone
+	if requestedType != domain.AccountTypeCitizen {
+		approvalStatus = domain.ApprovalStatusPending
+	}
 	user := &domain.User{
-		ID:           uuid.New().String(),
-		Name:         input.Name,
-		Email:        input.Email,
-		PasswordHash: string(hash),
-		Role:         domain.RoleCitizen,
+		ID:                   uuid.New().String(),
+		Name:                 input.Name,
+		Email:                input.Email,
+		PasswordHash:         string(hash),
+		Role:                 domain.RoleCitizen,
+		RequestedAccountType: requestedType,
+		ApprovalStatus:       approvalStatus,
 	}
 
-	if err := s.repo.Create(user); err != nil {
+	repApp, orgApp := buildRegistrationApplications(user.ID, input, requestedType)
+	if err := s.repo.CreateRegistration(user, repApp, orgApp); err != nil {
 		return nil, nil, err
+	}
+	if requestedType != domain.AccountTypeCitizen {
+		link := "/profile"
+		title, body := applicationSubmissionCopy(requestedType)
+		if err := s.repo.CreateNotification(user.ID, title, body, &link); err != nil {
+			log.Printf("[auth.Register] approval notification failed for user=%s: %v", user.ID, err)
+		}
 	}
 
 	// Fire-and-log verification email. A mailer failure does not roll back the
@@ -134,6 +191,120 @@ func (s *Service) Register(input RegisterInput) (*domain.PublicUser, *TokenPair,
 
 	public := user.ToPublic()
 	return &public, tokens, nil
+}
+
+func normalizeRequestedAccountType(raw string) (domain.RequestedAccountType, error) {
+	if raw == "" {
+		return domain.AccountTypeCitizen, nil
+	}
+	switch domain.RequestedAccountType(raw) {
+	case domain.AccountTypeCitizen, domain.AccountTypeRepresentative, domain.AccountTypeOrganization:
+		return domain.RequestedAccountType(raw), nil
+	default:
+		return "", errors.New("INVALID_REQUESTED_ACCOUNT_TYPE")
+	}
+}
+
+func validateRegistrationApplications(requestedType domain.RequestedAccountType, input RegisterInput) error {
+	switch requestedType {
+	case domain.AccountTypeCitizen:
+		return nil
+	case domain.AccountTypeRepresentative:
+		if input.Representative == nil {
+			return errors.New("REPRESENTATIVE_APPLICATION_REQUIRED")
+		}
+	case domain.AccountTypeOrganization:
+		if input.Organization == nil {
+			return errors.New("ORGANIZATION_APPLICATION_REQUIRED")
+		}
+		if err := validateOrganizationLocation(input.Organization); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func validateOrganizationLocation(input *OrganizationApplicationRegisterInput) error {
+	if input == nil {
+		return errors.New("ORGANIZATION_APPLICATION_REQUIRED")
+	}
+	if (input.Jurisdiction == "STATE" || input.Jurisdiction == "LGA" || input.Jurisdiction == "COMMUNITY") &&
+		(input.State == nil || *input.State == "") {
+		return errors.New("STATE_REQUIRED")
+	}
+	if (input.Jurisdiction == "LGA" || input.Jurisdiction == "COMMUNITY") &&
+		(input.LGA == nil || *input.LGA == "") {
+		return errors.New("LGA_REQUIRED")
+	}
+	return nil
+}
+
+func buildRegistrationApplications(
+	userID string,
+	input RegisterInput,
+	requestedType domain.RequestedAccountType,
+) (*domain.RepresentativeApplication, *domain.OrganizationApplication) {
+	submittedAt := time.Now().UTC()
+	switch requestedType {
+	case domain.AccountTypeRepresentative:
+		rep := input.Representative
+		if rep == nil {
+			return nil, nil
+		}
+		return &domain.RepresentativeApplication{
+			ID:            uuid.New().String(),
+			UserID:        userID,
+			Status:        domain.ApprovalStatusPending,
+			FullName:      rep.FullName,
+			Title:         rep.Title,
+			Position:      rep.Position,
+			Constituency:  rep.Constituency,
+			CommunityID:   rep.CommunityID,
+			Party:         rep.Party,
+			Bio:           rep.Bio,
+			AvatarURL:     rep.AvatarURL,
+			OfficialEmail: rep.OfficialEmail,
+			OfficialPhone: rep.OfficialPhone,
+			Website:       rep.Website,
+			ProofURLs:     rep.ProofURLs,
+			SubmittedAt:   submittedAt,
+		}, nil
+	case domain.AccountTypeOrganization:
+		org := input.Organization
+		if org == nil {
+			return nil, nil
+		}
+		return nil, &domain.OrganizationApplication{
+			ID:            uuid.New().String(),
+			UserID:        userID,
+			Status:        domain.ApprovalStatusPending,
+			Name:          org.Name,
+			Slug:          org.Slug,
+			Kind:          org.Kind,
+			Jurisdiction:  org.Jurisdiction,
+			State:         org.State,
+			LGA:           org.LGA,
+			Description:   org.Description,
+			LogoURL:       org.LogoURL,
+			OfficialEmail: org.OfficialEmail,
+			OfficialPhone: org.OfficialPhone,
+			Website:       org.Website,
+			ProofURLs:     org.ProofURLs,
+			SubmittedAt:   submittedAt,
+		}
+	}
+	return nil, nil
+}
+
+func applicationSubmissionCopy(requestedType domain.RequestedAccountType) (string, string) {
+	switch requestedType {
+	case domain.AccountTypeRepresentative:
+		return "Representative request submitted", "Your representative application is pending admin review."
+	case domain.AccountTypeOrganization:
+		return "Organization request submitted", "Your organization registration is pending admin review."
+	default:
+		return "Application submitted", "Your request is pending admin review."
+	}
 }
 
 // VerifyEmail finds the user with this token hash, checks expiry, and flips
@@ -478,7 +649,17 @@ func (s *Service) UpdateProfile(userID string, input UpdateProfileInput) (*domai
 }
 
 func (s *Service) JoinCommunity(userID, communityID string) (*domain.PublicUser, error) {
-	if err := s.repo.UpdateCommunity(userID, communityID); err != nil {
+	if err := s.repo.JoinCommunity(userID, communityID); err != nil {
+		return nil, err
+	}
+	return s.GetMe(userID)
+}
+
+func (s *Service) SetActiveCommunity(userID, communityID string) (*domain.PublicUser, error) {
+	if err := s.repo.SetActiveCommunity(userID, communityID); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("COMMUNITY_MEMBERSHIP_REQUIRED")
+		}
 		return nil, err
 	}
 	return s.GetMe(userID)

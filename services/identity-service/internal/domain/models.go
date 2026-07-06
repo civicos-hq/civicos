@@ -13,16 +13,43 @@ const (
 	RolePlatformAdmin   UserRole = "PLATFORM_ADMIN"
 )
 
+type RequestedAccountType string
+
+const (
+	AccountTypeCitizen        RequestedAccountType = "CITIZEN"
+	AccountTypeRepresentative RequestedAccountType = "REPRESENTATIVE"
+	AccountTypeOrganization   RequestedAccountType = "ORGANIZATION"
+)
+
+type ApprovalStatus string
+
+const (
+	ApprovalStatusNone     ApprovalStatus = "NONE"
+	ApprovalStatusPending  ApprovalStatus = "PENDING"
+	ApprovalStatusApproved ApprovalStatus = "APPROVED"
+	ApprovalStatusRejected ApprovalStatus = "REJECTED"
+)
+
 // User is the core identity entity.
 // All IDs are UUIDs — never expose sequential database IDs.
 type User struct {
-	ID           string   `gorm:"type:uuid;primaryKey" json:"id"`
-	Email        string   `gorm:"uniqueIndex;not null" json:"email"`
-	Name         string   `gorm:"not null" json:"name"`
-	PasswordHash string   `gorm:"not null" json:"-"` // never serialised
-	Role         UserRole `gorm:"type:varchar(30);default:'CITIZEN'" json:"role"`
-	AvatarURL    *string  `json:"avatarUrl,omitempty"`
-	CommunityID  *string  `gorm:"type:uuid" json:"communityId,omitempty"`
+	ID                string                    `gorm:"type:uuid;primaryKey" json:"id"`
+	Email             string                    `gorm:"uniqueIndex;not null" json:"email"`
+	Name              string                    `gorm:"not null" json:"name"`
+	PasswordHash      string                    `gorm:"not null" json:"-"` // never serialised
+	Role              UserRole                  `gorm:"type:varchar(30);default:'CITIZEN'" json:"role"`
+	AvatarURL         *string                   `json:"avatarUrl,omitempty"`
+	ActiveCommunityID *string                   `gorm:"type:uuid;column:community_id" json:"activeCommunityId,omitempty"`
+	Memberships       []UserCommunityMembership `gorm:"foreignKey:UserID" json:"-"`
+
+	// RequestedAccountType captures the signup intent separately from the
+	// currently-effective role. A pending representative or organization
+	// applicant stays low-privilege until an admin approves the request.
+	RequestedAccountType RequestedAccountType `gorm:"type:varchar(30);not null;default:'CITIZEN'" json:"requestedAccountType"`
+	ApprovalStatus       ApprovalStatus       `gorm:"type:varchar(20);not null;default:'NONE';index" json:"approvalStatus"`
+	ApprovalReviewedAt   *time.Time           `json:"approvalReviewedAt,omitempty"`
+	ApprovalReviewedByID *string              `gorm:"type:uuid" json:"approvalReviewedById,omitempty"`
+	ApprovalNote         *string              `json:"approvalNote,omitempty"`
 
 	EmailVerified              bool       `gorm:"not null;default:false" json:"emailVerified"`
 	EmailVerifiedAt            *time.Time `json:"emailVerifiedAt,omitempty"`
@@ -55,15 +82,35 @@ type User struct {
 
 // PublicUser is the safe view returned to API consumers.
 type PublicUser struct {
-	ID              string     `json:"id"`
-	Email           string     `json:"email"`
-	Name            string     `json:"name"`
-	Role            UserRole   `json:"role"`
-	AvatarURL       *string    `json:"avatarUrl,omitempty"`
-	CommunityID     *string    `json:"communityId,omitempty"`
-	EmailVerified   bool       `json:"emailVerified"`
-	EmailVerifiedAt *time.Time `json:"emailVerifiedAt,omitempty"`
-	CreatedAt       time.Time  `json:"createdAt"`
+	ID                   string                      `json:"id"`
+	Email                string                      `json:"email"`
+	Name                 string                      `json:"name"`
+	Role                 UserRole                    `json:"role"`
+	AvatarURL            *string                     `json:"avatarUrl,omitempty"`
+	ActiveCommunityID    *string                     `json:"activeCommunityId,omitempty"`
+	Memberships          []PublicCommunityMembership `json:"memberships"`
+	RequestedAccountType RequestedAccountType        `json:"requestedAccountType"`
+	ApprovalStatus       ApprovalStatus              `json:"approvalStatus"`
+	ApprovalReviewedAt   *time.Time                  `json:"approvalReviewedAt,omitempty"`
+	ApprovalReviewedByID *string                     `json:"approvalReviewedById,omitempty"`
+	ApprovalNote         *string                     `json:"approvalNote,omitempty"`
+	EmailVerified        bool                        `json:"emailVerified"`
+	EmailVerifiedAt      *time.Time                  `json:"emailVerifiedAt,omitempty"`
+	CreatedAt            time.Time                   `json:"createdAt"`
+}
+
+type UserCommunityMembership struct {
+	ID          string    `gorm:"type:uuid;primaryKey" json:"id"`
+	UserID      string    `gorm:"type:uuid;not null;uniqueIndex:idx_user_community_membership" json:"userId"`
+	CommunityID string    `gorm:"type:uuid;not null;uniqueIndex:idx_user_community_membership;index" json:"communityId"`
+	JoinedAt    time.Time `gorm:"not null;index" json:"joinedAt"`
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+}
+
+type PublicCommunityMembership struct {
+	CommunityID string    `json:"communityId"`
+	JoinedAt    time.Time `json:"joinedAt"`
 }
 
 // RefreshToken records a single opaque refresh token. Rotation:
@@ -172,16 +219,100 @@ type ContentFlag struct {
 	UpdatedAt      time.Time     `json:"updatedAt"`
 }
 
+// RepresentativeApplication stores the data a user submits when asking to be
+// approved as a representative. The approval status is duplicated onto User as
+// a quick auth/profile summary, while this record holds the reviewable payload.
+type RepresentativeApplication struct {
+	ID                string         `gorm:"type:uuid;primaryKey" json:"id"`
+	UserID            string         `gorm:"type:uuid;not null;uniqueIndex" json:"userId"`
+	Status            ApprovalStatus `gorm:"type:varchar(20);not null;default:'PENDING';index" json:"status"`
+	FullName          string         `gorm:"not null" json:"fullName"`
+	Title             string         `gorm:"not null" json:"title"`
+	Position          string         `gorm:"not null" json:"position"`
+	Constituency      string         `gorm:"not null" json:"constituency"`
+	CommunityID       string         `gorm:"type:uuid;not null;index" json:"communityId"`
+	Party             *string        `json:"party,omitempty"`
+	Bio               *string        `json:"bio,omitempty"`
+	AvatarURL         *string        `json:"avatarUrl,omitempty"`
+	OfficialEmail     *string        `json:"officialEmail,omitempty"`
+	OfficialPhone     *string        `json:"officialPhone,omitempty"`
+	Website           *string        `json:"website,omitempty"`
+	ProofURLs         []string       `gorm:"serializer:json" json:"proofUrls,omitempty"`
+	SubmittedAt       time.Time      `gorm:"not null;index" json:"submittedAt"`
+	ReviewedAt        *time.Time     `json:"reviewedAt,omitempty"`
+	ReviewedByUserID  *string        `gorm:"type:uuid" json:"reviewedByUserId,omitempty"`
+	ReviewNote        *string        `json:"reviewNote,omitempty"`
+	ApprovedProfileID *string        `gorm:"type:uuid" json:"approvedProfileId,omitempty"`
+	CreatedAt         time.Time      `json:"createdAt"`
+	UpdatedAt         time.Time      `json:"updatedAt"`
+}
+
+// OrganizationApplication stores a pending request to create an organization
+// account. Approval later creates the actual organization and promotes the
+// applicant's platform role as needed.
+type OrganizationApplication struct {
+	ID                     string         `gorm:"type:uuid;primaryKey" json:"id"`
+	UserID                 string         `gorm:"type:uuid;not null;uniqueIndex" json:"userId"`
+	Status                 ApprovalStatus `gorm:"type:varchar(20);not null;default:'PENDING';index" json:"status"`
+	Name                   string         `gorm:"not null" json:"name"`
+	Slug                   string         `gorm:"not null;index" json:"slug"`
+	Kind                   string         `gorm:"type:varchar(20);not null" json:"kind"`
+	Jurisdiction           string         `gorm:"type:varchar(20);not null" json:"jurisdiction"`
+	State                  *string        `json:"state,omitempty"`
+	LGA                    *string        `json:"lga,omitempty"`
+	Description            *string        `json:"description,omitempty"`
+	LogoURL                *string        `json:"logoUrl,omitempty"`
+	OfficialEmail          *string        `json:"officialEmail,omitempty"`
+	OfficialPhone          *string        `json:"officialPhone,omitempty"`
+	Website                *string        `json:"website,omitempty"`
+	ProofURLs              []string       `gorm:"serializer:json" json:"proofUrls,omitempty"`
+	SubmittedAt            time.Time      `gorm:"not null;index" json:"submittedAt"`
+	ReviewedAt             *time.Time     `json:"reviewedAt,omitempty"`
+	ReviewedByUserID       *string        `gorm:"type:uuid" json:"reviewedByUserId,omitempty"`
+	ReviewNote             *string        `json:"reviewNote,omitempty"`
+	ApprovedOrganizationID *string        `gorm:"type:uuid" json:"approvedOrganizationId,omitempty"`
+	CreatedAt              time.Time      `json:"createdAt"`
+	UpdatedAt              time.Time      `json:"updatedAt"`
+}
+
 func (u *User) ToPublic() PublicUser {
-	return PublicUser{
-		ID:              u.ID,
-		Email:           u.Email,
-		Name:            u.Name,
-		Role:            u.Role,
-		AvatarURL:       u.AvatarURL,
-		CommunityID:     u.CommunityID,
-		EmailVerified:   u.EmailVerified,
-		EmailVerifiedAt: u.EmailVerifiedAt,
-		CreatedAt:       u.CreatedAt,
+	requestedType := u.RequestedAccountType
+	if requestedType == "" {
+		requestedType = AccountTypeCitizen
 	}
+	approvalStatus := u.ApprovalStatus
+	if approvalStatus == "" {
+		approvalStatus = ApprovalStatusNone
+	}
+	return PublicUser{
+		ID:                   u.ID,
+		Email:                u.Email,
+		Name:                 u.Name,
+		Role:                 u.Role,
+		AvatarURL:            u.AvatarURL,
+		ActiveCommunityID:    u.ActiveCommunityID,
+		Memberships:          ToPublicMemberships(u.Memberships),
+		RequestedAccountType: requestedType,
+		ApprovalStatus:       approvalStatus,
+		ApprovalReviewedAt:   u.ApprovalReviewedAt,
+		ApprovalReviewedByID: u.ApprovalReviewedByID,
+		ApprovalNote:         u.ApprovalNote,
+		EmailVerified:        u.EmailVerified,
+		EmailVerifiedAt:      u.EmailVerifiedAt,
+		CreatedAt:            u.CreatedAt,
+	}
+}
+
+func ToPublicMemberships(memberships []UserCommunityMembership) []PublicCommunityMembership {
+	if len(memberships) == 0 {
+		return []PublicCommunityMembership{}
+	}
+	out := make([]PublicCommunityMembership, 0, len(memberships))
+	for _, membership := range memberships {
+		out = append(out, PublicCommunityMembership{
+			CommunityID: membership.CommunityID,
+			JoinedAt:    membership.JoinedAt,
+		})
+	}
+	return out
 }

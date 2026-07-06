@@ -17,6 +17,19 @@ export enum UserRole {
   PLATFORM_ADMIN = 'PLATFORM_ADMIN',
 }
 
+export enum RequestedAccountType {
+  CITIZEN = 'CITIZEN',
+  REPRESENTATIVE = 'REPRESENTATIVE',
+  ORGANIZATION = 'ORGANIZATION',
+}
+
+export enum ApprovalStatus {
+  NONE = 'NONE',
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
+
 export enum IssueStatus {
   OPEN = 'OPEN',
   UNDER_REVIEW = 'UNDER_REVIEW',
@@ -59,11 +72,22 @@ export interface User {
   name: string;
   role: UserRole;
   avatarUrl?: string;
-  communityId?: UUID;
+  activeCommunityId?: UUID;
+  memberships: CommunityMembership[];
+  requestedAccountType: RequestedAccountType;
+  approvalStatus: ApprovalStatus;
+  approvalReviewedAt?: ISODateTime;
+  approvalReviewedById?: UUID;
+  approvalNote?: string;
   emailVerified: boolean;
   emailVerifiedAt?: ISODateTime;
   createdAt: ISODateTime;
   updatedAt: ISODateTime;
+}
+
+export interface CommunityMembership {
+  communityId: UUID;
+  joinedAt: ISODateTime;
 }
 
 export interface Community {
@@ -211,6 +235,56 @@ export interface JwtPayload {
   role: UserRole;
   iat?: number;
   exp?: number;
+}
+
+export interface RepresentativeApplication {
+  id: UUID;
+  userId: UUID;
+  status: ApprovalStatus;
+  fullName: string;
+  title: string;
+  position: string;
+  constituency: string;
+  communityId: UUID;
+  party?: string;
+  bio?: string;
+  avatarUrl?: string;
+  officialEmail?: string;
+  officialPhone?: string;
+  website?: string;
+  proofUrls: string[];
+  submittedAt: ISODateTime;
+  reviewedAt?: ISODateTime;
+  reviewedByUserId?: UUID;
+  reviewNote?: string;
+  approvedProfileId?: UUID;
+  createdAt: ISODateTime;
+  updatedAt: ISODateTime;
+}
+
+export interface OrganizationApplication {
+  id: UUID;
+  userId: UUID;
+  status: ApprovalStatus;
+  name: string;
+  slug: string;
+  kind: OrgKind;
+  jurisdiction: OrgJurisdiction;
+  state?: string;
+  lga?: string;
+  description?: string;
+  logoUrl?: string;
+  officialEmail?: string;
+  officialPhone?: string;
+  website?: string;
+  proofUrls: string[];
+  submittedAt: ISODateTime;
+  reviewedAt?: ISODateTime;
+  reviewedByUserId?: UUID;
+  reviewNote?: string;
+  approvedOrganizationId?: UUID;
+  createdAt: ISODateTime;
+  updatedAt: ISODateTime;
 }
 
 // ─── Organization types ───────────────────────────────────────────────────────

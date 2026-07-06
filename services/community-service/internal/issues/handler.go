@@ -7,6 +7,7 @@ import (
 
 	"github.com/civicos/community-service/internal/audit"
 	"github.com/civicos/community-service/internal/domain"
+	"github.com/civicos/community-service/internal/middleware"
 	"github.com/civicos/community-service/pkg/response"
 	"github.com/gin-gonic/gin"
 )
@@ -73,6 +74,9 @@ func (h *Handler) create(c *gin.Context) {
 		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", err.Error())
 		return
 	}
+	if !middleware.RequireActiveCommunityMatch(c, input.CommunityID) {
+		return
+	}
 	userID, _ := c.Get("userID")
 	item, err := h.svc.Create(input, userID.(string))
 	if err != nil {
@@ -84,6 +88,19 @@ func (h *Handler) create(c *gin.Context) {
 
 func (h *Handler) upvote(c *gin.Context) {
 	userID, _ := c.Get("userID")
+	issue, err := h.svc.Get(c.Param("id"))
+	if err != nil {
+		var appErr *AppError
+		if errors.As(err, &appErr) {
+			response.Error(c, appErr.Status, appErr.Code, appErr.Message)
+			return
+		}
+		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to fetch issue")
+		return
+	}
+	if !middleware.RequireActiveCommunityMatch(c, issue.CommunityID) {
+		return
+	}
 	upvoted, count, err := h.svc.ToggleUpvote(c.Param("id"), userID.(string))
 	if err != nil {
 		var appErr *AppError
@@ -141,6 +158,19 @@ func (h *Handler) addComment(c *gin.Context) {
 		role = "CITIZEN"
 	}
 	issueID := c.Param("id")
+	issue, err := h.svc.Get(issueID)
+	if err != nil {
+		var appErr *AppError
+		if errors.As(err, &appErr) {
+			response.Error(c, appErr.Status, appErr.Code, appErr.Message)
+			return
+		}
+		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to fetch issue")
+		return
+	}
+	if !middleware.RequireActiveCommunityMatch(c, issue.CommunityID) {
+		return
+	}
 	item, err := h.svc.AddComment(issueID, userID.(string), name, role, input.Content)
 	if err != nil {
 		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to add comment")
@@ -148,7 +178,7 @@ func (h *Handler) addComment(c *gin.Context) {
 	}
 
 	if h.notifier != nil {
-		if issue, gerr := h.svc.Get(issueID); gerr == nil && issue.ReportedByID != "" && issue.ReportedByID != userID.(string) {
+		if issue.ReportedByID != "" && issue.ReportedByID != userID.(string) {
 			link := "/issues/" + issueID + "#comments"
 			if nerr := h.notifier.Emit(
 				issue.ReportedByID,

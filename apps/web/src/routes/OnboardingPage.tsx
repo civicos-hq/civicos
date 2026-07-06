@@ -24,7 +24,7 @@ export function OnboardingPage() {
   // Users who already picked a community shouldn't land on the wizard — they
   // can still reach /profile if they want to change it.
   useEffect(() => {
-    if (me?.communityId) navigate('/discover', { replace: true });
+    if (me?.activeCommunityId) navigate('/discover', { replace: true });
   }, [me, navigate]);
 
   const communitiesQuery = useQuery({

@@ -23,9 +23,12 @@ func Connect(dsn string) *gorm.DB {
 	// don't AutoMigrate them.
 	if err := db.AutoMigrate(
 		&domain.User{},
+		&domain.UserCommunityMembership{},
 		&domain.RefreshToken{},
 		&domain.AuditLog{},
 		&domain.ContentFlag{},
+		&domain.RepresentativeApplication{},
+		&domain.OrganizationApplication{},
 	); err != nil {
 		log.Fatalf("❌ failed to run migrations: %v", err)
 	}
