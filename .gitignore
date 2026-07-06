@@ -45,7 +45,11 @@ yarn-debug.log*
 pnpm-debug.log*
 
 # ─── Uploads / user content ──────────────────────────────────────────────────
-uploads/
+# The runtime uploads directory sits at each service's root (created on
+# startup, e.g. services/community-service/uploads/). Ignore those but do
+# not swallow the source-code package at internal/uploads/.
+/uploads/
+services/*/uploads/
 
 # ─── Certificates & secrets ──────────────────────────────────────────────────
 *.pem
