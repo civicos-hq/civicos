@@ -72,7 +72,8 @@ export interface User {
   name: string;
   role: UserRole;
   avatarUrl?: string;
-  communityId?: UUID;
+  activeCommunityId?: UUID;
+  memberships: CommunityMembership[];
   requestedAccountType: RequestedAccountType;
   approvalStatus: ApprovalStatus;
   approvalReviewedAt?: ISODateTime;
@@ -82,6 +83,11 @@ export interface User {
   emailVerifiedAt?: ISODateTime;
   createdAt: ISODateTime;
   updatedAt: ISODateTime;
+}
+
+export interface CommunityMembership {
+  communityId: UUID;
+  joinedAt: ISODateTime;
 }
 
 export interface Community {

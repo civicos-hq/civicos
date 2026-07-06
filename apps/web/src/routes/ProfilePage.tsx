@@ -44,7 +44,7 @@ export function ProfilePage() {
   const navigate = useNavigate();
   const meQuery = useMe();
   const me = meQuery.data;
-  const communityQuery = useCommunity(me?.communityId);
+  const communityQuery = useCommunity(me?.activeCommunityId);
 
   async function signOut() {
     // Server-side revoke of the refresh-token family, then wipe local state.
@@ -62,6 +62,7 @@ export function ProfilePage() {
 
   const roleTone = ROLE_TONE[me.role] ?? 'bg-slate-100 text-slate-700';
   const community = communityQuery.data;
+  const membershipCount = me.memberships.length;
 
   return (
     <section className="space-y-6">
@@ -104,11 +105,14 @@ export function ProfilePage() {
               {community.description && (
                 <p className="pt-1 text-slate-600">{community.description}</p>
               )}
+              <p className="pt-1 text-xs font-medium uppercase tracking-[0.12em] text-slate-500">
+                {t('profilePage.community.joinedCount', { count: membershipCount })}
+              </p>
               <Link
                 to="/community"
                 className="mt-2 inline-block text-sm font-semibold text-civic-700 hover:text-civic-800"
               >
-                {t('profilePage.community.change')} →
+                {t('profilePage.community.manage')} →
               </Link>
             </div>
           ) : (

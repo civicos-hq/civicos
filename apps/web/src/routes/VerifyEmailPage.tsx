@@ -38,7 +38,7 @@ export function VerifyEmailPage() {
         }
         await queryClient.invalidateQueries({ queryKey: ['me'] });
         const verifiedUser = res.data?.data?.user;
-        if (verifiedUser && !verifiedUser.communityId) {
+        if (verifiedUser && !verifiedUser.activeCommunityId) {
           setNextRoute('/onboarding');
         }
         setState({ kind: 'success' });

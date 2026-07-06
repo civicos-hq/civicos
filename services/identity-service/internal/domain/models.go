@@ -33,13 +33,14 @@ const (
 // User is the core identity entity.
 // All IDs are UUIDs — never expose sequential database IDs.
 type User struct {
-	ID           string   `gorm:"type:uuid;primaryKey" json:"id"`
-	Email        string   `gorm:"uniqueIndex;not null" json:"email"`
-	Name         string   `gorm:"not null" json:"name"`
-	PasswordHash string   `gorm:"not null" json:"-"` // never serialised
-	Role         UserRole `gorm:"type:varchar(30);default:'CITIZEN'" json:"role"`
-	AvatarURL    *string  `json:"avatarUrl,omitempty"`
-	CommunityID  *string  `gorm:"type:uuid" json:"communityId,omitempty"`
+	ID                string                    `gorm:"type:uuid;primaryKey" json:"id"`
+	Email             string                    `gorm:"uniqueIndex;not null" json:"email"`
+	Name              string                    `gorm:"not null" json:"name"`
+	PasswordHash      string                    `gorm:"not null" json:"-"` // never serialised
+	Role              UserRole                  `gorm:"type:varchar(30);default:'CITIZEN'" json:"role"`
+	AvatarURL         *string                   `json:"avatarUrl,omitempty"`
+	ActiveCommunityID *string                   `gorm:"type:uuid;column:community_id" json:"activeCommunityId,omitempty"`
+	Memberships       []UserCommunityMembership `gorm:"foreignKey:UserID" json:"-"`
 
 	// RequestedAccountType captures the signup intent separately from the
 	// currently-effective role. A pending representative or organization
@@ -81,20 +82,35 @@ type User struct {
 
 // PublicUser is the safe view returned to API consumers.
 type PublicUser struct {
-	ID                   string               `json:"id"`
-	Email                string               `json:"email"`
-	Name                 string               `json:"name"`
-	Role                 UserRole             `json:"role"`
-	AvatarURL            *string              `json:"avatarUrl,omitempty"`
-	CommunityID          *string              `json:"communityId,omitempty"`
-	RequestedAccountType RequestedAccountType `json:"requestedAccountType"`
-	ApprovalStatus       ApprovalStatus       `json:"approvalStatus"`
-	ApprovalReviewedAt   *time.Time           `json:"approvalReviewedAt,omitempty"`
-	ApprovalReviewedByID *string              `json:"approvalReviewedById,omitempty"`
-	ApprovalNote         *string              `json:"approvalNote,omitempty"`
-	EmailVerified        bool                 `json:"emailVerified"`
-	EmailVerifiedAt      *time.Time           `json:"emailVerifiedAt,omitempty"`
-	CreatedAt            time.Time            `json:"createdAt"`
+	ID                   string                      `json:"id"`
+	Email                string                      `json:"email"`
+	Name                 string                      `json:"name"`
+	Role                 UserRole                    `json:"role"`
+	AvatarURL            *string                     `json:"avatarUrl,omitempty"`
+	ActiveCommunityID    *string                     `json:"activeCommunityId,omitempty"`
+	Memberships          []PublicCommunityMembership `json:"memberships"`
+	RequestedAccountType RequestedAccountType        `json:"requestedAccountType"`
+	ApprovalStatus       ApprovalStatus              `json:"approvalStatus"`
+	ApprovalReviewedAt   *time.Time                  `json:"approvalReviewedAt,omitempty"`
+	ApprovalReviewedByID *string                     `json:"approvalReviewedById,omitempty"`
+	ApprovalNote         *string                     `json:"approvalNote,omitempty"`
+	EmailVerified        bool                        `json:"emailVerified"`
+	EmailVerifiedAt      *time.Time                  `json:"emailVerifiedAt,omitempty"`
+	CreatedAt            time.Time                   `json:"createdAt"`
+}
+
+type UserCommunityMembership struct {
+	ID          string    `gorm:"type:uuid;primaryKey" json:"id"`
+	UserID      string    `gorm:"type:uuid;not null;uniqueIndex:idx_user_community_membership" json:"userId"`
+	CommunityID string    `gorm:"type:uuid;not null;uniqueIndex:idx_user_community_membership;index" json:"communityId"`
+	JoinedAt    time.Time `gorm:"not null;index" json:"joinedAt"`
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+}
+
+type PublicCommunityMembership struct {
+	CommunityID string    `json:"communityId"`
+	JoinedAt    time.Time `json:"joinedAt"`
 }
 
 // RefreshToken records a single opaque refresh token. Rotation:
@@ -274,7 +290,8 @@ func (u *User) ToPublic() PublicUser {
 		Name:                 u.Name,
 		Role:                 u.Role,
 		AvatarURL:            u.AvatarURL,
-		CommunityID:          u.CommunityID,
+		ActiveCommunityID:    u.ActiveCommunityID,
+		Memberships:          ToPublicMemberships(u.Memberships),
 		RequestedAccountType: requestedType,
 		ApprovalStatus:       approvalStatus,
 		ApprovalReviewedAt:   u.ApprovalReviewedAt,
@@ -284,4 +301,18 @@ func (u *User) ToPublic() PublicUser {
 		EmailVerifiedAt:      u.EmailVerifiedAt,
 		CreatedAt:            u.CreatedAt,
 	}
+}
+
+func ToPublicMemberships(memberships []UserCommunityMembership) []PublicCommunityMembership {
+	if len(memberships) == 0 {
+		return []PublicCommunityMembership{}
+	}
+	out := make([]PublicCommunityMembership, 0, len(memberships))
+	for _, membership := range memberships {
+		out = append(out, PublicCommunityMembership{
+			CommunityID: membership.CommunityID,
+			JoinedAt:    membership.JoinedAt,
+		})
+	}
+	return out
 }

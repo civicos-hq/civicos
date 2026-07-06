@@ -23,6 +23,7 @@ func Connect(dsn string) *gorm.DB {
 	// don't AutoMigrate them.
 	if err := db.AutoMigrate(
 		&domain.User{},
+		&domain.UserCommunityMembership{},
 		&domain.RefreshToken{},
 		&domain.AuditLog{},
 		&domain.ContentFlag{},

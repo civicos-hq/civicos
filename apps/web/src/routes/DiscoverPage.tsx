@@ -96,7 +96,7 @@ export function DiscoverPage() {
   const { t } = useTranslation();
   const meta = useTodayMeta();
   const meQuery = useMe();
-  const communityId = meQuery.data?.communityId;
+  const communityId = meQuery.data?.activeCommunityId;
   const [tier, setTier] = useState<TierFilter>('ALL');
   const [kind, setKind] = useState<KindFilter>('all');
 

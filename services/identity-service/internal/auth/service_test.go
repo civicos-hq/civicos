@@ -63,11 +63,36 @@ func (s *inMemoryUserStore) CreateNotification(userID, title, body string, linkU
 	return nil
 }
 
-func (s *inMemoryUserStore) UpdateCommunity(userID, communityID string) error {
+func (s *inMemoryUserStore) JoinCommunity(userID, communityID string) error {
 	if user, ok := s.usersByID[userID]; ok {
-		user.CommunityID = &communityID
+		user.ActiveCommunityID = &communityID
+		for _, membership := range user.Memberships {
+			if membership.CommunityID == communityID {
+				return nil
+			}
+		}
+		user.Memberships = append(user.Memberships, domain.UserCommunityMembership{
+			ID:          "membership-" + communityID,
+			UserID:      userID,
+			CommunityID: communityID,
+			JoinedAt:    time.Now().UTC(),
+		})
 	}
 	return nil
+}
+
+func (s *inMemoryUserStore) SetActiveCommunity(userID, communityID string) error {
+	user, ok := s.usersByID[userID]
+	if !ok {
+		return gorm.ErrRecordNotFound
+	}
+	for _, membership := range user.Memberships {
+		if membership.CommunityID == communityID {
+			user.ActiveCommunityID = &communityID
+			return nil
+		}
+	}
+	return gorm.ErrRecordNotFound
 }
 
 func (s *inMemoryUserStore) UpdateProfile(userID, name, email string) error {
@@ -164,7 +189,8 @@ func (s *inMemoryUserStore) SoftDelete(userID string, reason *string) error {
 	user.Name = "[Deleted user]"
 	user.PasswordHash = "x"
 	user.AvatarURL = nil
-	user.CommunityID = nil
+	user.ActiveCommunityID = nil
+	user.Memberships = nil
 	user.EmailVerificationTokenHash = nil
 	user.EmailVerificationExpiresAt = nil
 	user.PasswordResetTokenHash = nil

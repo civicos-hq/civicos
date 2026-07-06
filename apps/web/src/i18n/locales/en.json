@@ -434,6 +434,8 @@
     "memberSub": "You're a member of {{name}} ({{lga}}, {{state}}). Reports and petitions you create will belong to this community.",
     "joinPrompt": "Join a community to start reporting issues and signing petitions.",
     "newCommunity": "+ New community",
+    "activeCommunity": "Active community",
+    "activeSelect": "Active:",
     "yourCommunity": "Your community",
     "stats": {
       "state": "State",
@@ -442,11 +444,16 @@
     },
     "switchCommunity": "Switch community",
     "switchSub": "You can move to another community at any time.",
+    "joinedCommunities": "Your communities",
+    "joinedSub": "Switch between the communities you've joined. Your active community controls where you post and interact.",
     "availableCommunities": "Available communities",
+    "availableSub": "Join more communities to follow and participate across different places you care about.",
     "empty": "No communities are available yet. Check back soon.",
+    "emptyJoinedAll": "You've joined every available community.",
     "actions": {
       "join": "Join",
-      "switch": "Switch"
+      "switch": "Switch",
+      "active": "Active"
     },
     "joinError": "Could not join. Please try again.",
     "modal": {
@@ -489,6 +496,9 @@
     "community": {
       "heading": "Community",
       "change": "Change community",
+      "manage": "Manage communities",
+      "joinedCount_one": "{{count}} joined community",
+      "joinedCount_other": "{{count}} joined communities",
       "empty": "You haven't joined a community yet.",
       "findMine": "Find your community"
     },
@@ -879,6 +889,27 @@
       "description": "Join as a citizen, representative, or organization and take part in public life on the record.",
       "cardTitle": "Create account",
       "cardSubtitle": "It takes less than a minute to get started.",
+      "progress": {
+        "path": "Choose path",
+        "account": "Set account",
+        "review": "Add review details",
+        "finish": "Finish"
+      },
+      "sections": {
+        "account": {
+          "title": "Account details",
+          "sub": "Add the basics for sign-in and notifications."
+        }
+      },
+      "citizenNotice": {
+        "title": "Citizen accounts do not need admin approval.",
+        "body": "Verify your email after signup and you can start joining communities and participating right away."
+      },
+      "applicationNotice": {
+        "title": "Keep it lean.",
+        "body": "Only the core verification details are required now. Public contact links and proof can be added in the optional section."
+      },
+      "optionalSection": "Add public contact and proof (optional)",
       "submit": "Create account",
       "submitting": "Creating account…",
       "error": "Could not create your account. Try a different email or try again shortly.",

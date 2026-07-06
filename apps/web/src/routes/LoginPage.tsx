@@ -38,7 +38,7 @@ export function LoginPage() {
 
       // Users who never picked a community land on the wizard first.
       // Once they've joined one (or skipped it), they go straight to Discover.
-      const destination = user?.communityId ? '/discover' : '/onboarding';
+      const destination = user?.activeCommunityId ? '/discover' : '/onboarding';
       navigate(destination, { replace: true });
     } catch {
       setErrorMessage(t('auth.login.error'));

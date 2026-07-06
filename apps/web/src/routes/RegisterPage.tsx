@@ -13,6 +13,11 @@ type AccountType = RequestedAccountType;
 
 const ORG_KINDS = ['GOVERNMENT', 'AGENCY', 'NGO', 'UTILITY', 'OTHER'] as const;
 const ORG_JURISDICTIONS = ['NATIONAL', 'STATE', 'LGA', 'COMMUNITY'] as const;
+const ACCOUNT_TYPE_OPTIONS = [
+  RequestedAccountType.CITIZEN,
+  RequestedAccountType.REPRESENTATIVE,
+  RequestedAccountType.ORGANIZATION,
+] as const;
 
 function toSlug(input: string): string {
   return input
@@ -77,6 +82,9 @@ export function RegisterPage() {
     () => NIGERIAN_STATES.find((state) => state.name === orgState)?.lgas ?? [],
     [orgState],
   );
+  const isRepresentative = accountType === RequestedAccountType.REPRESENTATIVE;
+  const isOrganization = accountType === RequestedAccountType.ORGANIZATION;
+  const requiresApplication = isRepresentative || isOrganization;
   const orgNeedsState =
     orgJurisdiction === 'STATE' || orgJurisdiction === 'LGA' || orgJurisdiction === 'COMMUNITY';
   const orgNeedsLga = orgJurisdiction === 'LGA' || orgJurisdiction === 'COMMUNITY';
@@ -164,18 +172,40 @@ export function RegisterPage() {
           <p className="auth-description">{t('auth.register.description')}</p>
         </aside>
 
-        <form className="auth-card" onSubmit={onSubmit}>
-          <h2 className="auth-card-title">{t('auth.register.cardTitle')}</h2>
-          <p className="auth-card-subtitle">{t('auth.register.cardSubtitle')}</p>
+        <form className="auth-card auth-card--register" onSubmit={onSubmit}>
+          <div className="auth-card-head">
+            <div>
+              <h2 className="auth-card-title">{t('auth.register.cardTitle')}</h2>
+              <p className="auth-card-subtitle">{t('auth.register.cardSubtitle')}</p>
+            </div>
+            <span className="auth-account-badge">
+              {t(`auth.register.accountType.options.${accountType}.label`)}
+            </span>
+          </div>
+
+          <div className="auth-progress" aria-hidden="true">
+            <span className="auth-progress-step auth-progress-step--active">
+              <span className="auth-progress-dot">1</span>
+              {t('auth.register.progress.path')}
+            </span>
+            <span className="auth-progress-step auth-progress-step--active">
+              <span className="auth-progress-dot">2</span>
+              {t('auth.register.progress.account')}
+            </span>
+            <span
+              className={`auth-progress-step${requiresApplication ? ' auth-progress-step--active' : ''}`}
+            >
+              <span className="auth-progress-dot">3</span>
+              {requiresApplication
+                ? t('auth.register.progress.review')
+                : t('auth.register.progress.finish')}
+            </span>
+          </div>
 
           <fieldset className="auth-choice-group">
             <legend className="auth-label">{t('auth.register.accountType.legend')}</legend>
             <div className="auth-choice-list">
-              {[
-                RequestedAccountType.CITIZEN,
-                RequestedAccountType.REPRESENTATIVE,
-                RequestedAccountType.ORGANIZATION,
-              ].map((value) => (
+              {ACCOUNT_TYPE_OPTIONS.map((value) => (
                 <label key={value} className="auth-choice-card">
                   <input
                     type="radio"
@@ -193,384 +223,482 @@ export function RegisterPage() {
             </div>
           </fieldset>
 
-          <label className="auth-label" htmlFor="name">
-            {t('auth.fields.fullName')}
-          </label>
-          <input
-            id="name"
-            type="text"
-            className="auth-input"
-            placeholder={t('auth.fields.namePlaceholder')}
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            autoComplete="name"
-            required
-            minLength={2}
-          />
-
-          <label className="auth-label" htmlFor="email">
-            {t('auth.fields.email')}
-          </label>
-          <input
-            id="email"
-            type="email"
-            className="auth-input"
-            placeholder={t('auth.fields.emailPlaceholder')}
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            autoComplete="email"
-            required
-          />
-
-          <label className="auth-label" htmlFor="password">
-            {t('auth.fields.password')}
-          </label>
-          <input
-            id="password"
-            type="password"
-            className="auth-input"
-            placeholder={t('auth.fields.passwordPlaceholder')}
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            autoComplete="new-password"
-            required
-            minLength={8}
-          />
-
-          {accountType === 'REPRESENTATIVE' && (
-            <>
-              <div className="auth-section-title">{t('auth.register.representative.title')}</div>
-              <p className="auth-section-sub">{t('auth.register.representative.sub')}</p>
-
-              <label className="auth-label" htmlFor="rep-title">
-                {t('auth.register.representative.fields.title')}
-              </label>
-              <input
-                id="rep-title"
-                type="text"
-                className="auth-input"
-                value={repTitle}
-                onChange={(event) => setRepTitle(event.target.value)}
-                required
-              />
-
-              <label className="auth-label" htmlFor="rep-position">
-                {t('auth.register.representative.fields.position')}
-              </label>
-              <input
-                id="rep-position"
-                type="text"
-                className="auth-input"
-                placeholder={t('auth.register.representative.fields.positionPlaceholder')}
-                value={repPosition}
-                onChange={(event) => setRepPosition(event.target.value)}
-                required
-              />
-
-              <label className="auth-label" htmlFor="rep-constituency">
-                {t('auth.register.representative.fields.constituency')}
-              </label>
-              <input
-                id="rep-constituency"
-                type="text"
-                className="auth-input"
-                placeholder={t('auth.register.representative.fields.constituencyPlaceholder')}
-                value={repConstituency}
-                onChange={(event) => setRepConstituency(event.target.value)}
-                required
-              />
-
-              <label className="auth-label" htmlFor="rep-community">
-                {t('auth.register.representative.fields.community')}
-              </label>
-              <select
-                id="rep-community"
-                className="auth-input"
-                value={repCommunityId}
-                onChange={(event) => setRepCommunityId(event.target.value)}
-                required
-                disabled={communitiesQuery.isLoading}
-              >
-                <option value="">
-                  {communitiesQuery.isLoading
-                    ? t('auth.register.representative.loadingCommunities')
-                    : t('auth.register.representative.fields.communityPlaceholder')}
-                </option>
-                {(communitiesQuery.data ?? []).map((community) => (
-                  <option key={community.id} value={community.id}>
-                    {community.name} · {community.state} / {community.lga}
-                  </option>
-                ))}
-              </select>
-
-              <label className="auth-label" htmlFor="rep-party">
-                {t('auth.register.representative.fields.party')}
-              </label>
-              <input
-                id="rep-party"
-                type="text"
-                className="auth-input"
-                placeholder={t('auth.register.representative.fields.partyPlaceholder')}
-                value={repParty}
-                onChange={(event) => setRepParty(event.target.value)}
-              />
-
-              <label className="auth-label" htmlFor="rep-bio">
-                {t('auth.register.representative.fields.bio')}
-              </label>
-              <textarea
-                id="rep-bio"
-                className="auth-input auth-textarea"
-                placeholder={t('auth.register.representative.fields.bioPlaceholder')}
-                value={repBio}
-                onChange={(event) => setRepBio(event.target.value)}
-                rows={3}
-              />
-
-              <div className="auth-section-title">
-                {t('auth.register.representative.contactTitle')}
+          <section className="auth-form-section">
+            <div className="auth-section-header">
+              <div>
+                <div className="auth-section-title">
+                  {t('auth.register.sections.account.title')}
+                </div>
+                <p className="auth-section-sub">{t('auth.register.sections.account.sub')}</p>
               </div>
-              <label className="auth-label" htmlFor="rep-official-email">
-                {t('auth.register.representative.fields.officialEmail')}
-              </label>
-              <input
-                id="rep-official-email"
-                type="email"
-                className="auth-input"
-                placeholder={t('auth.register.representative.fields.officialEmailPlaceholder')}
-                value={repOfficialEmail}
-                onChange={(event) => setRepOfficialEmail(event.target.value)}
-              />
+            </div>
 
-              <label className="auth-label" htmlFor="rep-official-phone">
-                {t('auth.register.representative.fields.officialPhone')}
-              </label>
-              <input
-                id="rep-official-phone"
-                type="text"
-                className="auth-input"
-                placeholder={t('auth.register.representative.fields.officialPhonePlaceholder')}
-                value={repOfficialPhone}
-                onChange={(event) => setRepOfficialPhone(event.target.value)}
-              />
+            <div className="auth-fields-grid auth-fields-grid--two">
+              <div className="auth-field">
+                <label className="auth-label" htmlFor="name">
+                  {t('auth.fields.fullName')}
+                </label>
+                <input
+                  id="name"
+                  type="text"
+                  className="auth-input"
+                  placeholder={t('auth.fields.namePlaceholder')}
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  autoComplete="name"
+                  required
+                  minLength={2}
+                />
+              </div>
 
-              <label className="auth-label" htmlFor="rep-website">
-                {t('auth.register.representative.fields.website')}
-              </label>
-              <input
-                id="rep-website"
-                type="url"
-                className="auth-input"
-                placeholder={t('auth.register.representative.fields.websitePlaceholder')}
-                value={repWebsite}
-                onChange={(event) => setRepWebsite(event.target.value)}
-              />
+              <div className="auth-field">
+                <label className="auth-label" htmlFor="email">
+                  {t('auth.fields.email')}
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  className="auth-input"
+                  placeholder={t('auth.fields.emailPlaceholder')}
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  autoComplete="email"
+                  required
+                />
+              </div>
 
-              <label className="auth-label" htmlFor="rep-proof">
-                {t('auth.register.representative.fields.proofUrls')}
-              </label>
-              <input
-                id="rep-proof"
-                type="text"
-                className="auth-input"
-                placeholder={t('auth.register.representative.fields.proofUrlsPlaceholder')}
-                value={repProofUrls}
-                onChange={(event) => setRepProofUrls(event.target.value)}
-              />
-            </>
+              <div className="auth-field auth-field--span-2">
+                <label className="auth-label" htmlFor="password">
+                  {t('auth.fields.password')}
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  className="auth-input"
+                  placeholder={t('auth.fields.passwordPlaceholder')}
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  autoComplete="new-password"
+                  required
+                  minLength={8}
+                />
+              </div>
+            </div>
+          </section>
+
+          {!requiresApplication && (
+            <div className="auth-note auth-note--success">
+              <strong>{t('auth.register.citizenNotice.title')}</strong>
+              <span>{t('auth.register.citizenNotice.body')}</span>
+            </div>
           )}
 
-          {accountType === 'ORGANIZATION' && (
-            <>
-              <div className="auth-section-title">{t('auth.register.organization.title')}</div>
-              <p className="auth-section-sub">{t('auth.register.organization.sub')}</p>
+          {isRepresentative && (
+            <section className="auth-form-section">
+              <div className="auth-section-header">
+                <div>
+                  <div className="auth-section-title">
+                    {t('auth.register.representative.title')}
+                  </div>
+                  <p className="auth-section-sub">{t('auth.register.representative.sub')}</p>
+                </div>
+              </div>
 
-              <label className="auth-label" htmlFor="org-name">
-                {t('auth.register.organization.fields.name')}
-              </label>
-              <input
-                id="org-name"
-                type="text"
-                className="auth-input"
-                placeholder={t('auth.register.organization.fields.namePlaceholder')}
-                value={orgName}
-                onChange={(event) => {
-                  setOrgName(event.target.value);
-                  if (!orgSlugTouched) setOrgSlug(toSlug(event.target.value));
-                }}
-                required
-              />
+              <div className="auth-note">
+                <strong>{t('auth.register.applicationNotice.title')}</strong>
+                <span>{t('auth.register.applicationNotice.body')}</span>
+              </div>
 
-              <label className="auth-label" htmlFor="org-slug">
-                {t('auth.register.organization.fields.slug')}
-              </label>
-              <input
-                id="org-slug"
-                type="text"
-                className="auth-input"
-                placeholder={t('auth.register.organization.fields.slugPlaceholder')}
-                value={orgSlug}
-                onChange={(event) => {
-                  setOrgSlug(toSlug(event.target.value));
-                  setOrgSlugTouched(true);
-                }}
-                required
-              />
+              <div className="auth-fields-grid auth-fields-grid--two">
+                <div className="auth-field">
+                  <label className="auth-label" htmlFor="rep-title">
+                    {t('auth.register.representative.fields.title')}
+                  </label>
+                  <input
+                    id="rep-title"
+                    type="text"
+                    className="auth-input"
+                    value={repTitle}
+                    onChange={(event) => setRepTitle(event.target.value)}
+                    required
+                  />
+                </div>
 
-              <label className="auth-label" htmlFor="org-kind">
-                {t('auth.register.organization.fields.kind')}
-              </label>
-              <select
-                id="org-kind"
-                className="auth-input"
-                value={orgKind}
-                onChange={(event) => setOrgKind(event.target.value as (typeof ORG_KINDS)[number])}
-              >
-                {ORG_KINDS.map((kind) => (
-                  <option key={kind} value={kind}>
-                    {t(`auth.register.organization.kinds.${kind}`)}
-                  </option>
-                ))}
-              </select>
+                <div className="auth-field">
+                  <label className="auth-label" htmlFor="rep-position">
+                    {t('auth.register.representative.fields.position')}
+                  </label>
+                  <input
+                    id="rep-position"
+                    type="text"
+                    className="auth-input"
+                    placeholder={t('auth.register.representative.fields.positionPlaceholder')}
+                    value={repPosition}
+                    onChange={(event) => setRepPosition(event.target.value)}
+                    required
+                  />
+                </div>
 
-              <label className="auth-label" htmlFor="org-jurisdiction">
-                {t('auth.register.organization.fields.jurisdiction')}
-              </label>
-              <select
-                id="org-jurisdiction"
-                className="auth-input"
-                value={orgJurisdiction}
-                onChange={(event) => {
-                  const next = event.target.value as (typeof ORG_JURISDICTIONS)[number];
-                  setOrgJurisdiction(next);
-                  if (next === 'NATIONAL') {
-                    setOrgState('');
-                    setOrgLga('');
-                  }
-                }}
-              >
-                {ORG_JURISDICTIONS.map((jurisdiction) => (
-                  <option key={jurisdiction} value={jurisdiction}>
-                    {t(`auth.register.organization.jurisdictions.${jurisdiction}`)}
-                  </option>
-                ))}
-              </select>
+                <div className="auth-field">
+                  <label className="auth-label" htmlFor="rep-constituency">
+                    {t('auth.register.representative.fields.constituency')}
+                  </label>
+                  <input
+                    id="rep-constituency"
+                    type="text"
+                    className="auth-input"
+                    placeholder={t('auth.register.representative.fields.constituencyPlaceholder')}
+                    value={repConstituency}
+                    onChange={(event) => setRepConstituency(event.target.value)}
+                    required
+                  />
+                </div>
 
-              {orgNeedsState && (
-                <>
-                  <label className="auth-label" htmlFor="org-state">
-                    {t('auth.register.organization.fields.state')}
+                <div className="auth-field">
+                  <label className="auth-label" htmlFor="rep-community">
+                    {t('auth.register.representative.fields.community')}
                   </label>
                   <select
-                    id="org-state"
+                    id="rep-community"
                     className="auth-input"
-                    value={orgState}
+                    value={repCommunityId}
+                    onChange={(event) => setRepCommunityId(event.target.value)}
+                    required
+                    disabled={communitiesQuery.isLoading}
+                  >
+                    <option value="">
+                      {communitiesQuery.isLoading
+                        ? t('auth.register.representative.loadingCommunities')
+                        : t('auth.register.representative.fields.communityPlaceholder')}
+                    </option>
+                    {(communitiesQuery.data ?? []).map((community) => (
+                      <option key={community.id} value={community.id}>
+                        {community.name} · {community.state} / {community.lga}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <details className="auth-disclosure">
+                <summary>{t('auth.register.optionalSection')}</summary>
+                <div className="auth-fields-grid auth-fields-grid--two">
+                  <div className="auth-field">
+                    <label className="auth-label" htmlFor="rep-party">
+                      {t('auth.register.representative.fields.party')}
+                    </label>
+                    <input
+                      id="rep-party"
+                      type="text"
+                      className="auth-input"
+                      placeholder={t('auth.register.representative.fields.partyPlaceholder')}
+                      value={repParty}
+                      onChange={(event) => setRepParty(event.target.value)}
+                    />
+                  </div>
+
+                  <div className="auth-field">
+                    <label className="auth-label" htmlFor="rep-official-email">
+                      {t('auth.register.representative.fields.officialEmail')}
+                    </label>
+                    <input
+                      id="rep-official-email"
+                      type="email"
+                      className="auth-input"
+                      placeholder={t(
+                        'auth.register.representative.fields.officialEmailPlaceholder',
+                      )}
+                      value={repOfficialEmail}
+                      onChange={(event) => setRepOfficialEmail(event.target.value)}
+                    />
+                  </div>
+
+                  <div className="auth-field">
+                    <label className="auth-label" htmlFor="rep-official-phone">
+                      {t('auth.register.representative.fields.officialPhone')}
+                    </label>
+                    <input
+                      id="rep-official-phone"
+                      type="text"
+                      className="auth-input"
+                      placeholder={t(
+                        'auth.register.representative.fields.officialPhonePlaceholder',
+                      )}
+                      value={repOfficialPhone}
+                      onChange={(event) => setRepOfficialPhone(event.target.value)}
+                    />
+                  </div>
+
+                  <div className="auth-field">
+                    <label className="auth-label" htmlFor="rep-website">
+                      {t('auth.register.representative.fields.website')}
+                    </label>
+                    <input
+                      id="rep-website"
+                      type="url"
+                      className="auth-input"
+                      placeholder={t('auth.register.representative.fields.websitePlaceholder')}
+                      value={repWebsite}
+                      onChange={(event) => setRepWebsite(event.target.value)}
+                    />
+                  </div>
+
+                  <div className="auth-field auth-field--span-2">
+                    <label className="auth-label" htmlFor="rep-bio">
+                      {t('auth.register.representative.fields.bio')}
+                    </label>
+                    <textarea
+                      id="rep-bio"
+                      className="auth-input auth-textarea"
+                      placeholder={t('auth.register.representative.fields.bioPlaceholder')}
+                      value={repBio}
+                      onChange={(event) => setRepBio(event.target.value)}
+                      rows={3}
+                    />
+                  </div>
+
+                  <div className="auth-field auth-field--span-2">
+                    <label className="auth-label" htmlFor="rep-proof">
+                      {t('auth.register.representative.fields.proofUrls')}
+                    </label>
+                    <input
+                      id="rep-proof"
+                      type="text"
+                      className="auth-input"
+                      placeholder={t('auth.register.representative.fields.proofUrlsPlaceholder')}
+                      value={repProofUrls}
+                      onChange={(event) => setRepProofUrls(event.target.value)}
+                    />
+                  </div>
+                </div>
+              </details>
+            </section>
+          )}
+
+          {isOrganization && (
+            <section className="auth-form-section">
+              <div className="auth-section-header">
+                <div>
+                  <div className="auth-section-title">{t('auth.register.organization.title')}</div>
+                  <p className="auth-section-sub">{t('auth.register.organization.sub')}</p>
+                </div>
+              </div>
+
+              <div className="auth-note">
+                <strong>{t('auth.register.applicationNotice.title')}</strong>
+                <span>{t('auth.register.applicationNotice.body')}</span>
+              </div>
+
+              <div className="auth-fields-grid auth-fields-grid--two">
+                <div className="auth-field">
+                  <label className="auth-label" htmlFor="org-name">
+                    {t('auth.register.organization.fields.name')}
+                  </label>
+                  <input
+                    id="org-name"
+                    type="text"
+                    className="auth-input"
+                    placeholder={t('auth.register.organization.fields.namePlaceholder')}
+                    value={orgName}
                     onChange={(event) => {
-                      setOrgState(event.target.value);
-                      setOrgLga('');
+                      setOrgName(event.target.value);
+                      if (!orgSlugTouched) setOrgSlug(toSlug(event.target.value));
                     }}
                     required
-                  >
-                    <option value="">
-                      {t('auth.register.organization.fields.statePlaceholder')}
-                    </option>
-                    {NIGERIAN_STATES.map((state) => (
-                      <option key={state.code} value={state.name}>
-                        {state.name}
-                      </option>
-                    ))}
-                  </select>
-                </>
-              )}
+                  />
+                </div>
 
-              {orgNeedsLga && (
-                <>
-                  <label className="auth-label" htmlFor="org-lga">
-                    {t('auth.register.organization.fields.lga')}
+                <div className="auth-field">
+                  <label className="auth-label" htmlFor="org-slug">
+                    {t('auth.register.organization.fields.slug')}
+                  </label>
+                  <input
+                    id="org-slug"
+                    type="text"
+                    className="auth-input"
+                    placeholder={t('auth.register.organization.fields.slugPlaceholder')}
+                    value={orgSlug}
+                    onChange={(event) => {
+                      setOrgSlug(toSlug(event.target.value));
+                      setOrgSlugTouched(true);
+                    }}
+                    required
+                  />
+                </div>
+
+                <div className="auth-field">
+                  <label className="auth-label" htmlFor="org-kind">
+                    {t('auth.register.organization.fields.kind')}
                   </label>
                   <select
-                    id="org-lga"
+                    id="org-kind"
                     className="auth-input"
-                    value={orgLga}
-                    onChange={(event) => setOrgLga(event.target.value)}
-                    required
-                    disabled={!orgState}
+                    value={orgKind}
+                    onChange={(event) =>
+                      setOrgKind(event.target.value as (typeof ORG_KINDS)[number])
+                    }
                   >
-                    <option value="">
-                      {t('auth.register.organization.fields.lgaPlaceholder')}
-                    </option>
-                    {lgaOptions.map((lga) => (
-                      <option key={lga} value={lga}>
-                        {lga}
+                    {ORG_KINDS.map((kind) => (
+                      <option key={kind} value={kind}>
+                        {t(`auth.register.organization.kinds.${kind}`)}
                       </option>
                     ))}
                   </select>
-                </>
-              )}
+                </div>
 
-              <label className="auth-label" htmlFor="org-description">
-                {t('auth.register.organization.fields.description')}
-              </label>
-              <textarea
-                id="org-description"
-                className="auth-input auth-textarea"
-                placeholder={t('auth.register.organization.fields.descriptionPlaceholder')}
-                value={orgDescription}
-                onChange={(event) => setOrgDescription(event.target.value)}
-                rows={3}
-              />
+                <div className="auth-field">
+                  <label className="auth-label" htmlFor="org-jurisdiction">
+                    {t('auth.register.organization.fields.jurisdiction')}
+                  </label>
+                  <select
+                    id="org-jurisdiction"
+                    className="auth-input"
+                    value={orgJurisdiction}
+                    onChange={(event) => {
+                      const next = event.target.value as (typeof ORG_JURISDICTIONS)[number];
+                      setOrgJurisdiction(next);
+                      if (next === 'NATIONAL') {
+                        setOrgState('');
+                        setOrgLga('');
+                      }
+                    }}
+                  >
+                    {ORG_JURISDICTIONS.map((jurisdiction) => (
+                      <option key={jurisdiction} value={jurisdiction}>
+                        {t(`auth.register.organization.jurisdictions.${jurisdiction}`)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-              <div className="auth-section-title">
-                {t('auth.register.organization.contactTitle')}
+                {orgNeedsState && (
+                  <div className="auth-field">
+                    <label className="auth-label" htmlFor="org-state">
+                      {t('auth.register.organization.fields.state')}
+                    </label>
+                    <select
+                      id="org-state"
+                      className="auth-input"
+                      value={orgState}
+                      onChange={(event) => {
+                        setOrgState(event.target.value);
+                        setOrgLga('');
+                      }}
+                      required
+                    >
+                      <option value="">
+                        {t('auth.register.organization.fields.statePlaceholder')}
+                      </option>
+                      {NIGERIAN_STATES.map((state) => (
+                        <option key={state.code} value={state.name}>
+                          {state.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {orgNeedsLga && (
+                  <div className="auth-field">
+                    <label className="auth-label" htmlFor="org-lga">
+                      {t('auth.register.organization.fields.lga')}
+                    </label>
+                    <select
+                      id="org-lga"
+                      className="auth-input"
+                      value={orgLga}
+                      onChange={(event) => setOrgLga(event.target.value)}
+                      required
+                      disabled={!orgState}
+                    >
+                      <option value="">
+                        {t('auth.register.organization.fields.lgaPlaceholder')}
+                      </option>
+                      {lgaOptions.map((lga) => (
+                        <option key={lga} value={lga}>
+                          {lga}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
-              <label className="auth-label" htmlFor="org-official-email">
-                {t('auth.register.organization.fields.officialEmail')}
-              </label>
-              <input
-                id="org-official-email"
-                type="email"
-                className="auth-input"
-                placeholder={t('auth.register.organization.fields.officialEmailPlaceholder')}
-                value={orgOfficialEmail}
-                onChange={(event) => setOrgOfficialEmail(event.target.value)}
-              />
 
-              <label className="auth-label" htmlFor="org-official-phone">
-                {t('auth.register.organization.fields.officialPhone')}
-              </label>
-              <input
-                id="org-official-phone"
-                type="text"
-                className="auth-input"
-                placeholder={t('auth.register.organization.fields.officialPhonePlaceholder')}
-                value={orgOfficialPhone}
-                onChange={(event) => setOrgOfficialPhone(event.target.value)}
-              />
+              <details className="auth-disclosure">
+                <summary>{t('auth.register.optionalSection')}</summary>
+                <div className="auth-fields-grid auth-fields-grid--two">
+                  <div className="auth-field auth-field--span-2">
+                    <label className="auth-label" htmlFor="org-description">
+                      {t('auth.register.organization.fields.description')}
+                    </label>
+                    <textarea
+                      id="org-description"
+                      className="auth-input auth-textarea"
+                      placeholder={t('auth.register.organization.fields.descriptionPlaceholder')}
+                      value={orgDescription}
+                      onChange={(event) => setOrgDescription(event.target.value)}
+                      rows={3}
+                    />
+                  </div>
 
-              <label className="auth-label" htmlFor="org-website">
-                {t('auth.register.organization.fields.website')}
-              </label>
-              <input
-                id="org-website"
-                type="url"
-                className="auth-input"
-                placeholder={t('auth.register.organization.fields.websitePlaceholder')}
-                value={orgWebsite}
-                onChange={(event) => setOrgWebsite(event.target.value)}
-              />
+                  <div className="auth-field">
+                    <label className="auth-label" htmlFor="org-official-email">
+                      {t('auth.register.organization.fields.officialEmail')}
+                    </label>
+                    <input
+                      id="org-official-email"
+                      type="email"
+                      className="auth-input"
+                      placeholder={t('auth.register.organization.fields.officialEmailPlaceholder')}
+                      value={orgOfficialEmail}
+                      onChange={(event) => setOrgOfficialEmail(event.target.value)}
+                    />
+                  </div>
 
-              <label className="auth-label" htmlFor="org-proof">
-                {t('auth.register.organization.fields.proofUrls')}
-              </label>
-              <input
-                id="org-proof"
-                type="text"
-                className="auth-input"
-                placeholder={t('auth.register.organization.fields.proofUrlsPlaceholder')}
-                value={orgProofUrls}
-                onChange={(event) => setOrgProofUrls(event.target.value)}
-              />
-            </>
+                  <div className="auth-field">
+                    <label className="auth-label" htmlFor="org-official-phone">
+                      {t('auth.register.organization.fields.officialPhone')}
+                    </label>
+                    <input
+                      id="org-official-phone"
+                      type="text"
+                      className="auth-input"
+                      placeholder={t('auth.register.organization.fields.officialPhonePlaceholder')}
+                      value={orgOfficialPhone}
+                      onChange={(event) => setOrgOfficialPhone(event.target.value)}
+                    />
+                  </div>
+
+                  <div className="auth-field auth-field--span-2">
+                    <label className="auth-label" htmlFor="org-website">
+                      {t('auth.register.organization.fields.website')}
+                    </label>
+                    <input
+                      id="org-website"
+                      type="url"
+                      className="auth-input"
+                      placeholder={t('auth.register.organization.fields.websitePlaceholder')}
+                      value={orgWebsite}
+                      onChange={(event) => setOrgWebsite(event.target.value)}
+                    />
+                  </div>
+
+                  <div className="auth-field auth-field--span-2">
+                    <label className="auth-label" htmlFor="org-proof">
+                      {t('auth.register.organization.fields.proofUrls')}
+                    </label>
+                    <input
+                      id="org-proof"
+                      type="text"
+                      className="auth-input"
+                      placeholder={t('auth.register.organization.fields.proofUrlsPlaceholder')}
+                      value={orgProofUrls}
+                      onChange={(event) => setOrgProofUrls(event.target.value)}
+                    />
+                  </div>
+                </div>
+              </details>
+            </section>
           )}
 
           {error?.kind === 'other' && <p className="auth-error">{error.message}</p>}

@@ -35,6 +35,22 @@ func isBanned(db *gorm.DB, userID string) bool {
 	return count > 0
 }
 
+func activeCommunityID(db *gorm.DB, userID string) string {
+	if db == nil || userID == "" {
+		return ""
+	}
+	var row struct {
+		CommunityID *string `gorm:"column:community_id"`
+	}
+	if err := db.Table("users").Select("community_id").Where("id = ?", userID).Scan(&row).Error; err != nil {
+		return ""
+	}
+	if row.CommunityID == nil {
+		return ""
+	}
+	return *row.CommunityID
+}
+
 type Claims struct {
 	UserID        string `json:"sub"`
 	Email         string `json:"email"`
@@ -90,6 +106,7 @@ func JWTAuth(cfg *config.Config, db *gorm.DB) gin.HandlerFunc {
 		c.Set("userName", claims.Name)
 		c.Set("userRole", claims.Role)
 		c.Set("emailVerified", claims.EmailVerified)
+		c.Set("activeCommunityID", activeCommunityID(db, claims.UserID))
 		c.Next()
 	}
 }

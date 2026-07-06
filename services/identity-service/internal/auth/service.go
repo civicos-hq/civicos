@@ -34,7 +34,8 @@ type UserStore interface {
 	FindByID(id string) (*domain.User, error)
 	CreateRegistration(user *domain.User, repApp *domain.RepresentativeApplication, orgApp *domain.OrganizationApplication) error
 	CreateNotification(userID, title, body string, linkURL *string) error
-	UpdateCommunity(userID, communityID string) error
+	JoinCommunity(userID, communityID string) error
+	SetActiveCommunity(userID, communityID string) error
 	UpdateProfile(userID, name, email string) error
 	SetVerificationToken(userID, tokenHash string, expiresAt time.Time) error
 	FindByVerificationTokenHash(tokenHash string) (*domain.User, error)
@@ -648,7 +649,17 @@ func (s *Service) UpdateProfile(userID string, input UpdateProfileInput) (*domai
 }
 
 func (s *Service) JoinCommunity(userID, communityID string) (*domain.PublicUser, error) {
-	if err := s.repo.UpdateCommunity(userID, communityID); err != nil {
+	if err := s.repo.JoinCommunity(userID, communityID); err != nil {
+		return nil, err
+	}
+	return s.GetMe(userID)
+}
+
+func (s *Service) SetActiveCommunity(userID, communityID string) (*domain.PublicUser, error) {
+	if err := s.repo.SetActiveCommunity(userID, communityID); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("COMMUNITY_MEMBERSHIP_REQUIRED")
+		}
 		return nil, err
 	}
 	return s.GetMe(userID)
