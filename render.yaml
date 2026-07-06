@@ -123,10 +123,9 @@ services:
           name: civicos-postgres
           property: connectionString
       - key: APP_URL
-        # Update this to your custom domain once wired up in the
-        # dashboard — used in the body of verification emails.
-        # Pinned (see note on the gateway's *_SERVICE_URL vars).
-        value: https://civicos-web-0mi5.onrender.com
+        # The citizen web custom domain — used in the body of
+        # verification emails.
+        value: https://civics.ng
 
   # ── Community service ──────────────────────────────────────────────
   # Communities, issues, petitions, representatives, comments,
