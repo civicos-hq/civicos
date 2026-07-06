@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -27,6 +28,20 @@ type Config struct {
 	SMTPFrom     string
 }
 
+// ensureScheme hardens APP_URL against the bare-host form Render's Blueprint
+// injects via `fromService.host` (e.g. "civicos-web.onrender.com") — without
+// a scheme, links inside verification/reset emails would be unclickable.
+// A value with an explicit port ("localhost:5173") is a dev URL → http.
+func ensureScheme(u string) string {
+	if u == "" || strings.HasPrefix(u, "http://") || strings.HasPrefix(u, "https://") {
+		return u
+	}
+	if strings.Contains(u, ":") {
+		return "http://" + u
+	}
+	return "https://" + u
+}
+
 // Load validates and returns config from environment.
 func Load() *Config {
 	_ = godotenv.Load()
@@ -39,7 +54,7 @@ func Load() *Config {
 		JWTSecret:           require("JWT_SECRET"),
 		JWTExpiresIn:        getStr("JWT_EXPIRES_IN", "7d"),
 		JWTRefreshExpiresIn: getStr("JWT_REFRESH_EXPIRES_IN", "30d"),
-		AppURL:              getStr("APP_URL", "http://localhost:5173"),
+		AppURL:              ensureScheme(getStr("APP_URL", "http://localhost:5173")),
 		SMTPHost:            getStr("SMTP_HOST", ""),
 		SMTPPort:            getInt("SMTP_PORT", 1025),
 		SMTPUser:            getStr("SMTP_USER", ""),

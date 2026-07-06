@@ -6,9 +6,14 @@ import (
 	"strings"
 )
 
-// ensureScheme prepends "http://" when the URL is a bare host:port form —
-// Render's Blueprint sets service URLs via the `hostport` property, which
-// yields values like "civicos-identity:12345" without a scheme.
+// ensureScheme resolves scheme-less service URLs, which Render's Blueprint
+// injects in two shapes:
+//   - `hostport` (private network): "civicos-identity:10000" — plain HTTP
+//   - `host` (public URL):          "civicos-identity.onrender.com" — must be
+//     HTTPS, because onrender.com 301-redirects HTTP and the reverse proxy
+//     would bounce that redirect back to the client
+//
+// A colon means an explicit port, i.e. the private-network/localhost form.
 func ensureScheme(u string) string {
 	if u == "" {
 		return u
@@ -16,7 +21,10 @@ func ensureScheme(u string) string {
 	if strings.HasPrefix(u, "http://") || strings.HasPrefix(u, "https://") {
 		return u
 	}
-	return "http://" + u
+	if strings.Contains(u, ":") {
+		return "http://" + u
+	}
+	return "https://" + u
 }
 
 type Config struct {

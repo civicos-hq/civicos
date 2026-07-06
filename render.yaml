@@ -1,12 +1,34 @@
 # CivicOS deployment blueprint — Render Infrastructure-as-Code
 # Docs: https://render.com/docs/blueprint-spec
 #
+# ── FREE-TIER VALIDATION TOPOLOGY ────────────────────────────────────
+# Render's free instance type does NOT cover private services (pserv),
+# and free web services cannot RECEIVE private-network traffic. So for
+# a $0 validation deploy, the three internal services run as *public*
+# free web services and the gateway calls them over their public
+# onrender.com URLs. This is acceptable because every service enforces
+# JWT auth itself — the gateway is a convenience layer, not the only
+# defence. Free-tier caveats:
+#   • services spin down after 15 min idle (~1 min cold start, chained)
+#   • outbound SMTP ports are blocked — emails fall back to the console
+#     mailer (verification links print to civicos-identity's logs)
+#   • Postgres free expires 30 days after creation (14-day grace)
+#   • uploads are ephemeral (no disk on free instances)
+#
+# ── PRODUCTION TOPOLOGY (~$28–35/mo) ─────────────────────────────────
+# Before real traffic, switch the three internal services back to:
+#     type: pserv          (drops them off the public internet)
+#     plan: starter        ($7/mo each)
+# and change the gateway's *_SERVICE_URL references to
+#     fromService: { type: pserv, name: ..., property: hostport }
+# Also: postgres plan → basic-256mb, re-add the uploads disk on
+# civicos-community, and set SMTP secrets (paid instances can send
+# SMTP). The gateway's ensureScheme() handles both URL shapes.
+#
 # What this provisions when applied:
 #   • 1 managed PostgreSQL 16 database
 #   • 1 managed Redis (Render "Key Value") — rate limits + SSE fan-out
-#   • 1 public web service (api-gateway) — only backend on the internet
-#   • 3 private services (identity, community, organization) — reachable
-#     only from other services in this environment
+#   • 4 web services (api-gateway + 3 internal, all free tier)
 #   • 2 static sites (citizen web, admin console)
 #
 # On first `render blueprint launch`, Render creates all resources and
@@ -18,14 +40,16 @@ databases:
   - name: civicos-postgres
     databaseName: civicos
     user: civicos
-    plan: free # 90-day free trial then auto-suspends; upgrade to basic-256mb before then
+    plan: free # expires 30 days after creation; upgrade to basic-256mb before then
     postgresMajorVersion: '16'
     ipAllowList: [] # empty = private; only Render services can connect
 
 envVarGroups:
   # Shared secrets referenced by every backend service via `fromGroup`.
-  # SMTP fields ship blank — set them in the Render dashboard once you've
-  # signed up for Resend / Postmark / Amazon SES and picked your sender.
+  # SMTP fields ship blank — the identity service falls back to its
+  # console mailer (links print to logs). NOTE: free instances block
+  # outbound SMTP ports entirely; setting these only takes effect once
+  # civicos-identity is on a paid plan.
   - name: civicos-secrets
     envVars:
       - key: JWT_SECRET
@@ -50,8 +74,9 @@ services:
     maxmemoryPolicy: allkeys-lru
 
   # ── Public API gateway ─────────────────────────────────────────────
-  # The only backend service exposed to the internet. Every citizen and
-  # admin request lands here first. Auto-deploys on push to main.
+  # Every citizen and admin request lands here first. Auto-deploys on
+  # push to main. The *_SERVICE_URL values are bare public hostnames
+  # (fromService.host) — the gateway prepends https:// itself.
   - type: web
     name: civicos-gateway
     runtime: docker
@@ -64,35 +89,37 @@ services:
       - fromGroup: civicos-secrets
       - key: IDENTITY_SERVICE_URL
         fromService:
-          type: pserv
+          type: web
           name: civicos-identity
-          property: hostport # e.g. civicos-identity:10000
+          property: host # e.g. civicos-identity.onrender.com
       - key: COMMUNITY_SERVICE_URL
         fromService:
-          type: pserv
+          type: web
           name: civicos-community
-          property: hostport
+          property: host
       - key: ORGANIZATION_SERVICE_URL
         fromService:
-          type: pserv
+          type: web
           name: civicos-organization
-          property: hostport
+          property: host
       - key: REDIS_URL
         fromService:
           type: keyvalue
           name: civicos-redis
           property: connectionString
 
-  # ── Identity service (private) ─────────────────────────────────────
+  # ── Identity service ───────────────────────────────────────────────
   # Handles auth, users, sessions, admin metrics. Sends verification +
-  # password-reset emails via SMTP.
-  - type: pserv
+  # password-reset emails via SMTP (console mailer on free tier).
+  # Public on free tier (see header) — enforces JWT on its own routes.
+  - type: web
     name: civicos-identity
     runtime: docker
     plan: free
     branch: main
     dockerfilePath: ./services/identity-service/Dockerfile
     dockerContext: ./services/identity-service
+    healthCheckPath: /health
     envVars:
       - fromGroup: civicos-secrets
       - key: DATABASE_URL
@@ -107,7 +134,7 @@ services:
           name: civicos-web
           property: host # e.g. civicos-web.onrender.com
 
-  # ── Community service (private) ────────────────────────────────────
+  # ── Community service ──────────────────────────────────────────────
   # Communities, issues, petitions, representatives, comments,
   # notifications, content flags.
   # NOTE: persistent disk removed for free-tier deploy — uploads will
@@ -117,13 +144,14 @@ services:
   #       name: uploads
   #       mountPath: /data
   #       sizeGB: 10
-  - type: pserv
+  - type: web
     name: civicos-community
     runtime: docker
     plan: free
     branch: main
     dockerfilePath: ./services/community-service/Dockerfile
     dockerContext: ./services/community-service
+    healthCheckPath: /health
     envVars:
       - fromGroup: civicos-secrets
       - key: DATABASE_URL
@@ -131,16 +159,17 @@ services:
           name: civicos-postgres
           property: connectionString
 
-  # ── Organization service (private) ─────────────────────────────────
+  # ── Organization service ───────────────────────────────────────────
   # Organizations, members, announcements, projects, assignments,
   # progress updates, verified-badge control.
-  - type: pserv
+  - type: web
     name: civicos-organization
     runtime: docker
     plan: free
     branch: main
     dockerfilePath: ./services/organization-service/Dockerfile
     dockerContext: ./services/organization-service
+    healthCheckPath: /health
     envVars:
       - fromGroup: civicos-secrets
       - key: DATABASE_URL
