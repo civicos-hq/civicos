@@ -58,7 +58,7 @@ func main() {
 
 	applicationRepo := applications.NewRepository(db)
 	applicationSvc := applications.NewService(applicationRepo)
-	applicationHandler := applications.NewHandler(applicationSvc)
+	applicationHandler := applications.NewHandler(applicationSvc, auditor)
 
 	r := gin.Default()
 
@@ -82,6 +82,7 @@ func main() {
 
 	v1 := r.Group("/v1")
 	applicationHandler.RegisterRoutes(v1.Group("/applications"), authMiddleware)
+	applicationHandler.RegisterAdminRoutes(v1.Group("/admin/applications"), authMiddleware, requireAdmin)
 	flagHandler.RegisterRoutes(v1.Group("/flags"), authMiddleware, requireVerified, requireAdmin)
 	auditHandler.RegisterRoutes(v1.Group("/audit-logs"), authMiddleware, requireAdmin)
 	userHandler.RegisterRoutes(v1.Group("/users"), authMiddleware, requireAdmin)

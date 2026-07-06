@@ -14,6 +14,8 @@ import { FlagsPage } from './routes/FlagsPage';
 import { DirectHidePage } from './routes/DirectHidePage';
 import { AuditPage } from './routes/AuditPage';
 import { OrganizationDetailPage } from './routes/OrganizationDetailPage';
+import { ApplicationsPage } from './routes/ApplicationsPage';
+import { ApplicationDetailPage } from './routes/ApplicationDetailPage';
 import { AdminShell } from './components/AdminShell';
 import { RequireAdmin } from './components/RequireAdmin';
 
@@ -34,6 +36,8 @@ export function App() {
           <Route path="/communities/:id" element={<CommunityDetailPage />} />
           <Route path="/representatives" element={<RepresentativesPage />} />
           <Route path="/representatives/new" element={<RepresentativeCreatePage />} />
+          <Route path="/applications" element={<ApplicationsPage />} />
+          <Route path="/applications/:kind/:id" element={<ApplicationDetailPage />} />
           <Route path="/moderation/direct-hide" element={<DirectHidePage />} />
           <Route path="/flags" element={<FlagsPage />} />
           <Route path="/audit" element={<AuditPage />} />

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
 
@@ -16,8 +17,14 @@ type Store interface {
 	FindUserByID(id string) (*domain.User, error)
 	FindRepresentativeByUserID(userID string) (*domain.RepresentativeApplication, error)
 	FindOrganizationByUserID(userID string) (*domain.OrganizationApplication, error)
+	FindRepresentativeByID(id string) (*domain.RepresentativeApplication, error)
+	FindOrganizationByID(id string) (*domain.OrganizationApplication, error)
+	ListRepresentativeApplications(f ListFilters) ([]domain.RepresentativeApplication, int64, error)
+	ListOrganizationApplications(f ListFilters) ([]domain.OrganizationApplication, int64, error)
 	UpsertRepresentativeApplication(userID string, app *domain.RepresentativeApplication) error
 	UpsertOrganizationApplication(userID string, app *domain.OrganizationApplication) error
+	ReviewRepresentativeApplication(id, reviewerID string, status domain.ApprovalStatus, note *string, reviewedAt time.Time) error
+	ReviewOrganizationApplication(id, reviewerID string, status domain.ApprovalStatus, note *string, reviewedAt time.Time) error
 }
 
 type Service struct {
@@ -63,6 +70,41 @@ type OrganizationApplicationInput struct {
 	OfficialPhone *string  `json:"officialPhone"`
 	Website       *string  `json:"website" binding:"omitempty,url"`
 	ProofURLs     []string `json:"proofUrls"`
+}
+
+type AdminApplicationSummary struct {
+	Kind        string                `json:"kind"`
+	ID          string                `json:"id"`
+	Status      domain.ApprovalStatus `json:"status"`
+	SubmittedAt time.Time             `json:"submittedAt"`
+	ReviewedAt  *time.Time            `json:"reviewedAt,omitempty"`
+	Headline    string                `json:"headline"`
+	Subhead     string                `json:"subhead"`
+	Applicant   domain.PublicUser     `json:"applicant"`
+}
+
+type AdminApplicationDetail struct {
+	Kind                      string                            `json:"kind"`
+	ID                        string                            `json:"id"`
+	Status                    domain.ApprovalStatus             `json:"status"`
+	SubmittedAt               time.Time                         `json:"submittedAt"`
+	ReviewedAt                *time.Time                        `json:"reviewedAt,omitempty"`
+	RepresentativeApplication *domain.RepresentativeApplication `json:"representativeApplication,omitempty"`
+	OrganizationApplication   *domain.OrganizationApplication   `json:"organizationApplication,omitempty"`
+	Applicant                 domain.PublicUser                 `json:"applicant"`
+}
+
+type AdminListFilters struct {
+	Kind   string
+	Status string
+	Search string
+	Limit  int
+	Offset int
+}
+
+type ReviewInput struct {
+	Status string  `json:"status" binding:"required,oneof=APPROVED REJECTED"`
+	Note   *string `json:"note"`
 }
 
 type AppError struct {
@@ -188,6 +230,123 @@ func (s *Service) UpsertOrganization(userID string, input OrganizationApplicatio
 	return s.repo.FindOrganizationByUserID(userID)
 }
 
+func (s *Service) ListAdmin(f AdminListFilters) ([]AdminApplicationSummary, int64, error) {
+	kind := strings.ToUpper(strings.TrimSpace(f.Kind))
+	repoFilters := ListFilters{Status: strings.ToUpper(strings.TrimSpace(f.Status)), Search: f.Search, Limit: f.Limit, Offset: f.Offset}
+	switch kind {
+	case "", "ALL":
+		return s.listAdminAll(repoFilters)
+	case string(domain.AccountTypeRepresentative):
+		items, total, err := s.repo.ListRepresentativeApplications(repoFilters)
+		if err != nil {
+			return nil, 0, err
+		}
+		out := make([]AdminApplicationSummary, 0, len(items))
+		for _, item := range items {
+			applicant, err := s.repo.FindUserByID(item.UserID)
+			if err != nil {
+				return nil, 0, err
+			}
+			out = append(out, representativeSummary(&item, applicant))
+		}
+		return out, total, nil
+	case string(domain.AccountTypeOrganization):
+		items, total, err := s.repo.ListOrganizationApplications(repoFilters)
+		if err != nil {
+			return nil, 0, err
+		}
+		out := make([]AdminApplicationSummary, 0, len(items))
+		for _, item := range items {
+			applicant, err := s.repo.FindUserByID(item.UserID)
+			if err != nil {
+				return nil, 0, err
+			}
+			out = append(out, organizationSummary(&item, applicant))
+		}
+		return out, total, nil
+	default:
+		return nil, 0, &AppError{Code: "INVALID_APPLICATION_KIND", Message: "Unknown application kind", Status: http.StatusBadRequest}
+	}
+}
+
+func (s *Service) GetAdmin(kind, id string) (*AdminApplicationDetail, error) {
+	switch normalizeKind(kind) {
+	case domain.AccountTypeRepresentative:
+		app, err := s.repo.FindRepresentativeByID(id)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, &AppError{Code: "APPLICATION_NOT_FOUND", Message: "Application not found", Status: http.StatusNotFound}
+			}
+			return nil, err
+		}
+		applicant, err := s.repo.FindUserByID(app.UserID)
+		if err != nil {
+			return nil, err
+		}
+		return &AdminApplicationDetail{
+			Kind:                      string(domain.AccountTypeRepresentative),
+			ID:                        app.ID,
+			Status:                    app.Status,
+			SubmittedAt:               app.SubmittedAt,
+			ReviewedAt:                app.ReviewedAt,
+			RepresentativeApplication: app,
+			Applicant:                 applicant.ToPublic(),
+		}, nil
+	case domain.AccountTypeOrganization:
+		app, err := s.repo.FindOrganizationByID(id)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, &AppError{Code: "APPLICATION_NOT_FOUND", Message: "Application not found", Status: http.StatusNotFound}
+			}
+			return nil, err
+		}
+		applicant, err := s.repo.FindUserByID(app.UserID)
+		if err != nil {
+			return nil, err
+		}
+		return &AdminApplicationDetail{
+			Kind:                    string(domain.AccountTypeOrganization),
+			ID:                      app.ID,
+			Status:                  app.Status,
+			SubmittedAt:             app.SubmittedAt,
+			ReviewedAt:              app.ReviewedAt,
+			OrganizationApplication: app,
+			Applicant:               applicant.ToPublic(),
+		}, nil
+	default:
+		return nil, &AppError{Code: "INVALID_APPLICATION_KIND", Message: "Unknown application kind", Status: http.StatusBadRequest}
+	}
+}
+
+func (s *Service) Review(kind, id, reviewerID string, input ReviewInput) (*AdminApplicationDetail, error) {
+	status := domain.ApprovalStatus(strings.ToUpper(strings.TrimSpace(input.Status)))
+	if status != domain.ApprovalStatusApproved && status != domain.ApprovalStatusRejected {
+		return nil, &AppError{Code: "INVALID_REVIEW_STATUS", Message: "Review status must be APPROVED or REJECTED", Status: http.StatusBadRequest}
+	}
+	now := time.Now().UTC()
+
+	switch normalizeKind(kind) {
+	case domain.AccountTypeRepresentative:
+		if err := s.repo.ReviewRepresentativeApplication(id, reviewerID, status, input.Note, now); err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, &AppError{Code: "APPLICATION_NOT_FOUND", Message: "Application not found", Status: http.StatusNotFound}
+			}
+			return nil, err
+		}
+		return s.GetAdmin(kind, id)
+	case domain.AccountTypeOrganization:
+		if err := s.repo.ReviewOrganizationApplication(id, reviewerID, status, input.Note, now); err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, &AppError{Code: "APPLICATION_NOT_FOUND", Message: "Application not found", Status: http.StatusNotFound}
+			}
+			return nil, err
+		}
+		return s.GetAdmin(kind, id)
+	default:
+		return nil, &AppError{Code: "INVALID_APPLICATION_KIND", Message: "Unknown application kind", Status: http.StatusBadRequest}
+	}
+}
+
 func validateOrganizationInput(input OrganizationApplicationInput) error {
 	slug := strings.ToLower(strings.TrimSpace(input.Slug))
 	if !slugRe.MatchString(slug) {
@@ -202,4 +361,94 @@ func validateOrganizationInput(input OrganizationApplicationInput) error {
 		return &AppError{Code: "LGA_REQUIRED", Message: "This organization jurisdiction requires an LGA", Status: http.StatusBadRequest}
 	}
 	return nil
+}
+
+func (s *Service) listAdminAll(f ListFilters) ([]AdminApplicationSummary, int64, error) {
+	effectiveLimit := f.Limit
+	if effectiveLimit <= 0 {
+		effectiveLimit = 25
+	}
+	if f.Offset > 0 {
+		effectiveLimit += f.Offset
+	}
+
+	repItems, repTotal, err := s.repo.ListRepresentativeApplications(ListFilters{
+		Status: f.Status, Search: f.Search, Limit: effectiveLimit, Offset: 0,
+	})
+	if err != nil {
+		return nil, 0, err
+	}
+	orgItems, orgTotal, err := s.repo.ListOrganizationApplications(ListFilters{
+		Status: f.Status, Search: f.Search, Limit: effectiveLimit, Offset: 0,
+	})
+	if err != nil {
+		return nil, 0, err
+	}
+
+	out := make([]AdminApplicationSummary, 0, len(repItems)+len(orgItems))
+	for _, item := range repItems {
+		applicant, err := s.repo.FindUserByID(item.UserID)
+		if err != nil {
+			return nil, 0, err
+		}
+		out = append(out, representativeSummary(&item, applicant))
+	}
+	for _, item := range orgItems {
+		applicant, err := s.repo.FindUserByID(item.UserID)
+		if err != nil {
+			return nil, 0, err
+		}
+		out = append(out, organizationSummary(&item, applicant))
+	}
+
+	sort.Slice(out, func(i, j int) bool {
+		return out[i].SubmittedAt.After(out[j].SubmittedAt)
+	})
+
+	start := f.Offset
+	if start > len(out) {
+		start = len(out)
+	}
+	end := start + f.Limit
+	if f.Limit <= 0 || end > len(out) {
+		end = len(out)
+	}
+	return out[start:end], repTotal + orgTotal, nil
+}
+
+func representativeSummary(app *domain.RepresentativeApplication, applicant *domain.User) AdminApplicationSummary {
+	return AdminApplicationSummary{
+		Kind:        string(domain.AccountTypeRepresentative),
+		ID:          app.ID,
+		Status:      app.Status,
+		SubmittedAt: app.SubmittedAt,
+		ReviewedAt:  app.ReviewedAt,
+		Headline:    app.FullName,
+		Subhead:     app.Position + " · " + app.Constituency,
+		Applicant:   applicant.ToPublic(),
+	}
+}
+
+func organizationSummary(app *domain.OrganizationApplication, applicant *domain.User) AdminApplicationSummary {
+	return AdminApplicationSummary{
+		Kind:        string(domain.AccountTypeOrganization),
+		ID:          app.ID,
+		Status:      app.Status,
+		SubmittedAt: app.SubmittedAt,
+		ReviewedAt:  app.ReviewedAt,
+		Headline:    app.Name,
+		Subhead:     app.Kind + " · " + app.Jurisdiction,
+		Applicant:   applicant.ToPublic(),
+	}
+}
+
+func normalizeKind(raw string) domain.RequestedAccountType {
+	switch strings.ToUpper(strings.TrimSpace(raw)) {
+	case string(domain.AccountTypeRepresentative):
+		return domain.AccountTypeRepresentative
+	case string(domain.AccountTypeOrganization):
+		return domain.AccountTypeOrganization
+	default:
+		return ""
+	}
 }
