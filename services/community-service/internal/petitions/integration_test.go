@@ -101,7 +101,21 @@ DBReady:
 	}()
 	t.Logf("service logs: %s", logFile.Name())
 
-	svcCmd := exec.Command("go", "run", "./cmd/server")
+	// Pre-build the service binary. `go run` would combine compile+run
+	// and blow past the health-check budget on cold CI runners, where
+	// the module cache isn't warm and the first `go build` takes ~15-25s.
+	// Separating build from run gives us a hard error if compile fails
+	// and lets the run subprocess boot to /health in under a second.
+	svcBinary := filepath.Join(t.TempDir(), "community-service-bin")
+	buildCmd := exec.Command("go", "build", "-o", svcBinary, "./cmd/server")
+	buildCmd.Dir = filepath.Join(repoRoot, "services", "community-service")
+	buildCmd.Stdout = logFile
+	buildCmd.Stderr = logFile
+	if err := buildCmd.Run(); err != nil {
+		t.Fatalf("build service (check %s): %v", logFile.Name(), err)
+	}
+
+	svcCmd := exec.Command(svcBinary)
 	svcCmd.Dir = filepath.Join(repoRoot, "services", "community-service")
 	svcCmd.Stdout = logFile
 	svcCmd.Stderr = logFile
@@ -126,7 +140,7 @@ DBReady:
 	// wait for service health
 	hc := &http.Client{Timeout: 2 * time.Second}
 	healthURL := fmt.Sprintf("http://localhost:%d/health", servicePort)
-	ctx2, cancel2 := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx2, cancel2 := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel2()
 	for {
 		select {
