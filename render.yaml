@@ -87,21 +87,17 @@ services:
     healthCheckPath: /health
     envVars:
       - fromGroup: civicos-secrets
+      # Pinned public URLs. `fromService.host` resolves to the short
+      # private-network hostname (e.g. "civicos-identity-kwrn"), which is
+      # unreachable on the free tier — free services can't RECEIVE
+      # private-network traffic. The onrender.com suffix is stable for
+      # the life of each service; update these if a service is recreated.
       - key: IDENTITY_SERVICE_URL
-        fromService:
-          type: web
-          name: civicos-identity
-          property: host # e.g. civicos-identity.onrender.com
+        value: https://civicos-identity-kwrn.onrender.com
       - key: COMMUNITY_SERVICE_URL
-        fromService:
-          type: web
-          name: civicos-community
-          property: host
+        value: https://civicos-community-0otl.onrender.com
       - key: ORGANIZATION_SERVICE_URL
-        fromService:
-          type: web
-          name: civicos-organization
-          property: host
+        value: https://civicos-organization-vnsb.onrender.com
       - key: REDIS_URL
         fromService:
           type: keyvalue
@@ -129,10 +125,8 @@ services:
       - key: APP_URL
         # Update this to your custom domain once wired up in the
         # dashboard — used in the body of verification emails.
-        fromService:
-          type: web
-          name: civicos-web
-          property: host # e.g. civicos-web.onrender.com
+        # Pinned (see note on the gateway's *_SERVICE_URL vars).
+        value: https://civicos-web-0mi5.onrender.com
 
   # ── Community service ──────────────────────────────────────────────
   # Communities, issues, petitions, representatives, comments,
@@ -197,12 +191,9 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_URL
-        # Points at the gateway's public URL. Renders as https://
-        # civicos-gateway.onrender.com by default.
-        fromService:
-          type: web
-          name: civicos-gateway
-          property: host
+        # The gateway's public URL, pinned (see note on the gateway's
+        # *_SERVICE_URL vars).
+        value: https://civicos-gateway-8slr.onrender.com
       - key: HUSKY
         value: '0' # skip Husky's git-hooks step during the CI install
 
@@ -219,9 +210,6 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_URL
-        fromService:
-          type: web
-          name: civicos-gateway
-          property: host
+        value: https://civicos-gateway-8slr.onrender.com
       - key: HUSKY
         value: '0'
