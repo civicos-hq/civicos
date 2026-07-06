@@ -62,8 +62,8 @@ func (s *Service) Ban(id string, input BanInput, actorID string) (*domain.User, 
 	}
 	now := time.Now().UTC()
 	updates := map[string]any{
-		"banned_at":     now,
-		"banned_by_id":  actorID,
+		"banned_at":    now,
+		"banned_by_id": actorID,
 	}
 	if input.Reason != nil {
 		updates["ban_reason"] = *input.Reason

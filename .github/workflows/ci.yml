@@ -6,76 +6,208 @@ on:
   pull_request:
     branches: [main, develop]
 
+# Cancel in-flight runs on the same ref when a new commit lands. Saves
+# minutes on force-pushes and stacked PRs.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '9'
+
 jobs:
-  lint:
-    name: Lint
+  # ── FRONTEND ─────────────────────────────────────────────────────────
+
+  frontend-lint:
+    name: Frontend · Lint
     runs-on: ubuntu-latest
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: ${{ env.PNPM_VERSION }}
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
 
-  typecheck:
-    name: Typecheck
+  frontend-typecheck:
+    name: Frontend · Typecheck
     runs-on: ubuntu-latest
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: ${{ env.PNPM_VERSION }}
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
 
-  test:
-    name: Test
+  frontend-build:
+    name: Frontend · Build
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16-alpine
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build all Vite apps + shared packages
+        run: pnpm build
         env:
-          POSTGRES_USER: civicos
-          POSTGRES_PASSWORD: civicos
-          POSTGRES_DB: civicos_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          # Placeholder — real deployment sets this to the production gateway.
+          VITE_API_URL: http://localhost:3000
+
+  frontend-format:
+    name: Frontend · Prettier check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm format:check
+
+  # ── BACKEND (Go) ─────────────────────────────────────────────────────
+
+  go-vet:
+    name: Go · Vet · ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - api-gateway
+          - identity-service
+          - community-service
+          - organization-service
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          # Pin to each service's own declared Go version — api-gateway
+          # is on 1.25, the other services on 1.22.
+          go-version-file: services/${{ matrix.service }}/go.mod
+          cache-dependency-path: services/${{ matrix.service }}/go.sum
+      - name: go mod download
+        working-directory: services/${{ matrix.service }}
+        run: go mod download
+      - name: go vet ./...
+        working-directory: services/${{ matrix.service }}
+        run: go vet ./...
+
+  go-fmt:
+    name: Go · gofmt
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          # gofmt is stable enough that any recent Go works for the check.
+          go-version: '1.22'
+      - name: Verify all Go source is gofmt-clean
+        run: |
+          set -euo pipefail
+          unformatted=$(gofmt -l services/)
+          if [ -n "$unformatted" ]; then
+            echo "The following Go files are not gofmt-clean:"
+            echo "$unformatted"
+            echo
+            echo "Run 'gofmt -w services/' locally and re-commit."
+            exit 1
+          fi
+          echo "All Go files are gofmt-clean."
+
+  go-test:
+    name: Go · Test · ${{ matrix.service }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - api-gateway
+          - identity-service
+          - community-service
+          - organization-service
+    services:
       redis:
         image: redis:7-alpine
-        ports:
-          - 6379:6379
+        ports: ['6379:6379']
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+      nats:
+        image: nats:2-alpine
+        ports: ['4222:4222']
     env:
-      DATABASE_URL: postgresql://civicos:civicos@localhost:5432/civicos_test
+      # Petitions integration tests use embedded-postgres — no system
+      # Postgres service needed. Ratelimit tests hit Redis; auth tests
+      # need JWT_SECRET.
       REDIS_URL: redis://localhost:6379
       NATS_URL: nats://localhost:4222
-      JWT_SECRET: test-secret-minimum-32-characters-long
+      JWT_SECRET: test-secret-minimum-thirty-two-chars-long-x
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-go@v5
         with:
-          version: 9
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm test
+          go-version-file: services/${{ matrix.service }}/go.mod
+          cache-dependency-path: services/${{ matrix.service }}/go.sum
+      - name: go mod download
+        working-directory: services/${{ matrix.service }}
+        run: go mod download
+      - name: go test
+        working-directory: services/${{ matrix.service }}
+        # -race: detect data races (important for concurrent handlers)
+        # -shuffle=on: catch test-order dependencies
+        run: go test -race -shuffle=on -timeout 5m ./...
+
+  # ── Aggregate result ─────────────────────────────────────────────────
+  # Single required status check for branch protection — one green tick
+  # instead of nine separate ones. Set this as the required check on
+  # protected branches and every job below it becomes gated.
+
+  ci:
+    name: CI
+    if: always()
+    runs-on: ubuntu-latest
+    needs:
+      - frontend-lint
+      - frontend-typecheck
+      - frontend-build
+      - frontend-format
+      - go-vet
+      - go-fmt
+      - go-test
+    steps:
+      - name: All required jobs passed
+        run: |
+          if [[ "${{ contains(needs.*.result, 'failure') }}" == "true" ]] || \
+             [[ "${{ contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
+            echo "::error::One or more required jobs did not succeed."
+            exit 1
+          fi
+          echo "All required jobs succeeded."

@@ -5,41 +5,41 @@ import "time"
 type UserRole string
 
 const (
-	RoleCitizen        UserRole = "CITIZEN"
-	RoleRepresentative UserRole = "REPRESENTATIVE"
+	RoleCitizen         UserRole = "CITIZEN"
+	RoleRepresentative  UserRole = "REPRESENTATIVE"
 	RoleGovernmentAdmin UserRole = "GOVERNMENT_ADMIN"
-	RoleNGO            UserRole = "NGO"
-	RoleModerator      UserRole = "MODERATOR"
-	RolePlatformAdmin  UserRole = "PLATFORM_ADMIN"
+	RoleNGO             UserRole = "NGO"
+	RoleModerator       UserRole = "MODERATOR"
+	RolePlatformAdmin   UserRole = "PLATFORM_ADMIN"
 )
 
 // User is the core identity entity.
 // All IDs are UUIDs — never expose sequential database IDs.
 type User struct {
-	ID           string    `gorm:"type:uuid;primaryKey" json:"id"`
-	Email        string    `gorm:"uniqueIndex;not null" json:"email"`
-	Name         string    `gorm:"not null" json:"name"`
-	PasswordHash string    `gorm:"not null" json:"-"` // never serialised
-	Role         UserRole  `gorm:"type:varchar(30);default:'CITIZEN'" json:"role"`
-	AvatarURL    *string   `json:"avatarUrl,omitempty"`
-	CommunityID  *string   `gorm:"type:uuid" json:"communityId,omitempty"`
+	ID           string   `gorm:"type:uuid;primaryKey" json:"id"`
+	Email        string   `gorm:"uniqueIndex;not null" json:"email"`
+	Name         string   `gorm:"not null" json:"name"`
+	PasswordHash string   `gorm:"not null" json:"-"` // never serialised
+	Role         UserRole `gorm:"type:varchar(30);default:'CITIZEN'" json:"role"`
+	AvatarURL    *string  `json:"avatarUrl,omitempty"`
+	CommunityID  *string  `gorm:"type:uuid" json:"communityId,omitempty"`
 
-	EmailVerified                 bool       `gorm:"not null;default:false" json:"emailVerified"`
-	EmailVerifiedAt               *time.Time `json:"emailVerifiedAt,omitempty"`
-	EmailVerificationTokenHash    *string    `gorm:"index" json:"-"`
-	EmailVerificationExpiresAt    *time.Time `json:"-"`
+	EmailVerified              bool       `gorm:"not null;default:false" json:"emailVerified"`
+	EmailVerifiedAt            *time.Time `json:"emailVerifiedAt,omitempty"`
+	EmailVerificationTokenHash *string    `gorm:"index" json:"-"`
+	EmailVerificationExpiresAt *time.Time `json:"-"`
 
-	PasswordResetTokenHash        *string    `gorm:"index" json:"-"`
-	PasswordResetExpiresAt        *time.Time `json:"-"`
+	PasswordResetTokenHash *string    `gorm:"index" json:"-"`
+	PasswordResetExpiresAt *time.Time `json:"-"`
 
 	// Moderation state — set by an admin, never by the user themselves.
 	// When BannedAt is non-nil the user is blocked from all authenticated
 	// actions (their JWT still works until it expires, so a ban is more
 	// of a soft-delete for now — the refresh-token consumption path
 	// enforces the block on next rotation).
-	BannedAt     *time.Time `gorm:"index" json:"bannedAt,omitempty"`
-	BanReason    *string    `json:"banReason,omitempty"`
-	BannedByID   *string    `gorm:"type:uuid" json:"bannedById,omitempty"`
+	BannedAt   *time.Time `gorm:"index" json:"bannedAt,omitempty"`
+	BanReason  *string    `json:"banReason,omitempty"`
+	BannedByID *string    `gorm:"type:uuid" json:"bannedById,omitempty"`
 
 	// DeletedAt is the user-initiated soft-delete timestamp. Once set,
 	// the user cannot log in and cannot refresh; every authenticated
@@ -68,13 +68,13 @@ type PublicUser struct {
 
 // RefreshToken records a single opaque refresh token. Rotation:
 //
-//	- Every /refresh call CONSUMES the presented token and issues a fresh one
-//	  in the same family. Consuming = setting ConsumedAt.
-//	- FamilyID is stable across a rotation chain (typically = the initial
-//	  token's ID). It's what lets us nuke a whole session on replay.
-//	- Presenting a token whose ConsumedAt is already set = replay = theft.
-//	  We revoke every row where FamilyID matches, forcing the attacker (and
-//	  legitimate user) to sign in again. This is the OWASP pattern.
+//   - Every /refresh call CONSUMES the presented token and issues a fresh one
+//     in the same family. Consuming = setting ConsumedAt.
+//   - FamilyID is stable across a rotation chain (typically = the initial
+//     token's ID). It's what lets us nuke a whole session on replay.
+//   - Presenting a token whose ConsumedAt is already set = replay = theft.
+//     We revoke every row where FamilyID matches, forcing the attacker (and
+//     legitimate user) to sign in again. This is the OWASP pattern.
 //
 // The raw token is 32 bytes of crypto/rand hex — never stored. We keep only
 // SHA256(raw) in TokenHash so leaking the DB can't hijack live sessions.
@@ -140,13 +140,13 @@ const (
 	FlagStatusHidden    FlagStatus = "HIDDEN"
 	FlagStatusDismissed FlagStatus = "DISMISSED"
 
-	FlaggableIssue          FlaggableType = "ISSUE"
-	FlaggableIssueComment   FlaggableType = "ISSUE_COMMENT"
-	FlaggablePetition       FlaggableType = "PETITION"
+	FlaggableIssue           FlaggableType = "ISSUE"
+	FlaggableIssueComment    FlaggableType = "ISSUE_COMMENT"
+	FlaggablePetition        FlaggableType = "PETITION"
 	FlaggablePetitionComment FlaggableType = "PETITION_COMMENT"
-	FlaggableRepComment     FlaggableType = "REPRESENTATIVE_COMMENT"
-	FlaggableAnnouncement   FlaggableType = "ANNOUNCEMENT"
-	FlaggableProgressUpdate FlaggableType = "PROGRESS_UPDATE"
+	FlaggableRepComment      FlaggableType = "REPRESENTATIVE_COMMENT"
+	FlaggableAnnouncement    FlaggableType = "ANNOUNCEMENT"
+	FlaggableProgressUpdate  FlaggableType = "PROGRESS_UPDATE"
 )
 
 // ContentFlag is a citizen's report of content that violates the

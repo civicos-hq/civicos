@@ -348,14 +348,14 @@ func (s *Service) DeleteAccount(userID string, reason *string) error {
 
 // RefreshTokens performs rotation:
 //
-//	1. Look up the presented token by hash.
-//	2. If already-consumed → treat as replay: revoke the entire family and
-//	   reject. Both attacker and legitimate user must sign in again.
-//	3. If revoked or expired → reject.
-//	4. Otherwise atomically consume it and issue a new pair in the same
-//	   family. The atomic UPDATE is what guards against a legitimate
-//	   double-click race — one call wins, the other sees "not affected"
-//	   and gets the same INVALID_REFRESH_TOKEN error.
+//  1. Look up the presented token by hash.
+//  2. If already-consumed → treat as replay: revoke the entire family and
+//     reject. Both attacker and legitimate user must sign in again.
+//  3. If revoked or expired → reject.
+//  4. Otherwise atomically consume it and issue a new pair in the same
+//     family. The atomic UPDATE is what guards against a legitimate
+//     double-click race — one call wins, the other sees "not affected"
+//     and gets the same INVALID_REFRESH_TOKEN error.
 func (s *Service) RefreshTokens(rawRefresh string) (*TokenPair, error) {
 	if rawRefresh == "" {
 		return nil, errors.New("INVALID_REFRESH_TOKEN")

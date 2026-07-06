@@ -15,21 +15,21 @@ func NewRepository(db *gorm.DB) *Repository { return &Repository{db: db} }
 // table is small and every FK column is indexed. If usage grows past
 // six figures we swap this for a nightly materialized view.
 type Metrics struct {
-	Users        UsersMetrics        `json:"users"`
-	Communities  CountOnly           `json:"communities"`
-	Issues       IssueMetrics        `json:"issues"`
-	Petitions    PetitionMetrics     `json:"petitions"`
-	Representatives CountOnly        `json:"representatives"`
-	Organizations OrgMetrics         `json:"organizations"`
-	Moderation    ModerationMetrics  `json:"moderation"`
+	Users           UsersMetrics      `json:"users"`
+	Communities     CountOnly         `json:"communities"`
+	Issues          IssueMetrics      `json:"issues"`
+	Petitions       PetitionMetrics   `json:"petitions"`
+	Representatives CountOnly         `json:"representatives"`
+	Organizations   OrgMetrics        `json:"organizations"`
+	Moderation      ModerationMetrics `json:"moderation"`
 }
 
 type UsersMetrics struct {
-	Total            int64 `json:"total"`
-	NewToday         int64 `json:"newToday"`
-	NewThisWeek      int64 `json:"newThisWeek"`
-	VerifiedRate     int   `json:"verifiedRate"` // 0-100
-	BannedTotal      int64 `json:"bannedTotal"`
+	Total        int64 `json:"total"`
+	NewToday     int64 `json:"newToday"`
+	NewThisWeek  int64 `json:"newThisWeek"`
+	VerifiedRate int   `json:"verifiedRate"` // 0-100
+	BannedTotal  int64 `json:"bannedTotal"`
 }
 
 type CountOnly struct {
@@ -37,14 +37,14 @@ type CountOnly struct {
 }
 
 type IssueMetrics struct {
-	Total         int64            `json:"total"`
-	ByStatus      map[string]int64 `json:"byStatus"`
-	ResponseRate  int              `json:"responseRate"` // 0-100 — issues with ≥1 official response or org progress update
+	Total        int64            `json:"total"`
+	ByStatus     map[string]int64 `json:"byStatus"`
+	ResponseRate int              `json:"responseRate"` // 0-100 — issues with ≥1 official response or org progress update
 }
 
 type PetitionMetrics struct {
-	Total            int64 `json:"total"`
-	SignaturesTotal  int64 `json:"signaturesTotal"`
+	Total              int64 `json:"total"`
+	SignaturesTotal    int64 `json:"signaturesTotal"`
 	SignaturesThisWeek int64 `json:"signaturesThisWeek"`
 }
 
@@ -54,8 +54,8 @@ type OrgMetrics struct {
 }
 
 type ModerationMetrics struct {
-	PendingFlags   int64 `json:"pendingFlags"`
-	HiddenAllTime  int64 `json:"hiddenAllTime"`
+	PendingFlags    int64 `json:"pendingFlags"`
+	HiddenAllTime   int64 `json:"hiddenAllTime"`
 	AuditLogEntries int64 `json:"auditLogEntries"`
 }
 

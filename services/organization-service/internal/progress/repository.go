@@ -10,9 +10,9 @@ type Repository struct{ db *gorm.DB }
 func NewRepository(db *gorm.DB) *Repository { return &Repository{db: db} }
 
 type ListFilters struct {
-	OrgID     string
-	IssueID   string
-	ProjectID string
+	OrgID      string
+	IssueID    string
+	ProjectID  string
 	PublicOnly bool
 }
 

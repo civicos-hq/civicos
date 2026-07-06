@@ -33,7 +33,7 @@ const (
 	// has room to walk. For dataset sizes this app expects in the near term,
 	// in-memory filtering is fine — at real scale we'd push the tier filter
 	// into SQL using a community_id IN (...) clause.
-	flatScanLimit  = 1000
+	flatScanLimit   = 1000
 	defaultPageSize = 20
 	maxPageSize     = 50
 )
@@ -42,13 +42,13 @@ const (
 // with the resolving community summary attached so the UI doesn't need a
 // second roundtrip.
 type FeedItem struct {
-	Kind        string                 `json:"kind"` // "issue" | "petition"
-	Tier        Tier                   `json:"tier"`
-	CreatedAt   time.Time              `json:"createdAt"`
-	CommunityID string                 `json:"communityId"`
-	Community   *CommunitySummary      `json:"community,omitempty"`
-	Issue       *domain.Issue          `json:"issue,omitempty"`
-	Petition    *domain.Petition       `json:"petition,omitempty"`
+	Kind        string            `json:"kind"` // "issue" | "petition"
+	Tier        Tier              `json:"tier"`
+	CreatedAt   time.Time         `json:"createdAt"`
+	CommunityID string            `json:"communityId"`
+	Community   *CommunitySummary `json:"community,omitempty"`
+	Issue       *domain.Issue     `json:"issue,omitempty"`
+	Petition    *domain.Petition  `json:"petition,omitempty"`
 }
 
 type CommunitySummary struct {
@@ -112,12 +112,12 @@ type FeedResult struct {
 
 // Feed returns items ranked by proximity tier and recency.
 //
-// - When tierFilter is empty, the response is the curated grouped view: top
-//   results per tier up to totalLimit, no pagination cursor.
-// - When tierFilter is set, items are filtered to that tier and paginated via
-//   offset/limit, with NextOffset != nil when more items exist.
-// - kindFilter ("issue" | "petition" | "") narrows to a single entity kind.
-//   Skips fetching the other entity entirely so we don't waste a SQL round trip.
+//   - When tierFilter is empty, the response is the curated grouped view: top
+//     results per tier up to totalLimit, no pagination cursor.
+//   - When tierFilter is set, items are filtered to that tier and paginated via
+//     offset/limit, with NextOffset != nil when more items exist.
+//   - kindFilter ("issue" | "petition" | "") narrows to a single entity kind.
+//     Skips fetching the other entity entirely so we don't waste a SQL round trip.
 //
 // userCommunityID may be empty — in that case base is nil and every item
 // resolves to TierCountry.

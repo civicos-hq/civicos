@@ -149,7 +149,8 @@ ServiceReady:
 	// create auth token for the integration user — admin role so the test can
 	// create a community (gated by requireAdminRole), and emailVerified=true so
 	// the test can perform writes (gated by requireVerified).
-	userID := "integration-user"
+	// UUID form because created_by_id is a uuid column at the DB level.
+	userID := uuid.NewString()
 	type integrationClaims struct {
 		UserID        string `json:"sub"`
 		Role          string `json:"role"`

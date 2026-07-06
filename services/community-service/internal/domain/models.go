@@ -80,20 +80,20 @@ type Issue struct {
 }
 
 type IssueComment struct {
-	ID                 string    `gorm:"type:uuid;primaryKey" json:"id"`
-	Content            string    `gorm:"not null" json:"content"`
-	IssueID            string    `gorm:"type:uuid;not null;index" json:"issueId"`
-	AuthorID           string    `gorm:"type:uuid;not null" json:"authorId"`
-	AuthorName         string    `gorm:"not null" json:"authorName"`
-	AuthorRole         string    `gorm:"not null" json:"authorRole"`
-	IsOfficialResponse bool      `gorm:"default:false" json:"isOfficialResponse"`
+	ID                 string `gorm:"type:uuid;primaryKey" json:"id"`
+	Content            string `gorm:"not null" json:"content"`
+	IssueID            string `gorm:"type:uuid;not null;index" json:"issueId"`
+	AuthorID           string `gorm:"type:uuid;not null" json:"authorId"`
+	AuthorName         string `gorm:"not null" json:"authorName"`
+	AuthorRole         string `gorm:"not null" json:"authorRole"`
+	IsOfficialResponse bool   `gorm:"default:false" json:"isOfficialResponse"`
 	// IsHidden is computed at query time from content_flags — never stored.
 	// When true the repository has already replaced Content and AuthorName
 	// with placeholders so the citizen surface sees "[Removed by moderator]"
 	// instead of the raw content while the row remains in-place (preserves
 	// conversation flow and preserves the audit trail).
-	IsHidden           bool      `gorm:"-" json:"isHidden"`
-	CreatedAt          time.Time `json:"createdAt"`
+	IsHidden  bool      `gorm:"-" json:"isHidden"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 type RepresentativeComment struct {

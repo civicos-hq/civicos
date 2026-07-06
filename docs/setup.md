@@ -1,6 +1,7 @@
 # Getting Started
 
 ## Prerequisites
+
 - Node.js 20+
 - pnpm 9+ (`npm install -g pnpm`)
 - Docker Desktop
@@ -31,15 +32,15 @@ pnpm dev
 
 ## Running services
 
-| Service | URL | Description |
-|---------|-----|-------------|
-| Frontend (Vite) | http://localhost:5173 | React app |
-| API Gateway | http://localhost:3000 | Entry point for all API calls |
-| Identity Service | http://localhost:3001 | Auth, users |
-| Community Service | http://localhost:3002 | Communities, issues, petitions |
-| NATS Monitor | http://localhost:8222 | Messaging dashboard |
-| Prisma Studio (identity) | Run `pnpm --filter identity-service db:studio` | |
-| Prisma Studio (community) | Run `pnpm --filter community-service db:studio` | |
+| Service                   | URL                                             | Description                    |
+| ------------------------- | ----------------------------------------------- | ------------------------------ |
+| Frontend (Vite)           | http://localhost:5173                           | React app                      |
+| API Gateway               | http://localhost:3000                           | Entry point for all API calls  |
+| Identity Service          | http://localhost:3001                           | Auth, users                    |
+| Community Service         | http://localhost:3002                           | Communities, issues, petitions |
+| NATS Monitor              | http://localhost:8222                           | Messaging dashboard            |
+| Prisma Studio (identity)  | Run `pnpm --filter identity-service db:studio`  |                                |
+| Prisma Studio (community) | Run `pnpm --filter community-service db:studio` |                                |
 
 ## Commit conventions
 

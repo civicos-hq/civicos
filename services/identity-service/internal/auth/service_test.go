@@ -130,6 +130,35 @@ func (s *inMemoryUserStore) ResetPassword(userID, newPasswordHash string) error 
 	return nil
 }
 
+func (s *inMemoryUserStore) SoftDelete(userID string, reason *string) error {
+	user, ok := s.usersByID[userID]
+	if !ok {
+		return gorm.ErrRecordNotFound
+	}
+	// Anonymize by mirroring Repository.SoftDelete's semantics: email
+	// becomes an unmatchable placeholder so re-registration under the
+	// original address is unblocked, password hash is set to a value
+	// no bcrypt.CompareHashAndPassword call can accept, and every
+	// verification/reset token is invalidated.
+	now := time.Now().UTC()
+	delete(s.usersByEmail, user.Email)
+	user.Email = "deleted-" + userID + "@civicos.deleted"
+	user.Name = "[Deleted user]"
+	user.PasswordHash = "x"
+	user.AvatarURL = nil
+	user.CommunityID = nil
+	user.EmailVerificationTokenHash = nil
+	user.EmailVerificationExpiresAt = nil
+	user.PasswordResetTokenHash = nil
+	user.PasswordResetExpiresAt = nil
+	user.DeletedAt = &now
+	if reason != nil {
+		user.DeletionReason = reason
+	}
+	s.usersByEmail[user.Email] = user
+	return nil
+}
+
 // inMemoryRefreshStore lets rotation + replay tests run without Postgres.
 // Keyed by token hash — mirrors the real repo's uniqueIndex.
 type inMemoryRefreshStore struct {
@@ -172,6 +201,16 @@ func (s *inMemoryRefreshStore) Consume(id string, at time.Time) (int64, error) {
 func (s *inMemoryRefreshStore) RevokeFamily(familyID string, at time.Time) error {
 	for _, tok := range s.byID {
 		if tok.FamilyID == familyID && tok.RevokedAt == nil {
+			revoked := at
+			tok.RevokedAt = &revoked
+		}
+	}
+	return nil
+}
+
+func (s *inMemoryRefreshStore) RevokeAllForUser(userID string, at time.Time) error {
+	for _, tok := range s.byID {
+		if tok.UserID == userID && tok.RevokedAt == nil {
 			revoked := at
 			tok.RevokedAt = &revoked
 		}
