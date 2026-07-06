@@ -125,7 +125,7 @@ services:
       - key: APP_URL
         # The citizen web custom domain — used in the body of
         # verification emails.
-        value: https://civics.ng
+        value: https://civicos.ng
 
   # ── Community service ──────────────────────────────────────────────
   # Communities, issues, petitions, representatives, comments,
