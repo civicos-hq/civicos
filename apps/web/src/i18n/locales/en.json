@@ -168,6 +168,7 @@
     "upvotesCount_other": "upvotes",
     "upvote": "▲ Upvote",
     "upvoted": "✓ Upvoted",
+    "upvoteError": "Could not upvote this issue. Please try again.",
     "statusClosedNote": "This issue was closed without resolution.",
     "updateStatus": "Update status",
     "updateStatusError": "Could not update.",
@@ -1051,7 +1052,8 @@
       "bannerSub": "We sent a link to {{email}}. Until you click it, you can browse but not file, sign, or comment.",
       "bannerResend": "Resend email",
       "bannerDismiss": "Dismiss for now",
-      "bannerCompact": "Verify your email to file, sign, and comment."
+      "bannerCompact": "Verify your email to file, sign, and comment.",
+      "actionRequired": "Verify your email to upvote, sign petitions, and join the conversation. Check your inbox — or go to Profile to resend the verification email."
     }
   },
   "sidebar": {

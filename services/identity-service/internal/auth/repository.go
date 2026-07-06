@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/civicos/identity-service/internal/domain"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -60,6 +61,22 @@ func (r *Repository) CreateRegistration(
 		}
 		return nil
 	})
+}
+
+func (r *Repository) CreateNotification(userID, title, body string, linkURL *string) error {
+	row := map[string]any{
+		"id":         uuid.New().String(),
+		"type":       "SYSTEM",
+		"title":      title,
+		"body":       body,
+		"read":       false,
+		"user_id":    userID,
+		"created_at": time.Now().UTC(),
+	}
+	if linkURL != nil && *linkURL != "" {
+		row["link_url"] = *linkURL
+	}
+	return r.db.Table("notifications").Create(row).Error
 }
 
 func (r *Repository) UpdateCommunity(userID, communityID string) error {

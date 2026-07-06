@@ -1,10 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@civicos/ui';
 import { PetitionStatus, type ApiResponse, type Community, type Petition } from '@civicos/types';
-import { api } from '../lib/api';
+import { api, getApiError } from '../lib/api';
 import { CommentsSection } from '../components/civic/CommentsSection';
 import { ImageGallery } from '../components/ImageLightbox';
 import { ShareButton } from '../components/ShareButton';
@@ -51,6 +51,7 @@ export function PetitionDetailPage() {
   const communitiesQuery = useCommunities();
   const location = useLocation();
   const commentsRef = useRef<HTMLDivElement | null>(null);
+  const [signError, setSignError] = useState('');
 
   useEffect(() => {
     if (location.hash === '#comments' && commentsRef.current) {
@@ -60,11 +61,21 @@ export function PetitionDetailPage() {
 
   const signMutation = useMutation({
     mutationFn: async () => {
+      setSignError('');
       await api.post(`/api/v1/petitions/${id}/sign`);
     },
     onSuccess: () => {
+      setSignError('');
       queryClient.invalidateQueries({ queryKey: ['petition', id] });
       queryClient.invalidateQueries({ queryKey: ['petitions'] });
+    },
+    onError: (err) => {
+      const apiError = getApiError(err);
+      setSignError(
+        apiError?.code === 'EMAIL_NOT_VERIFIED'
+          ? t('auth.verify.actionRequired')
+          : t('petitionDetail.signError'),
+      );
     },
   });
 
@@ -194,9 +205,7 @@ export function PetitionDetailPage() {
             {t('petitionDetail.sign')}
           </Button>
         </div>
-        {signMutation.isError && (
-          <p className="mt-3 text-sm text-red-600">{t('petitionDetail.signError')}</p>
-        )}
+        {signError && <p className="mt-3 text-sm text-red-600">{signError}</p>}
       </article>
 
       <div id="comments" ref={commentsRef}>

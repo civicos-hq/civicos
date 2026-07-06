@@ -157,6 +157,7 @@
     "upvotesCount_other": "upvotes",
     "upvote": "▲ Upvote",
     "upvoted": "✓ You don upvote",
+    "upvoteError": "We no fit upvote this issue. Try again.",
     "statusClosedNote": "Dem close this issue without resolve am.",
     "updateStatus": "Update status",
     "updateStatusError": "We no fit update."
@@ -751,7 +752,8 @@
       "bannerSub": "We send link go {{email}}. Until you click am, you fit browse but you no fit file, sign, or comment.",
       "bannerResend": "Resend email",
       "bannerDismiss": "Hide for now",
-      "bannerCompact": "Verify your email to file, sign, and comment."
+      "bannerCompact": "Verify your email to file, sign, and comment.",
+      "actionRequired": "Verify your email before you fit upvote, sign petition, or join discussion. Check your inbox — or go Profile make you resend the verification email."
     }
   },
   "sidebar": {

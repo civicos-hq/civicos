@@ -33,6 +33,7 @@ type UserStore interface {
 	FindByEmail(email string) (*domain.User, error)
 	FindByID(id string) (*domain.User, error)
 	CreateRegistration(user *domain.User, repApp *domain.RepresentativeApplication, orgApp *domain.OrganizationApplication) error
+	CreateNotification(userID, title, body string, linkURL *string) error
 	UpdateCommunity(userID, communityID string) error
 	UpdateProfile(userID, name, email string) error
 	SetVerificationToken(userID, tokenHash string, expiresAt time.Time) error
@@ -165,6 +166,13 @@ func (s *Service) Register(input RegisterInput) (*domain.PublicUser, *TokenPair,
 	if err := s.repo.CreateRegistration(user, repApp, orgApp); err != nil {
 		return nil, nil, err
 	}
+	if requestedType != domain.AccountTypeCitizen {
+		link := "/profile"
+		title, body := applicationSubmissionCopy(requestedType)
+		if err := s.repo.CreateNotification(user.ID, title, body, &link); err != nil {
+			log.Printf("[auth.Register] approval notification failed for user=%s: %v", user.ID, err)
+		}
+	}
 
 	// Fire-and-log verification email. A mailer failure does not roll back the
 	// registration — the user can hit "Resend" from the dashboard banner.
@@ -285,6 +293,17 @@ func buildRegistrationApplications(
 		}
 	}
 	return nil, nil
+}
+
+func applicationSubmissionCopy(requestedType domain.RequestedAccountType) (string, string) {
+	switch requestedType {
+	case domain.AccountTypeRepresentative:
+		return "Representative request submitted", "Your representative application is pending admin review."
+	case domain.AccountTypeOrganization:
+		return "Organization request submitted", "Your organization registration is pending admin review."
+	default:
+		return "Application submitted", "Your request is pending admin review."
+	}
 }
 
 // VerifyEmail finds the user with this token hash, checks expiry, and flips

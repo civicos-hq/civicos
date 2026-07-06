@@ -59,6 +59,10 @@ func (s *inMemoryUserStore) CreateRegistration(
 	return nil
 }
 
+func (s *inMemoryUserStore) CreateNotification(userID, title, body string, linkURL *string) error {
+	return nil
+}
+
 func (s *inMemoryUserStore) UpdateCommunity(userID, communityID string) error {
 	if user, ok := s.usersByID[userID]; ok {
 		user.CommunityID = &communityID

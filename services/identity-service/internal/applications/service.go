@@ -2,6 +2,7 @@ package applications
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"regexp"
 	"sort"
@@ -23,6 +24,9 @@ type Store interface {
 	ListOrganizationApplications(f ListFilters) ([]domain.OrganizationApplication, int64, error)
 	UpsertRepresentativeApplication(userID string, app *domain.RepresentativeApplication) error
 	UpsertOrganizationApplication(userID string, app *domain.OrganizationApplication) error
+	CreateNotification(userID, title, body string, linkURL *string) error
+	ApproveRepresentativeApplication(id, reviewerID string, note *string, reviewedAt time.Time) (*domain.RepresentativeApplication, error)
+	ApproveOrganizationApplication(id, reviewerID string, note *string, reviewedAt time.Time, userRole domain.UserRole) (*domain.OrganizationApplication, error)
 	ReviewRepresentativeApplication(id, reviewerID string, status domain.ApprovalStatus, note *string, reviewedAt time.Time) error
 	ReviewOrganizationApplication(id, reviewerID string, status domain.ApprovalStatus, note *string, reviewedAt time.Time) error
 }
@@ -184,6 +188,10 @@ func (s *Service) UpsertRepresentative(userID string, input RepresentativeApplic
 	if err := s.repo.UpsertRepresentativeApplication(userID, app); err != nil {
 		return nil, err
 	}
+	link := "/profile"
+	if err := s.repo.CreateNotification(userID, "Representative request updated", "Your representative application is pending admin review.", &link); err != nil {
+		log.Printf("[applications.UpsertRepresentative] notification failed for user=%s: %v", userID, err)
+	}
 	return s.repo.FindRepresentativeByUserID(userID)
 }
 
@@ -226,6 +234,10 @@ func (s *Service) UpsertOrganization(userID string, input OrganizationApplicatio
 	}
 	if err := s.repo.UpsertOrganizationApplication(userID, app); err != nil {
 		return nil, err
+	}
+	link := "/profile"
+	if err := s.repo.CreateNotification(userID, "Organization request updated", "Your organization application is pending admin review.", &link); err != nil {
+		log.Printf("[applications.UpsertOrganization] notification failed for user=%s: %v", userID, err)
 	}
 	return s.repo.FindOrganizationByUserID(userID)
 }
@@ -327,21 +339,86 @@ func (s *Service) Review(kind, id, reviewerID string, input ReviewInput) (*Admin
 
 	switch normalizeKind(kind) {
 	case domain.AccountTypeRepresentative:
+		existing, err := s.repo.FindRepresentativeByID(id)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, &AppError{Code: "APPLICATION_NOT_FOUND", Message: "Application not found", Status: http.StatusNotFound}
+			}
+			return nil, err
+		}
+		if existing.Status == domain.ApprovalStatusApproved {
+			return nil, &AppError{Code: "APPLICATION_ALREADY_APPROVED", Message: "This application is already approved", Status: http.StatusConflict}
+		}
+		if status == domain.ApprovalStatusApproved {
+			if _, err := s.repo.ApproveRepresentativeApplication(id, reviewerID, input.Note, now); err != nil {
+				return nil, err
+			}
+			detail, err := s.GetAdmin(kind, id)
+			if err != nil {
+				return nil, err
+			}
+			link := "/profile"
+			if err := s.repo.CreateNotification(detail.Applicant.ID, "Representative request approved", "Your representative account has been approved.", &link); err != nil {
+				log.Printf("[applications.Review] representative approval notification failed for user=%s: %v", detail.Applicant.ID, err)
+			}
+			return detail, nil
+		}
 		if err := s.repo.ReviewRepresentativeApplication(id, reviewerID, status, input.Note, now); err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return nil, &AppError{Code: "APPLICATION_NOT_FOUND", Message: "Application not found", Status: http.StatusNotFound}
 			}
 			return nil, err
 		}
-		return s.GetAdmin(kind, id)
+		detail, err := s.GetAdmin(kind, id)
+		if err != nil {
+			return nil, err
+		}
+		link := "/profile"
+		if err := s.repo.CreateNotification(detail.Applicant.ID, "Representative request needs changes", "Your representative application was reviewed and needs changes before approval.", &link); err != nil {
+			log.Printf("[applications.Review] representative rejection notification failed for user=%s: %v", detail.Applicant.ID, err)
+		}
+		return detail, nil
 	case domain.AccountTypeOrganization:
+		existing, err := s.repo.FindOrganizationByID(id)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, &AppError{Code: "APPLICATION_NOT_FOUND", Message: "Application not found", Status: http.StatusNotFound}
+			}
+			return nil, err
+		}
+		if existing.Status == domain.ApprovalStatusApproved {
+			return nil, &AppError{Code: "APPLICATION_ALREADY_APPROVED", Message: "This application is already approved", Status: http.StatusConflict}
+		}
+		if status == domain.ApprovalStatusApproved {
+			role := organizationRoleForKind(existing.Kind)
+			if _, err := s.repo.ApproveOrganizationApplication(id, reviewerID, input.Note, now, role); err != nil {
+				return nil, err
+			}
+			detail, err := s.GetAdmin(kind, id)
+			if err != nil {
+				return nil, err
+			}
+			link := "/profile"
+			if err := s.repo.CreateNotification(detail.Applicant.ID, "Organization request approved", "Your organization account has been approved.", &link); err != nil {
+				log.Printf("[applications.Review] organization approval notification failed for user=%s: %v", detail.Applicant.ID, err)
+			}
+			return detail, nil
+		}
 		if err := s.repo.ReviewOrganizationApplication(id, reviewerID, status, input.Note, now); err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return nil, &AppError{Code: "APPLICATION_NOT_FOUND", Message: "Application not found", Status: http.StatusNotFound}
 			}
 			return nil, err
 		}
-		return s.GetAdmin(kind, id)
+		detail, err := s.GetAdmin(kind, id)
+		if err != nil {
+			return nil, err
+		}
+		link := "/profile"
+		if err := s.repo.CreateNotification(detail.Applicant.ID, "Organization request needs changes", "Your organization application was reviewed and needs changes before approval.", &link); err != nil {
+			log.Printf("[applications.Review] organization rejection notification failed for user=%s: %v", detail.Applicant.ID, err)
+		}
+		return detail, nil
 	default:
 		return nil, &AppError{Code: "INVALID_APPLICATION_KIND", Message: "Unknown application kind", Status: http.StatusBadRequest}
 	}
@@ -451,4 +528,11 @@ func normalizeKind(raw string) domain.RequestedAccountType {
 	default:
 		return ""
 	}
+}
+
+func organizationRoleForKind(kind string) domain.UserRole {
+	if strings.ToUpper(strings.TrimSpace(kind)) == "NGO" {
+		return domain.RoleNGO
+	}
+	return domain.RoleGovernmentAdmin
 }
