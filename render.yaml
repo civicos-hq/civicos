@@ -18,7 +18,7 @@ databases:
   - name: civicos-postgres
     databaseName: civicos
     user: civicos
-    plan: basic-256mb
+    plan: free # 90-day free trial then auto-suspends; upgrade to basic-256mb before then
     postgresMajorVersion: '16'
     ipAllowList: [] # empty = private; only Render services can connect
 
@@ -55,7 +55,7 @@ services:
   - type: web
     name: civicos-gateway
     runtime: docker
-    plan: starter
+    plan: free
     branch: main
     dockerfilePath: ./services/api-gateway/Dockerfile
     dockerContext: ./services/api-gateway
@@ -89,7 +89,7 @@ services:
   - type: pserv
     name: civicos-identity
     runtime: docker
-    plan: starter
+    plan: free
     branch: main
     dockerfilePath: ./services/identity-service/Dockerfile
     dockerContext: ./services/identity-service
@@ -109,19 +109,21 @@ services:
 
   # ── Community service (private) ────────────────────────────────────
   # Communities, issues, petitions, representatives, comments,
-  # notifications, content flags. Requires a persistent disk for the
-  # uploads directory where citizen-submitted issue photos land.
+  # notifications, content flags.
+  # NOTE: persistent disk removed for free-tier deploy — uploads will
+  # not survive service restarts. Re-add the `disk:` block before
+  # taking real citizen traffic:
+  #     disk:
+  #       name: uploads
+  #       mountPath: /data
+  #       sizeGB: 10
   - type: pserv
     name: civicos-community
     runtime: docker
-    plan: starter
+    plan: free
     branch: main
     dockerfilePath: ./services/community-service/Dockerfile
     dockerContext: ./services/community-service
-    disk:
-      name: uploads
-      mountPath: /data
-      sizeGB: 10
     envVars:
       - fromGroup: civicos-secrets
       - key: DATABASE_URL
@@ -135,7 +137,7 @@ services:
   - type: pserv
     name: civicos-organization
     runtime: docker
-    plan: starter
+    plan: free
     branch: main
     dockerfilePath: ./services/organization-service/Dockerfile
     dockerContext: ./services/organization-service
