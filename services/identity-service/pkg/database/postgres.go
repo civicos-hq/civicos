@@ -26,6 +26,8 @@ func Connect(dsn string) *gorm.DB {
 		&domain.RefreshToken{},
 		&domain.AuditLog{},
 		&domain.ContentFlag{},
+		&domain.RepresentativeApplication{},
+		&domain.OrganizationApplication{},
 	); err != nil {
 		log.Fatalf("❌ failed to run migrations: %v", err)
 	}

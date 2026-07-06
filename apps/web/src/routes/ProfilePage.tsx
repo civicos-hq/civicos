@@ -133,6 +133,8 @@ export function ProfilePage() {
         </Button>
       </section>
 
+      <ApprovalSection user={me} />
+
       <DangerZone />
     </section>
   );
@@ -241,6 +243,39 @@ function Field({ label, value }: { label: string; value: string }) {
       <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600">{label}</dt>
       <dd className="mt-1 text-sm text-slate-900">{value}</dd>
     </div>
+  );
+}
+
+function ApprovalSection({ user }: { user: User }) {
+  const { t } = useTranslation();
+  const enums = useEnumLabels();
+
+  if (user.requestedAccountType === 'CITIZEN' && user.approvalStatus === 'NONE') {
+    return null;
+  }
+
+  return (
+    <section className="rounded-2xl border border-amber-200 bg-amber-50/60 p-6 shadow-sm">
+      <h2 className="text-lg font-semibold text-amber-950">{t('profilePage.approval.heading')}</h2>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <Field
+          label={t('profilePage.approval.requestedType')}
+          value={enums.requestedAccountType(user.requestedAccountType)}
+        />
+        <Field
+          label={t('profilePage.approval.status')}
+          value={enums.approvalStatus(user.approvalStatus)}
+        />
+      </div>
+      <p className="mt-3 text-sm text-amber-900">
+        {t(`profilePage.approval.messages.${user.approvalStatus}`)}
+      </p>
+      {user.approvalNote && (
+        <p className="mt-2 text-sm text-amber-900">
+          <strong>{t('profilePage.approval.reviewNote')}:</strong> {user.approvalNote}
+        </p>
+      )}
+    </section>
   );
 }
 

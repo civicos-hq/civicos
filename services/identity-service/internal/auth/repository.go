@@ -39,6 +39,29 @@ func (r *Repository) Create(user *domain.User) error {
 	return r.db.Create(user).Error
 }
 
+func (r *Repository) CreateRegistration(
+	user *domain.User,
+	repApp *domain.RepresentativeApplication,
+	orgApp *domain.OrganizationApplication,
+) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(user).Error; err != nil {
+			return err
+		}
+		if repApp != nil {
+			if err := tx.Create(repApp).Error; err != nil {
+				return err
+			}
+		}
+		if orgApp != nil {
+			if err := tx.Create(orgApp).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+}
+
 func (r *Repository) UpdateCommunity(userID, communityID string) error {
 	return r.db.Model(&domain.User{}).Where("id = ?", userID).Update("community_id", communityID).Error
 }

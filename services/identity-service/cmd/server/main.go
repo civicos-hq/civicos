@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/civicos/identity-service/internal/adminmetrics"
+	"github.com/civicos/identity-service/internal/applications"
 	"github.com/civicos/identity-service/internal/audit"
 	"github.com/civicos/identity-service/internal/auditlogs"
 	"github.com/civicos/identity-service/internal/auth"
@@ -55,6 +56,10 @@ func main() {
 	metricsRepo := adminmetrics.NewRepository(db)
 	metricsHandler := adminmetrics.NewHandler(metricsRepo)
 
+	applicationRepo := applications.NewRepository(db)
+	applicationSvc := applications.NewService(applicationRepo)
+	applicationHandler := applications.NewHandler(applicationSvc)
+
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
@@ -76,6 +81,7 @@ func main() {
 	authHandler.RegisterRoutes(authGroup, authMiddleware)
 
 	v1 := r.Group("/v1")
+	applicationHandler.RegisterRoutes(v1.Group("/applications"), authMiddleware)
 	flagHandler.RegisterRoutes(v1.Group("/flags"), authMiddleware, requireVerified, requireAdmin)
 	auditHandler.RegisterRoutes(v1.Group("/audit-logs"), authMiddleware, requireAdmin)
 	userHandler.RegisterRoutes(v1.Group("/users"), authMiddleware, requireAdmin)

@@ -41,8 +41,24 @@ func (h *Handler) register(c *gin.Context) {
 
 	user, tokens, err := h.service.Register(input)
 	if err != nil {
-		if err.Error() == "EMAIL_ALREADY_IN_USE" {
+		switch err.Error() {
+		case "EMAIL_ALREADY_IN_USE":
 			response.Error(c, http.StatusConflict, "EMAIL_ALREADY_IN_USE", "This email is already registered")
+			return
+		case "INVALID_REQUESTED_ACCOUNT_TYPE":
+			response.Error(c, http.StatusBadRequest, "INVALID_REQUESTED_ACCOUNT_TYPE", "Choose citizen, representative, or organization")
+			return
+		case "REPRESENTATIVE_APPLICATION_REQUIRED":
+			response.Error(c, http.StatusBadRequest, "REPRESENTATIVE_APPLICATION_REQUIRED", "Representative signup requires application details")
+			return
+		case "ORGANIZATION_APPLICATION_REQUIRED":
+			response.Error(c, http.StatusBadRequest, "ORGANIZATION_APPLICATION_REQUIRED", "Organization signup requires application details")
+			return
+		case "STATE_REQUIRED":
+			response.Error(c, http.StatusBadRequest, "STATE_REQUIRED", "This organization jurisdiction requires a state")
+			return
+		case "LGA_REQUIRED":
+			response.Error(c, http.StatusBadRequest, "LGA_REQUIRED", "This organization jurisdiction requires an LGA")
 			return
 		}
 		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Registration failed")

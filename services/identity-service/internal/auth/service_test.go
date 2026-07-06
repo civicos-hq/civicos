@@ -14,12 +14,16 @@ import (
 type inMemoryUserStore struct {
 	usersByID    map[string]*domain.User
 	usersByEmail map[string]*domain.User
+	repApps      map[string]*domain.RepresentativeApplication
+	orgApps      map[string]*domain.OrganizationApplication
 }
 
 func newInMemoryUserStore() *inMemoryUserStore {
 	return &inMemoryUserStore{
 		usersByID:    make(map[string]*domain.User),
 		usersByEmail: make(map[string]*domain.User),
+		repApps:      make(map[string]*domain.RepresentativeApplication),
+		orgApps:      make(map[string]*domain.OrganizationApplication),
 	}
 }
 
@@ -39,9 +43,19 @@ func (s *inMemoryUserStore) FindByID(id string) (*domain.User, error) {
 	return user, nil
 }
 
-func (s *inMemoryUserStore) Create(user *domain.User) error {
+func (s *inMemoryUserStore) CreateRegistration(
+	user *domain.User,
+	repApp *domain.RepresentativeApplication,
+	orgApp *domain.OrganizationApplication,
+) error {
 	s.usersByID[user.ID] = user
 	s.usersByEmail[user.Email] = user
+	if repApp != nil {
+		s.repApps[user.ID] = repApp
+	}
+	if orgApp != nil {
+		s.orgApps[user.ID] = orgApp
+	}
 	return nil
 }
 
@@ -271,6 +285,76 @@ func TestRegisterAndLoginFlow(t *testing.T) {
 	}
 }
 
+func TestRepresentativeRegistrationCreatesPendingApplication(t *testing.T) {
+	cfg := &config.Config{JWTSecret: "12345678901234567890123456789012", AppURL: "http://localhost:5173"}
+	repo := newInMemoryUserStore()
+	svc := NewService(repo, newInMemoryRefreshStore(), cfg, &captureMailer{})
+
+	user, _, err := svc.Register(RegisterInput{
+		Name:                 "Amina Yusuf",
+		Email:                "amina@example.com",
+		Password:             "password123",
+		RequestedAccountType: "REPRESENTATIVE",
+		Representative: &RepresentativeApplicationRegisterInput{
+			FullName:     "Amina Yusuf",
+			Title:        "Hon.",
+			Position:     "Councillor",
+			Constituency: "Ikeja Ward A",
+			CommunityID:  "2d0fbf5e-6ccc-4f08-8395-d6cdbfb9b610",
+		},
+	})
+	if err != nil {
+		t.Fatalf("register representative: %v", err)
+	}
+	if user.Role != domain.RoleCitizen {
+		t.Fatalf("expected applicant to remain citizen until approval, got %s", user.Role)
+	}
+	if user.RequestedAccountType != domain.AccountTypeRepresentative {
+		t.Fatalf("expected requested account type representative, got %s", user.RequestedAccountType)
+	}
+	if user.ApprovalStatus != domain.ApprovalStatusPending {
+		t.Fatalf("expected pending approval, got %s", user.ApprovalStatus)
+	}
+	if repo.repApps[user.ID] == nil {
+		t.Fatalf("expected representative application to be persisted")
+	}
+}
+
+func TestOrganizationRegistrationCreatesPendingApplication(t *testing.T) {
+	cfg := &config.Config{JWTSecret: "12345678901234567890123456789012", AppURL: "http://localhost:5173"}
+	repo := newInMemoryUserStore()
+	svc := NewService(repo, newInMemoryRefreshStore(), cfg, &captureMailer{})
+
+	user, _, err := svc.Register(RegisterInput{
+		Name:                 "Tunde Adeyemi",
+		Email:                "tunde@example.com",
+		Password:             "password123",
+		RequestedAccountType: "ORGANIZATION",
+		Organization: &OrganizationApplicationRegisterInput{
+			Name:         "Clean Lagos Initiative",
+			Slug:         "clean-lagos-initiative",
+			Kind:         "NGO",
+			Jurisdiction: "STATE",
+			State:        stringPtr("Lagos"),
+		},
+	})
+	if err != nil {
+		t.Fatalf("register organization: %v", err)
+	}
+	if user.Role != domain.RoleCitizen {
+		t.Fatalf("expected applicant to remain citizen until approval, got %s", user.Role)
+	}
+	if user.RequestedAccountType != domain.AccountTypeOrganization {
+		t.Fatalf("expected requested account type organization, got %s", user.RequestedAccountType)
+	}
+	if user.ApprovalStatus != domain.ApprovalStatusPending {
+		t.Fatalf("expected pending approval, got %s", user.ApprovalStatus)
+	}
+	if repo.orgApps[user.ID] == nil {
+		t.Fatalf("expected organization application to be persisted")
+	}
+}
+
 func TestVerifyEmailFlow(t *testing.T) {
 	cfg := &config.Config{JWTSecret: "12345678901234567890123456789012", AppURL: "http://localhost:5173"}
 	repo := newInMemoryUserStore()
@@ -456,3 +540,5 @@ func extractToken(t *testing.T, mailText string) string {
 	}
 	return tail[:end]
 }
+
+func stringPtr(v string) *string { return &v }

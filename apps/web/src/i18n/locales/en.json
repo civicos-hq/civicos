@@ -82,6 +82,17 @@
       "MODERATOR": "Moderator",
       "PLATFORM_ADMIN": "Platform admin"
     },
+    "requestedAccountType": {
+      "CITIZEN": "Citizen",
+      "REPRESENTATIVE": "Representative",
+      "ORGANIZATION": "Organization"
+    },
+    "approvalStatus": {
+      "NONE": "No approval needed",
+      "PENDING": "Pending admin review",
+      "APPROVED": "Approved",
+      "REJECTED": "Needs resubmission"
+    },
     "notificationType": {
       "ISSUE_UPDATE": "Issue update",
       "PETITION_UPDATE": "Petition update",
@@ -485,6 +496,18 @@
       "sub": "Sign out of CivicOS on this device.",
       "signOut": "Sign out"
     },
+    "approval": {
+      "heading": "Approval status",
+      "requestedType": "Requested account type",
+      "status": "Status",
+      "reviewNote": "Admin note",
+      "messages": {
+        "NONE": "This account does not require admin approval.",
+        "PENDING": "Your request is waiting for admin review. You can still use CivicOS as a regular account while you wait.",
+        "APPROVED": "Your approval request has been accepted and your elevated access is active.",
+        "REJECTED": "Your request needs changes before it can be approved. Review any admin note and resubmit when ready."
+      }
+    },
     "delete": {
       "heading": "Delete account",
       "sub": "This closes your CivicOS account permanently. Once complete, you cannot recover it.",
@@ -852,7 +875,7 @@
     "register": {
       "eyebrow": "CivicOS Registration",
       "title": "Build your citizen profile.",
-      "description": "Join your local community space, report issues faster, and shape public decisions between elections.",
+      "description": "Join as a citizen, representative, or organization and take part in public life on the record.",
       "cardTitle": "Create account",
       "cardSubtitle": "It takes less than a minute to get started.",
       "submit": "Create account",
@@ -862,7 +885,91 @@
       "emailInUseSignIn": "Sign in instead",
       "emailInUseForgot": "or reset your password",
       "footerHave": "Already have an account?",
-      "footerSignIn": "Sign in"
+      "footerSignIn": "Sign in",
+      "accountType": {
+        "legend": "How are you joining CivicOS?",
+        "options": {
+          "CITIZEN": {
+            "label": "Citizen",
+            "hint": "Start participating right away."
+          },
+          "REPRESENTATIVE": {
+            "label": "Representative",
+            "hint": "Create an account and request approval from the admin team."
+          },
+          "ORGANIZATION": {
+            "label": "Organization",
+            "hint": "Register your institution and submit it for approval."
+          }
+        }
+      },
+      "representative": {
+        "title": "Representative application",
+        "sub": "Tell us the office you hold. Your request will stay pending until an admin reviews it.",
+        "loadingCommunities": "Loading communities…",
+        "contactTitle": "Public contact",
+        "fields": {
+          "title": "Title",
+          "position": "Position",
+          "positionPlaceholder": "e.g. Senator",
+          "constituency": "Constituency",
+          "constituencyPlaceholder": "e.g. Lagos Central Senatorial District",
+          "community": "Linked community",
+          "communityPlaceholder": "Select a community…",
+          "party": "Party (optional)",
+          "partyPlaceholder": "e.g. LP, APC, PDP",
+          "bio": "Short bio (optional)",
+          "bioPlaceholder": "What should citizens know about your role?",
+          "officialEmail": "Official email (optional)",
+          "officialEmailPlaceholder": "office@example.gov.ng",
+          "officialPhone": "Official phone (optional)",
+          "officialPhonePlaceholder": "+234 800 000 0000",
+          "website": "Website (optional)",
+          "websitePlaceholder": "https://representative.example.org",
+          "proofUrls": "Proof links (optional)",
+          "proofUrlsPlaceholder": "Paste links separated by commas"
+        }
+      },
+      "organization": {
+        "title": "Organization application",
+        "sub": "Add the organization details that the admin team should verify before approval.",
+        "contactTitle": "Public contact",
+        "fields": {
+          "name": "Organization name",
+          "namePlaceholder": "Lagos State Waste Management Authority",
+          "slug": "Slug",
+          "slugPlaceholder": "lagos-state-waste-management-authority",
+          "kind": "Kind",
+          "jurisdiction": "Jurisdiction",
+          "state": "State",
+          "statePlaceholder": "Select a state…",
+          "lga": "LGA",
+          "lgaPlaceholder": "Select an LGA…",
+          "description": "Description (optional)",
+          "descriptionPlaceholder": "What does this organization do?",
+          "officialEmail": "Official email (optional)",
+          "officialEmailPlaceholder": "info@example.gov.ng",
+          "officialPhone": "Official phone (optional)",
+          "officialPhonePlaceholder": "+234 800 000 0000",
+          "website": "Website (optional)",
+          "websitePlaceholder": "https://organization.example.org",
+          "proofUrls": "Proof links (optional)",
+          "proofUrlsPlaceholder": "Paste links separated by commas"
+        },
+        "kinds": {
+          "GOVERNMENT": "Government",
+          "AGENCY": "Agency",
+          "NGO": "NGO",
+          "UTILITY": "Utility",
+          "OTHER": "Other"
+        },
+        "jurisdictions": {
+          "NATIONAL": "National",
+          "STATE": "State",
+          "LGA": "LGA",
+          "COMMUNITY": "Community"
+        }
+      }
     },
     "onboarding": {
       "eyebrow": "Find your community",
@@ -926,6 +1033,7 @@
       "sentTitle": "Check your inbox.",
       "sentSub": "We sent a verification link to {{email}}. Click it to confirm your account — the link is good for 24 hours.",
       "sentTip": "Don't see it? Check spam, or use the button below to resend.",
+      "pendingApproval": "Once your email is verified, your representative or organization request will wait for admin approval before elevated access is granted.",
       "resend": "Resend verification email",
       "resending": "Resending…",
       "resent": "Sent. Give it a minute.",
