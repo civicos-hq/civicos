@@ -1,13 +1,28 @@
-FROM golang:1.22-alpine AS builder
-WORKDIR /app
-COPY go.mod go.sum ./
-RUN go mod download
-COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -o organization-service ./cmd/server
+# syntax=docker/dockerfile:1.7
 
-FROM alpine:3.20 AS runner
-RUN apk --no-cache add ca-certificates tzdata
-WORKDIR /app
-COPY --from=builder /app/organization-service .
+# ── Build stage ──────────────────────────────────────────────────────
+FROM golang:1.22-alpine AS builder
+
+WORKDIR /src
+
+COPY go.mod go.sum ./
+RUN go mod download -x
+
+COPY . .
+
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+    go build \
+      -trimpath \
+      -ldflags="-s -w" \
+      -o /out/service \
+      ./cmd/server
+
+# ── Runtime stage ────────────────────────────────────────────────────
+FROM gcr.io/distroless/static-debian12:nonroot AS runtime
+
+COPY --from=builder /out/service /usr/local/bin/service
+
 EXPOSE 3003
-CMD ["./organization-service"]
+
+USER nonroot:nonroot
+ENTRYPOINT ["/usr/local/bin/service"]

@@ -1,6 +1,16 @@
 import axios, { type AxiosRequestConfig } from 'axios';
 
-const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:3000';
+// VITE_API_URL is shared with the citizen app. When Render's Blueprint
+// injects it via `fromService: property: host`, the value is a bare
+// hostname like "civicos-gateway.onrender.com" — prepend https:// so
+// axios treats it as a real URL. Local dev keeps the http://localhost
+// default.
+function resolveApiBase(): string {
+  const raw = (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:3000';
+  if (raw.startsWith('http://') || raw.startsWith('https://')) return raw;
+  return `https://${raw}`;
+}
+const API_BASE = resolveApiBase();
 
 export const api = axios.create({
   baseURL: API_BASE,

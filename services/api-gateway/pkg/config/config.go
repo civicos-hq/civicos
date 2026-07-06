@@ -3,7 +3,21 @@ package config
 import (
 	"log"
 	"os"
+	"strings"
 )
+
+// ensureScheme prepends "http://" when the URL is a bare host:port form —
+// Render's Blueprint sets service URLs via the `hostport` property, which
+// yields values like "civicos-identity:12345" without a scheme.
+func ensureScheme(u string) string {
+	if u == "" {
+		return u
+	}
+	if strings.HasPrefix(u, "http://") || strings.HasPrefix(u, "https://") {
+		return u
+	}
+	return "http://" + u
+}
 
 type Config struct {
 	Port                   string
@@ -38,7 +52,13 @@ func Load() *Config {
 		organizationURL = "http://localhost:3003"
 	}
 
-	port := os.Getenv("API_GATEWAY_PORT")
+	// PORT wins if set — this is the env var PaaS providers like Render,
+	// Fly, and Heroku dictate. Falls back to the service-specific var for
+	// local dev, then to a hardcoded default.
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = os.Getenv("API_GATEWAY_PORT")
+	}
 	if port == "" {
 		port = "3000"
 	}
@@ -46,9 +66,9 @@ func Load() *Config {
 	return &Config{
 		Port:                   port,
 		JWTSecret:              secret,
-		IdentityServiceURL:     identityURL,
-		CommunityServiceURL:    communityURL,
-		OrganizationServiceURL: organizationURL,
+		IdentityServiceURL:     ensureScheme(identityURL),
+		CommunityServiceURL:    ensureScheme(communityURL),
+		OrganizationServiceURL: ensureScheme(organizationURL),
 		RedisURL:               os.Getenv("REDIS_URL"),
 	}
 }

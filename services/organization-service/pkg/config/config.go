@@ -16,7 +16,9 @@ type Config struct {
 func Load() *Config {
 	_ = godotenv.Load()
 	cfg := &Config{
-		Port:        getStr("ORGANIZATION_SERVICE_PORT", "3003"),
+		// PORT wins when set — PaaS providers like Render dictate it.
+		// Falls back to ORGANIZATION_SERVICE_PORT for local dev.
+		Port:        getStr("PORT", getStr("ORGANIZATION_SERVICE_PORT", "3003")),
 		DatabaseURL: require("DATABASE_URL"),
 		JWTSecret:   require("JWT_SECRET"),
 	}

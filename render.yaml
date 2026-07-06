@@ -1,0 +1,195 @@
+# CivicOS deployment blueprint — Render Infrastructure-as-Code
+# Docs: https://render.com/docs/blueprint-spec
+#
+# What this provisions when applied:
+#   • 1 managed PostgreSQL 16 database
+#   • 1 managed Redis (Render "Key Value") — rate limits + SSE fan-out
+#   • 1 public web service (api-gateway) — only backend on the internet
+#   • 3 private services (identity, community, organization) — reachable
+#     only from other services in this environment
+#   • 2 static sites (citizen web, admin console)
+#
+# On first `render blueprint launch`, Render creates all resources and
+# wires the connectionStrings + service URLs automatically via the
+# `fromDatabase` / `fromService` references below. Subsequent pushes to
+# `main` auto-deploy each changed service.
+
+databases:
+  - name: civicos-postgres
+    databaseName: civicos
+    user: civicos
+    plan: basic-256mb
+    postgresMajorVersion: '16'
+    ipAllowList: [] # empty = private; only Render services can connect
+
+envVarGroups:
+  # Shared secrets referenced by every backend service via `fromGroup`.
+  # SMTP fields ship blank — set them in the Render dashboard once you've
+  # signed up for Resend / Postmark / Amazon SES and picked your sender.
+  - name: civicos-secrets
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true # Render mints a 32-byte random on first apply
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: '587'
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM
+        value: 'CivicOS <no-reply@civicos.example>'
+
+services:
+  # ── Managed Redis (Render "Key Value") ─────────────────────────────
+  - type: keyvalue
+    name: civicos-redis
+    plan: free
+    ipAllowList: []
+    maxmemoryPolicy: allkeys-lru
+
+  # ── Public API gateway ─────────────────────────────────────────────
+  # The only backend service exposed to the internet. Every citizen and
+  # admin request lands here first. Auto-deploys on push to main.
+  - type: web
+    name: civicos-gateway
+    runtime: docker
+    plan: starter
+    branch: main
+    dockerfilePath: ./services/api-gateway/Dockerfile
+    dockerContext: ./services/api-gateway
+    healthCheckPath: /health
+    envVars:
+      - fromGroup: civicos-secrets
+      - key: IDENTITY_SERVICE_URL
+        fromService:
+          type: pserv
+          name: civicos-identity
+          property: hostport # e.g. civicos-identity:10000
+      - key: COMMUNITY_SERVICE_URL
+        fromService:
+          type: pserv
+          name: civicos-community
+          property: hostport
+      - key: ORGANIZATION_SERVICE_URL
+        fromService:
+          type: pserv
+          name: civicos-organization
+          property: hostport
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: civicos-redis
+          property: connectionString
+
+  # ── Identity service (private) ─────────────────────────────────────
+  # Handles auth, users, sessions, admin metrics. Sends verification +
+  # password-reset emails via SMTP.
+  - type: pserv
+    name: civicos-identity
+    runtime: docker
+    plan: starter
+    branch: main
+    dockerfilePath: ./services/identity-service/Dockerfile
+    dockerContext: ./services/identity-service
+    healthCheckPath: /health
+    envVars:
+      - fromGroup: civicos-secrets
+      - key: DATABASE_URL
+        fromDatabase:
+          name: civicos-postgres
+          property: connectionString
+      - key: APP_URL
+        # Update this to your custom domain once wired up in the
+        # dashboard — used in the body of verification emails.
+        fromService:
+          type: web
+          name: civicos-web
+          property: host # e.g. civicos-web.onrender.com
+
+  # ── Community service (private) ────────────────────────────────────
+  # Communities, issues, petitions, representatives, comments,
+  # notifications, content flags. Requires a persistent disk for the
+  # uploads directory where citizen-submitted issue photos land.
+  - type: pserv
+    name: civicos-community
+    runtime: docker
+    plan: starter
+    branch: main
+    dockerfilePath: ./services/community-service/Dockerfile
+    dockerContext: ./services/community-service
+    healthCheckPath: /health
+    disk:
+      name: uploads
+      mountPath: /data
+      sizeGB: 10
+    envVars:
+      - fromGroup: civicos-secrets
+      - key: DATABASE_URL
+        fromDatabase:
+          name: civicos-postgres
+          property: connectionString
+
+  # ── Organization service (private) ─────────────────────────────────
+  # Organizations, members, announcements, projects, assignments,
+  # progress updates, verified-badge control.
+  - type: pserv
+    name: civicos-organization
+    runtime: docker
+    plan: starter
+    branch: main
+    dockerfilePath: ./services/organization-service/Dockerfile
+    dockerContext: ./services/organization-service
+    healthCheckPath: /health
+    envVars:
+      - fromGroup: civicos-secrets
+      - key: DATABASE_URL
+        fromDatabase:
+          name: civicos-postgres
+          property: connectionString
+
+  # ── Citizen web (static site) ──────────────────────────────────────
+  # Built by turbo which builds shared packages first, then the app.
+  # SPA rewrites all unmatched paths to index.html so React Router
+  # handles /issues, /petitions, etc.
+  - type: web
+    name: civicos-web
+    runtime: static
+    branch: main
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @civicos/web... build
+    staticPublishPath: ./apps/web/dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        # Points at the gateway's public URL. Renders as https://
+        # civicos-gateway.onrender.com by default.
+        fromService:
+          type: web
+          name: civicos-gateway
+          property: host
+      - key: HUSKY
+        value: '0' # skip Husky's git-hooks step during the CI install
+
+  # ── Admin console (static site) ────────────────────────────────────
+  - type: web
+    name: civicos-admin
+    runtime: static
+    branch: main
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @civicos/admin... build
+    staticPublishPath: ./apps/admin/dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: civicos-gateway
+          property: host
+      - key: HUSKY
+        value: '0'

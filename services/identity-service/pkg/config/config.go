@@ -32,7 +32,9 @@ func Load() *Config {
 	_ = godotenv.Load()
 
 	cfg := &Config{
-		Port:                getInt("IDENTITY_SERVICE_PORT", 3001),
+		// PORT wins when set — PaaS providers like Render dictate it.
+		// Falls back to IDENTITY_SERVICE_PORT for local dev.
+		Port:                getInt("PORT", getInt("IDENTITY_SERVICE_PORT", 3001)),
 		DatabaseURL:         require("DATABASE_URL"),
 		JWTSecret:           require("JWT_SECRET"),
 		JWTExpiresIn:        getStr("JWT_EXPIRES_IN", "7d"),

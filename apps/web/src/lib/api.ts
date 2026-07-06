@@ -2,8 +2,18 @@ import type { AxiosError } from 'axios';
 import axios, { type InternalAxiosRequestConfig } from 'axios';
 import type { ApiResponse, ApiError } from '@civicos/types';
 
+// Prepend https:// when VITE_API_URL is a bare host (as Render's
+// Blueprint fromService.host property returns). Local dev keeps the
+// http://localhost default.
+function resolveApiBase(): string {
+  const raw = (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:3000';
+  if (raw.startsWith('http://') || raw.startsWith('https://')) return raw;
+  return `https://${raw}`;
+}
+const API_BASE = resolveApiBase();
+
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:3000',
+  baseURL: API_BASE,
   withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
 });
@@ -156,11 +166,9 @@ export async function signOut(): Promise<void> {
 
 export type { ApiResponse, ApiError };
 
-const apiBase = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
-
 export function uploadUrl(filenameOrUrl: string): string {
   if (/^https?:\/\//i.test(filenameOrUrl)) return filenameOrUrl;
-  return `${apiBase}/api/v1/uploads/${filenameOrUrl}`;
+  return `${API_BASE}/api/v1/uploads/${filenameOrUrl}`;
 }
 
 export async function uploadImage(file: File): Promise<string> {
