@@ -93,7 +93,6 @@ services:
     branch: main
     dockerfilePath: ./services/identity-service/Dockerfile
     dockerContext: ./services/identity-service
-    healthCheckPath: /health
     envVars:
       - fromGroup: civicos-secrets
       - key: DATABASE_URL
@@ -119,7 +118,6 @@ services:
     branch: main
     dockerfilePath: ./services/community-service/Dockerfile
     dockerContext: ./services/community-service
-    healthCheckPath: /health
     disk:
       name: uploads
       mountPath: /data
@@ -141,7 +139,6 @@ services:
     branch: main
     dockerfilePath: ./services/organization-service/Dockerfile
     dockerContext: ./services/organization-service
-    healthCheckPath: /health
     envVars:
       - fromGroup: civicos-secrets
       - key: DATABASE_URL
