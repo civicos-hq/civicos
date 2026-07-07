@@ -39,7 +39,7 @@ export function LoginPage() {
         return;
       }
 
-      setSession({ accessToken, user });
+      setSession({ accessToken, refreshToken: tokens.refreshToken, user });
       const redirect = searchParams.get('redirect') ?? '/';
       navigate(redirect, { replace: true });
     } catch (err) {
