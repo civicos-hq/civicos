@@ -3,6 +3,7 @@ package middleware
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -20,18 +21,33 @@ type Profile struct {
 	Window time.Duration // rolling window
 }
 
+// limitFromEnv lets operators retune a tier from the environment
+// (RATE_LIMIT_STRICT / _STANDARD / _LENIENT, requests per minute) without a
+// rebuild — rate-limit tuning has proven to be an ops decision, not a code
+// decision. Invalid or missing values keep the compiled default.
+func limitFromEnv(envKey string, fallback int) int {
+	if v := os.Getenv(envKey); v != "" {
+		if n, err := strconv.Atoi(v); err == nil && n > 0 {
+			return n
+		}
+	}
+	return fallback
+}
+
 var (
 	// Auth endpoints that are the most abused in the wild: register, login,
 	// forgot-password. All strict routes share one bucket per IP, and many
 	// ISPs (notably Nigerian mobile carriers) put whole subscriber pools
-	// behind one CGNAT address — 5/min starved real users at launch.
-	// 20/min still throttles scripted brute force per IP.
-	Strict = Profile{Name: "strict", Limit: 20, Window: time.Minute}
+	// behind one CGNAT address, so per-IP budgets must absorb dozens of
+	// legitimate users plus dev/test bursts. 60/min still caps a
+	// single-IP brute force at ~1 guess/sec against bcrypt-cost-12 hashes;
+	// account-level lockout is the real defence to add before scale.
+	Strict = Profile{Name: "strict", Limit: limitFromEnv("RATE_LIMIT_STRICT", 60), Window: time.Minute}
 
 	// Standard authed writes: upvote, sign, follow, comment, upload, verify,
-	// resend. Enough headroom for typical bursts (skimming a feed and hitting
-	// a few upvotes) while cutting off scripted spam.
-	Standard = Profile{Name: "standard", Limit: 30, Window: time.Minute}
+	// resend — keyed by userID. Sized so bulk admin sessions (seeding
+	// communities, creating representatives back-to-back) don't trip it.
+	Standard = Profile{Name: "standard", Limit: limitFromEnv("RATE_LIMIT_STANDARD", 60), Window: time.Minute}
 
 	// High-frequency lifecycle calls: token refresh, logout. The frontend
 	// interceptor coalesces refreshes across concurrent 401s, so 60/minute
