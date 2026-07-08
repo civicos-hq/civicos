@@ -154,7 +154,8 @@
     "percentComplete": "{{percent}}% complete",
     "sign": "✎ Sign petition",
     "onlyActive": "Only active petitions can be signed",
-    "signError": "Could not sign. Please try again."
+    "signError": "Could not sign. Please try again.",
+    "signMembershipRequired": "Join this community first to sign petitions here."
   },
   "issueDetail": {
     "backToIssues": "← Back to issues",
@@ -170,6 +171,7 @@
     "upvote": "▲ Upvote",
     "upvoted": "✓ Upvoted",
     "upvoteError": "Could not upvote this issue. Please try again.",
+    "upvoteMembershipRequired": "Join this community first to upvote issues here.",
     "statusClosedNote": "This issue was closed without resolution.",
     "updateStatus": "Update status",
     "updateStatusError": "Could not update.",
@@ -233,6 +235,7 @@
     "empty": "No comments yet — start the conversation.",
     "officialResponse": "Official response",
     "postError": "Could not post your comment. Try again.",
+    "postMembershipRequired": "Join this community first to comment here.",
     "removed": "This comment was removed by a moderator."
   },
   "search": {

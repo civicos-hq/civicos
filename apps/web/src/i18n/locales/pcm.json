@@ -154,7 +154,8 @@
     "percentComplete": "{{percent}}% don complete",
     "sign": "✎ Sign petition",
     "onlyActive": "Na only active petitions you fit sign",
-    "signError": "We no fit sign. Abeg try again."
+    "signError": "We no fit sign. Abeg try again.",
+    "signMembershipRequired": "Join this community first before you fit sign petitions here."
   },
   "issueDetail": {
     "backToIssues": "← Go back to issues",
@@ -170,6 +171,7 @@
     "upvote": "▲ Upvote",
     "upvoted": "✓ You don upvote",
     "upvoteError": "We no fit upvote this issue. Try again.",
+    "upvoteMembershipRequired": "Join this community first before you fit upvote issues here.",
     "statusClosedNote": "Dem close this issue without resolve am.",
     "updateStatus": "Update status",
     "updateStatusError": "We no fit update."
@@ -181,7 +183,8 @@
     "post": "Post comment",
     "empty": "No comment dey yet — start the conversation.",
     "officialResponse": "Official response",
-    "postError": "We no fit post your comment. Try again."
+    "postError": "We no fit post your comment. Try again.",
+    "postMembershipRequired": "Join this community first before you fit comment here."
   },
   "search": {
     "placeholder": "Search issues, petitions, reps…",

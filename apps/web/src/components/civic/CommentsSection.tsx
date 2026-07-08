@@ -78,7 +78,9 @@ export function CommentsSection({
       setError(
         apiError?.code === 'EMAIL_NOT_VERIFIED'
           ? t('auth.verify.actionRequired')
-          : t('comments.postError'),
+          : apiError?.code === 'COMMUNITY_MEMBERSHIP_REQUIRED'
+            ? t('comments.postMembershipRequired')
+            : t('comments.postError'),
       );
     },
   });

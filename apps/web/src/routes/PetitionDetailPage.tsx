@@ -74,7 +74,9 @@ export function PetitionDetailPage() {
       setSignError(
         apiError?.code === 'EMAIL_NOT_VERIFIED'
           ? t('auth.verify.actionRequired')
-          : t('petitionDetail.signError'),
+          : apiError?.code === 'COMMUNITY_MEMBERSHIP_REQUIRED'
+            ? t('petitionDetail.signMembershipRequired')
+            : t('petitionDetail.signError'),
       );
     },
   });
