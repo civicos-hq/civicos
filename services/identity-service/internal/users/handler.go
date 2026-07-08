@@ -46,18 +46,19 @@ func (h *Handler) list(c *gin.Context) {
 	public := make([]any, len(users))
 	for i, u := range users {
 		public[i] = gin.H{
-			"id":                u.ID,
-			"email":             u.Email,
-			"name":              u.Name,
-			"role":              u.Role,
-			"emailVerified":     u.EmailVerified,
-			"activeCommunityId": u.ActiveCommunityID,
-			"memberships":       domain.ToPublicMemberships(u.Memberships),
-			"avatarUrl":         u.AvatarURL,
-			"bannedAt":          u.BannedAt,
-			"banReason":         u.BanReason,
-			"bannedById":        u.BannedByID,
-			"createdAt":         u.CreatedAt,
+			"id":                 u.ID,
+			"email":              u.Email,
+			"name":               u.Name,
+			"role":               u.Role,
+			"emailVerified":      u.EmailVerified,
+			"activeCommunityId":  u.ActiveCommunityID,
+			"primaryCommunityId": u.PrimaryCommunityID,
+			"memberships":        domain.ToPublicMemberships(u.Memberships),
+			"avatarUrl":          u.AvatarURL,
+			"bannedAt":           u.BannedAt,
+			"banReason":          u.BanReason,
+			"bannedById":         u.BannedByID,
+			"createdAt":          u.CreatedAt,
 		}
 	}
 	response.Success(c, http.StatusOK, gin.H{"users": public, "total": total})

@@ -34,6 +34,17 @@ func Connect(dsn string) *gorm.DB {
 		log.Fatalf("❌ failed to run migrations: %v", err)
 	}
 
+	// Backfill primary_community_id for users who existed before the field
+	// was introduced. Their active community becomes their primary — the
+	// safest guess and the one that keeps current behaviour unchanged.
+	if err := db.Exec(
+		`UPDATE users
+		 SET primary_community_id = community_id
+		 WHERE primary_community_id IS NULL AND community_id IS NOT NULL`,
+	).Error; err != nil {
+		log.Fatalf("❌ failed to backfill primary_community_id: %v", err)
+	}
+
 	log.Println("✅ Database connected")
 	return db
 }

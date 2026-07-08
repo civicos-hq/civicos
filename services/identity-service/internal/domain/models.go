@@ -41,7 +41,14 @@ type User struct {
 	Role              UserRole                  `gorm:"type:varchar(30);default:'CITIZEN'" json:"role"`
 	AvatarURL         *string                   `json:"avatarUrl,omitempty"`
 	ActiveCommunityID *string                   `gorm:"type:uuid;column:community_id" json:"activeCommunityId,omitempty"`
-	Memberships       []UserCommunityMembership `gorm:"foreignKey:UserID" json:"-"`
+	// PrimaryCommunityID is the user's home constituency — the one they can
+	// create issues, petitions, and rep-profile edits in. Set on first join
+	// and only changed via the change-primary endpoint (30-day cooldown).
+	// Distinct from ActiveCommunityID, which is the community the user is
+	// currently viewing/acting in for signatures, comments, and upvotes.
+	PrimaryCommunityID        *string    `gorm:"type:uuid;index" json:"primaryCommunityId,omitempty"`
+	PrimaryCommunityChangedAt *time.Time `json:"primaryCommunityChangedAt,omitempty"`
+	Memberships               []UserCommunityMembership `gorm:"foreignKey:UserID" json:"-"`
 
 	// RequestedAccountType captures the signup intent separately from the
 	// currently-effective role. A pending representative or organization
@@ -83,21 +90,23 @@ type User struct {
 
 // PublicUser is the safe view returned to API consumers.
 type PublicUser struct {
-	ID                   string                      `json:"id"`
-	Email                string                      `json:"email"`
-	Name                 string                      `json:"name"`
-	Role                 UserRole                    `json:"role"`
-	AvatarURL            *string                     `json:"avatarUrl,omitempty"`
-	ActiveCommunityID    *string                     `json:"activeCommunityId,omitempty"`
-	Memberships          []PublicCommunityMembership `json:"memberships"`
-	RequestedAccountType RequestedAccountType        `json:"requestedAccountType"`
-	ApprovalStatus       ApprovalStatus              `json:"approvalStatus"`
-	ApprovalReviewedAt   *time.Time                  `json:"approvalReviewedAt,omitempty"`
-	ApprovalReviewedByID *string                     `json:"approvalReviewedById,omitempty"`
-	ApprovalNote         *string                     `json:"approvalNote,omitempty"`
-	EmailVerified        bool                        `json:"emailVerified"`
-	EmailVerifiedAt      *time.Time                  `json:"emailVerifiedAt,omitempty"`
-	CreatedAt            time.Time                   `json:"createdAt"`
+	ID                        string                      `json:"id"`
+	Email                     string                      `json:"email"`
+	Name                      string                      `json:"name"`
+	Role                      UserRole                    `json:"role"`
+	AvatarURL                 *string                     `json:"avatarUrl,omitempty"`
+	ActiveCommunityID         *string                     `json:"activeCommunityId,omitempty"`
+	PrimaryCommunityID        *string                     `json:"primaryCommunityId,omitempty"`
+	PrimaryCommunityChangedAt *time.Time                  `json:"primaryCommunityChangedAt,omitempty"`
+	Memberships               []PublicCommunityMembership `json:"memberships"`
+	RequestedAccountType      RequestedAccountType        `json:"requestedAccountType"`
+	ApprovalStatus            ApprovalStatus              `json:"approvalStatus"`
+	ApprovalReviewedAt        *time.Time                  `json:"approvalReviewedAt,omitempty"`
+	ApprovalReviewedByID      *string                     `json:"approvalReviewedById,omitempty"`
+	ApprovalNote              *string                     `json:"approvalNote,omitempty"`
+	EmailVerified             bool                        `json:"emailVerified"`
+	EmailVerifiedAt           *time.Time                  `json:"emailVerifiedAt,omitempty"`
+	CreatedAt                 time.Time                   `json:"createdAt"`
 }
 
 type UserCommunityMembership struct {
@@ -298,21 +307,23 @@ func (u *User) ToPublic() PublicUser {
 		approvalStatus = ApprovalStatusNone
 	}
 	return PublicUser{
-		ID:                   u.ID,
-		Email:                u.Email,
-		Name:                 u.Name,
-		Role:                 u.Role,
-		AvatarURL:            u.AvatarURL,
-		ActiveCommunityID:    u.ActiveCommunityID,
-		Memberships:          ToPublicMemberships(u.Memberships),
-		RequestedAccountType: requestedType,
-		ApprovalStatus:       approvalStatus,
-		ApprovalReviewedAt:   u.ApprovalReviewedAt,
-		ApprovalReviewedByID: u.ApprovalReviewedByID,
-		ApprovalNote:         u.ApprovalNote,
-		EmailVerified:        u.EmailVerified,
-		EmailVerifiedAt:      u.EmailVerifiedAt,
-		CreatedAt:            u.CreatedAt,
+		ID:                        u.ID,
+		Email:                     u.Email,
+		Name:                      u.Name,
+		Role:                      u.Role,
+		AvatarURL:                 u.AvatarURL,
+		ActiveCommunityID:         u.ActiveCommunityID,
+		PrimaryCommunityID:        u.PrimaryCommunityID,
+		PrimaryCommunityChangedAt: u.PrimaryCommunityChangedAt,
+		Memberships:               ToPublicMemberships(u.Memberships),
+		RequestedAccountType:      requestedType,
+		ApprovalStatus:            approvalStatus,
+		ApprovalReviewedAt:        u.ApprovalReviewedAt,
+		ApprovalReviewedByID:      u.ApprovalReviewedByID,
+		ApprovalNote:              u.ApprovalNote,
+		EmailVerified:             u.EmailVerified,
+		EmailVerifiedAt:           u.EmailVerifiedAt,
+		CreatedAt:                 u.CreatedAt,
 	}
 }
 

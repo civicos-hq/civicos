@@ -74,6 +74,8 @@ export interface User {
   role: UserRole;
   avatarUrl?: string;
   activeCommunityId?: UUID;
+  primaryCommunityId?: UUID;
+  primaryCommunityChangedAt?: ISODateTime;
   memberships: CommunityMembership[];
   requestedAccountType: RequestedAccountType;
   approvalStatus: ApprovalStatus;
