@@ -190,11 +190,23 @@ ServiceReady:
 		CREATE TABLE users (
 			id UUID PRIMARY KEY,
 			community_id UUID NULL,
+			primary_community_id UUID NULL,
 			banned_at TIMESTAMPTZ NULL,
 			deleted_at TIMESTAMPTZ NULL
 		)
 	`); err != nil {
 		t.Fatalf("create users table: %v", err)
+	}
+	if _, err := db.Exec(`
+		CREATE TABLE user_community_memberships (
+			id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+			user_id UUID NOT NULL,
+			community_id UUID NOT NULL,
+			joined_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+			UNIQUE (user_id, community_id)
+		)
+	`); err != nil {
+		t.Fatalf("create memberships table: %v", err)
 	}
 	if _, err := db.Exec(`INSERT INTO users (id) VALUES ($1)`, userID); err != nil {
 		t.Fatalf("seed auth user: %v", err)
@@ -248,8 +260,18 @@ ServiceReady:
 	if !ok || communityID == "" {
 		t.Fatalf("community id not found or invalid in response: %s", string(body))
 	}
-	if _, err := db.Exec(`UPDATE users SET community_id = $1 WHERE id = $2`, communityID, userID); err != nil {
+	if _, err := db.Exec(
+		`UPDATE users SET community_id = $1, primary_community_id = $1 WHERE id = $2`,
+		communityID, userID,
+	); err != nil {
 		t.Fatalf("set active community: %v", err)
+	}
+	if _, err := db.Exec(
+		`INSERT INTO user_community_memberships (user_id, community_id) VALUES ($1, $2)
+		 ON CONFLICT DO NOTHING`,
+		userID, communityID,
+	); err != nil {
+		t.Fatalf("seed membership: %v", err)
 	}
 
 	createURL := fmt.Sprintf("http://localhost:%d/v1/petitions", servicePort)

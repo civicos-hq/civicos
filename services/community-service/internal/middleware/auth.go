@@ -35,20 +35,39 @@ func isBanned(db *gorm.DB, userID string) bool {
 	return count > 0
 }
 
-func activeCommunityID(db *gorm.DB, userID string) string {
+// loadCommunityContext fetches the caller's active + primary community IDs
+// and every community they're a member of, in two lightweight queries. The
+// slice is used by RequireMembershipInCommunity for the "any joined community"
+// gating (petition sign, comments, upvotes, reports); primary is used by
+// RequirePrimaryCommunityMatch for creation actions. Empty return values on
+// error — downstream Require* helpers will 403.
+func loadCommunityContext(db *gorm.DB, userID string) (active, primary string, memberships []string) {
 	if db == nil || userID == "" {
-		return ""
+		return "", "", nil
 	}
 	var row struct {
-		CommunityID *string `gorm:"column:community_id"`
+		CommunityID        *string `gorm:"column:community_id"`
+		PrimaryCommunityID *string `gorm:"column:primary_community_id"`
 	}
-	if err := db.Table("users").Select("community_id").Where("id = ?", userID).Scan(&row).Error; err != nil {
-		return ""
+	if err := db.Table("users").
+		Select("community_id, primary_community_id").
+		Where("id = ?", userID).
+		Scan(&row).Error; err != nil {
+		return "", "", nil
 	}
-	if row.CommunityID == nil {
-		return ""
+	if row.CommunityID != nil {
+		active = *row.CommunityID
 	}
-	return *row.CommunityID
+	if row.PrimaryCommunityID != nil {
+		primary = *row.PrimaryCommunityID
+	}
+	var ids []string
+	if err := db.Table("user_community_memberships").
+		Where("user_id = ?", userID).
+		Pluck("community_id", &ids).Error; err != nil {
+		return active, primary, nil
+	}
+	return active, primary, ids
 }
 
 type Claims struct {
@@ -106,7 +125,10 @@ func JWTAuth(cfg *config.Config, db *gorm.DB) gin.HandlerFunc {
 		c.Set("userName", claims.Name)
 		c.Set("userRole", claims.Role)
 		c.Set("emailVerified", claims.EmailVerified)
-		c.Set("activeCommunityID", activeCommunityID(db, claims.UserID))
+		active, primary, memberships := loadCommunityContext(db, claims.UserID)
+		c.Set("activeCommunityID", active)
+		c.Set("primaryCommunityID", primary)
+		c.Set("communityMemberships", memberships)
 		c.Next()
 	}
 }

@@ -61,7 +61,7 @@ func (h *Handler) create(c *gin.Context) {
 		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", err.Error())
 		return
 	}
-	if !middleware.RequireActiveCommunityMatch(c, input.CommunityID) {
+	if !middleware.RequirePrimaryCommunityMatch(c, input.CommunityID) {
 		return
 	}
 	userID, _ := c.Get("userID")
@@ -109,7 +109,7 @@ func (h *Handler) addComment(c *gin.Context) {
 		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to fetch petition")
 		return
 	}
-	if !middleware.RequireActiveCommunityMatch(c, petition.CommunityID) {
+	if !middleware.RequireMembershipInCommunity(c, petition.CommunityID) {
 		return
 	}
 	item, err := h.svc.AddComment(petitionID, userID.(string), name, role, input.Content)
@@ -148,7 +148,7 @@ func (h *Handler) sign(c *gin.Context) {
 		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to fetch petition")
 		return
 	}
-	if !middleware.RequireActiveCommunityMatch(c, petition.CommunityID) {
+	if !middleware.RequireMembershipInCommunity(c, petition.CommunityID) {
 		return
 	}
 	res, err := h.svc.Sign(petitionID, userID.(string))

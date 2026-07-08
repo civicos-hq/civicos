@@ -78,7 +78,7 @@ func (h *Handler) follow(c *gin.Context) {
 		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to fetch representative")
 		return
 	}
-	if !middleware.RequireActiveCommunityMatch(c, rep.CommunityID) {
+	if !middleware.RequireMembershipInCommunity(c, rep.CommunityID) {
 		return
 	}
 	if err := h.svc.Follow(c.Param("id"), userID.(string)); err != nil {
@@ -132,7 +132,7 @@ func (h *Handler) create(c *gin.Context) {
 		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", err.Error())
 		return
 	}
-	if !middleware.RequireActiveCommunityMatch(c, input.CommunityID) {
+	if !middleware.RequirePrimaryCommunityMatch(c, input.CommunityID) {
 		return
 	}
 	userID, _ := c.Get("userID")
@@ -182,7 +182,7 @@ func (h *Handler) addComment(c *gin.Context) {
 		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to fetch representative")
 		return
 	}
-	if !middleware.RequireActiveCommunityMatch(c, rep.CommunityID) {
+	if !middleware.RequireMembershipInCommunity(c, rep.CommunityID) {
 		return
 	}
 
