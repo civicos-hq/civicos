@@ -37,6 +37,42 @@ var (
 	// interceptor coalesces refreshes across concurrent 401s, so 60/minute
 	// is deliberately generous and mostly there to catch runaway loops.
 	Lenient = Profile{Name: "lenient", Limit: 60, Window: time.Minute}
+
+	// ── Per-action user budgets ─────────────────────────────────────────
+	// The single "Standard" bucket above is defence against basic scripting,
+	// but any user hitting it burns the same quota across every write —
+	// bursting on upvotes then failing to comment feels random to the user
+	// and misses the actual abuse patterns. These profiles isolate the
+	// action-specific behaviours we actually want to shape:
+	//   - Comments and creations are the high-abuse, low-legit-frequency
+	//     actions (spam, off-topic, mass-file). Tight caps here.
+	//   - Signatures are rare on the legit side (a citizen signs a handful
+	//     of petitions a day at most). Cap by the hour.
+	//   - Upvotes are click-heavy while browsing; per-minute budget is
+	//     roomier so it doesn't feel broken.
+	//
+	// Legit users should never hit these. Numbers are tuned for defence-
+	// in-depth; revisit once we have telemetry from real traffic.
+
+	// CommentMinute + CommentHour are chained on every comment-post route:
+	// exceeding either window blocks. Minute stops rapid-fire pile-ons;
+	// hour caps the daily-ish total for one user across ALL comments,
+	// which is what an abuser typically maxes.
+	CommentMinute = Profile{Name: "comment.m", Limit: 5, Window: time.Minute}
+	CommentHour   = Profile{Name: "comment.h", Limit: 30, Window: time.Hour}
+
+	// Sign: 15 petitions an hour is already a lot of civic engagement.
+	// Above that starts to look like signature-inflation.
+	Sign = Profile{Name: "sign", Limit: 15, Window: time.Hour}
+
+	// Create: issues, petitions, representatives, communities. Creation
+	// is high-friction by design — mods will notice 5 fresh issues from
+	// one user in an hour.
+	Create = Profile{Name: "create", Limit: 5, Window: time.Hour}
+
+	// Upvote: browsing a feed and clicking a few is normal. 60/min is
+	// still generous but stops a bot mashing the endpoint.
+	Upvote = Profile{Name: "upvote", Limit: 60, Window: time.Minute}
 )
 
 // Limit returns a Gin middleware that enforces the given profile.

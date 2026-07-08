@@ -82,6 +82,14 @@ func main() {
 	limitStandard := middleware.Limit(limiter, middleware.Standard)
 	limitLenient := middleware.Limit(limiter, middleware.Lenient)
 
+	// Per-action authed budgets. Comments run through both windows so
+	// bursts and slow-drip abuse are both caught.
+	limitCommentMin := middleware.Limit(limiter, middleware.CommentMinute)
+	limitCommentHr := middleware.Limit(limiter, middleware.CommentHour)
+	limitSign := middleware.Limit(limiter, middleware.Sign)
+	limitCreate := middleware.Limit(limiter, middleware.Create)
+	limitUpvote := middleware.Limit(limiter, middleware.Upvote)
+
 	// --- Identity Service ---
 	identityPublic := proxy.NewReverseProxy(cfg.IdentityServiceURL, "/api")
 	identityProtected := proxy.NewReverseProxy(cfg.IdentityServiceURL, "/api")
@@ -146,33 +154,33 @@ func main() {
 
 	r.GET("/api/v1/communities", communityProxy)
 	r.GET("/api/v1/communities/:id", communityProxy)
-	r.POST("/api/v1/communities", authMiddleware, limitStandard, communityProxy)
+	r.POST("/api/v1/communities", authMiddleware, limitCreate, communityProxy)
 
 	r.GET("/api/v1/issues", communityProxy)
 	r.GET("/api/v1/issues/:id", communityProxy)
-	r.POST("/api/v1/issues", authMiddleware, limitStandard, communityProxy)
-	r.POST("/api/v1/issues/:id/upvote", authMiddleware, limitStandard, communityProxy)
+	r.POST("/api/v1/issues", authMiddleware, limitCreate, communityProxy)
+	r.POST("/api/v1/issues/:id/upvote", authMiddleware, limitUpvote, communityProxy)
 	r.PATCH("/api/v1/issues/:id/status", authMiddleware, limitStandard, communityProxy)
 	r.GET("/api/v1/issues/:id/comments", communityProxy)
-	r.POST("/api/v1/issues/:id/comments", authMiddleware, limitStandard, communityProxy)
+	r.POST("/api/v1/issues/:id/comments", authMiddleware, limitCommentMin, limitCommentHr, communityProxy)
 
 	// Petitions
 	r.GET("/api/v1/petitions", communityProxy)
 	r.GET("/api/v1/petitions/:id", communityProxy)
-	r.POST("/api/v1/petitions", authMiddleware, limitStandard, communityProxy)
-	r.POST("/api/v1/petitions/:id/sign", authMiddleware, limitStandard, communityProxy)
+	r.POST("/api/v1/petitions", authMiddleware, limitCreate, communityProxy)
+	r.POST("/api/v1/petitions/:id/sign", authMiddleware, limitSign, communityProxy)
 	r.GET("/api/v1/petitions/:id/comments", communityProxy)
-	r.POST("/api/v1/petitions/:id/comments", authMiddleware, limitStandard, communityProxy)
+	r.POST("/api/v1/petitions/:id/comments", authMiddleware, limitCommentMin, limitCommentHr, communityProxy)
 
 	// Representatives
 	r.GET("/api/v1/representatives", communityProxy)
 	r.GET("/api/v1/representatives/:id", communityProxy)
-	r.POST("/api/v1/representatives", authMiddleware, limitStandard, communityProxy)
+	r.POST("/api/v1/representatives", authMiddleware, limitCreate, communityProxy)
 	r.PATCH("/api/v1/representatives/:id", authMiddleware, limitStandard, communityProxy)
 	r.POST("/api/v1/representatives/:id/follow", authMiddleware, limitStandard, communityProxy)
 	r.DELETE("/api/v1/representatives/:id/follow", authMiddleware, limitStandard, communityProxy)
 	r.GET("/api/v1/representatives/:id/comments", communityProxy)
-	r.POST("/api/v1/representatives/:id/comments", authMiddleware, limitStandard, communityProxy)
+	r.POST("/api/v1/representatives/:id/comments", authMiddleware, limitCommentMin, limitCommentHr, communityProxy)
 	r.GET("/api/v1/me/follows/representatives", authMiddleware, communityProxy)
 	r.GET("/api/v1/me/upvotes/issues", authMiddleware, communityProxy)
 
