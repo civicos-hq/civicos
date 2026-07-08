@@ -402,7 +402,15 @@
     "actions": {
       "join": "Join",
       "switch": "Switch",
-      "active": "Active"
+      "active": "Active",
+      "makePrimary": "Make primary",
+      "primary": "Primary"
+    },
+    "primary": {
+      "badge": "Primary",
+      "explainer": "Your primary community na your home place — na only there you fit file issue, start petition, or edit representative profile. You fit sign, comment, and upvote for any community wey you don join.",
+      "cooldownError": "You go fit change your primary community again on {{date}}.",
+      "genericError": "We no fit change your primary community. Try again."
     },
     "joinError": "We no fit join. Try again.",
     "modal": {

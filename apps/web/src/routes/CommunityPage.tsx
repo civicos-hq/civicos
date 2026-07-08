@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import axios from 'axios';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Button, Input } from '@civicos/ui';
@@ -9,7 +10,7 @@ import { useMe } from '../hooks/useMe';
 import { Modal } from '../components/Modal';
 import { PageHeader, useTodayMeta } from '../components/PageHeader';
 import { EmptyState } from '../components/EmptyState';
-import { Home } from 'lucide-react';
+import { Home, Crown } from 'lucide-react';
 
 const ADMIN_ROLES = new Set<UserRole>([
   UserRole.GOVERNMENT_ADMIN,
@@ -51,6 +52,32 @@ export function CommunityPage() {
     },
   });
 
+  const [primaryError, setPrimaryError] = useState<string | null>(null);
+
+  const primaryMutation = useMutation({
+    mutationFn: async (communityId: string) => {
+      await api.patch('/api/v1/auth/me/primary-community', { communityId });
+    },
+    onSuccess: () => {
+      setPrimaryError(null);
+      queryClient.invalidateQueries();
+    },
+    onError: (err) => {
+      if (axios.isAxiosError(err) && err.response?.status === 429) {
+        const data = err.response.data as {
+          code?: string;
+          nextEligibleAt?: string;
+        };
+        if (data.code === 'PRIMARY_COMMUNITY_COOLDOWN' && data.nextEligibleAt) {
+          const when = new Date(data.nextEligibleAt).toLocaleDateString();
+          setPrimaryError(t('communityPage.primary.cooldownError', { date: when }));
+          return;
+        }
+      }
+      setPrimaryError(t('communityPage.primary.genericError'));
+    },
+  });
+
   const me = meQuery.data;
   const communities = communitiesQuery.data ?? [];
   const memberships = me?.memberships ?? [];
@@ -59,6 +86,7 @@ export function CommunityPage() {
   const joinedCommunities = communities.filter((c) => joinedCommunityIDs.has(c.id));
   const availableCommunities = communities.filter((c) => !joinedCommunityIDs.has(c.id));
   const isAdmin = me?.role ? ADMIN_ROLES.has(me.role) : false;
+  const primaryCommunityId = me?.primaryCommunityId;
 
   return (
     <section className="space-y-6">
@@ -107,19 +135,33 @@ export function CommunityPage() {
               {t('communityPage.joinedCommunities')}
             </h2>
             <p className="mt-1 text-sm text-slate-600">{t('communityPage.joinedSub')}</p>
+            <p className="mt-2 text-xs text-slate-500">{t('communityPage.primary.explainer')}</p>
+            {primaryError && <p className="mt-2 text-sm text-red-600">{primaryError}</p>}
             <div className="mt-4 grid gap-3">
               {joinedCommunities.map((c) => (
-                <CommunityRow
+                <JoinedCommunityRow
                   key={c.id}
                   community={c}
-                  actionLabel={
+                  isActive={c.id === me?.activeCommunityId}
+                  isPrimary={c.id === primaryCommunityId}
+                  switchLabel={
                     c.id === me?.activeCommunityId
                       ? t('communityPage.actions.active')
                       : t('communityPage.actions.switch')
                   }
-                  loading={switchMutation.isPending && switchMutation.variables === c.id}
-                  disabled={c.id === me?.activeCommunityId}
-                  onAction={() => switchMutation.mutate(c.id)}
+                  primaryLabel={
+                    c.id === primaryCommunityId
+                      ? t('communityPage.actions.primary')
+                      : t('communityPage.actions.makePrimary')
+                  }
+                  primaryBadge={t('communityPage.primary.badge')}
+                  switching={switchMutation.isPending && switchMutation.variables === c.id}
+                  changingPrimary={primaryMutation.isPending && primaryMutation.variables === c.id}
+                  onSwitch={() => switchMutation.mutate(c.id)}
+                  onMakePrimary={() => {
+                    setPrimaryError(null);
+                    primaryMutation.mutate(c.id);
+                  }}
                 />
               ))}
             </div>
@@ -140,7 +182,7 @@ export function CommunityPage() {
             ) : (
               <div className="mt-4 grid gap-3">
                 {availableCommunities.map((c) => (
-                  <CommunityRow
+                  <AvailableCommunityRow
                     key={c.id}
                     community={c}
                     actionLabel={t('communityPage.actions.join')}
@@ -164,7 +206,7 @@ export function CommunityPage() {
           ) : (
             <div className="mt-4 grid gap-3">
               {availableCommunities.map((c) => (
-                <CommunityRow
+                <AvailableCommunityRow
                   key={c.id}
                   community={c}
                   actionLabel={t('communityPage.actions.join')}
@@ -190,17 +232,15 @@ export function CommunityPage() {
   );
 }
 
-function CommunityRow({
+function AvailableCommunityRow({
   community,
   actionLabel,
   loading,
-  disabled,
   onAction,
 }: {
   community: Community;
   actionLabel: string;
   loading: boolean;
-  disabled?: boolean;
   onAction: () => void;
 }) {
   return (
@@ -211,9 +251,66 @@ function CommunityRow({
           {community.lga}, {community.state}
         </p>
       </div>
-      <Button size="sm" onClick={onAction} loading={loading} disabled={disabled}>
+      <Button size="sm" onClick={onAction} loading={loading}>
         {actionLabel}
       </Button>
+    </article>
+  );
+}
+
+function JoinedCommunityRow({
+  community,
+  isActive,
+  isPrimary,
+  switchLabel,
+  primaryLabel,
+  primaryBadge,
+  switching,
+  changingPrimary,
+  onSwitch,
+  onMakePrimary,
+}: {
+  community: Community;
+  isActive: boolean;
+  isPrimary: boolean;
+  switchLabel: string;
+  primaryLabel: string;
+  primaryBadge: string;
+  switching: boolean;
+  changingPrimary: boolean;
+  onSwitch: () => void;
+  onMakePrimary: () => void;
+}) {
+  return (
+    <article className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+      <div>
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 className="font-semibold text-slate-900">{community.name}</h3>
+          {isPrimary && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800">
+              <Crown className="h-3 w-3" aria-hidden="true" />
+              {primaryBadge}
+            </span>
+          )}
+        </div>
+        <p className="mt-1 text-sm text-slate-600">
+          {community.lga}, {community.state}
+        </p>
+      </div>
+      <div className="flex items-center gap-2">
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={onMakePrimary}
+          loading={changingPrimary}
+          disabled={isPrimary}
+        >
+          {primaryLabel}
+        </Button>
+        <Button size="sm" onClick={onSwitch} loading={switching} disabled={isActive}>
+          {switchLabel}
+        </Button>
+      </div>
     </article>
   );
 }

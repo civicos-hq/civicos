@@ -106,6 +106,7 @@ func main() {
 	r.DELETE("/api/v1/auth/me", authMiddleware, limitStrict, identityProtected)
 	r.POST("/api/v1/auth/me/community", authMiddleware, limitStandard, identityProtected)
 	r.PATCH("/api/v1/auth/me/active-community", authMiddleware, limitStandard, identityProtected)
+	r.PATCH("/api/v1/auth/me/primary-community", authMiddleware, limitStandard, identityProtected)
 	r.GET("/api/v1/applications/me", authMiddleware, identityProtected)
 	r.PUT("/api/v1/applications/me/representative", authMiddleware, limitStandard, identityProtected)
 	r.PUT("/api/v1/applications/me/organization", authMiddleware, limitStandard, identityProtected)

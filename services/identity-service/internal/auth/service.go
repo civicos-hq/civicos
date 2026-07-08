@@ -36,6 +36,7 @@ type UserStore interface {
 	CreateNotification(userID, title, body string, linkURL *string) error
 	JoinCommunity(userID, communityID string) error
 	SetActiveCommunity(userID, communityID string) error
+	SetPrimaryCommunity(userID, communityID string, changedAt time.Time) error
 	UpdateProfile(userID, name, email string) error
 	SetVerificationToken(userID, tokenHash string, expiresAt time.Time) error
 	FindByVerificationTokenHash(tokenHash string) (*domain.User, error)
@@ -660,6 +661,59 @@ func (s *Service) SetActiveCommunity(userID, communityID string) (*domain.Public
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("COMMUNITY_MEMBERSHIP_REQUIRED")
 		}
+		return nil, err
+	}
+	return s.GetMe(userID)
+}
+
+// PrimaryCommunityCooldown is the minimum time between explicit primary
+// community changes. Reduces vote-stacking risk from users bouncing between
+// communities to create issues/petitions in each. Slice-A first join is
+// exempt (that path lives in the repository).
+const PrimaryCommunityCooldown = 30 * 24 * time.Hour
+
+// PrimaryCommunityChangeError carries a code + the next-eligible time so the
+// UI can render a precise "you can change again on X" message.
+type PrimaryCommunityChangeError struct {
+	Code             string
+	NextEligibleAt   time.Time
+}
+
+func (e *PrimaryCommunityChangeError) Error() string { return e.Code }
+
+func (s *Service) SetPrimaryCommunity(userID, communityID string) (*domain.PublicUser, error) {
+	user, err := s.repo.FindByID(userID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("USER_NOT_FOUND")
+		}
+		return nil, err
+	}
+	// Membership check — reject silently-unjoined communities before the
+	// cooldown so the error message tells the user the real problem.
+	member := false
+	for _, m := range user.Memberships {
+		if m.CommunityID == communityID {
+			member = true
+			break
+		}
+	}
+	if !member {
+		return nil, errors.New("COMMUNITY_MEMBERSHIP_REQUIRED")
+	}
+	// No-op: already primary. Return current /me without touching the
+	// cooldown so a fat-finger doesn't cost the user 30 days.
+	if user.PrimaryCommunityID != nil && *user.PrimaryCommunityID == communityID {
+		return s.GetMe(userID)
+	}
+	now := time.Now().UTC()
+	if user.PrimaryCommunityChangedAt != nil {
+		nextEligible := user.PrimaryCommunityChangedAt.Add(PrimaryCommunityCooldown)
+		if now.Before(nextEligible) {
+			return nil, &PrimaryCommunityChangeError{Code: "PRIMARY_COMMUNITY_COOLDOWN", NextEligibleAt: nextEligible}
+		}
+	}
+	if err := s.repo.SetPrimaryCommunity(userID, communityID, now); err != nil {
 		return nil, err
 	}
 	return s.GetMe(userID)

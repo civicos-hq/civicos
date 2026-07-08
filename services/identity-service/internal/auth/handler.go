@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"errors"
 	"log"
 	"net/http"
 
@@ -31,6 +32,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, authMiddleware gin.Handler
 	rg.DELETE("/me", authMiddleware, h.deleteMe)
 	rg.POST("/me/community", authMiddleware, h.joinCommunity)
 	rg.PATCH("/me/active-community", authMiddleware, h.setActiveCommunity)
+	rg.PATCH("/me/primary-community", authMiddleware, h.setPrimaryCommunity)
 }
 
 func (h *Handler) register(c *gin.Context) {
@@ -294,6 +296,41 @@ func (h *Handler) setActiveCommunity(c *gin.Context) {
 			return
 		}
 		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to switch active community")
+		return
+	}
+	response.Success(c, http.StatusOK, gin.H{"user": user})
+}
+
+func (h *Handler) setPrimaryCommunity(c *gin.Context) {
+	var body struct {
+		CommunityID string `json:"communityId" binding:"required,uuid4"`
+	}
+	if err := c.ShouldBindJSON(&body); err != nil {
+		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", err.Error())
+		return
+	}
+	userID, _ := c.Get("userID")
+	user, err := h.service.SetPrimaryCommunity(userID.(string), body.CommunityID)
+	if err != nil {
+		var cooldown *PrimaryCommunityChangeError
+		if errors.As(err, &cooldown) {
+			c.JSON(http.StatusTooManyRequests, gin.H{
+				"success":        false,
+				"code":           cooldown.Code,
+				"message":        "Primary community can only be changed once per 30 days",
+				"nextEligibleAt": cooldown.NextEligibleAt,
+			})
+			return
+		}
+		if err.Error() == "COMMUNITY_MEMBERSHIP_REQUIRED" {
+			response.Error(c, http.StatusBadRequest, "COMMUNITY_MEMBERSHIP_REQUIRED", "Join this community before making it your primary")
+			return
+		}
+		if err.Error() == "USER_NOT_FOUND" {
+			response.Error(c, http.StatusNotFound, "USER_NOT_FOUND", "User not found")
+			return
+		}
+		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to change primary community")
 		return
 	}
 	response.Success(c, http.StatusOK, gin.H{"user": user})

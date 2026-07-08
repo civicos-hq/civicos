@@ -121,6 +121,13 @@ func (r *Repository) JoinCommunity(userID, communityID string) error {
 	})
 }
 
+func (r *Repository) SetPrimaryCommunity(userID, communityID string, changedAt time.Time) error {
+	return r.db.Model(&domain.User{}).Where("id = ?", userID).Updates(map[string]any{
+		"primary_community_id":         communityID,
+		"primary_community_changed_at": changedAt,
+	}).Error
+}
+
 func (r *Repository) SetActiveCommunity(userID, communityID string) error {
 	return r.db.Transaction(func(tx *gorm.DB) error {
 		var count int64

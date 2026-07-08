@@ -454,7 +454,15 @@
     "actions": {
       "join": "Join",
       "switch": "Switch",
-      "active": "Active"
+      "active": "Active",
+      "makePrimary": "Make primary",
+      "primary": "Primary"
+    },
+    "primary": {
+      "badge": "Primary",
+      "explainer": "Your primary community is your home constituency — the only place you can file issues, start petitions, or edit representative profiles. Signatures, comments, and upvotes work in any community you've joined.",
+      "cooldownError": "You can change your primary community again on {{date}}.",
+      "genericError": "Could not change your primary community. Please try again."
     },
     "joinError": "Could not join. Please try again.",
     "modal": {
