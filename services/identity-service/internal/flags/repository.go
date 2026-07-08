@@ -12,7 +12,9 @@ func NewRepository(db *gorm.DB) *Repository { return &Repository{db: db} }
 type ListFilters struct {
 	Status      string
 	ContentType string
+	Reason      string
 	ReporterID  string
+	Search      string
 	Limit       int
 	Offset      int
 }
@@ -25,8 +27,18 @@ func (r *Repository) Find(f ListFilters) ([]domain.ContentFlag, error) {
 	if f.ContentType != "" {
 		q = q.Where("content_type = ?", f.ContentType)
 	}
+	if f.Reason != "" {
+		q = q.Where("reason = ?", f.Reason)
+	}
 	if f.ReporterID != "" {
 		q = q.Where("reporter_id = ?", f.ReporterID)
+	}
+	if f.Search != "" {
+		term := "%" + f.Search + "%"
+		q = q.Where(
+			"reporter_name ILIKE ? OR description ILIKE ? OR content_id::text ILIKE ? OR resolved_by_name ILIKE ?",
+			term, term, term, term,
+		)
 	}
 	if f.Limit <= 0 {
 		f.Limit = 50

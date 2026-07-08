@@ -72,12 +72,14 @@ func (h *Handler) upsertOrganization(c *gin.Context) {
 func (h *Handler) listAdmin(c *gin.Context) {
 	limit, _ := strconv.Atoi(c.Query("limit"))
 	offset, _ := strconv.Atoi(c.Query("offset"))
+	staleAfterHours, _ := strconv.Atoi(c.Query("staleAfterHours"))
 	items, total, err := h.svc.ListAdmin(AdminListFilters{
-		Kind:   c.Query("kind"),
-		Status: c.Query("status"),
-		Search: c.Query("q"),
-		Limit:  limit,
-		Offset: offset,
+		Kind:            c.Query("kind"),
+		Status:          c.Query("status"),
+		Search:          c.Query("q"),
+		StaleAfterHours: staleAfterHours,
+		Limit:           limit,
+		Offset:          offset,
 	})
 	if handleAppErr(c, err) {
 		return
@@ -105,7 +107,9 @@ func (h *Handler) review(c *gin.Context) {
 		return
 	}
 	action := "application.approved"
-	if input.Status == string(domain.ApprovalStatusRejected) {
+	if input.Status == string(domain.ApprovalStatusNeedsChanges) {
+		action = "application.needs_changes"
+	} else if input.Status == string(domain.ApprovalStatusRejected) {
 		action = "application.rejected"
 	}
 	h.auditor.Log(audit.Entry{

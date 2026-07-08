@@ -95,6 +95,17 @@ func (s *inMemoryUserStore) SetActiveCommunity(userID, communityID string) error
 	return gorm.ErrRecordNotFound
 }
 
+func (s *inMemoryUserStore) SetPrimaryCommunity(userID, communityID string, changedAt time.Time) error {
+	user, ok := s.usersByID[userID]
+	if !ok {
+		return gorm.ErrRecordNotFound
+	}
+	user.PrimaryCommunityID = &communityID
+	t := changedAt
+	user.PrimaryCommunityChangedAt = &t
+	return nil
+}
+
 func (s *inMemoryUserStore) UpdateProfile(userID, name, email string) error {
 	user, ok := s.usersByID[userID]
 	if !ok {

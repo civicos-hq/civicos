@@ -27,6 +27,7 @@ export enum ApprovalStatus {
   NONE = 'NONE',
   PENDING = 'PENDING',
   APPROVED = 'APPROVED',
+  NEEDS_CHANGES = 'NEEDS_CHANGES',
   REJECTED = 'REJECTED',
 }
 
@@ -73,6 +74,8 @@ export interface User {
   role: UserRole;
   avatarUrl?: string;
   activeCommunityId?: UUID;
+  primaryCommunityId?: UUID;
+  primaryCommunityChangedAt?: ISODateTime;
   memberships: CommunityMembership[];
   requestedAccountType: RequestedAccountType;
   approvalStatus: ApprovalStatus;

@@ -82,6 +82,18 @@
       "MODERATOR": "Moderator",
       "PLATFORM_ADMIN": "Platform admin"
     },
+    "requestedAccountType": {
+      "CITIZEN": "Citizen",
+      "REPRESENTATIVE": "Representative",
+      "ORGANIZATION": "Organization"
+    },
+    "approvalStatus": {
+      "NONE": "No approval need",
+      "PENDING": "Admin never review am yet",
+      "APPROVED": "Approved",
+      "NEEDS_CHANGES": "Needs changes",
+      "REJECTED": "Rejected"
+    },
     "notificationType": {
       "ISSUE_UPDATE": "Issue update",
       "PETITION_UPDATE": "Petition update",
@@ -142,7 +154,8 @@
     "percentComplete": "{{percent}}% don complete",
     "sign": "✎ Sign petition",
     "onlyActive": "Na only active petitions you fit sign",
-    "signError": "We no fit sign. Abeg try again."
+    "signError": "We no fit sign. Abeg try again.",
+    "signMembershipRequired": "Join this community first before you fit sign petitions here."
   },
   "issueDetail": {
     "backToIssues": "← Go back to issues",
@@ -158,6 +171,7 @@
     "upvote": "▲ Upvote",
     "upvoted": "✓ You don upvote",
     "upvoteError": "We no fit upvote this issue. Try again.",
+    "upvoteMembershipRequired": "Join this community first before you fit upvote issues here.",
     "statusClosedNote": "Dem close this issue without resolve am.",
     "updateStatus": "Update status",
     "updateStatusError": "We no fit update."
@@ -169,7 +183,8 @@
     "post": "Post comment",
     "empty": "No comment dey yet — start the conversation.",
     "officialResponse": "Official response",
-    "postError": "We no fit post your comment. Try again."
+    "postError": "We no fit post your comment. Try again.",
+    "postMembershipRequired": "Join this community first before you fit comment here."
   },
   "search": {
     "placeholder": "Search issues, petitions, reps…",
@@ -390,7 +405,15 @@
     "actions": {
       "join": "Join",
       "switch": "Switch",
-      "active": "Active"
+      "active": "Active",
+      "makePrimary": "Make primary",
+      "primary": "Primary"
+    },
+    "primary": {
+      "badge": "Primary",
+      "explainer": "Your primary community na your home place — na only there you fit file issue, start petition, or edit representative profile. You fit sign, comment, and upvote for any community wey you don join.",
+      "cooldownError": "You go fit change your primary community again on {{date}}.",
+      "genericError": "We no fit change your primary community. Try again."
     },
     "joinError": "We no fit join. Try again.",
     "modal": {
@@ -443,6 +466,19 @@
       "heading": "Session",
       "sub": "Sign out from CivicOS on this device.",
       "signOut": "Sign out"
+    },
+    "approval": {
+      "heading": "Approval status",
+      "requestedType": "Requested account type",
+      "status": "Status",
+      "reviewNote": "Admin note",
+      "messages": {
+        "NONE": "This account no need admin approval.",
+        "PENDING": "Your request still dey wait for admin review. You still fit use CivicOS like regular account while you wait.",
+        "APPROVED": "Dem don approve your request and your extra access don dey active.",
+        "NEEDS_CHANGES": "Your request need changes before dem fit approve am. Read the admin note, update your details, and resubmit when you ready.",
+        "REJECTED": "Dem reject your request. Read the admin note first before you decide whether to send fresh request."
+      }
     }
   },
   "notificationsPage": {

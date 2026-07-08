@@ -96,7 +96,9 @@ func (h *Handler) list(c *gin.Context) {
 	items, err := h.svc.List(ListFilters{
 		Status:      strings.ToUpper(c.Query("status")),
 		ContentType: strings.ToUpper(c.Query("contentType")),
+		Reason:      strings.ToUpper(c.Query("reason")),
 		ReporterID:  c.Query("reporterId"),
+		Search:      strings.TrimSpace(c.Query("q")),
 		Limit:       limit,
 		Offset:      offset,
 	})

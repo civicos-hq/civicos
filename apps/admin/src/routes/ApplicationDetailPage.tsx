@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, CheckCircle2, XCircle } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CheckCircle2, XCircle } from 'lucide-react';
 import { apiGet, apiPatch } from '../lib/api';
 
 interface Applicant {
@@ -56,10 +56,29 @@ interface ApplicationDetail {
   applicant: Applicant;
   representativeApplication?: RepresentativeApplication;
   organizationApplication?: OrganizationApplication;
+  reviewHistory: ReviewHistoryItem[];
 }
 
 interface DetailResponse {
   application: ApplicationDetail;
+}
+
+interface ReviewHistoryItem {
+  id: string;
+  reviewerName: string;
+  status: string;
+  note?: string | null;
+  createdAt: string;
+}
+
+function timeSince(value: string): string {
+  const diffMs = Date.now() - new Date(value).getTime();
+  const diffHours = Math.max(1, Math.floor(diffMs / (1000 * 60 * 60)));
+  if (diffHours < 24) return `${diffHours} hours`;
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays < 7) return `${diffDays} days`;
+  const diffWeeks = Math.floor(diffDays / 7);
+  return `${diffWeeks} weeks`;
 }
 
 export function ApplicationDetailPage() {
@@ -75,7 +94,7 @@ export function ApplicationDetailPage() {
   });
 
   const review = useMutation({
-    mutationFn: ({ status }: { status: 'APPROVED' | 'REJECTED' }) =>
+    mutationFn: ({ status }: { status: 'APPROVED' | 'NEEDS_CHANGES' | 'REJECTED' }) =>
       apiPatch<DetailResponse>(`/api/v1/admin/applications/${kind}/${id}`, {
         status,
         note: note.trim() || undefined,
@@ -93,6 +112,15 @@ export function ApplicationDetailPage() {
   });
 
   const item = query.data?.application;
+
+  useEffect(() => {
+    if (!item) return;
+    const currentNote =
+      item.kind === 'REPRESENTATIVE'
+        ? item.representativeApplication?.reviewNote
+        : item.organizationApplication?.reviewNote;
+    setNote(currentNote ?? '');
+  }, [item]);
 
   return (
     <>
@@ -120,6 +148,12 @@ export function ApplicationDetailPage() {
             <p className="admin-page-sub">
               Applicant: {item.applicant.name} · {item.applicant.email}
             </p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <span className={`admin-chip admin-chip-status-${item.status}`}>{item.status}</span>
+              <span className="admin-chip admin-chip-age-pending">
+                Submitted {timeSince(item.submittedAt)} ago
+              </span>
+            </div>
           </header>
 
           <section className="admin-table-shell" style={{ padding: '1.5rem' }}>
@@ -223,7 +257,8 @@ export function ApplicationDetailPage() {
           <section className="admin-table-shell" style={{ padding: '1.5rem', maxWidth: '760px' }}>
             <h2 className="text-lg font-semibold text-slate-900">Review note</h2>
             <p className="mt-1 text-sm text-slate-600">
-              This note is shown back to the applicant when relevant.
+              Notes are required for needs-changes and rejection decisions and are shown back to the
+              applicant.
             </p>
             <textarea
               className="admin-table-search mt-4"
@@ -249,6 +284,15 @@ export function ApplicationDetailPage() {
               </button>
               <button
                 type="button"
+                className="admin-btn admin-btn-secondary"
+                onClick={() => review.mutate({ status: 'NEEDS_CHANGES' })}
+                disabled={review.isPending}
+              >
+                <AlertCircle className="h-4 w-4" aria-hidden="true" />
+                Needs changes
+              </button>
+              <button
+                type="button"
                 className="admin-btn admin-btn-danger"
                 onClick={() => review.mutate({ status: 'REJECTED' })}
                 disabled={review.isPending}
@@ -256,6 +300,39 @@ export function ApplicationDetailPage() {
                 <XCircle className="h-4 w-4" aria-hidden="true" />
                 Reject
               </button>
+            </div>
+          </section>
+
+          <section className="admin-table-shell" style={{ padding: '1.5rem', maxWidth: '760px' }}>
+            <h2 className="text-lg font-semibold text-slate-900">Review history</h2>
+            <p className="mt-1 text-sm text-slate-600">
+              Every approval decision and review note stays on the record.
+            </p>
+            <div className="mt-4 space-y-3">
+              {item.reviewHistory.length === 0 ? (
+                <div className="admin-empty" style={{ margin: 0 }}>
+                  No review decisions yet.
+                </div>
+              ) : (
+                item.reviewHistory.map((entry) => (
+                  <div key={entry.id} className="admin-review-event">
+                    <div className="admin-review-event-row">
+                      <div>
+                        <div className="font-semibold text-slate-900">{entry.reviewerName}</div>
+                        <div className="text-xs text-slate-500">
+                          {new Date(entry.createdAt).toLocaleString()}
+                        </div>
+                      </div>
+                      <span className={`admin-chip admin-chip-status-${entry.status}`}>
+                        {entry.status}
+                      </span>
+                    </div>
+                    <div className="mt-2 text-sm text-slate-700 whitespace-pre-wrap">
+                      {entry.note?.trim() || 'No note left.'}
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </section>
         </div>

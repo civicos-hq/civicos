@@ -105,8 +105,27 @@ func (r *Repository) JoinCommunity(userID, communityID string) error {
 		}).Create(&membership).Error; err != nil {
 			return err
 		}
-		return tx.Model(&domain.User{}).Where("id = ?", userID).Update("community_id", communityID).Error
+		updates := map[string]any{"community_id": communityID}
+		// First-ever join sets primary_community_id. Later joins don't
+		// touch it — changing primary requires the explicit endpoint so
+		// the cooldown can be enforced.
+		if err := tx.Model(&domain.User{}).
+			Where("id = ? AND primary_community_id IS NULL", userID).
+			Updates(map[string]any{
+				"primary_community_id":         communityID,
+				"primary_community_changed_at": now,
+			}).Error; err != nil {
+			return err
+		}
+		return tx.Model(&domain.User{}).Where("id = ?", userID).Updates(updates).Error
 	})
+}
+
+func (r *Repository) SetPrimaryCommunity(userID, communityID string, changedAt time.Time) error {
+	return r.db.Model(&domain.User{}).Where("id = ?", userID).Updates(map[string]any{
+		"primary_community_id":         communityID,
+		"primary_community_changed_at": changedAt,
+	}).Error
 }
 
 func (r *Repository) SetActiveCommunity(userID, communityID string) error {

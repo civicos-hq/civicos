@@ -109,6 +109,9 @@ func (s *Service) Resolve(id string, input ResolveInput, actor audit.Actor) (*do
 		status != string(domain.FlagStatusReviewed) {
 		return nil, &AppError{Code: "INVALID_STATUS", Message: "Status must be HIDDEN, DISMISSED, or REVIEWED", Status: http.StatusBadRequest}
 	}
+	if status == string(domain.FlagStatusHidden) && strings.TrimSpace(derefString(input.ResolutionNote)) == "" {
+		return nil, &AppError{Code: "RESOLUTION_NOTE_REQUIRED", Message: "A resolution note is required when hiding content", Status: http.StatusBadRequest}
+	}
 	existing, err := s.Get(id)
 	if err != nil {
 		return nil, err
@@ -140,6 +143,9 @@ func (s *Service) DirectHide(input DirectHideInput, actor domain.User) (*domain.
 	ct := strings.ToUpper(input.ContentType)
 	if !validFlaggable(ct) {
 		return nil, &AppError{Code: "INVALID_CONTENT_TYPE", Message: "Unknown content type", Status: http.StatusBadRequest}
+	}
+	if strings.TrimSpace(derefString(input.ResolutionNote)) == "" {
+		return nil, &AppError{Code: "RESOLUTION_NOTE_REQUIRED", Message: "A resolution note is required when hiding content", Status: http.StatusBadRequest}
 	}
 	reason := strings.ToUpper(input.Reason)
 	if !validReason(reason) {
@@ -185,6 +191,13 @@ func validFlaggable(t string) bool {
 		return true
 	}
 	return false
+}
+
+func derefString(v *string) string {
+	if v == nil {
+		return ""
+	}
+	return *v
 }
 
 type AppError struct {

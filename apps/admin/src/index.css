@@ -200,10 +200,13 @@
 .admin-chip-banned { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
 .admin-chip-status-PENDING { background: #fff7ed; color: #9a3412; border-color: #fed7aa; }
 .admin-chip-status-APPROVED { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
+.admin-chip-status-NEEDS_CHANGES { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
 .admin-chip-status-REJECTED { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
 .admin-chip-status-HIDDEN { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
 .admin-chip-status-DISMISSED { background: #f1f5f9; color: #334155; border-color: #cbd5e1; }
 .admin-chip-status-REVIEWED { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
+.admin-chip-age-pending { background: #fff7ed; color: #9a3412; border-color: #fed7aa; }
+.admin-chip-age-stable { background: #f8fafc; color: #475569; border-color: #cbd5e1; }
 
 /* ─── Buttons ─────────────────────────────────────────────────────────── */
 .admin-btn {
@@ -226,6 +229,52 @@
 .admin-btn-danger { background: #dc2626; color: white; }
 .admin-btn-danger:hover:not(:disabled) { background: #b91c1c; }
 .admin-btn-sm { padding: 0.3rem 0.6rem; font-size: 0.78rem; }
+
+.admin-review-event {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 0.9rem 1rem;
+  background: #f8fafc;
+}
+
+.admin-review-event-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+/* ─── Metric cards ────────────────────────────────────────────────────── */
+.admin-metric-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 0.9rem 1.1rem;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.admin-metric-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #475569;
+}
+.admin-metric-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.1;
+}
+.admin-metric-card-pending { background: #fff7ed; border-color: #fed7aa; }
+.admin-metric-card-pending .admin-metric-label { color: #9a3412; }
+.admin-metric-card-danger { background: #fef2f2; border-color: #fecaca; }
+.admin-metric-card-danger .admin-metric-label { color: #991b1b; }
+.admin-metric-card-success { background: #f0fdf4; border-color: #bbf7d0; }
+.admin-metric-card-success .admin-metric-label { color: #166534; }
+.admin-metric-card-neutral { background: #f8fafc; border-color: #cbd5e1; }
+.admin-metric-card-neutral .admin-metric-label { color: #334155; }
 
 /* ─── Login ───────────────────────────────────────────────────────────── */
 .admin-login {

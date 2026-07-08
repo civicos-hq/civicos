@@ -91,7 +91,8 @@
       "NONE": "No approval needed",
       "PENDING": "Pending admin review",
       "APPROVED": "Approved",
-      "REJECTED": "Needs resubmission"
+      "NEEDS_CHANGES": "Needs changes",
+      "REJECTED": "Rejected"
     },
     "notificationType": {
       "ISSUE_UPDATE": "Issue update",
@@ -153,7 +154,8 @@
     "percentComplete": "{{percent}}% complete",
     "sign": "✎ Sign petition",
     "onlyActive": "Only active petitions can be signed",
-    "signError": "Could not sign. Please try again."
+    "signError": "Could not sign. Please try again.",
+    "signMembershipRequired": "Join this community first to sign petitions here."
   },
   "issueDetail": {
     "backToIssues": "← Back to issues",
@@ -169,6 +171,7 @@
     "upvote": "▲ Upvote",
     "upvoted": "✓ Upvoted",
     "upvoteError": "Could not upvote this issue. Please try again.",
+    "upvoteMembershipRequired": "Join this community first to upvote issues here.",
     "statusClosedNote": "This issue was closed without resolution.",
     "updateStatus": "Update status",
     "updateStatusError": "Could not update.",
@@ -232,6 +235,7 @@
     "empty": "No comments yet — start the conversation.",
     "officialResponse": "Official response",
     "postError": "Could not post your comment. Try again.",
+    "postMembershipRequired": "Join this community first to comment here.",
     "removed": "This comment was removed by a moderator."
   },
   "search": {
@@ -453,7 +457,15 @@
     "actions": {
       "join": "Join",
       "switch": "Switch",
-      "active": "Active"
+      "active": "Active",
+      "makePrimary": "Make primary",
+      "primary": "Primary"
+    },
+    "primary": {
+      "badge": "Primary",
+      "explainer": "Your primary community is your home constituency — the only place you can file issues, start petitions, or edit representative profiles. Signatures, comments, and upvotes work in any community you've joined.",
+      "cooldownError": "You can change your primary community again on {{date}}.",
+      "genericError": "Could not change your primary community. Please try again."
     },
     "joinError": "Could not join. Please try again.",
     "modal": {
@@ -516,7 +528,8 @@
         "NONE": "This account does not require admin approval.",
         "PENDING": "Your request is waiting for admin review. You can still use CivicOS as a regular account while you wait.",
         "APPROVED": "Your approval request has been accepted and your elevated access is active.",
-        "REJECTED": "Your request needs changes before it can be approved. Review any admin note and resubmit when ready."
+        "NEEDS_CHANGES": "Your request needs changes before it can be approved. Review the admin note, update your details, and resubmit when ready.",
+        "REJECTED": "Your request was rejected. Review the admin note before you decide whether to submit a fresh request."
       }
     },
     "delete": {

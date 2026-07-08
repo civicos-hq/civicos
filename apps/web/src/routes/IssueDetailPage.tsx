@@ -112,7 +112,9 @@ export function IssueDetailPage() {
       setUpvoteError(
         apiError?.code === 'EMAIL_NOT_VERIFIED'
           ? t('auth.verify.actionRequired')
-          : t('issueDetail.upvoteError'),
+          : apiError?.code === 'COMMUNITY_MEMBERSHIP_REQUIRED'
+            ? t('issueDetail.upvoteMembershipRequired')
+            : t('issueDetail.upvoteError'),
       );
     },
     onSuccess: (data) => {
