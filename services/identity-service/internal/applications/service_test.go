@@ -13,6 +13,7 @@ type fakeStore struct {
 	user                     *domain.User
 	rep                      *domain.RepresentativeApplication
 	org                      *domain.OrganizationApplication
+	reviewHistory            []domain.ApplicationReviewEvent
 	approvedRepresentativeID string
 	approvedOrganizationID   string
 	approvedOrganizationRole domain.UserRole
@@ -52,6 +53,16 @@ func (f *fakeStore) FindOrganizationByID(id string) (*domain.OrganizationApplica
 		return f.org, nil
 	}
 	return nil, gorm.ErrRecordNotFound
+}
+
+func (f *fakeStore) ListReviewHistory(kind domain.RequestedAccountType, applicationID string) ([]domain.ApplicationReviewEvent, error) {
+	var out []domain.ApplicationReviewEvent
+	for _, item := range f.reviewHistory {
+		if item.ApplicationKind == kind && item.ApplicationID == applicationID {
+			out = append(out, item)
+		}
+	}
+	return out, nil
 }
 
 func (f *fakeStore) ListRepresentativeApplications(ListFilters) ([]domain.RepresentativeApplication, int64, error) {
@@ -169,5 +180,22 @@ func TestReviewOrganizationApprovalAssignsExpectedRole(t *testing.T) {
 	}
 	if store.approvedOrganizationRole != domain.RoleNGO {
 		t.Fatalf("expected NGO role, got %s", store.approvedOrganizationRole)
+	}
+}
+
+func TestReviewNeedsChangesRequiresNote(t *testing.T) {
+	store := &fakeStore{
+		user: &domain.User{ID: "user-1", Role: domain.RoleCitizen, ApprovalStatus: domain.ApprovalStatusPending},
+		rep:  &domain.RepresentativeApplication{ID: "rep-app-1", UserID: "user-1", Status: domain.ApprovalStatusPending},
+	}
+	svc := NewService(store)
+
+	_, err := svc.Review("REPRESENTATIVE", "rep-app-1", "admin-1", ReviewInput{Status: "NEEDS_CHANGES"})
+	if err == nil {
+		t.Fatalf("expected missing note to be rejected")
+	}
+	var appErr *AppError
+	if !errors.As(err, &appErr) || appErr.Code != "REVIEW_NOTE_REQUIRED" {
+		t.Fatalf("expected REVIEW_NOTE_REQUIRED, got %v", err)
 	}
 }

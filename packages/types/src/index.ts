@@ -27,6 +27,7 @@ export enum ApprovalStatus {
   NONE = 'NONE',
   PENDING = 'PENDING',
   APPROVED = 'APPROVED',
+  NEEDS_CHANGES = 'NEEDS_CHANGES',
   REJECTED = 'REJECTED',
 }
 

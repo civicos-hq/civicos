@@ -82,6 +82,18 @@
       "MODERATOR": "Moderator",
       "PLATFORM_ADMIN": "Platform admin"
     },
+    "requestedAccountType": {
+      "CITIZEN": "Citizen",
+      "REPRESENTATIVE": "Representative",
+      "ORGANIZATION": "Organization"
+    },
+    "approvalStatus": {
+      "NONE": "No approval need",
+      "PENDING": "Admin never review am yet",
+      "APPROVED": "Approved",
+      "NEEDS_CHANGES": "Needs changes",
+      "REJECTED": "Rejected"
+    },
     "notificationType": {
       "ISSUE_UPDATE": "Issue update",
       "PETITION_UPDATE": "Petition update",
@@ -443,6 +455,19 @@
       "heading": "Session",
       "sub": "Sign out from CivicOS on this device.",
       "signOut": "Sign out"
+    },
+    "approval": {
+      "heading": "Approval status",
+      "requestedType": "Requested account type",
+      "status": "Status",
+      "reviewNote": "Admin note",
+      "messages": {
+        "NONE": "This account no need admin approval.",
+        "PENDING": "Your request still dey wait for admin review. You still fit use CivicOS like regular account while you wait.",
+        "APPROVED": "Dem don approve your request and your extra access don dey active.",
+        "NEEDS_CHANGES": "Your request need changes before dem fit approve am. Read the admin note, update your details, and resubmit when you ready.",
+        "REJECTED": "Dem reject your request. Read the admin note first before you decide whether to send fresh request."
+      }
     }
   },
   "notificationsPage": {

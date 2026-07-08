@@ -91,7 +91,8 @@
       "NONE": "No approval needed",
       "PENDING": "Pending admin review",
       "APPROVED": "Approved",
-      "REJECTED": "Needs resubmission"
+      "NEEDS_CHANGES": "Needs changes",
+      "REJECTED": "Rejected"
     },
     "notificationType": {
       "ISSUE_UPDATE": "Issue update",
@@ -516,7 +517,8 @@
         "NONE": "This account does not require admin approval.",
         "PENDING": "Your request is waiting for admin review. You can still use CivicOS as a regular account while you wait.",
         "APPROVED": "Your approval request has been accepted and your elevated access is active.",
-        "REJECTED": "Your request needs changes before it can be approved. Review any admin note and resubmit when ready."
+        "NEEDS_CHANGES": "Your request needs changes before it can be approved. Review the admin note, update your details, and resubmit when ready.",
+        "REJECTED": "Your request was rejected. Review the admin note before you decide whether to submit a fresh request."
       }
     },
     "delete": {

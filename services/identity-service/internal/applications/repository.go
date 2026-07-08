@@ -19,10 +19,16 @@ func NewRepository(db *gorm.DB) *Repository {
 }
 
 type ListFilters struct {
-	Status string
-	Search string
-	Limit  int
-	Offset int
+	Status          string
+	Search          string
+	SubmittedBefore *time.Time
+	Limit           int
+	Offset          int
+}
+
+type reviewerRecord struct {
+	ID   string
+	Name string
 }
 
 type representativeRecord struct {
@@ -125,6 +131,17 @@ func (r *Repository) FindOrganizationByID(id string) (*domain.OrganizationApplic
 	return &app, nil
 }
 
+func (r *Repository) ListReviewHistory(kind domain.RequestedAccountType, applicationID string) ([]domain.ApplicationReviewEvent, error) {
+	var list []domain.ApplicationReviewEvent
+	if err := r.db.
+		Where("application_kind = ? AND application_id = ?", kind, applicationID).
+		Order("created_at desc").
+		Find(&list).Error; err != nil {
+		return nil, err
+	}
+	return list, nil
+}
+
 func (r *Repository) ListRepresentativeApplications(f ListFilters) ([]domain.RepresentativeApplication, int64, error) {
 	q := r.db.Model(&domain.RepresentativeApplication{}).
 		Joins("JOIN users ON representative_applications.user_id = users.id")
@@ -138,6 +155,9 @@ func (r *Repository) ListRepresentativeApplications(f ListFilters) ([]domain.Rep
 			"LOWER(users.email) LIKE ? OR LOWER(users.name) LIKE ? OR LOWER(representative_applications.full_name) LIKE ? OR LOWER(representative_applications.position) LIKE ? OR LOWER(representative_applications.constituency) LIKE ?",
 			term, term, term, term, term,
 		)
+	}
+	if f.SubmittedBefore != nil {
+		q = q.Where("representative_applications.submitted_at < ?", *f.SubmittedBefore)
 	}
 
 	var total int64
@@ -172,6 +192,9 @@ func (r *Repository) ListOrganizationApplications(f ListFilters) ([]domain.Organ
 			"LOWER(users.email) LIKE ? OR LOWER(users.name) LIKE ? OR LOWER(organization_applications.name) LIKE ? OR LOWER(organization_applications.slug) LIKE ?",
 			term, term, term, term,
 		)
+	}
+	if f.SubmittedBefore != nil {
+		q = q.Where("organization_applications.submitted_at < ?", *f.SubmittedBefore)
 	}
 
 	var total int64
@@ -272,6 +295,10 @@ func (r *Repository) ReviewRepresentativeApplication(
 		if err := tx.Where("id = ?", id).First(&app).Error; err != nil {
 			return err
 		}
+		reviewer, err := findReviewer(tx, reviewerID)
+		if err != nil {
+			return err
+		}
 		appUpdates := map[string]any{
 			"status":              status,
 			"reviewed_at":         reviewedAt,
@@ -287,7 +314,10 @@ func (r *Repository) ReviewRepresentativeApplication(
 			"approval_reviewed_by_id": reviewerID,
 			"approval_note":           nullableString(note),
 		}
-		return tx.Model(&domain.User{}).Where("id = ?", app.UserID).Updates(userUpdates).Error
+		if err := tx.Model(&domain.User{}).Where("id = ?", app.UserID).Updates(userUpdates).Error; err != nil {
+			return err
+		}
+		return createReviewEvent(tx, domain.AccountTypeRepresentative, app.ID, app.UserID, reviewer, status, note, reviewedAt)
 	})
 }
 
@@ -300,6 +330,10 @@ func (r *Repository) ApproveRepresentativeApplication(id, reviewerID string, not
 		}
 		var user domain.User
 		if err := tx.Where("id = ?", app.UserID).First(&user).Error; err != nil {
+			return err
+		}
+		reviewer, err := findReviewer(tx, reviewerID)
+		if err != nil {
 			return err
 		}
 		profileID := app.ApprovedProfileID
@@ -347,6 +381,9 @@ func (r *Repository) ApproveRepresentativeApplication(id, reviewerID string, not
 		}).Error; err != nil {
 			return err
 		}
+		if err := createReviewEvent(tx, domain.AccountTypeRepresentative, app.ID, app.UserID, reviewer, domain.ApprovalStatusApproved, note, reviewedAt); err != nil {
+			return err
+		}
 		return tx.Where("id = ?", id).First(&out).Error
 	})
 	return &out, err
@@ -361,6 +398,10 @@ func (r *Repository) ReviewOrganizationApplication(
 	return r.db.Transaction(func(tx *gorm.DB) error {
 		var app domain.OrganizationApplication
 		if err := tx.Where("id = ?", id).First(&app).Error; err != nil {
+			return err
+		}
+		reviewer, err := findReviewer(tx, reviewerID)
+		if err != nil {
 			return err
 		}
 		appUpdates := map[string]any{
@@ -378,7 +419,10 @@ func (r *Repository) ReviewOrganizationApplication(
 			"approval_reviewed_by_id": reviewerID,
 			"approval_note":           nullableString(note),
 		}
-		return tx.Model(&domain.User{}).Where("id = ?", app.UserID).Updates(userUpdates).Error
+		if err := tx.Model(&domain.User{}).Where("id = ?", app.UserID).Updates(userUpdates).Error; err != nil {
+			return err
+		}
+		return createReviewEvent(tx, domain.AccountTypeOrganization, app.ID, app.UserID, reviewer, status, note, reviewedAt)
 	})
 }
 
@@ -391,6 +435,10 @@ func (r *Repository) ApproveOrganizationApplication(id, reviewerID string, note 
 		}
 		var user domain.User
 		if err := tx.Where("id = ?", app.UserID).First(&user).Error; err != nil {
+			return err
+		}
+		reviewer, err := findReviewer(tx, reviewerID)
+		if err != nil {
 			return err
 		}
 		orgID := app.ApprovedOrganizationID
@@ -453,9 +501,43 @@ func (r *Repository) ApproveOrganizationApplication(id, reviewerID string, note 
 		}).Error; err != nil {
 			return err
 		}
+		if err := createReviewEvent(tx, domain.AccountTypeOrganization, app.ID, app.UserID, reviewer, domain.ApprovalStatusApproved, note, reviewedAt); err != nil {
+			return err
+		}
 		return tx.Where("id = ?", id).First(&out).Error
 	})
 	return &out, err
+}
+
+func findReviewer(tx *gorm.DB, reviewerID string) (*reviewerRecord, error) {
+	var reviewer reviewerRecord
+	if err := tx.Model(&domain.User{}).Select("id", "name").Where("id = ?", reviewerID).First(&reviewer).Error; err != nil {
+		return nil, err
+	}
+	return &reviewer, nil
+}
+
+func createReviewEvent(
+	tx *gorm.DB,
+	kind domain.RequestedAccountType,
+	applicationID string,
+	applicantUserID string,
+	reviewer *reviewerRecord,
+	status domain.ApprovalStatus,
+	note *string,
+	reviewedAt time.Time,
+) error {
+	return tx.Create(&domain.ApplicationReviewEvent{
+		ID:              uuid.New().String(),
+		ApplicationKind: kind,
+		ApplicationID:   applicationID,
+		ApplicantUserID: applicantUserID,
+		ReviewerUserID:  reviewer.ID,
+		ReviewerName:    reviewer.Name,
+		Status:          status,
+		Note:            normalizeStringPtr(note),
+		CreatedAt:       reviewedAt,
+	}).Error
 }
 
 func nullableString(v *string) any {
@@ -463,4 +545,15 @@ func nullableString(v *string) any {
 		return gorm.Expr("NULL")
 	}
 	return strings.TrimSpace(*v)
+}
+
+func normalizeStringPtr(v *string) *string {
+	if v == nil {
+		return nil
+	}
+	trimmed := strings.TrimSpace(*v)
+	if trimmed == "" {
+		return nil
+	}
+	return &trimmed
 }

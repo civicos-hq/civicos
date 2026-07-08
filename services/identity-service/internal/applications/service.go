@@ -20,6 +20,7 @@ type Store interface {
 	FindOrganizationByUserID(userID string) (*domain.OrganizationApplication, error)
 	FindRepresentativeByID(id string) (*domain.RepresentativeApplication, error)
 	FindOrganizationByID(id string) (*domain.OrganizationApplication, error)
+	ListReviewHistory(kind domain.RequestedAccountType, applicationID string) ([]domain.ApplicationReviewEvent, error)
 	ListRepresentativeApplications(f ListFilters) ([]domain.RepresentativeApplication, int64, error)
 	ListOrganizationApplications(f ListFilters) ([]domain.OrganizationApplication, int64, error)
 	UpsertRepresentativeApplication(userID string, app *domain.RepresentativeApplication) error
@@ -96,18 +97,20 @@ type AdminApplicationDetail struct {
 	RepresentativeApplication *domain.RepresentativeApplication `json:"representativeApplication,omitempty"`
 	OrganizationApplication   *domain.OrganizationApplication   `json:"organizationApplication,omitempty"`
 	Applicant                 domain.PublicUser                 `json:"applicant"`
+	ReviewHistory             []domain.ApplicationReviewEvent   `json:"reviewHistory"`
 }
 
 type AdminListFilters struct {
-	Kind   string
-	Status string
-	Search string
-	Limit  int
-	Offset int
+	Kind            string
+	Status          string
+	Search          string
+	StaleAfterHours int
+	Limit           int
+	Offset          int
 }
 
 type ReviewInput struct {
-	Status string  `json:"status" binding:"required,oneof=APPROVED REJECTED"`
+	Status string  `json:"status" binding:"required,oneof=APPROVED NEEDS_CHANGES REJECTED"`
 	Note   *string `json:"note"`
 }
 
@@ -245,6 +248,10 @@ func (s *Service) UpsertOrganization(userID string, input OrganizationApplicatio
 func (s *Service) ListAdmin(f AdminListFilters) ([]AdminApplicationSummary, int64, error) {
 	kind := strings.ToUpper(strings.TrimSpace(f.Kind))
 	repoFilters := ListFilters{Status: strings.ToUpper(strings.TrimSpace(f.Status)), Search: f.Search, Limit: f.Limit, Offset: f.Offset}
+	if f.StaleAfterHours > 0 {
+		cutoff := time.Now().UTC().Add(-time.Duration(f.StaleAfterHours) * time.Hour)
+		repoFilters.SubmittedBefore = &cutoff
+	}
 	switch kind {
 	case "", "ALL":
 		return s.listAdminAll(repoFilters)
@@ -295,6 +302,10 @@ func (s *Service) GetAdmin(kind, id string) (*AdminApplicationDetail, error) {
 		if err != nil {
 			return nil, err
 		}
+		history, err := s.repo.ListReviewHistory(domain.AccountTypeRepresentative, app.ID)
+		if err != nil {
+			return nil, err
+		}
 		return &AdminApplicationDetail{
 			Kind:                      string(domain.AccountTypeRepresentative),
 			ID:                        app.ID,
@@ -303,6 +314,7 @@ func (s *Service) GetAdmin(kind, id string) (*AdminApplicationDetail, error) {
 			ReviewedAt:                app.ReviewedAt,
 			RepresentativeApplication: app,
 			Applicant:                 applicant.ToPublic(),
+			ReviewHistory:             history,
 		}, nil
 	case domain.AccountTypeOrganization:
 		app, err := s.repo.FindOrganizationByID(id)
@@ -316,6 +328,10 @@ func (s *Service) GetAdmin(kind, id string) (*AdminApplicationDetail, error) {
 		if err != nil {
 			return nil, err
 		}
+		history, err := s.repo.ListReviewHistory(domain.AccountTypeOrganization, app.ID)
+		if err != nil {
+			return nil, err
+		}
 		return &AdminApplicationDetail{
 			Kind:                    string(domain.AccountTypeOrganization),
 			ID:                      app.ID,
@@ -324,6 +340,7 @@ func (s *Service) GetAdmin(kind, id string) (*AdminApplicationDetail, error) {
 			ReviewedAt:              app.ReviewedAt,
 			OrganizationApplication: app,
 			Applicant:               applicant.ToPublic(),
+			ReviewHistory:           history,
 		}, nil
 	default:
 		return nil, &AppError{Code: "INVALID_APPLICATION_KIND", Message: "Unknown application kind", Status: http.StatusBadRequest}
@@ -332,8 +349,13 @@ func (s *Service) GetAdmin(kind, id string) (*AdminApplicationDetail, error) {
 
 func (s *Service) Review(kind, id, reviewerID string, input ReviewInput) (*AdminApplicationDetail, error) {
 	status := domain.ApprovalStatus(strings.ToUpper(strings.TrimSpace(input.Status)))
-	if status != domain.ApprovalStatusApproved && status != domain.ApprovalStatusRejected {
-		return nil, &AppError{Code: "INVALID_REVIEW_STATUS", Message: "Review status must be APPROVED or REJECTED", Status: http.StatusBadRequest}
+	if status != domain.ApprovalStatusApproved &&
+		status != domain.ApprovalStatusNeedsChanges &&
+		status != domain.ApprovalStatusRejected {
+		return nil, &AppError{Code: "INVALID_REVIEW_STATUS", Message: "Review status must be APPROVED, NEEDS_CHANGES, or REJECTED", Status: http.StatusBadRequest}
+	}
+	if status != domain.ApprovalStatusApproved && normalizeNote(input.Note) == nil {
+		return nil, &AppError{Code: "REVIEW_NOTE_REQUIRED", Message: "A review note is required when approval is not granted", Status: http.StatusBadRequest}
 	}
 	now := time.Now().UTC()
 
@@ -374,8 +396,9 @@ func (s *Service) Review(kind, id, reviewerID string, input ReviewInput) (*Admin
 			return nil, err
 		}
 		link := "/profile"
-		if err := s.repo.CreateNotification(detail.Applicant.ID, "Representative request needs changes", "Your representative application was reviewed and needs changes before approval.", &link); err != nil {
-			log.Printf("[applications.Review] representative rejection notification failed for user=%s: %v", detail.Applicant.ID, err)
+		title, body := reviewNotificationCopy(domain.AccountTypeRepresentative, status)
+		if err := s.repo.CreateNotification(detail.Applicant.ID, title, body, &link); err != nil {
+			log.Printf("[applications.Review] representative review notification failed for user=%s: %v", detail.Applicant.ID, err)
 		}
 		return detail, nil
 	case domain.AccountTypeOrganization:
@@ -415,13 +438,45 @@ func (s *Service) Review(kind, id, reviewerID string, input ReviewInput) (*Admin
 			return nil, err
 		}
 		link := "/profile"
-		if err := s.repo.CreateNotification(detail.Applicant.ID, "Organization request needs changes", "Your organization application was reviewed and needs changes before approval.", &link); err != nil {
-			log.Printf("[applications.Review] organization rejection notification failed for user=%s: %v", detail.Applicant.ID, err)
+		title, body := reviewNotificationCopy(domain.AccountTypeOrganization, status)
+		if err := s.repo.CreateNotification(detail.Applicant.ID, title, body, &link); err != nil {
+			log.Printf("[applications.Review] organization review notification failed for user=%s: %v", detail.Applicant.ID, err)
 		}
 		return detail, nil
 	default:
 		return nil, &AppError{Code: "INVALID_APPLICATION_KIND", Message: "Unknown application kind", Status: http.StatusBadRequest}
 	}
+}
+
+func reviewNotificationCopy(kind domain.RequestedAccountType, status domain.ApprovalStatus) (string, string) {
+	subject := "request"
+	titlePrefix := "Request"
+	if kind == domain.AccountTypeRepresentative {
+		subject = "representative request"
+		titlePrefix = "Representative request"
+	} else if kind == domain.AccountTypeOrganization {
+		subject = "organization request"
+		titlePrefix = "Organization request"
+	}
+	switch status {
+	case domain.ApprovalStatusNeedsChanges:
+		return titlePrefix + " needs changes", "Your " + subject + " was reviewed and needs changes before approval."
+	case domain.ApprovalStatusRejected:
+		return titlePrefix + " rejected", "Your " + subject + " was rejected by the admin team. Review the note before you resubmit."
+	default:
+		return titlePrefix + " updated", "Your " + subject + " was updated."
+	}
+}
+
+func normalizeNote(note *string) *string {
+	if note == nil {
+		return nil
+	}
+	trimmed := strings.TrimSpace(*note)
+	if trimmed == "" {
+		return nil
+	}
+	return &trimmed
 }
 
 func validateOrganizationInput(input OrganizationApplicationInput) error {

@@ -27,6 +27,7 @@ func Connect(dsn string) *gorm.DB {
 		&domain.RefreshToken{},
 		&domain.AuditLog{},
 		&domain.ContentFlag{},
+		&domain.ApplicationReviewEvent{},
 		&domain.RepresentativeApplication{},
 		&domain.OrganizationApplication{},
 	); err != nil {

@@ -24,10 +24,11 @@ const (
 type ApprovalStatus string
 
 const (
-	ApprovalStatusNone     ApprovalStatus = "NONE"
-	ApprovalStatusPending  ApprovalStatus = "PENDING"
-	ApprovalStatusApproved ApprovalStatus = "APPROVED"
-	ApprovalStatusRejected ApprovalStatus = "REJECTED"
+	ApprovalStatusNone         ApprovalStatus = "NONE"
+	ApprovalStatusPending      ApprovalStatus = "PENDING"
+	ApprovalStatusApproved     ApprovalStatus = "APPROVED"
+	ApprovalStatusNeedsChanges ApprovalStatus = "NEEDS_CHANGES"
+	ApprovalStatusRejected     ApprovalStatus = "REJECTED"
 )
 
 // User is the core identity entity.
@@ -217,6 +218,18 @@ type ContentFlag struct {
 	ResolvedAt     *time.Time    `json:"resolvedAt,omitempty"`
 	CreatedAt      time.Time     `json:"createdAt"`
 	UpdatedAt      time.Time     `json:"updatedAt"`
+}
+
+type ApplicationReviewEvent struct {
+	ID              string               `gorm:"type:uuid;primaryKey" json:"id"`
+	ApplicationKind RequestedAccountType `gorm:"type:varchar(30);not null;index:idx_application_review_lookup" json:"applicationKind"`
+	ApplicationID   string               `gorm:"type:uuid;not null;index:idx_application_review_lookup" json:"applicationId"`
+	ApplicantUserID string               `gorm:"type:uuid;not null;index" json:"applicantUserId"`
+	ReviewerUserID  string               `gorm:"type:uuid;not null;index" json:"reviewerUserId"`
+	ReviewerName    string               `gorm:"not null" json:"reviewerName"`
+	Status          ApprovalStatus       `gorm:"type:varchar(20);not null;index" json:"status"`
+	Note            *string              `json:"note,omitempty"`
+	CreatedAt       time.Time            `gorm:"not null;index" json:"createdAt"`
 }
 
 // RepresentativeApplication stores the data a user submits when asking to be
