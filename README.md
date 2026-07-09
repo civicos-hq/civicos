@@ -182,7 +182,11 @@ cp .env.example .env
 # 4. Install workspace deps (frontends + shared packages)
 pnpm install
 
-# 5. Start the 4 Go services — each in its own terminal
+# 5. Start the 4 Go services — each in its own terminal.
+# Air runs from the service dir, so its shell won't find the repo-root .env
+# via godotenv. Source it first (or symlink .env into each service dir).
+set -a && source .env && set +a
+
 cd services/identity-service     && air
 cd services/community-service    && air
 cd services/organization-service && air
@@ -202,18 +206,19 @@ First-boot notes:
 
 ## Running services
 
-| Service              | URL                   | Purpose                                        |
-| -------------------- | --------------------- | ---------------------------------------------- |
-| Citizen web          | http://localhost:5173 | Public homepage + citizen app                  |
-| Admin console        | http://localhost:5174 | Moderation, metrics, entity management         |
-| API gateway          | http://localhost:3000 | Single entry point for all API calls           |
-| Identity service     | http://localhost:3001 | Auth, users, admin metrics                     |
-| Community service    | http://localhost:3002 | Communities, issues, petitions, reps, flags    |
-| Organization service | http://localhost:3003 | Organizations, announcements, projects         |
-| Postgres             | localhost:5432        | Data                                           |
-| Redis                | localhost:6379        | Rate-limit counters + SSE fan-out              |
-| NATS                 | localhost:4222        | Inter-service messaging (monitor: `:8222`)     |
-| Mailpit UI           | http://localhost:8025 | Dev SMTP catcher — verification + reset emails |
+| Service              | URL                        | Purpose                                                                     |
+| -------------------- | -------------------------- | --------------------------------------------------------------------------- |
+| Citizen web          | http://localhost:5173      | Public homepage + citizen app                                               |
+| Admin console        | http://localhost:5174      | Moderation, metrics, entity management                                      |
+| API gateway          | http://localhost:3000      | Single entry point for all API calls                                        |
+| Identity service     | http://localhost:3001      | Auth, users, admin metrics                                                  |
+| Community service    | http://localhost:3002      | Communities, issues, petitions, reps, flags                                 |
+| Organization service | http://localhost:3003      | Organizations, announcements, projects                                      |
+| Swagger UI           | http://localhost:3000/docs | Interactive API docs — picker for identity / community / organization specs |
+| Postgres             | localhost:5433             | Data                                                                        |
+| Redis                | localhost:6379             | Rate-limit counters + SSE fan-out                                           |
+| NATS                 | localhost:4222             | Inter-service messaging (monitor: `:8222`)                                  |
+| Mailpit UI           | http://localhost:8025      | Dev SMTP catcher — verification + reset emails                              |
 
 Every citizen and admin request goes through the gateway (`:3000`); the frontends never call service ports directly.
 
@@ -264,7 +269,7 @@ Minimum set required in `.env`:
 | Variable                    | Example                                               | Notes                               |
 | --------------------------- | ----------------------------------------------------- | ----------------------------------- |
 | `JWT_SECRET`                | (32+ char random string)                              | Required. `openssl rand -base64 48` |
-| `DATABASE_URL`              | `postgresql://civicos:civicos@localhost:5432/civicos` | Set by docker-compose defaults      |
+| `DATABASE_URL`              | `postgresql://civicos:civicos@localhost:5433/civicos` | Set by docker-compose defaults      |
 | `REDIS_URL`                 | `redis://localhost:6379`                              |                                     |
 | `NATS_URL`                  | `nats://localhost:4222`                               |                                     |
 | `API_GATEWAY_PORT`          | `3000`                                                |                                     |
@@ -281,8 +286,9 @@ See `.env.example` for the complete list.
 
 ## Documentation
 
+- **Swagger UI** at `http://localhost:3000/docs` — browseable API docs with a picker for identity / community / organization
 - `docs/product/` — the five source documents that drive every product and architectural decision (Blueprint, Roadmap, Architecture, Experience, Engineering Playbook)
-- `docs/api/` — endpoint reference for each service
+- `docs/api/openapi-*.yaml` — canonical OpenAPI 3.0 specs, one per service (mirrored into the gateway for embedding)
 - `docs/setup.md` — extended local-dev notes and troubleshooting
 - `CLAUDE.md` — context file for AI assistants working in this repo (also useful as a human onboarding brief)
 
