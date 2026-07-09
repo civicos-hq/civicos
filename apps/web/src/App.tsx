@@ -30,6 +30,8 @@ import { OrgConsultationCreatePage } from './routes/OrgConsultationCreatePage';
 import { OrgConsultationDetailPage } from './routes/OrgConsultationDetailPage';
 import { OrgAnnouncementCreatePage } from './routes/OrgAnnouncementCreatePage';
 import { OrgAnnouncementDetailPage } from './routes/OrgAnnouncementDetailPage';
+import { OrgProjectCreatePage } from './routes/OrgProjectCreatePage';
+import { OrgProjectDetailPage } from './routes/OrgProjectDetailPage';
 import { RateLimitToast } from './components/RateLimitToast';
 
 function hasAccessToken() {
@@ -109,6 +111,8 @@ function AppRoutes() {
           <Route path="/org/:orgId/consultations/:id" element={<OrgConsultationDetailPage />} />
           <Route path="/org/:orgId/announcements/new" element={<OrgAnnouncementCreatePage />} />
           <Route path="/org/:orgId/announcements/:id" element={<OrgAnnouncementDetailPage />} />
+          <Route path="/org/:orgId/projects/new" element={<OrgProjectCreatePage />} />
+          <Route path="/org/:orgId/projects/:id" element={<OrgProjectDetailPage />} />
           <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Route>

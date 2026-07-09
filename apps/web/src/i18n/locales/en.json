@@ -1132,15 +1132,26 @@
     "tabsAria": "Dashboard sections",
     "tabs": {
       "consultations": "Consultations",
-      "announcements": "Announcements"
+      "announcements": "Announcements",
+      "projects": "Projects"
     },
     "newConsultation": "New consultation",
     "newAnnouncement": "New announcement",
+    "newProject": "New project",
     "publishedOn": "Published {{date}}",
+    "startsOn": "Starts {{date}}",
+    "endsOn": "Due {{date}}",
     "announcementStatus": {
       "DRAFT": "Draft",
       "PUBLISHED": "Published",
       "ARCHIVED": "Archived"
+    },
+    "projectStatus": {
+      "PLANNED": "Planned",
+      "ACTIVE": "Active",
+      "PAUSED": "Paused",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled"
     },
     "emptyConsultations": {
       "title": "No consultations yet",
@@ -1149,6 +1160,41 @@
     "emptyAnnouncements": {
       "title": "No announcements yet",
       "body": "Announcements are how your organization broadcasts to the community. Draft one to try it out."
+    },
+    "emptyProjects": {
+      "title": "No projects yet",
+      "body": "Projects are the \"here's what we're building\" record. Track scope, budget, and progress publicly."
+    }
+  },
+  "orgProjectCreate": {
+    "eyebrow": "Section — New project",
+    "title": "Start a project",
+    "subtitle": "Projects go on the public register so citizens can track what your organization is building.",
+    "back": "← Back to projects",
+    "create": "Create project",
+    "error": "Could not create the project.",
+    "fields": {
+      "title": "Title",
+      "description": "Description",
+      "status": "Status",
+      "startDate": "Start date",
+      "expectedEndDate": "Expected end date",
+      "budget": "Budget",
+      "budgetHelp": "Amount in naira. Cents / kobo allowed.",
+      "community": "Target community (optional)",
+      "communityNone": "None — cross-community project"
+    }
+  },
+  "orgProjectDetail": {
+    "back": "← Back to projects",
+    "loadError": "Could not load this project.",
+    "confirmDelete": "Delete this project? This cannot be undone.",
+    "startDate": "Start date",
+    "expectedEndDate": "Expected end date",
+    "budget": "Budget",
+    "errors": {
+      "save": "Could not save changes.",
+      "generic": "Something went wrong. Try again."
     }
   },
   "orgAnnouncementCreate": {

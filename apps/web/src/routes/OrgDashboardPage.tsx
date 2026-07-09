@@ -4,22 +4,26 @@ import { Button } from '@civicos/ui';
 import {
   AnnouncementStatus,
   ConsultationStatus,
+  ProjectStatus,
   type Announcement,
   type Consultation,
+  type Project,
 } from '@civicos/types';
 import { PageHeader, useTodayMeta } from '../components/PageHeader';
 import { EmptyState } from '../components/EmptyState';
 import { useConsultations, useMyOrganizations } from '../hooks/useConsultations';
 import { useOrgAnnouncements } from '../hooks/useAnnouncements';
-import { MessageSquare, Megaphone } from 'lucide-react';
+import { useOrgProjects, kobopToNaira } from '../hooks/useProjects';
+import { MessageSquare, Megaphone, Briefcase } from 'lucide-react';
 
 // Tab type mirrors the sub-sections on the dashboard. Adding a tab is
 // low-effort: add to this union, add a case in the switch, add an i18n key.
-type Tab = 'consultations' | 'announcements';
+type Tab = 'consultations' | 'announcements' | 'projects';
 
 const TABS: Array<{ id: Tab; i18n: string }> = [
   { id: 'consultations', i18n: 'orgDashboard.tabs.consultations' },
   { id: 'announcements', i18n: 'orgDashboard.tabs.announcements' },
+  { id: 'projects', i18n: 'orgDashboard.tabs.projects' },
 ];
 
 const CONSULTATION_TONE: Record<ConsultationStatus, string> = {
@@ -33,6 +37,20 @@ const ANNOUNCEMENT_TONE: Record<AnnouncementStatus, string> = {
   [AnnouncementStatus.PUBLISHED]: 'bg-civic-100 text-civic-700',
   [AnnouncementStatus.ARCHIVED]: 'bg-amber-100 text-amber-700',
 };
+
+const PROJECT_TONE: Record<ProjectStatus, string> = {
+  [ProjectStatus.PLANNED]: 'bg-slate-200 text-slate-700',
+  [ProjectStatus.ACTIVE]: 'bg-civic-100 text-civic-700',
+  [ProjectStatus.PAUSED]: 'bg-amber-100 text-amber-700',
+  [ProjectStatus.COMPLETED]: 'bg-emerald-100 text-emerald-700',
+  [ProjectStatus.CANCELLED]: 'bg-slate-300 text-slate-700',
+};
+
+function formatNaira(kobo?: number): string {
+  const n = kobopToNaira(kobo);
+  if (n === '') return '';
+  return `₦${n.toLocaleString()}`;
+}
 
 export function OrgDashboardPage() {
   const { t } = useTranslation();
@@ -95,6 +113,7 @@ export function OrgDashboardPage() {
 
       {activeTab === 'consultations' && <ConsultationsSection orgId={orgId} canAdmin={canAdmin} />}
       {activeTab === 'announcements' && <AnnouncementsSection orgId={orgId} canAdmin={canAdmin} />}
+      {activeTab === 'projects' && <ProjectsSection orgId={orgId} canAdmin={canAdmin} />}
     </section>
   );
 }
@@ -228,6 +247,81 @@ function AnnouncementsSection({
                   <span>
                     {t('orgDashboard.publishedOn', {
                       date: new Date(a.publishedAt).toLocaleDateString(),
+                    })}
+                  </span>
+                )}
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function ProjectsSection({ orgId, canAdmin }: { orgId: string | undefined; canAdmin: boolean }) {
+  const { t } = useTranslation();
+  const query = useOrgProjects(orgId);
+  const items = ((query.data ?? []) as Project[]).sort((a, b) =>
+    a.createdAt < b.createdAt ? 1 : -1,
+  );
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        {canAdmin && (
+          <Link to={`/org/${orgId}/projects/new`}>
+            <Button size="sm">{t('orgDashboard.newProject')}</Button>
+          </Link>
+        )}
+      </div>
+
+      {query.isLoading && <p className="text-sm text-slate-600">{t('common.loading')}</p>}
+
+      {!query.isLoading && items.length === 0 && (
+        <EmptyState
+          icon={<Briefcase size={20} />}
+          title={t('orgDashboard.emptyProjects.title')}
+          body={t('orgDashboard.emptyProjects.body')}
+        />
+      )}
+
+      <ul className="space-y-3">
+        {items.map((p) => (
+          <li key={p.id}>
+            <Link
+              to={`/org/${orgId}/projects/${p.id}`}
+              className="block rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-civic-300 hover:shadow-md"
+            >
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <h2 className="font-fraunces text-lg font-semibold text-slate-900">{p.title}</h2>
+                  <p className="mt-1 line-clamp-2 text-sm text-slate-600">{p.description}</p>
+                </div>
+                <span
+                  className={
+                    'rounded-full px-2 py-0.5 text-xs font-semibold uppercase tracking-wide ' +
+                    PROJECT_TONE[p.status]
+                  }
+                >
+                  {t(`orgDashboard.projectStatus.${p.status}`)}
+                </span>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+                {p.budgetKobo !== null && p.budgetKobo !== undefined && (
+                  <span>{formatNaira(p.budgetKobo)}</span>
+                )}
+                {p.startDate && (
+                  <span>
+                    {t('orgDashboard.startsOn', {
+                      date: new Date(p.startDate).toLocaleDateString(),
+                    })}
+                  </span>
+                )}
+                {p.expectedEndDate && (
+                  <span>
+                    {t('orgDashboard.endsOn', {
+                      date: new Date(p.expectedEndDate).toLocaleDateString(),
                     })}
                   </span>
                 )}
