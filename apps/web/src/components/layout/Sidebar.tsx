@@ -6,6 +6,7 @@ import {
   FileText,
   Home,
   LogOut,
+  MessageSquare,
   User,
   Users,
 } from 'lucide-react';
@@ -21,6 +22,7 @@ const navItems = [
   { to: '/petitions', i18n: 'sidebar.petitions', icon: FileText },
   { to: '/representatives', i18n: 'sidebar.representatives', icon: Users },
   { to: '/organizations', i18n: 'sidebar.organizations', icon: Building2 },
+  { to: '/consultations', i18n: 'sidebar.consultations', icon: MessageSquare },
   { to: '/notifications', i18n: 'sidebar.notifications', icon: Bell },
 ];
 

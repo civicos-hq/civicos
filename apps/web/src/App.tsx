@@ -22,6 +22,8 @@ import { PrivacyPage } from './routes/PrivacyPage';
 import { TermsPage } from './routes/TermsPage';
 import { OrganizationsPage } from './routes/OrganizationsPage';
 import { OrganizationDetailPage } from './routes/OrganizationDetailPage';
+import { ConsultationsPage } from './routes/ConsultationsPage';
+import { ConsultationDetailPage } from './routes/ConsultationDetailPage';
 import { RateLimitToast } from './components/RateLimitToast';
 
 function hasAccessToken() {
@@ -93,6 +95,8 @@ function AppRoutes() {
           <Route path="/representatives/:id" element={<RepresentativeDetailPage />} />
           <Route path="/organizations" element={<OrganizationsPage />} />
           <Route path="/organizations/:id" element={<OrganizationDetailPage />} />
+          <Route path="/consultations" element={<ConsultationsPage />} />
+          <Route path="/consultations/:id" element={<ConsultationDetailPage />} />
           <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Route>
