@@ -77,9 +77,12 @@ test.describe('organizations', () => {
     await expect(page.getByRole('heading', { name: /announcements/i })).toBeVisible();
     await expect(page.getByRole('heading', { name: /projects/i })).toBeVisible();
     await expect(page.getByRole('heading', { name: /reports received/i })).toBeVisible();
-    // Empty states for all three (fresh org).
-    const emptyStates = page.locator('.empty-state');
-    expect(await emptyStates.count()).toBeGreaterThanOrEqual(3);
+    // Empty states for all three (fresh org). Assignments is conditional on
+    // `isMember` — which depends on the `/organizations/:id/assignments`
+    // query resolving successfully. Use `toHaveCount` so Playwright waits
+    // for the query to settle instead of snapshotting the DOM the moment
+    // the ProjectList paint completes.
+    await expect(page.locator('.empty-state')).toHaveCount(3, { timeout: 10_000 });
   });
 
   test('admin publishes an announcement from the org detail page', async ({

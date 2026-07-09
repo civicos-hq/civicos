@@ -8,13 +8,20 @@ test.describe('homepage', () => {
     const page = await browser.newPage();
     await page.goto('/');
 
-    // Masthead + hero
+    // Masthead + hero.
+    // Note: `.hero-art` used to be a decorative SVG on the hero. It was
+    // removed when the homepage adopted the spotlight-orb hero shell;
+    // the surrounding structure (`.home-hero` container + the signature
+    // stroke) is what we now assert on.
     await expect(page.locator('.home-hero-title')).toBeVisible();
     await expect(page.locator('.hero-signature')).toBeVisible();
-    await expect(page.locator('.hero-art')).toBeVisible();
+    await expect(page.locator('.home-hero')).toBeVisible();
 
     // Docket — at least 4 initial seed rows, plus a live indicator.
-    const docketRows = page.locator('.docket-row');
+    // The Docket component paints entries as `.docket-record` articles
+    // (the earlier `.docket-row` class was superseded when the widget
+    // was redesigned with the browser-chrome frame).
+    const docketRows = page.locator('.docket-record');
     await expect(docketRows.first()).toBeVisible();
     expect(await docketRows.count()).toBeGreaterThanOrEqual(4);
     await expect(page.locator('.docket-live')).toBeVisible();
