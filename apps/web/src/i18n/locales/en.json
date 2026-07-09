@@ -1125,14 +1125,60 @@
   },
   "orgDashboard": {
     "eyebrow": "Organization — {{org}}",
-    "title": "Consultations",
-    "subtitle": "Ask citizens what they think before making decisions.",
+    "title": "Dashboard",
+    "subtitle": "Manage the content your organization posts publicly.",
     "back": "← Back to my organizations",
     "notMember": "You're not a member of this organization.",
+    "tabsAria": "Dashboard sections",
+    "tabs": {
+      "consultations": "Consultations",
+      "announcements": "Announcements"
+    },
     "newConsultation": "New consultation",
-    "empty": {
+    "newAnnouncement": "New announcement",
+    "publishedOn": "Published {{date}}",
+    "announcementStatus": {
+      "DRAFT": "Draft",
+      "PUBLISHED": "Published",
+      "ARCHIVED": "Archived"
+    },
+    "emptyConsultations": {
       "title": "No consultations yet",
       "body": "Start a consultation to gather structured input from citizens before your next decision."
+    },
+    "emptyAnnouncements": {
+      "title": "No announcements yet",
+      "body": "Announcements are how your organization broadcasts to the community. Draft one to try it out."
+    }
+  },
+  "orgAnnouncementCreate": {
+    "eyebrow": "Section — New announcement",
+    "title": "Post an announcement",
+    "subtitle": "Announcements go on the public feed once you publish.",
+    "back": "← Back to dashboard",
+    "publishNow": "Publish immediately (skip draft)",
+    "saveDraft": "Save draft",
+    "saveAndPublish": "Publish now",
+    "error": "Could not save the announcement.",
+    "fields": {
+      "title": "Title",
+      "body": "Body",
+      "bodyHelp": "Plain text with paragraph breaks. Markdown support is on the roadmap."
+    }
+  },
+  "orgAnnouncementDetail": {
+    "back": "← Back to announcements",
+    "loadError": "Could not load this announcement.",
+    "byline": "By {{name}} on {{date}}",
+    "publish": "Publish",
+    "publishing": "Publishing…",
+    "archive": "Archive",
+    "archiving": "Archiving…",
+    "confirmDelete": "Delete this draft? This cannot be undone.",
+    "confirmArchive": "Archive this announcement? It'll be removed from the public feed.",
+    "errors": {
+      "save": "Could not save changes.",
+      "generic": "Something went wrong. Try again."
     }
   },
   "orgConsultationCreate": {
