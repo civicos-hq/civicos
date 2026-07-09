@@ -1107,9 +1107,290 @@
     "petitions": "Petitions",
     "representatives": "Representatives",
     "organizations": "Organizations",
+    "consultations": "Consultations",
+    "myOrg": "My organization",
     "notifications": "Notifications",
     "profile": "Profile",
     "signOut": "Sign out"
+  },
+  "orgLanding": {
+    "eyebrow": "Section — My organizations",
+    "title": "Act on behalf of your organization",
+    "subtitle": "Pick which organization you want to work in.",
+    "actingAs": "Acting as {{role}}",
+    "empty": {
+      "title": "You're not an admin of any organization yet",
+      "body": "Once your organization application is approved, you'll be able to create consultations and manage announcements from here."
+    }
+  },
+  "orgDashboard": {
+    "eyebrow": "Organization — {{org}}",
+    "title": "Dashboard",
+    "subtitle": "Manage the content your organization posts publicly.",
+    "back": "← Back to my organizations",
+    "notMember": "You're not a member of this organization.",
+    "tabsAria": "Dashboard sections",
+    "tabs": {
+      "consultations": "Consultations",
+      "announcements": "Announcements",
+      "projects": "Projects",
+      "assignments": "Assignments"
+    },
+    "newConsultation": "New consultation",
+    "newAnnouncement": "New announcement",
+    "newProject": "New project",
+    "assignmentIssueLink": "Issue #{{id}}",
+    "assignmentAssignedBy": "Claimed by {{name}} on {{date}}",
+    "assignmentsIntro": "Assignments are the issues your organization has taken responsibility for. Claim one from the issue's own page — this list is your inbox for tracking status.",
+    "browseIssuesToClaim": "Browse issues",
+    "assignmentStatus": {
+      "RECEIVED": "Received",
+      "IN_PROGRESS": "In progress",
+      "COMPLETED": "Completed",
+      "REJECTED": "Rejected"
+    },
+    "assignmentSetStatus": "Set status:",
+    "assignmentDrop": "Drop",
+    "assignmentConfirmDelete": "Drop this assignment? The issue stays; your organization is no longer on the record for it.",
+    "emptyAssignments": {
+      "title": "No assignments yet",
+      "body": "Your organization hasn't taken responsibility for any issues yet. Open an issue and click 'Take responsibility' to claim it."
+    },
+    "publishedOn": "Published {{date}}",
+    "startsOn": "Starts {{date}}",
+    "endsOn": "Due {{date}}",
+    "announcementStatus": {
+      "DRAFT": "Draft",
+      "PUBLISHED": "Published",
+      "ARCHIVED": "Archived"
+    },
+    "projectStatus": {
+      "PLANNED": "Planned",
+      "ACTIVE": "Active",
+      "PAUSED": "Paused",
+      "COMPLETED": "Completed",
+      "CANCELLED": "Cancelled"
+    },
+    "emptyConsultations": {
+      "title": "No consultations yet",
+      "body": "Start a consultation to gather structured input from citizens before your next decision."
+    },
+    "emptyAnnouncements": {
+      "title": "No announcements yet",
+      "body": "Announcements are how your organization broadcasts to the community. Draft one to try it out."
+    },
+    "emptyProjects": {
+      "title": "No projects yet",
+      "body": "Projects are the \"here's what we're building\" record. Track scope, budget, and progress publicly."
+    }
+  },
+  "progressUpdate": {
+    "heading": "Post a progress update",
+    "intro": "Post a public note about what's happening. Members of the org see internal notes; the public only sees the ones you mark public.",
+    "actingAs": "Acting as",
+    "bodyLabel": "Update",
+    "bodyPlaceholder": "e.g. Team dispatched to Junction 4; ETA 30 minutes.",
+    "publicLabel": "Public (citizens can see this)",
+    "post": "Post update",
+    "posting": "Posting…",
+    "errors": {
+      "generic": "Could not post the update. Try again."
+    }
+  },
+  "issueClaim": {
+    "heading": "Who's on this",
+    "none": "No organization has taken responsibility yet.",
+    "formHeading": "Take responsibility",
+    "formIntro": "Claim this issue on behalf of your organization. Your org will appear on the public record for this issue and be able to post progress updates.",
+    "actingAs": "Acting as",
+    "noteLabel": "Note (optional)",
+    "notePlaceholder": "e.g. We've dispatched a team.",
+    "claim": "Claim for org",
+    "claiming": "Claiming…",
+    "errors": {
+      "generic": "Could not claim this issue. Try again."
+    }
+  },
+  "orgProjectCreate": {
+    "eyebrow": "Section — New project",
+    "title": "Start a project",
+    "subtitle": "Projects go on the public register so citizens can track what your organization is building.",
+    "back": "← Back to projects",
+    "create": "Create project",
+    "error": "Could not create the project.",
+    "fields": {
+      "title": "Title",
+      "description": "Description",
+      "status": "Status",
+      "startDate": "Start date",
+      "expectedEndDate": "Expected end date",
+      "budget": "Budget",
+      "budgetHelp": "Amount in naira. Cents / kobo allowed.",
+      "community": "Target community (optional)",
+      "communityNone": "None — cross-community project"
+    }
+  },
+  "orgProjectDetail": {
+    "back": "← Back to projects",
+    "loadError": "Could not load this project.",
+    "confirmDelete": "Delete this project? This cannot be undone.",
+    "startDate": "Start date",
+    "expectedEndDate": "Expected end date",
+    "budget": "Budget",
+    "progressHeading": "Progress updates",
+    "progressEmpty": "No progress updates yet.",
+    "errors": {
+      "save": "Could not save changes.",
+      "generic": "Something went wrong. Try again."
+    }
+  },
+  "orgAnnouncementCreate": {
+    "eyebrow": "Section — New announcement",
+    "title": "Post an announcement",
+    "subtitle": "Announcements go on the public feed once you publish.",
+    "back": "← Back to dashboard",
+    "publishNow": "Publish immediately (skip draft)",
+    "saveDraft": "Save draft",
+    "saveAndPublish": "Publish now",
+    "error": "Could not save the announcement.",
+    "fields": {
+      "title": "Title",
+      "body": "Body",
+      "bodyHelp": "Plain text with paragraph breaks. Markdown support is on the roadmap."
+    }
+  },
+  "orgAnnouncementDetail": {
+    "back": "← Back to announcements",
+    "loadError": "Could not load this announcement.",
+    "byline": "By {{name}} on {{date}}",
+    "publish": "Publish",
+    "publishing": "Publishing…",
+    "archive": "Archive",
+    "archiving": "Archiving…",
+    "confirmDelete": "Delete this draft? This cannot be undone.",
+    "confirmArchive": "Archive this announcement? It'll be removed from the public feed.",
+    "errors": {
+      "save": "Could not save changes.",
+      "generic": "Something went wrong. Try again."
+    }
+  },
+  "orgConsultationCreate": {
+    "eyebrow": "Section — New consultation",
+    "title": "Start a consultation",
+    "subtitle": "You'll add questions on the next step. Once published, the questions freeze so early and late responders answer the same form.",
+    "back": "← Back to dashboard",
+    "create": "Save draft",
+    "creating": "Saving…",
+    "error": "Could not create the consultation. Check your input and try again.",
+    "fields": {
+      "title": "Title",
+      "titleHelp": "Short and specific. 5–200 characters.",
+      "summary": "Summary",
+      "summaryHelp": "One or two sentences shown on the list page. 10–500 characters.",
+      "description": "Description",
+      "descriptionHelp": "The full context. Supports markdown.",
+      "community": "Target community (optional)",
+      "communityAny": "Any community — audience label only",
+      "communityHelp": "Citizens will see this label. Any verified user can still respond.",
+      "closesAt": "Response window closes (optional)",
+      "closesAtHelp": "After this time the server rejects new responses. You'll still need to click Close to move the state."
+    }
+  },
+  "orgConsultationDetail": {
+    "back": "← Back to organization",
+    "loadError": "Could not load this consultation.",
+    "questionsHeading": "Questions",
+    "addQuestion": "Add question",
+    "publish": "Publish",
+    "publishing": "Publishing…",
+    "close": "Close consultation",
+    "closing": "Closing…",
+    "confirmDelete": "Delete this draft? This cannot be undone.",
+    "confirmClose": "Close the consultation? No more responses will be accepted.",
+    "confirmDeleteQuestion": "Delete this question?",
+    "analyticsHeading": "Responses ({{count}})",
+    "noResponses": "No responses yet.",
+    "andMore": "…and {{n}} more",
+    "outcomeHeading": "Publish the outcome",
+    "outcomeIntro": "Close the loop for the people who responded. This is the moment CivicOS is built for.",
+    "publishOutcome": "Publish outcome",
+    "publishingOutcome": "Publishing…",
+    "fields": {
+      "prompt": "Question",
+      "helpText": "Help text (optional)",
+      "type": "Type",
+      "options": "Options",
+      "optionsPlaceholder": "One option per line",
+      "optionsHelp": "One option per line. At least two required for choice questions.",
+      "required": "Required"
+    },
+    "errors": {
+      "generic": "Something went wrong. Try again.",
+      "optionsRequired": "Choice questions need at least two options."
+    }
+  },
+  "consultationsPage": {
+    "eyebrow": "Section — Consultations",
+    "title": "Have your say",
+    "subtitle": "Organizations ask citizens what they think before making decisions. Answer the questions that matter to you.",
+    "youResponded": "Responded",
+    "by": "By",
+    "responses": "responses",
+    "closesOn": "Closes {{date}}",
+    "closedOn": "Closed {{date}}",
+    "loadError": "Could not load consultations. Try again in a moment.",
+    "filters": {
+      "all": "All",
+      "open": "Open",
+      "closed": "Closed"
+    },
+    "status": {
+      "DRAFT": "Draft",
+      "PUBLISHED": "Open",
+      "CLOSED": "Closed"
+    },
+    "empty": {
+      "title": "No consultations here yet",
+      "body": "When an organization posts a consultation, you'll find it here."
+    }
+  },
+  "consultationDetail": {
+    "back": "← Back to consultations",
+    "loadError": "Could not load this consultation.",
+    "draftNotice": "This consultation is still a draft. Come back once the organization publishes it.",
+    "alreadyResponded": "Thanks — you've already submitted a response.",
+    "closedNoOutcome": "This consultation is closed. The organization hasn't published the outcome yet.",
+    "questionsHeading": "Questions",
+    "submit": "Submit response",
+    "submitting": "Submitting…",
+    "submitted": "Response recorded. Thanks for participating.",
+    "yesNo": {
+      "YES": "Yes",
+      "NO": "No"
+    },
+    "questionTypes": {
+      "SHORT_TEXT": "Short text",
+      "LONG_TEXT": "Long text",
+      "SINGLE_CHOICE": "Pick one",
+      "MULTI_CHOICE": "Pick any",
+      "YES_NO": "Yes or No"
+    },
+    "errors": {
+      "required": "One or more required questions haven't been answered.",
+      "empty": "Answer at least one question before submitting.",
+      "alreadyResponded": "You've already submitted a response to this consultation.",
+      "notAccepting": "This consultation isn't accepting responses right now.",
+      "pastDeadline": "The response window for this consultation has closed.",
+      "unknownOption": "One of your selections isn't a valid option. Refresh and try again.",
+      "emailNotVerified": "Verify your email before submitting a response."
+    },
+    "outcome": {
+      "heading": "Outcome",
+      "summary": "What we heard",
+      "decisions": "Decisions",
+      "nextSteps": "Next steps",
+      "publishedBy": "Published by {{name}} on {{date}}"
+    }
   },
   "organizationsPage": {
     "eyebrow": "Section — Organizations",

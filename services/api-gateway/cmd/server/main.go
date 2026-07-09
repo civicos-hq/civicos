@@ -92,6 +92,7 @@ func main() {
 	limitCommentHr := middleware.Limit(limiter, middleware.CommentHour)
 	limitSign := middleware.Limit(limiter, middleware.Sign)
 	limitCreate := middleware.Limit(limiter, middleware.Create)
+	limitRespond := middleware.Limit(limiter, middleware.Respond)
 	limitUpvote := middleware.Limit(limiter, middleware.Upvote)
 
 	// --- Identity Service ---
@@ -207,6 +208,8 @@ func main() {
 	r.POST("/api/v1/organizations", authMiddleware, limitStandard, orgProxy)
 	r.PATCH("/api/v1/organizations/:id", authMiddleware, limitStandard, orgProxy)
 	r.GET("/api/v1/organizations/:id/members", orgProxy)
+	// Caller-scoped — which orgs am I a member of, and with what role.
+	r.GET("/api/v1/me/organizations", authMiddleware, orgProxy)
 	r.POST("/api/v1/organizations/:id/members", authMiddleware, limitStandard, orgProxy)
 	r.PATCH("/api/v1/organizations/:id/members/:userId", authMiddleware, limitStandard, orgProxy)
 	r.DELETE("/api/v1/organizations/:id/members/:userId", authMiddleware, limitStandard, orgProxy)
@@ -241,6 +244,32 @@ func main() {
 	r.GET("/api/v1/projects/:projectId/progress-updates", orgProxy)
 	r.POST("/api/v1/organizations/:id/progress-updates", authMiddleware, limitStandard, orgProxy)
 	r.DELETE("/api/v1/progress-updates/:updateId", authMiddleware, limitStandard, orgProxy)
+
+	// Consultations — structured feedback asks (lifecycle DRAFT → PUBLISHED → CLOSED).
+	// Public reads for list, detail, questions, outcome.
+	r.GET("/api/v1/consultations", orgProxy)
+	r.GET("/api/v1/consultations/:id", orgProxy)
+	r.GET("/api/v1/consultations/:id/questions", orgProxy)
+	r.GET("/api/v1/consultations/:id/outcome", orgProxy)
+	// Verified-user response submission.
+	r.POST("/api/v1/consultations/:id/responses", authMiddleware, limitRespond, orgProxy)
+	r.GET("/api/v1/me/consultations/responses", authMiddleware, orgProxy)
+	// Org-admin lifecycle.
+	r.POST("/api/v1/organizations/:id/consultations", authMiddleware, limitCreate, orgProxy)
+	r.PATCH("/api/v1/consultations/:id", authMiddleware, limitStandard, orgProxy)
+	r.DELETE("/api/v1/consultations/:id", authMiddleware, limitStandard, orgProxy)
+	r.POST("/api/v1/consultations/:id/publish", authMiddleware, limitStandard, orgProxy)
+	r.POST("/api/v1/consultations/:id/close", authMiddleware, limitStandard, orgProxy)
+	// Question builder — only editable in DRAFT.
+	r.POST("/api/v1/consultations/:id/questions", authMiddleware, limitStandard, orgProxy)
+	r.PATCH("/api/v1/consultation-questions/:questionId", authMiddleware, limitStandard, orgProxy)
+	r.DELETE("/api/v1/consultation-questions/:questionId", authMiddleware, limitStandard, orgProxy)
+	r.PATCH("/api/v1/consultations/:id/questions/reorder", authMiddleware, limitStandard, orgProxy)
+	// Admin-only reads.
+	r.GET("/api/v1/consultations/:id/responses", authMiddleware, orgProxy)
+	r.GET("/api/v1/consultations/:id/analytics", authMiddleware, orgProxy)
+	// Outcome (close-the-loop).
+	r.POST("/api/v1/consultations/:id/outcome", authMiddleware, limitStandard, orgProxy)
 
 	// Notifications
 	notificationsStream := proxy.NewStreamingProxy(cfg.CommunityServiceURL, "/api")

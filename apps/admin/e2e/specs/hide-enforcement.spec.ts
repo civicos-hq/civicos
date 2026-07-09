@@ -59,11 +59,17 @@ test.describe('hide enforcement — moderator hide removes content from citizen 
     });
     await expect(row).toBeVisible({ timeout: 5_000 });
 
+    // Same two-step workflow as flags.spec.ts: Review opens an inline
+    // resolution panel that carries the Hide button and the note textarea.
+    await row.getByRole('button', { name: /^review$/i }).click();
+    const panel = page.locator('tr').filter({ hasText: /Resolve flag for/i });
+    await expect(panel).toBeVisible();
+    await panel.locator('textarea').fill('hidden by e2e');
     page.on('dialog', (d) => {
       if (d.type() === 'prompt') d.accept('hidden by e2e');
       else d.accept();
     });
-    await row.getByRole('button', { name: /^hide$/i }).click();
+    await panel.getByRole('button', { name: /^hide$/i }).click();
 
     // Flag flips to HIDDEN in the DB.
     await expect

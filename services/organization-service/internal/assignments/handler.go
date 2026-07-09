@@ -29,15 +29,14 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth gin.HandlerFunc) {
 
 // listByOrg is member-only — the caller must belong to the org they're
 // querying. Prevents a curious user from enumerating another org's inbox.
+// PLATFORM_ADMIN is allowed as an oversight read (see CanReadInternal).
 func (h *Handler) listByOrg(c *gin.Context) {
 	orgID := c.Param("id")
 	userID, _ := c.Get("userID")
 	userRole, _ := c.Get("userRole")
-	if userRole.(string) != "PLATFORM_ADMIN" {
-		if _, err := h.orgs.IsMember(orgID, userID.(string)); err != nil {
-			handleAppErr(c, err)
-			return
-		}
+	if err := h.orgs.CanReadInternal(orgID, userID.(string), asString(userRole)); err != nil {
+		handleAppErr(c, err)
+		return
 	}
 	items, err := h.svc.ListByOrg(orgID, strings.ToUpper(c.Query("status")))
 	if err != nil {
@@ -63,13 +62,14 @@ func (h *Handler) create(c *gin.Context) {
 	userID, _ := c.Get("userID")
 	userName, _ := c.Get("userName")
 	userRole, _ := c.Get("userRole")
-	// Two paths in: an org admin claims an issue for their org (self-assign),
-	// or a PLATFORM_ADMIN routes an issue on someone's behalf.
-	if userRole.(string) != "PLATFORM_ADMIN" {
-		if err := h.orgs.CanAdmin(orgID, userID.(string), asString(userRole)); err != nil {
-			handleAppErr(c, err)
-			return
-		}
+	// Assignments must be self-claimed by an org admin — the assignment
+	// record ("we're taking responsibility") is only credible when it
+	// comes from the org itself. Platform admins can no longer route
+	// issues on behalf; if that capability is needed later it belongs
+	// on a distinct moderation endpoint with its own audit action.
+	if err := h.orgs.CanAdmin(orgID, userID.(string), asString(userRole)); err != nil {
+		handleAppErr(c, err)
+		return
 	}
 	var input AssignInput
 	if err := c.ShouldBindJSON(&input); err != nil {

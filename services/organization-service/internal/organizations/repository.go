@@ -63,6 +63,25 @@ func (r *Repository) FindMember(orgID, userID string) (*domain.OrgMember, error)
 	return &m, r.db.Where("organization_id = ? AND user_id = ?", orgID, userID).First(&m).Error
 }
 
+// FindMembershipsByUser lists every membership row the caller holds
+// across all orgs. Used by the `/me/organizations` endpoint so the
+// frontend can render the "orgs you can act as" picker without doing
+// N+1 lookups.
+func (r *Repository) FindMembershipsByUser(userID string) ([]domain.OrgMember, error) {
+	var list []domain.OrgMember
+	return list, r.db.Where("user_id = ?", userID).Order("joined_at asc").Find(&list).Error
+}
+
+// FindByIDs returns the orgs for a set of IDs, preserving that set —
+// callers use it to pair each membership with its org record.
+func (r *Repository) FindByIDs(ids []string) ([]domain.Organization, error) {
+	if len(ids) == 0 {
+		return []domain.Organization{}, nil
+	}
+	var list []domain.Organization
+	return list, r.db.Where("id IN ?", ids).Find(&list).Error
+}
+
 func (r *Repository) ListMembers(orgID string) ([]domain.OrgMember, error) {
 	var list []domain.OrgMember
 	return list, r.db.Where("organization_id = ?", orgID).Order("joined_at asc").Find(&list).Error

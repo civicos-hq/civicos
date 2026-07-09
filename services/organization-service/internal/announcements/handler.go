@@ -2,23 +2,32 @@ package announcements
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"strconv"
 
 	"github.com/civicos/organization-service/internal/audit"
+	"github.com/civicos/organization-service/internal/notifications"
 	"github.com/civicos/organization-service/internal/organizations"
 	"github.com/civicos/organization-service/pkg/response"
 	"github.com/gin-gonic/gin"
 )
 
-type Handler struct {
-	svc     *Service
-	orgs    *organizations.Service
-	auditor *audit.Auditor
+// Notifier is the minimal surface this handler needs. notifications.DBNotifier
+// satisfies it — kept as an interface so tests can substitute a fake.
+type Notifier interface {
+	EmitMany(userIDs []string, t notifications.NotificationType, title, body string, linkURL *string)
 }
 
-func NewHandler(svc *Service, orgs *organizations.Service, auditor *audit.Auditor) *Handler {
-	return &Handler{svc: svc, orgs: orgs, auditor: auditor}
+type Handler struct {
+	svc      *Service
+	orgs     *organizations.Service
+	auditor  *audit.Auditor
+	notifier Notifier
+}
+
+func NewHandler(svc *Service, orgs *organizations.Service, auditor *audit.Auditor, notifier Notifier) *Handler {
+	return &Handler{svc: svc, orgs: orgs, auditor: auditor, notifier: notifier}
 }
 
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth gin.HandlerFunc) {
@@ -92,6 +101,11 @@ func (h *Handler) create(c *gin.Context) {
 	if handleAppErr(c, err) {
 		return
 	}
+	// Immediate-publish path shares the fan-out helper with the dedicated
+	// /publish endpoint so both entry points produce identical notifications.
+	if input.Publish {
+		h.notifyPublished(item.OrganizationID, item.ID, item.Title, item.Body)
+	}
 	response.Success(c, http.StatusCreated, gin.H{"announcement": item})
 }
 
@@ -143,7 +157,41 @@ func (h *Handler) publish(c *gin.Context) {
 		Metadata:   map[string]any{"orgId": a.OrganizationID, "title": a.Title},
 		Request:    c.Request,
 	})
+	h.notifyPublished(item.OrganizationID, item.ID, item.Title, item.Body)
 	response.Success(c, http.StatusOK, gin.H{"announcement": item})
+}
+
+// notifyPublished fans out to every member of the org that an announcement
+// went live. Kept as a helper so both the publish endpoint and the
+// create-with-publish path in `create` can share the emit logic.
+//
+// Failures inside the notifier are logged by the underlying DBNotifier
+// but never bubbled up — a publish that succeeds shouldn't fail because
+// notification delivery hiccupped.
+func (h *Handler) notifyPublished(orgID, announcementID, title, body string) {
+	if h.notifier == nil {
+		return
+	}
+	members, err := h.orgs.ListMembers(orgID)
+	if err != nil {
+		log.Printf("notify announcement.published: list members: %v", err)
+		return
+	}
+	userIDs := make([]string, 0, len(members))
+	for _, m := range members {
+		userIDs = append(userIDs, m.UserID)
+	}
+	link := "/announcements/" + announcementID
+	preview := body
+	if len(preview) > 200 {
+		preview = preview[:200] + "…"
+	}
+	h.notifier.EmitMany(userIDs,
+		notifications.TypeAnnouncementUpdate,
+		"New announcement: "+title,
+		preview,
+		&link,
+	)
 }
 
 func (h *Handler) archive(c *gin.Context) {
@@ -154,7 +202,10 @@ func (h *Handler) archive(c *gin.Context) {
 	}
 	userID, _ := c.Get("userID")
 	userRole, _ := c.Get("userRole")
-	if err := h.orgs.CanAdmin(a.OrganizationID, userID.(string), asString(userRole)); err != nil {
+	// Archive is the emergency lever — platform admins retain this even
+	// without org membership so a bad announcement can be pulled from
+	// the public feed. See organizations.CanClose.
+	if err := h.orgs.CanClose(a.OrganizationID, userID.(string), asString(userRole)); err != nil {
 		handleAppErr(c, err)
 		return
 	}

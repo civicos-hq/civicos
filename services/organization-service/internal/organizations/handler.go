@@ -39,6 +39,24 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth, requireCreator gin.H
 	rg.DELETE("/:id/members/:userId", auth, h.removeMember)
 }
 
+// RegisterMeRoutes mounts caller-scoped org endpoints on /me. Separate
+// from RegisterRoutes because /me isn't a subpath of /organizations —
+// it's mounted on the v1 root by main.go.
+func (h *Handler) RegisterMeRoutes(rg *gin.RouterGroup, auth gin.HandlerFunc) {
+	rg.GET("/organizations", auth, h.listMyMemberships)
+}
+
+func (h *Handler) listMyMemberships(c *gin.Context) {
+	userID, _ := c.Get("userID")
+	uid, _ := userID.(string)
+	items, err := h.svc.ListMyMemberships(uid)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to list your organizations")
+		return
+	}
+	response.Success(c, http.StatusOK, gin.H{"memberships": items})
+}
+
 func (h *Handler) list(c *gin.Context) {
 	items, err := h.svc.List(ListFilters{
 		Kind:         strings.ToUpper(c.Query("kind")),

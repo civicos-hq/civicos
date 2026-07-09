@@ -89,6 +89,14 @@ var (
 	// Upvote: browsing a feed and clicking a few is normal. 60/min is
 	// still generous but stops a bot mashing the endpoint.
 	Upvote = Profile{Name: "upvote", Limit: 60, Window: time.Minute}
+
+	// Respond: submitting a consultation response. One-per-user is
+	// already enforced by the DB compound unique index, so the limit
+	// here just prevents a script hammering the endpoint for other
+	// people (attempted-fill enumeration). 10/hour is roomier than
+	// Sign because a legitimate citizen may respond to several
+	// consultations in one session.
+	Respond = Profile{Name: "respond", Limit: 10, Window: time.Hour}
 )
 
 // Limit returns a Gin middleware that enforces the given profile.

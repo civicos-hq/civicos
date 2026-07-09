@@ -15,10 +15,12 @@ import (
 type OrgStore interface {
 	FindAll(f ListFilters) ([]domain.Organization, error)
 	FindByID(id string) (*domain.Organization, error)
+	FindByIDs(ids []string) ([]domain.Organization, error)
 	FindBySlug(slug string) (*domain.Organization, error)
 	Create(o *domain.Organization) error
 	Update(id string, updates map[string]any) error
 	FindMember(orgID, userID string) (*domain.OrgMember, error)
+	FindMembershipsByUser(userID string) ([]domain.OrgMember, error)
 	ListMembers(orgID string) ([]domain.OrgMember, error)
 	AddMember(m *domain.OrgMember) error
 	UpdateMemberRole(orgID, userID string, role domain.OrgMemberRole) error
@@ -200,19 +202,95 @@ func (s *Service) IsMember(orgID, userID string) (*domain.OrgMember, error) {
 	return m, err
 }
 
-// CanAdmin returns nil if the caller may perform admin actions on the org
-// (create announcements, change members, etc.) — OWNER, ADMIN, or a
-// platform-role acting from outside the org.
-func (s *Service) CanAdmin(orgID, userID, userRole string) error {
-	if userRole == "PLATFORM_ADMIN" {
-		return nil
+// MyMembership pairs a membership row with the org it references. The
+// frontend uses this to render the "which org can I act as" picker
+// without needing to fan out N GET-org calls after listing memberships.
+type MyMembership struct {
+	Organization domain.Organization `json:"organization"`
+	Membership   domain.OrgMember    `json:"membership"`
+}
+
+// ListMyMemberships returns every org the caller belongs to, paired
+// with the membership role. Ordered by joined_at ascending (older first)
+// so the primary/first-joined org lands at the top of any picker UI.
+func (s *Service) ListMyMemberships(userID string) ([]MyMembership, error) {
+	memberships, err := s.repo.FindMembershipsByUser(userID)
+	if err != nil {
+		return nil, err
 	}
+	if len(memberships) == 0 {
+		return []MyMembership{}, nil
+	}
+	ids := make([]string, len(memberships))
+	for i, m := range memberships {
+		ids[i] = m.OrganizationID
+	}
+	orgs, err := s.repo.FindByIDs(ids)
+	if err != nil {
+		return nil, err
+	}
+	byID := map[string]domain.Organization{}
+	for _, o := range orgs {
+		byID[o.ID] = o
+	}
+	out := make([]MyMembership, 0, len(memberships))
+	for _, m := range memberships {
+		org, ok := byID[m.OrganizationID]
+		if !ok {
+			continue // stale membership row — org was deleted; skip
+		}
+		out = append(out, MyMembership{Organization: org, Membership: m})
+	}
+	return out, nil
+}
+
+// CanAdmin returns nil if the caller may perform standard admin
+// actions on the org — creating content, editing, deleting members.
+// Strict: **org membership is required.** A PLATFORM_ADMIN who is
+// NOT a member of this org is refused so that content the org publishes
+// (announcements, projects, consultations) is always attributed to the
+// org itself, not to a platform admin acting on their behalf.
+//
+// For emergency-only actions where the platform must be able to
+// intervene without joining the org first (e.g. closing a bad
+// consultation, archiving an announcement), callers should use
+// {@link CanClose} instead.
+func (s *Service) CanAdmin(orgID, userID, userRole string) error {
 	m, err := s.repo.FindMember(orgID, userID)
 	if err != nil {
-		return &AppError{Code: "FORBIDDEN", Message: "Only org owners, admins, or platform admins can do this", Status: http.StatusForbidden}
+		return &AppError{Code: "FORBIDDEN", Message: "Only org owners or admins can do this", Status: http.StatusForbidden}
 	}
 	if m.Role != domain.MemberRoleOwner && m.Role != domain.MemberRoleAdmin {
 		return &AppError{Code: "FORBIDDEN", Message: "Only org owners or admins can do this", Status: http.StatusForbidden}
+	}
+	return nil
+}
+
+// CanClose returns nil for the emergency-close subset of admin actions:
+// closing a published consultation, archiving an announcement. Platform
+// admins are allowed here because a bad-actor or compromised-account
+// scenario needs a lever that doesn't require joining the org first.
+// Everything CanClose allows is either destructive-to-visibility OR
+// state-freezing, never authorship: the underlying record's authorId
+// still names the org.
+func (s *Service) CanClose(orgID, userID, userRole string) error {
+	if userRole == "PLATFORM_ADMIN" {
+		return nil
+	}
+	return s.CanAdmin(orgID, userID, userRole)
+}
+
+// CanReadInternal gates admin-only reads — response lists, analytics,
+// draft content. Members of the org (any role including STAFF) and
+// PLATFORM_ADMIN both qualify. This is separate from CanAdmin because
+// a STAFF member should be able to look at their own org's analytics
+// without being able to publish.
+func (s *Service) CanReadInternal(orgID, userID, userRole string) error {
+	if userRole == "PLATFORM_ADMIN" {
+		return nil
+	}
+	if _, err := s.repo.FindMember(orgID, userID); err != nil {
+		return &AppError{Code: "FORBIDDEN", Message: "Only members of this organization can view this", Status: http.StatusForbidden}
 	}
 	return nil
 }

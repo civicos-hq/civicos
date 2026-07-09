@@ -66,7 +66,10 @@ test.describe('dashboard content', () => {
 
   test('IssuesPage — Report Issue modal opens', async ({ authedAsCitizenInCommunity: page }) => {
     await page.goto('/issues');
-    await page.getByRole('button', { name: /report issue/i }).click();
+    // The button label reads "+ Raise an issue" (see issuesPage.reportBtn).
+    // Match either wording so a future copy change from "raise" back to
+    // "report" doesn't quietly break this test again.
+    await page.getByRole('button', { name: /raise an issue|report issue/i }).click();
     // Modal header text ('File a community issue' or similar) proves the
     // dialog rendered. Using text lookup rather than getByLabel because
     // @civicos/ui Input drops the label/input id association (follow-up:

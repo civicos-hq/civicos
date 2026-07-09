@@ -8,6 +8,8 @@ type OrgMemberRole string
 type AnnouncementStatus string
 type ProjectStatus string
 type AssignmentStatus string
+type ConsultationStatus string
+type QuestionType string
 
 const (
 	OrgKindGovernment OrgKind = "GOVERNMENT"
@@ -39,6 +41,16 @@ const (
 	AssignmentInProgress AssignmentStatus = "IN_PROGRESS"
 	AssignmentCompleted  AssignmentStatus = "COMPLETED"
 	AssignmentRejected   AssignmentStatus = "REJECTED"
+
+	ConsultationDraft     ConsultationStatus = "DRAFT"
+	ConsultationPublished ConsultationStatus = "PUBLISHED"
+	ConsultationClosed    ConsultationStatus = "CLOSED"
+
+	QuestionShortText    QuestionType = "SHORT_TEXT"
+	QuestionLongText     QuestionType = "LONG_TEXT"
+	QuestionSingleChoice QuestionType = "SINGLE_CHOICE"
+	QuestionMultiChoice  QuestionType = "MULTI_CHOICE"
+	QuestionYesNo        QuestionType = "YES_NO"
 )
 
 type Organization struct {
@@ -131,4 +143,90 @@ type ProgressUpdate struct {
 	AuthorID       string    `gorm:"type:uuid;not null" json:"authorId"`
 	AuthorName     string    `gorm:"not null" json:"authorName"`
 	CreatedAt      time.Time `json:"createdAt"`
+}
+
+// Consultation is a structured feedback ask published by an organization to
+// either the whole org membership or a single community. Lifecycle is
+// DRAFT → PUBLISHED → CLOSED. Editing questions is only allowed while the
+// consultation is still a DRAFT — once published, the form is frozen so
+// early responders and late responders are answering the same questions.
+//
+// CommunityID is stored but NOT enforced on response submission: a
+// consultation "aimed at" one community is an audience signal, and any
+// verified user can respond. This matches the platform-wide accountability
+// principle that participation is deliberate and identified.
+type Consultation struct {
+	ID             string             `gorm:"type:uuid;primaryKey" json:"id"`
+	OrganizationID string             `gorm:"type:uuid;not null;index" json:"organizationId"`
+	CommunityID    *string            `gorm:"type:uuid;index" json:"communityId,omitempty"`
+	Title          string             `gorm:"not null" json:"title"`
+	Summary        string             `gorm:"not null" json:"summary"`
+	Description    string             `gorm:"type:text;not null" json:"description"`
+	CoverImageURL  *string            `json:"coverImageUrl,omitempty"`
+	Status         ConsultationStatus `gorm:"type:varchar(20);default:'DRAFT';index" json:"status"`
+	OpensAt        *time.Time         `json:"opensAt,omitempty"`
+	ClosesAt       *time.Time         `json:"closesAt,omitempty"`
+	ResponseCount  int                `gorm:"default:0" json:"responseCount"`
+	AuthorID       string             `gorm:"type:uuid;not null" json:"authorId"`
+	AuthorName     string             `gorm:"not null" json:"authorName"`
+	PublishedAt    *time.Time         `json:"publishedAt,omitempty"`
+	ClosedAt       *time.Time         `json:"closedAt,omitempty"`
+	CreatedAt      time.Time          `json:"createdAt"`
+	UpdatedAt      time.Time          `json:"updatedAt"`
+}
+
+// Question belongs to a Consultation. `Position` orders questions in the
+// form; the client is responsible for continuous, gap-free values but the
+// server sorts by Position anyway. `Options` is a JSON array used by the
+// two choice types; empty for text/yes-no.
+type ConsultationQuestion struct {
+	ID             string       `gorm:"type:uuid;primaryKey" json:"id"`
+	ConsultationID string       `gorm:"type:uuid;not null;index" json:"consultationId"`
+	Position       int          `gorm:"not null" json:"position"`
+	Prompt         string       `gorm:"not null" json:"prompt"`
+	HelpText       *string      `json:"helpText,omitempty"`
+	Type           QuestionType `gorm:"type:varchar(20);not null" json:"type"`
+	Options        []string     `gorm:"type:jsonb;serializer:json" json:"options"`
+	Required       bool         `gorm:"default:false" json:"required"`
+	CreatedAt      time.Time    `json:"createdAt"`
+	UpdatedAt      time.Time    `json:"updatedAt"`
+}
+
+// ConsultationResponse is a citizen's submitted response set. Compound
+// unique index (consultation_id, user_id) enforces one submission per
+// verified user. Answers are child rows.
+type ConsultationResponse struct {
+	ID             string    `gorm:"type:uuid;primaryKey" json:"id"`
+	ConsultationID string    `gorm:"type:uuid;not null;uniqueIndex:idx_consultation_respondent;index" json:"consultationId"`
+	UserID         string    `gorm:"type:uuid;not null;uniqueIndex:idx_consultation_respondent" json:"userId"`
+	SubmittedAt    time.Time `gorm:"not null;index" json:"submittedAt"`
+	CreatedAt      time.Time `json:"createdAt"`
+}
+
+// ConsultationAnswer stores a single question's answer inside a response.
+// Exactly one of TextValue/Selections carries data — TextValue for
+// SHORT_TEXT and LONG_TEXT; Selections for SINGLE_CHOICE, MULTI_CHOICE,
+// and YES_NO (encoded as ["YES"] or ["NO"] for consistency).
+type ConsultationAnswer struct {
+	ID         string   `gorm:"type:uuid;primaryKey" json:"id"`
+	ResponseID string   `gorm:"type:uuid;not null;uniqueIndex:idx_answer_response_question;index" json:"responseId"`
+	QuestionID string   `gorm:"type:uuid;not null;uniqueIndex:idx_answer_response_question;index" json:"questionId"`
+	TextValue  *string  `json:"textValue,omitempty"`
+	Selections []string `gorm:"type:jsonb;serializer:json" json:"selections,omitempty"`
+}
+
+// ConsultationOutcome is the "close the loop" primitive — after a
+// consultation closes, the org publishes a summary of findings and what
+// happens next. Exactly one outcome per consultation (unique index).
+type ConsultationOutcome struct {
+	ID             string    `gorm:"type:uuid;primaryKey" json:"id"`
+	ConsultationID string    `gorm:"type:uuid;not null;uniqueIndex" json:"consultationId"`
+	Summary        string    `gorm:"type:text;not null" json:"summary"`
+	Decisions      string    `gorm:"type:text;not null" json:"decisions"`
+	NextSteps      string    `gorm:"type:text;not null" json:"nextSteps"`
+	AuthorID       string    `gorm:"type:uuid;not null" json:"authorId"`
+	AuthorName     string    `gorm:"not null" json:"authorName"`
+	PublishedAt    time.Time `gorm:"not null" json:"publishedAt"`
+	CreatedAt      time.Time `json:"createdAt"`
+	UpdatedAt      time.Time `json:"updatedAt"`
 }

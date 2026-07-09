@@ -14,6 +14,7 @@ import {
 } from '@civicos/types';
 import { api, getApiError } from '../lib/api';
 import { CommentsSection } from '../components/civic/CommentsSection';
+import { IssueClaimSection } from '../components/civic/IssueClaimSection';
 import { ImageGallery } from '../components/ImageLightbox';
 import { ShareButton } from '../components/ShareButton';
 import { useMe } from '../hooks/useMe';
@@ -262,6 +263,8 @@ export function IssueDetailPage() {
         </Button>
         {upvoteError && <p className="w-full text-sm text-red-600">{upvoteError}</p>}
       </article>
+
+      <IssueClaimSection issueId={issue.id} />
 
       <OfficialProgressSection issueId={issue.id} />
 

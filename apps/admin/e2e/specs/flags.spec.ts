@@ -42,14 +42,21 @@ test.describe('moderation queue', () => {
     const row = page.locator('tr', { hasText: 'SPAM' }).first();
     await expect(row).toBeVisible({ timeout: 5_000 });
 
-    // First prompt() asks for note; second confirm() would be for the action
-    // itself (we accept both). The Hide action fires a single prompt in the
-    // current UI — accept with a note.
+    // The flags UI is two-step: PENDING rows expose a "Review" button which
+    // expands an inline resolution panel with the note textarea + Hide /
+    // Dismiss buttons in a second <tr>. Click Review, fill the note in the
+    // panel (no more browser prompt), then click Hide.
+    await row.getByRole('button', { name: /^review$/i }).click();
+    const panel = page.locator('tr').filter({ hasText: /Resolve flag for/i });
+    await expect(panel).toBeVisible();
+    await panel.locator('textarea').fill('e2e — hidden by test');
+    // Any remaining prompt/confirm listener is a no-op safety net for older
+    // UI states that might still surface a dialog.
     page.on('dialog', (d) => {
       if (d.type() === 'prompt') d.accept('e2e — hidden by test');
       else d.accept();
     });
-    await row.getByRole('button', { name: /^hide$/i }).click();
+    await panel.getByRole('button', { name: /^hide$/i }).click();
 
     // Flag DB state reflects the resolution.
     await expect

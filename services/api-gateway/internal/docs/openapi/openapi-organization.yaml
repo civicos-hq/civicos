@@ -15,7 +15,23 @@ info:
     Roles allowed to **create** a top-level org from scratch: `GOVERNMENT_ADMIN`,
     `PLATFORM_ADMIN`, `NGO`. Once created, the org's internal role
     (`OWNER` / `ADMIN` / `STAFF`) governs edits — not the platform JWT role.
-    Reads are generally public; writes require org membership + admin privilege.
+
+    **Content-authorship writes are strictly org-only.** A `PLATFORM_ADMIN`
+    who is not a member of the org **cannot** create, edit, publish, or
+    delete announcements / projects / assignments / consultations on the
+    org's behalf. Attribution belongs to the organization itself.
+
+    Platform admins retain two narrow powers:
+
+    - **Emergency close/archive** — `PLATFORM_ADMIN` can close a published
+      consultation or archive an announcement without joining the org first.
+      Written to the audit log with the actor's identity.
+    - **Oversight reads** — `PLATFORM_ADMIN` can view responses, analytics,
+      and org-only content (draft announcements, assignment inboxes) for
+      any org.
+
+    Anything beyond these two levers requires the platform admin to be
+    added as a member of the target org first.
 
 servers:
   - url: http://localhost:3000/api/v1
@@ -36,6 +52,14 @@ tags:
     description: Issue → organization assignments (an org takes responsibility for a report).
   - name: Progress Updates
     description: Public updates on an assigned issue or a project.
+  - name: Consultations
+    description: Structured feedback asks with a full lifecycle (DRAFT → PUBLISHED → CLOSED) and outcome publishing.
+  - name: Consultation Questions
+    description: Question builder for draft consultations (only editable while status = DRAFT).
+  - name: Consultation Responses
+    description: Verified-user response submission and admin-only response reads.
+  - name: Consultation Outcomes
+    description: Post-close outcome publishing — the "close the loop" primitive.
 
 security:
   - bearerAuth: []
@@ -184,6 +208,117 @@ components:
         authorId: { type: string, format: uuid }
         authorName: { type: string }
         createdAt: { type: string, format: date-time }
+
+    ConsultationStatus:
+      type: string
+      enum: [DRAFT, PUBLISHED, CLOSED]
+
+    QuestionType:
+      type: string
+      enum: [SHORT_TEXT, LONG_TEXT, SINGLE_CHOICE, MULTI_CHOICE, YES_NO]
+
+    Consultation:
+      type: object
+      description: |
+        A structured feedback ask published by an organization. `communityId`
+        stored on the row is an audience label — it's shown to citizens but
+        NOT enforced on response submission, so any verified user can answer.
+      properties:
+        id: { type: string, format: uuid }
+        organizationId: { type: string, format: uuid }
+        communityId: { type: string, format: uuid, nullable: true }
+        title: { type: string }
+        summary: { type: string }
+        description: { type: string, description: Markdown supported. }
+        coverImageUrl: { type: string, nullable: true }
+        status: { $ref: '#/components/schemas/ConsultationStatus' }
+        opensAt: { type: string, format: date-time, nullable: true }
+        closesAt: { type: string, format: date-time, nullable: true }
+        responseCount: { type: integer }
+        authorId: { type: string, format: uuid }
+        authorName: { type: string }
+        publishedAt: { type: string, format: date-time, nullable: true }
+        closedAt: { type: string, format: date-time, nullable: true }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    ConsultationQuestion:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        consultationId: { type: string, format: uuid }
+        position: { type: integer }
+        prompt: { type: string }
+        helpText: { type: string, nullable: true }
+        type: { $ref: '#/components/schemas/QuestionType' }
+        options:
+          type: array
+          items: { type: string }
+          description: Only used by SINGLE_CHOICE and MULTI_CHOICE questions.
+        required: { type: boolean }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    ConsultationAnswer:
+      type: object
+      description: |
+        A single question's answer inside a response. Exactly one of
+        `textValue` or `selections` carries data based on question type.
+        Yes/No answers are encoded as `selections: ["YES"]` or `["NO"]`.
+      properties:
+        id: { type: string, format: uuid }
+        responseId: { type: string, format: uuid }
+        questionId: { type: string, format: uuid }
+        textValue: { type: string, nullable: true }
+        selections:
+          type: array
+          items: { type: string }
+          nullable: true
+
+    ConsultationResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        consultationId: { type: string, format: uuid }
+        userId: { type: string, format: uuid }
+        submittedAt: { type: string, format: date-time }
+        createdAt: { type: string, format: date-time }
+
+    ConsultationOutcome:
+      type: object
+      description: |
+        The "close the loop" primitive — after a consultation closes,
+        the org publishes a summary of findings and what happens next.
+        Exactly one outcome per consultation; POSTing a second time
+        replaces the previous.
+      properties:
+        id: { type: string, format: uuid }
+        consultationId: { type: string, format: uuid }
+        summary: { type: string }
+        decisions: { type: string }
+        nextSteps: { type: string }
+        authorId: { type: string, format: uuid }
+        authorName: { type: string }
+        publishedAt: { type: string, format: date-time }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    ConsultationAggregate:
+      type: object
+      description: Per-question rollup returned by `/analytics`.
+      properties:
+        questionId: { type: string, format: uuid }
+        prompt: { type: string }
+        type: { $ref: '#/components/schemas/QuestionType' }
+        answerCount: { type: integer }
+        optionCounts:
+          type: object
+          additionalProperties: { type: integer }
+          description: Populated for choice + Yes/No questions.
+        textValues:
+          type: array
+          items: { type: string }
+          description: Populated for text questions; capped at 100 samples.
 
 paths:
   # ─────────────────────── ORGANIZATIONS ───────────────────────
@@ -537,7 +672,11 @@ paths:
         schema: { type: string, format: uuid }
     post:
       tags: [Announcements]
-      summary: Archive an announcement (org admin)
+      summary: Archive an announcement (org admin OR platform admin)
+      description: |
+        Emergency lever — same rationale as consultation close.
+        `PLATFORM_ADMIN` can archive without joining the org first;
+        every other announcement write is strictly org-only.
       responses:
         '200': { description: Archived; audit-logged. }
 
@@ -848,5 +987,585 @@ paths:
                         success: false,
                         code: UPDATE_NOT_FOUND,
                         message: Progress update not found,
+                      },
+                  }
+
+  # ─────────────────────── CONSULTATIONS ────────────────────────
+  /consultations:
+    get:
+      tags: [Consultations]
+      security: []
+      summary: List consultations
+      description: |
+        Public list. Filter by organization, community, or status. Drafts
+        are visible via the API but the citizen frontend hides them from
+        non-members.
+      parameters:
+        - in: query
+          name: organizationId
+          schema: { type: string, format: uuid }
+        - in: query
+          name: communityId
+          schema: { type: string, format: uuid }
+        - in: query
+          name: status
+          schema: { $ref: '#/components/schemas/ConsultationStatus' }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 20 }
+        - in: query
+          name: offset
+          schema: { type: integer, default: 0 }
+      responses:
+        '200':
+          description: List of consultations.
+          content:
+            application/json:
+              examples:
+                default:
+                  value:
+                    success: true
+                    data:
+                      consultations:
+                        - id: c1a2b3c4-5678-90ab-cdef-1234567890ab
+                          organizationId: 9a8b7c6d-1111-2222-3333-444455556666
+                          communityId: 6f2a1c4d-9b3e-4a1f-8c7d-2b3e4f5a6b7c
+                          title: National Curriculum Review
+                          summary: How should the syllabus change for 2027?
+                          description: Full context in markdown.
+                          status: PUBLISHED
+                          responseCount: 142
+                          authorId: 3f1a...
+                          authorName: Ada Admin
+                          publishedAt: 2026-07-09T10:00:00Z
+                          createdAt: 2026-07-08T14:22:00Z
+                          updatedAt: 2026-07-09T10:00:00Z
+
+  /consultations/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Consultations]
+      security: []
+      summary: Get a consultation by ID
+      responses:
+        '200':
+          description: Consultation detail.
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              examples:
+                default:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: CONSULTATION_NOT_FOUND,
+                        message: Consultation not found,
+                      },
+                  }
+    patch:
+      tags: [Consultations]
+      summary: Edit a draft consultation (org admin)
+      description: |
+        Edits are DRAFT-only. Once published, the record is frozen so
+        earlier and later responders answer the same questions.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string, minLength: 5, maxLength: 200 }
+                summary: { type: string, minLength: 10, maxLength: 500 }
+                description: { type: string, minLength: 10 }
+                coverImageUrl: { type: string, nullable: true }
+                communityId: { type: string, format: uuid, nullable: true }
+                opensAt: { type: string, format: date-time, nullable: true }
+                closesAt: { type: string, format: date-time, nullable: true }
+      responses:
+        '200': { description: Updated. }
+        '409':
+          description: Not a draft.
+          content:
+            application/json:
+              examples:
+                default:
+                  { value: { success: false, code: NOT_DRAFT, message: Only drafts can be edited } }
+    delete:
+      tags: [Consultations]
+      summary: Delete a draft consultation (org admin)
+      description: DRAFT-only. Once published, the record must survive.
+      responses:
+        '200': { description: Deleted. }
+        '409': { description: Not a draft. }
+
+  /organizations/{id}/consultations:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [Consultations]
+      summary: Create a new consultation as DRAFT (org admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, summary, description]
+              properties:
+                title: { type: string, minLength: 5, maxLength: 200 }
+                summary: { type: string, minLength: 10, maxLength: 500 }
+                description: { type: string, minLength: 10 }
+                coverImageUrl: { type: string, nullable: true }
+                communityId: { type: string, format: uuid, nullable: true }
+                opensAt: { type: string, format: date-time, nullable: true }
+                closesAt: { type: string, format: date-time, nullable: true }
+            examples:
+              default:
+                value:
+                  title: National Curriculum Review
+                  summary: How should the syllabus change for 2027?
+                  description: We are collecting citizen input.
+                  communityId: 6f2a1c4d-9b3e-4a1f-8c7d-2b3e4f5a6b7c
+                  closesAt: 2026-09-30T23:59:59Z
+      responses:
+        '201':
+          description: Created; status = DRAFT.
+
+  /consultations/{id}/publish:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [Consultations]
+      summary: Publish a draft consultation (org admin)
+      description: DRAFT → PUBLISHED. Rejects if the consultation has no questions.
+      responses:
+        '200':
+          description: Published; org members notified.
+        '400':
+          description: No questions yet.
+          content:
+            application/json:
+              examples:
+                default:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: NO_QUESTIONS,
+                        message: Add at least one question before publishing,
+                      },
+                  }
+        '409':
+          description: Invalid transition.
+
+  /consultations/{id}/close:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [Consultations]
+      summary: Close a published consultation (org admin OR platform admin)
+      description: |
+        PUBLISHED → CLOSED. Idempotent — closing a closed consultation is
+        a no-op. Responders are notified so they can watch for the outcome.
+
+        **Emergency lever.** This is the one consultation-lifecycle endpoint
+        that a `PLATFORM_ADMIN` can invoke without being a member of the
+        org. Every other write (create, edit, publish, delete, outcome) is
+        strictly org-only. Platform-admin closes write an audit entry with
+        the actor's identity.
+      responses:
+        '200': { description: Closed. }
+        '409': { description: Invalid transition. }
+
+  # ────────────────── CONSULTATION QUESTIONS ─────────────────
+  /consultations/{id}/questions:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Consultation Questions]
+      security: []
+      summary: List questions in order
+      responses:
+        '200':
+          description: Questions.
+          content:
+            application/json:
+              examples:
+                default:
+                  value:
+                    success: true
+                    data:
+                      questions:
+                        - id: q1a2b3c4-...
+                          consultationId: c1a2b3c4-...
+                          position: 1
+                          prompt: Which subjects deserve more focus?
+                          type: MULTI_CHOICE
+                          options: [Maths, Science, History, Civic Ed]
+                          required: true
+    post:
+      tags: [Consultation Questions]
+      summary: Add a question to a draft (org admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [prompt, type]
+              properties:
+                prompt: { type: string, minLength: 3, maxLength: 500 }
+                helpText: { type: string, nullable: true }
+                type: { $ref: '#/components/schemas/QuestionType' }
+                options:
+                  type: array
+                  items: { type: string }
+                  description: Required for SINGLE_CHOICE and MULTI_CHOICE (min 2 items).
+                required: { type: boolean, default: false }
+                position: { type: integer, description: Omit to append at the end. }
+      responses:
+        '201': { description: Question created. }
+        '400':
+          description: Invalid type or missing options.
+          content:
+            application/json:
+              examples:
+                needsOptions:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: OPTIONS_REQUIRED,
+                        message: Choice questions need at least two options,
+                      },
+                  }
+
+  /consultations/{id}/questions/reorder:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      tags: [Consultation Questions]
+      summary: Bulk-reorder questions (org admin, DRAFT only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ordering]
+              properties:
+                ordering:
+                  type: object
+                  additionalProperties: { type: integer }
+                  description: Map of questionId → new zero-based position.
+            examples:
+              default:
+                value:
+                  ordering:
+                    q1a2b3c4-...: 0
+                    q5f6e7d8-...: 1
+                    q9c8b7a6-...: 2
+      responses:
+        '200': { description: Reordered. }
+
+  /consultation-questions/{questionId}:
+    parameters:
+      - in: path
+        name: questionId
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      tags: [Consultation Questions]
+      summary: Update a question (org admin, DRAFT only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [prompt, type]
+              properties:
+                prompt: { type: string, minLength: 3, maxLength: 500 }
+                helpText: { type: string, nullable: true }
+                type: { $ref: '#/components/schemas/QuestionType' }
+                options:
+                  type: array
+                  items: { type: string }
+                required: { type: boolean }
+                position: { type: integer }
+      responses:
+        '200': { description: Updated. }
+    delete:
+      tags: [Consultation Questions]
+      summary: Delete a question (org admin, DRAFT only)
+      responses:
+        '200': { description: Deleted. }
+
+  # ────────────────── CONSULTATION RESPONSES ─────────────────
+  /consultations/{id}/responses:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [Consultation Responses]
+      summary: Submit a response (verified user)
+      description: |
+        One response per user is enforced by a compound unique index on
+        `(consultation_id, user_id)`. Community-scoped consultations do
+        NOT gate submission — any verified user can respond regardless
+        of community membership. The community label is informational.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [answers]
+              properties:
+                answers:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: object
+                    required: [questionId]
+                    properties:
+                      questionId: { type: string, format: uuid }
+                      textValue:
+                        type: string
+                        nullable: true
+                        description: For SHORT_TEXT and LONG_TEXT questions.
+                      selections:
+                        type: array
+                        items: { type: string }
+                        description: For SINGLE_CHOICE, MULTI_CHOICE, YES_NO questions. Yes/No is encoded as ["YES"] or ["NO"].
+            examples:
+              default:
+                value:
+                  answers:
+                    - questionId: q1a2b3c4-...
+                      selections: [YES]
+                    - questionId: q2a2b3c4-...
+                      selections: [Civic Ed, Science]
+                    - questionId: q3a2b3c4-...
+                      textValue: We should teach civics from primary school.
+      responses:
+        '201':
+          description: Response recorded.
+        '409':
+          description: Consultation not accepting responses, closed, or already responded.
+          content:
+            application/json:
+              examples:
+                alreadyResponded:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: ALREADY_RESPONDED,
+                        message: You've already responded to this consultation,
+                      },
+                  }
+                notAccepting:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: NOT_ACCEPTING_RESPONSES,
+                        message: This consultation isn't accepting responses,
+                      },
+                  }
+                pastDeadline:
+                  {
+                    value:
+                      { success: false, code: PAST_DEADLINE, message: Response window has closed },
+                  }
+        '400':
+          description: Missing required answer, unknown question, or unknown option.
+          content:
+            application/json:
+              examples:
+                requiredUnanswered:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: REQUIRED_UNANSWERED,
+                        message: One or more required questions were not answered,
+                      },
+                  }
+                unknownOption:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: UNKNOWN_OPTION,
+                        message: Selected option is not on the question,
+                      },
+                  }
+    get:
+      tags: [Consultation Responses]
+      summary: List submitted responses (org admin)
+      description: Members-only. Returns each response with its answers grouped.
+      parameters:
+        - in: query
+          name: limit
+          schema: { type: integer, default: 50 }
+        - in: query
+          name: offset
+          schema: { type: integer, default: 0 }
+      responses:
+        '200':
+          description: Responses.
+
+  /consultations/{id}/analytics:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Consultation Responses]
+      summary: Per-question aggregated analytics (org admin)
+      description: |
+        For choice questions returns option-count histograms. For text
+        questions returns up to 100 sample text values. Large consultations
+        will get a proper SQL rollup in a future revision.
+      responses:
+        '200':
+          description: Aggregates.
+          content:
+            application/json:
+              examples:
+                default:
+                  value:
+                    success: true
+                    data:
+                      consultation:
+                        id: c1a2b3c4-...
+                        title: National Curriculum Review
+                        status: CLOSED
+                      responseCount: 142
+                      questions:
+                        - questionId: q1a2b3c4-...
+                          prompt: Do you agree with the current syllabus?
+                          type: YES_NO
+                          answerCount: 142
+                          optionCounts: { YES: 47, NO: 95 }
+                        - questionId: q2a2b3c4-...
+                          prompt: Which subjects deserve more focus?
+                          type: MULTI_CHOICE
+                          answerCount: 142
+                          optionCounts: { Civic Ed: 88, Science: 62, Maths: 51, History: 22 }
+
+  /me/consultations/responses:
+    get:
+      tags: [Consultation Responses]
+      summary: Which consultations has the caller responded to
+      description: |
+        Returned so the citizen frontend can mark "you've participated"
+        in list views and prevent double-answer attempts before the
+        server round-trip.
+      responses:
+        '200':
+          description: List of consultation IDs the caller has responded to.
+          content:
+            application/json:
+              examples:
+                default:
+                  value:
+                    success: true
+                    data:
+                      consultationIds: [c1a2b3c4-..., c9a8b7c6-...]
+
+  # ────────────────── CONSULTATION OUTCOMES ─────────────────
+  /consultations/{id}/outcome:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Consultation Outcomes]
+      security: []
+      summary: Get the published outcome
+      responses:
+        '200': { description: Outcome. }
+        '404':
+          description: No outcome has been published yet.
+          content:
+            application/json:
+              examples:
+                default:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: OUTCOME_NOT_FOUND,
+                        message: No outcome has been published yet,
+                      },
+                  }
+    post:
+      tags: [Consultation Outcomes]
+      summary: Publish or update the outcome (org admin, CLOSED only)
+      description: |
+        The "close the loop" primitive. Requires the consultation to be
+        CLOSED. Idempotent — POSTing again overwrites the previous
+        outcome. Every responder is notified when the outcome is
+        published.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [summary, decisions, nextSteps]
+              properties:
+                summary: { type: string, minLength: 10 }
+                decisions: { type: string, minLength: 10 }
+                nextSteps: { type: string, minLength: 10 }
+            examples:
+              default:
+                value:
+                  summary: The community wants more civic education.
+                  decisions: We will introduce weekly civic ed classes for grades 4-9.
+                  nextSteps: Rollout begins Q3 2027 with a teacher training programme in Q2.
+      responses:
+        '201':
+          description: Outcome published; responders notified.
+        '409':
+          description: Consultation isn't closed yet.
+          content:
+            application/json:
+              examples:
+                default:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: NOT_CLOSED,
+                        message: Close the consultation before publishing an outcome,
                       },
                   }
