@@ -5,6 +5,17 @@ const sidebars: SidebarsConfig = {
     'intro',
     {
       type: 'category',
+      label: 'About CivicOS',
+      collapsed: false,
+      items: [
+        'about/why-civicos',
+        'about/what-is-civicos',
+        'about/core-principles',
+        'about/roadmap',
+      ],
+    },
+    {
+      type: 'category',
       label: 'Getting Started',
       collapsed: false,
       items: ['getting-started/create-account', 'getting-started/join-community'],
