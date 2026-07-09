@@ -218,3 +218,17 @@ services:
         value: https://civicos-gateway-8slr.onrender.com
       - key: HUSKY
         value: '0'
+
+  # ── Documentation (Docusaurus static site) ─────────────────────────
+  # User + developer guides at docs.civicos.ng. Docusaurus emits real
+  # per-route HTML into build/, so no SPA rewrite is needed — its own
+  # 404.html handles unknown paths.
+  - type: web
+    name: civicos-docs
+    runtime: static
+    branch: main
+    buildCommand: export COREPACK_ENABLE_DOWNLOAD_PROMPT=0 && corepack pnpm install --frozen-lockfile && corepack pnpm --filter @civicos/docs... build
+    staticPublishPath: ./apps/docs/build
+    envVars:
+      - key: HUSKY
+        value: '0'
