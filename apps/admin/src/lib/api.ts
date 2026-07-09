@@ -83,8 +83,7 @@ async function performRefresh(): Promise<string | null> {
     // access token or recurse into this handler.
     const res = await axios.post(`${API_BASE}/api/v1/auth/refresh`, { refreshToken });
     const tokens = res.data?.data?.tokens as
-      | { accessToken?: string; refreshToken?: string }
-      | undefined;
+      { accessToken?: string; refreshToken?: string } | undefined;
     if (!tokens?.accessToken) return null;
     localStorage.setItem(TOKEN_KEY, tokens.accessToken);
     if (tokens.refreshToken) localStorage.setItem(REFRESH_KEY, tokens.refreshToken);
