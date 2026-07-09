@@ -1,0 +1,852 @@
+openapi: 3.0.3
+info:
+  title: CivicOS Organization Service
+  version: 1.0.0
+  description: |
+    Organizations (registry + membership), announcements, projects, issue
+    assignments ("receive reports"), and progress updates ("respond publicly",
+    "update progress").
+
+    All routes are proxied by the API gateway at `/api/v1/*`. The service
+    itself mounts them under `/v1/*`.
+
+    ## Authorization model
+
+    Roles allowed to **create** a top-level org from scratch: `GOVERNMENT_ADMIN`,
+    `PLATFORM_ADMIN`, `NGO`. Once created, the org's internal role
+    (`OWNER` / `ADMIN` / `STAFF`) governs edits — not the platform JWT role.
+    Reads are generally public; writes require org membership + admin privilege.
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Local (via API Gateway)
+  - url: http://localhost:3003/v1
+    description: Direct to organization-service
+
+tags:
+  - name: Organizations
+    description: Registry and membership.
+  - name: Members
+    description: Organization member management.
+  - name: Announcements
+    description: Public announcements from an organization.
+  - name: Projects
+    description: Ongoing organization projects with status and budget.
+  - name: Assignments
+    description: Issue → organization assignments (an org takes responsibility for a report).
+  - name: Progress Updates
+    description: Public updates on an assigned issue or a project.
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    ErrorResponse:
+      type: object
+      required: [success, code, message]
+      properties:
+        success: { type: boolean, example: false }
+        code: { type: string, example: VALIDATION_ERROR }
+        message: { type: string }
+
+    OrgKind:
+      type: string
+      enum: [GOVERNMENT, AGENCY, NGO, UTILITY, OTHER]
+    OrgJurisdiction:
+      type: string
+      enum: [NATIONAL, STATE, LGA, COMMUNITY]
+    OrgMemberRole:
+      type: string
+      enum: [OWNER, ADMIN, STAFF]
+    AnnouncementStatus:
+      type: string
+      enum: [DRAFT, PUBLISHED, ARCHIVED]
+    ProjectStatus:
+      type: string
+      enum: [PLANNED, ACTIVE, PAUSED, COMPLETED, CANCELLED]
+    AssignmentStatus:
+      type: string
+      enum: [RECEIVED, IN_PROGRESS, COMPLETED, REJECTED]
+
+    Organization:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        slug: { type: string }
+        kind: { $ref: '#/components/schemas/OrgKind' }
+        jurisdiction: { $ref: '#/components/schemas/OrgJurisdiction' }
+        state: { type: string, nullable: true }
+        lga: { type: string, nullable: true }
+        description: { type: string, nullable: true }
+        logoUrl: { type: string, nullable: true }
+        email: { type: string, nullable: true }
+        phone: { type: string, nullable: true }
+        website: { type: string, nullable: true }
+        verified:
+          {
+            type: boolean,
+            description: Citizen-facing trust badge; toggled by platform admins only.,
+          }
+        memberCount: { type: integer }
+        announcementCount: { type: integer }
+        projectCount: { type: integer }
+        assignmentCount: { type: integer }
+        createdById: { type: string, format: uuid }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    OrgMember:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        organizationId: { type: string, format: uuid }
+        userId: { type: string, format: uuid }
+        userName: { type: string }
+        userRole: { type: string, description: Platform role at time of add. }
+        role: { $ref: '#/components/schemas/OrgMemberRole' }
+        joinedAt: { type: string, format: date-time }
+
+    Announcement:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        organizationId: { type: string, format: uuid }
+        title: { type: string }
+        body: { type: string }
+        status: { $ref: '#/components/schemas/AnnouncementStatus' }
+        publishedAt: { type: string, format: date-time, nullable: true }
+        authorId: { type: string, format: uuid }
+        authorName: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    Project:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        organizationId: { type: string, format: uuid }
+        title: { type: string }
+        description: { type: string }
+        status: { $ref: '#/components/schemas/ProjectStatus' }
+        startDate: { type: string, format: date-time, nullable: true }
+        expectedEndDate: { type: string, format: date-time, nullable: true }
+        budgetKobo:
+          type: integer
+          format: int64
+          nullable: true
+          description: Budget in kobo (₦1 = 100 kobo).
+        communityId: { type: string, format: uuid, nullable: true }
+        createdById: { type: string, format: uuid }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    IssueAssignment:
+      type: object
+      description: Records that an org has taken responsibility for a community-service Issue.
+      properties:
+        id: { type: string, format: uuid }
+        organizationId: { type: string, format: uuid }
+        issueId:
+          {
+            type: string,
+            format: uuid,
+            description: Bare UUID reference — no FK across service boundary.,
+          }
+        status: { $ref: '#/components/schemas/AssignmentStatus' }
+        note: { type: string, nullable: true }
+        assignedById: { type: string, format: uuid }
+        assignedByName: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    ProgressUpdate:
+      type: object
+      description: |
+        The "respond publicly" primitive. Each update belongs to one org
+        and points at either an Issue (an assigned report) or a Project.
+        Public updates are readable by anyone; internal notes are
+        member-only.
+      properties:
+        id: { type: string, format: uuid }
+        organizationId: { type: string, format: uuid }
+        issueId: { type: string, format: uuid, nullable: true }
+        projectId: { type: string, format: uuid, nullable: true }
+        body: { type: string }
+        isPublic: { type: boolean }
+        authorId: { type: string, format: uuid }
+        authorName: { type: string }
+        createdAt: { type: string, format: date-time }
+
+paths:
+  # ─────────────────────── ORGANIZATIONS ───────────────────────
+  /organizations:
+    get:
+      tags: [Organizations]
+      security: []
+      summary: List organizations
+      parameters:
+        - in: query
+          name: kind
+          schema: { $ref: '#/components/schemas/OrgKind' }
+        - in: query
+          name: jurisdiction
+          schema: { $ref: '#/components/schemas/OrgJurisdiction' }
+        - in: query
+          name: state
+          schema: { type: string }
+        - in: query
+          name: lga
+          schema: { type: string }
+        - in: query
+          name: q
+          schema: { type: string }
+      responses:
+        '200':
+          description: Organizations matching the filter.
+          content:
+            application/json:
+              examples:
+                default:
+                  value:
+                    success: true
+                    data:
+                      organizations:
+                        - id: 9a8b7c6d-...
+                          name: Enugu Water Corporation
+                          slug: enugu-water-corp
+                          kind: UTILITY
+                          jurisdiction: STATE
+                          state: Enugu
+                          verified: true
+                          memberCount: 12
+                          projectCount: 4
+                          assignmentCount: 27
+                          createdById: 3f1a...
+                          createdAt: 2026-06-01T09:00:00Z
+                          updatedAt: 2026-06-01T09:00:00Z
+    post:
+      tags: [Organizations]
+      summary: Create a new organization (GOVERNMENT_ADMIN, PLATFORM_ADMIN, NGO)
+      description: The creator is added as `OWNER` automatically.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, slug, kind, jurisdiction]
+              properties:
+                name: { type: string, minLength: 2 }
+                slug: { type: string, description: lowercase-hyphenated }
+                kind: { $ref: '#/components/schemas/OrgKind' }
+                jurisdiction: { $ref: '#/components/schemas/OrgJurisdiction' }
+                state: { type: string, nullable: true }
+                lga: { type: string, nullable: true }
+                description: { type: string, nullable: true }
+                logoUrl: { type: string, nullable: true }
+                email: { type: string, format: email, nullable: true }
+                phone: { type: string, nullable: true }
+                website: { type: string, format: uri, nullable: true }
+            examples:
+              default:
+                value:
+                  {
+                    name: Enugu Water Corporation,
+                    slug: enugu-water-corp,
+                    kind: UTILITY,
+                    jurisdiction: STATE,
+                    state: Enugu,
+                  }
+      responses:
+        '201':
+          description: Organization created; audit-logged.
+        '400':
+          description: Invalid kind, jurisdiction, or slug format.
+        '409':
+          description: Slug already taken.
+          content:
+            application/json:
+              examples:
+                default:
+                  {
+                    value:
+                      { success: false, code: SLUG_TAKEN, message: That slug is already in use },
+                  }
+
+  /organizations/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Organizations]
+      security: []
+      summary: Get an organization
+      responses:
+        '200': { description: Organization detail. }
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              examples:
+                default:
+                  {
+                    value: { success: false, code: ORG_NOT_FOUND, message: Organization not found },
+                  }
+    patch:
+      tags: [Organizations]
+      summary: Update an organization (org admin or PLATFORM_ADMIN)
+      description: |
+        All fields are optional. Toggling `verified` writes a distinct
+        `org.verified` / `org.unverified` audit entry (separate from the
+        plain `org.updated` action) because the verified badge is a
+        citizen-facing trust signal.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                kind: { $ref: '#/components/schemas/OrgKind' }
+                jurisdiction: { $ref: '#/components/schemas/OrgJurisdiction' }
+                state: { type: string, nullable: true }
+                lga: { type: string, nullable: true }
+                description: { type: string, nullable: true }
+                logoUrl: { type: string, nullable: true }
+                email: { type: string, format: email, nullable: true }
+                phone: { type: string, nullable: true }
+                website: { type: string, format: uri, nullable: true }
+                verified:
+                  type: boolean
+                  description: Platform admins only.
+      responses:
+        '200': { description: Updated organization. }
+
+  # ────────────────────────── MEMBERS ──────────────────────────
+  /organizations/{id}/members:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Members]
+      security: []
+      summary: List organization members
+      responses:
+        '200':
+          description: Members.
+          content:
+            application/json:
+              examples:
+                default:
+                  value:
+                    success: true
+                    data:
+                      members:
+                        - id: m1a2b3c4-...
+                          organizationId: 9a8b7c6d-...
+                          userId: 3f1a...
+                          userName: Ada Nnamdi
+                          userRole: NGO
+                          role: OWNER
+                          joinedAt: 2026-06-01T09:00:00Z
+    post:
+      tags: [Members]
+      summary: Add a member (org admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, userName, userRole, role]
+              properties:
+                userId: { type: string, format: uuid }
+                userName: { type: string }
+                userRole: { type: string, description: Platform role at time of add. }
+                role: { $ref: '#/components/schemas/OrgMemberRole' }
+            examples:
+              default:
+                { value: { userId: 3f1a..., userName: Ada Nnamdi, userRole: NGO, role: ADMIN } }
+      responses:
+        '201': { description: Member added; audit-logged. }
+
+  /organizations/{id}/members/{userId}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+      - in: path
+        name: userId
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      tags: [Members]
+      summary: Change a member's role (org admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [role]
+              properties:
+                role: { $ref: '#/components/schemas/OrgMemberRole' }
+      responses:
+        '200': { description: Role updated; audit-logged. }
+    delete:
+      tags: [Members]
+      summary: Remove a member (org admin)
+      responses:
+        '200': { description: Member removed; audit-logged. }
+
+  # ─────────────────────── ANNOUNCEMENTS ───────────────────────
+  /announcements:
+    get:
+      tags: [Announcements]
+      security: []
+      summary: Global feed of published announcements
+      parameters:
+        - in: query
+          name: limit
+          schema: { type: integer, default: 20, maximum: 100 }
+      responses:
+        '200':
+          description: Announcements, newest first.
+          content:
+            application/json:
+              examples:
+                default:
+                  value:
+                    success: true
+                    data:
+                      announcements:
+                        - id: a1b2c3d4-...
+                          organizationId: 9a8b7c6d-...
+                          title: Water supply resumes on Abakpa Rd
+                          body: The burst pipe was repaired overnight.
+                          status: PUBLISHED
+                          publishedAt: 2026-07-09T08:00:00Z
+                          authorId: 3f1a...
+                          authorName: Enugu Water Corp
+                          createdAt: 2026-07-09T07:45:00Z
+                          updatedAt: 2026-07-09T08:00:00Z
+
+  /organizations/{id}/announcements:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Announcements]
+      summary: List an organization's announcements
+      description: Non-members see only published; org members also see drafts.
+      responses:
+        '200': { description: Announcements. }
+    post:
+      tags: [Announcements]
+      summary: Create an announcement (org admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, body]
+              properties:
+                title: { type: string, minLength: 2 }
+                body: { type: string, minLength: 10 }
+                publish:
+                  type: boolean
+                  description: Publish immediately instead of leaving as DRAFT.
+            examples:
+              default:
+                {
+                  value:
+                    {
+                      title: Water restored,
+                      body: The burst pipe on Abakpa Rd was repaired overnight.,
+                      publish: true,
+                    },
+                }
+      responses:
+        '201': { description: Announcement created. }
+
+  /announcements/{announcementId}:
+    parameters:
+      - in: path
+        name: announcementId
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Announcements]
+      security: []
+      summary: Get an announcement
+      responses:
+        '200': { description: Announcement detail. }
+        '404': { description: Not found. }
+    patch:
+      tags: [Announcements]
+      summary: Update an announcement (org admin)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                body: { type: string }
+      responses:
+        '200': { description: Updated announcement. }
+    delete:
+      tags: [Announcements]
+      summary: Delete an announcement (org admin)
+      responses:
+        '200': { description: Deleted; audit-logged. }
+
+  /announcements/{announcementId}/publish:
+    parameters:
+      - in: path
+        name: announcementId
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [Announcements]
+      summary: Publish an announcement (org admin)
+      responses:
+        '200': { description: Published; audit-logged. }
+
+  /announcements/{announcementId}/archive:
+    parameters:
+      - in: path
+        name: announcementId
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [Announcements]
+      summary: Archive an announcement (org admin)
+      responses:
+        '200': { description: Archived; audit-logged. }
+
+  # ──────────────────────────── PROJECTS ────────────────────────────
+  /projects:
+    get:
+      tags: [Projects]
+      security: []
+      summary: List projects
+      parameters:
+        - in: query
+          name: organizationId
+          schema: { type: string, format: uuid }
+        - in: query
+          name: communityId
+          schema: { type: string, format: uuid }
+        - in: query
+          name: status
+          schema: { $ref: '#/components/schemas/ProjectStatus' }
+      responses:
+        '200': { description: Projects. }
+
+  /organizations/{id}/projects:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Projects]
+      security: []
+      summary: List projects owned by an organization
+      parameters:
+        - in: query
+          name: status
+          schema: { $ref: '#/components/schemas/ProjectStatus' }
+      responses:
+        '200': { description: Projects. }
+    post:
+      tags: [Projects]
+      summary: Create a project (org admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, description]
+              properties:
+                title: { type: string, minLength: 2 }
+                description: { type: string, minLength: 10 }
+                status: { $ref: '#/components/schemas/ProjectStatus' }
+                startDate: { type: string, format: date-time, nullable: true }
+                expectedEndDate: { type: string, format: date-time, nullable: true }
+                budgetKobo: { type: integer, format: int64, nullable: true }
+                communityId: { type: string, format: uuid, nullable: true }
+            examples:
+              default:
+                value:
+                  title: Replace Junction 4 water main
+                  description: Full replacement of 800m of pipeline, from Junction 4 to the reservoir.
+                  status: ACTIVE
+                  startDate: 2026-07-15T00:00:00Z
+                  expectedEndDate: 2026-09-30T00:00:00Z
+                  budgetKobo: 42000000
+                  communityId: 6f2a1c4d-...
+      responses:
+        '201': { description: Project created. }
+
+  /projects/{projectId}:
+    parameters:
+      - in: path
+        name: projectId
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Projects]
+      security: []
+      summary: Get a project
+      responses:
+        '200': { description: Project detail. }
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              examples:
+                default:
+                  { value: { success: false, code: PROJECT_NOT_FOUND, message: Project not found } }
+    patch:
+      tags: [Projects]
+      summary: Update a project (org admin)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                description: { type: string }
+                status: { $ref: '#/components/schemas/ProjectStatus' }
+                startDate: { type: string, format: date-time, nullable: true }
+                expectedEndDate: { type: string, format: date-time, nullable: true }
+                budgetKobo: { type: integer, format: int64, nullable: true }
+                communityId: { type: string, format: uuid, nullable: true }
+      responses:
+        '200': { description: Updated project. }
+    delete:
+      tags: [Projects]
+      summary: Delete a project (org admin)
+      responses:
+        '200': { description: Deleted. }
+
+  # ─────────────────────── ASSIGNMENTS ───────────────────────
+  /organizations/{id}/assignments:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Assignments]
+      summary: List an organization's issue assignments (members only)
+      description: Members-only to prevent a curious user from enumerating another org's inbox.
+      parameters:
+        - in: query
+          name: status
+          schema: { $ref: '#/components/schemas/AssignmentStatus' }
+      responses:
+        '200': { description: Assignments. }
+    post:
+      tags: [Assignments]
+      summary: Claim an issue for an organization (org admin or PLATFORM_ADMIN)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [issueId]
+              properties:
+                issueId: { type: string, format: uuid }
+                note: { type: string, nullable: true }
+            examples:
+              default:
+                {
+                  value:
+                    {
+                      issueId: 7f8e9d0c-1234-5678-9abc-def012345678,
+                      note: We've dispatched a team to Junction 4.,
+                    },
+                }
+      responses:
+        '201': { description: Assignment created. }
+
+  /issues/{issueId}/assignments:
+    parameters:
+      - in: path
+        name: issueId
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Assignments]
+      security: []
+      summary: Which orgs have claimed this issue
+      description: Public read — anyone viewing an issue should see who's responsible.
+      responses:
+        '200': { description: Assignments. }
+
+  /assignments/{assignmentId}:
+    parameters:
+      - in: path
+        name: assignmentId
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      tags: [Assignments]
+      summary: Update assignment status (org admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { $ref: '#/components/schemas/AssignmentStatus' }
+                note: { type: string, nullable: true }
+            examples:
+              default: { value: { status: IN_PROGRESS, note: Team on site since 8am. } }
+      responses:
+        '200': { description: Updated assignment. }
+    delete:
+      tags: [Assignments]
+      summary: Remove an assignment (org admin)
+      responses:
+        '200': { description: Removed. }
+
+  # ─────────────────── PROGRESS UPDATES ───────────────────
+  /issues/{issueId}/progress-updates:
+    parameters:
+      - in: path
+        name: issueId
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Progress Updates]
+      security: []
+      summary: List public progress updates for an issue
+      responses:
+        '200':
+          description: Progress updates.
+          content:
+            application/json:
+              examples:
+                default:
+                  value:
+                    success: true
+                    data:
+                      updates:
+                        - id: p1u2p3d4-...
+                          organizationId: 9a8b7c6d-...
+                          issueId: 7f8e9d0c-...
+                          body: Repairs completed. Water pressure restored.
+                          isPublic: true
+                          authorId: 3f1a...
+                          authorName: Enugu Water Corp
+                          createdAt: 2026-07-09T08:00:00Z
+
+  /projects/{projectId}/progress-updates:
+    parameters:
+      - in: path
+        name: projectId
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Progress Updates]
+      security: []
+      summary: List public progress updates for a project
+      responses:
+        '200': { description: Progress updates. }
+
+  /organizations/{id}/progress-updates:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [Progress Updates]
+      summary: Post a progress update (org admin)
+      description: Exactly one of `issueId` or `projectId` must be set — an update always hangs off either an assigned report or a project.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [body]
+              properties:
+                issueId: { type: string, format: uuid, nullable: true }
+                projectId: { type: string, format: uuid, nullable: true }
+                body: { type: string, minLength: 2 }
+                isPublic: { type: boolean, default: true }
+            examples:
+              onIssue: { value: { issueId: 7f8e9d0c-..., body: Team dispatched, ETA 30 minutes. } }
+              onProject:
+                {
+                  value:
+                    { projectId: proj1a2b-..., body: Phase 1 complete — 400m of pipeline laid. },
+                }
+      responses:
+        '201': { description: Update posted. }
+        '400':
+          description: Neither or both of issueId/projectId set.
+          content:
+            application/json:
+              examples:
+                default:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: INVALID_TARGET,
+                        message: Set exactly one of issueId or projectId,
+                      },
+                  }
+
+  /progress-updates/{updateId}:
+    parameters:
+      - in: path
+        name: updateId
+        required: true
+        schema: { type: string, format: uuid }
+    delete:
+      tags: [Progress Updates]
+      summary: Delete a progress update (org admin)
+      responses:
+        '200': { description: Deleted. }
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              examples:
+                default:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: UPDATE_NOT_FOUND,
+                        message: Progress update not found,
+                      },
+                  }

@@ -675,8 +675,8 @@ const PrimaryCommunityCooldown = 30 * 24 * time.Hour
 // PrimaryCommunityChangeError carries a code + the next-eligible time so the
 // UI can render a precise "you can change again on X" message.
 type PrimaryCommunityChangeError struct {
-	Code             string
-	NextEligibleAt   time.Time
+	Code           string
+	NextEligibleAt time.Time
 }
 
 func (e *PrimaryCommunityChangeError) Error() string { return e.Code }

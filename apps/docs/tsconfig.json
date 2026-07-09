@@ -1,0 +1,7 @@
+{
+  "extends": "@docusaurus/tsconfig/tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "."
+  },
+  "exclude": [".docusaurus", "build"]
+}

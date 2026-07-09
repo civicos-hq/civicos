@@ -25,20 +25,23 @@ All product, architecture, and engineering decisions are driven by five document
 ```
 civicos/
 ├── apps/
-│   └── web/                  # React + Vite + TypeScript frontend (port 5173)
+│   ├── web/                  # Citizen React app (Vite + TS, port 5173)
+│   ├── admin/                # Admin console (Vite + TS, port 5174)
+│   └── docs/                 # Docusaurus site — user + developer guides (port 5175)
 ├── services/
-│   ├── api-gateway/          # Go — reverse proxy, JWT validation (port 3000)
-│   ├── identity-service/     # Go — auth, users, JWT (port 3001)
-│   └── community-service/    # Go — communities, issues, petitions (port 3002)
+│   ├── api-gateway/          # Go — reverse proxy + JWT + Swagger UI at /docs (port 3000)
+│   ├── identity-service/     # Go — auth, users, applications, moderation (port 3001)
+│   ├── community-service/    # Go — communities, issues, petitions, reps (port 3002)
+│   └── organization-service/ # Go — orgs, announcements, projects, assignments (port 3003)
 ├── packages/
 │   ├── types/                # Shared TypeScript interfaces & enums (@civicos/types)
 │   ├── config/               # Env validation via zod (@civicos/config)
 │   └── ui/                   # Shared React components (@civicos/ui)
 ├── infrastructure/
-│   └── docker-compose.yml    # Postgres 16 + Redis 7 + NATS
+│   └── docker-compose.yml    # Postgres 16 (:5433) + Redis 7 + NATS + Mailpit
 ├── docs/
 │   ├── product/              # The five source documents (PDFs)
-│   └── setup.md              # Getting started guide
+│   └── api/                  # Canonical OpenAPI 3.0 specs (openapi-*.yaml)
 └── CLAUDE.md                 # This file
 ```
 
@@ -74,11 +77,24 @@ The Engineering Playbook PDF prescribes **NestJS + TypeScript + Prisma** for bac
 
 ### Service boundaries (MVP)
 
-- `identity-service` — users, JWT, `/me`, community join
-- `community-service` — **everything community-scoped**: communities, issues, petitions, representatives, comments, **notifications**, search, discover
-- `api-gateway` — reverse proxy + JWT validation
+- `identity-service` — users, JWT, `/me`, applications, content flags, audit log, admin metrics
+- `community-service` — **everything community-scoped**: communities, issues, petitions, representatives, comments, **notifications** (SSE), search, discover, image uploads
+- `organization-service` — orgs, membership, announcements, projects, issue assignments, progress updates
+- `api-gateway` — reverse proxy + JWT + per-action rate limiting + Swagger UI at `/docs`
 
-Notifications and search were spec'd by the playbook (line 714) as future standalone services. For the MVP we kept them inside `community-service` so cross-entity event emission (e.g., a petition signature → notification) stays in-process and doesn't need NATS. Extract when scale demands it, not before.
+Notifications and search were spec'd by the playbook as future standalone services. For the MVP they live inside `community-service` so cross-entity event emission (e.g., a petition signature → notification) stays in-process and doesn't need NATS. Extract when scale demands it, not before.
+
+There is intentionally **no separate issue-service** — issues live in `community-service` alongside petitions and representatives for the same in-process reason.
+
+## Documentation surfaces
+
+Three places to look, each with a distinct audience:
+
+- **Swagger UI** — `http://localhost:3000/docs`. Interactive API reference served by the gateway. Backed by hand-written specs at `docs/api/openapi-*.yaml`; embedded copies at `services/api-gateway/internal/docs/openapi/` via `go:embed`. Re-sync with `cp docs/api/openapi-*.yaml services/api-gateway/internal/docs/openapi/`.
+- **Docusaurus site** — `http://localhost:5175` (workspace at `apps/docs/`). Two tabs in the nav: **User Guide** (citizens, orgs, reps) and **Developer Guide** (architecture, running locally, per-service pages, database, events, contributing, deployment).
+- **`docs/product/`** — the five source PDFs. Product / architecture / UX / playbook source of truth for design decisions.
+
+When adding a feature: update the OpenAPI spec + the Docusaurus page for the affected role. Don't leave the API docs and the user docs out of sync.
 
 ## Engineering rules
 
@@ -124,20 +140,34 @@ Beyond the original list, also shipped: search, discover feed (tier + kind + pag
 # 1. Start infrastructure
 docker compose -f infrastructure/docker-compose.yml up -d
 
-# 2. Install frontend/packages deps
+# 2. Install workspace deps (frontends + Docusaurus site)
 pnpm install
 
 # 3. Copy env and fill in JWT_SECRET (min 32 chars)
 cp .env.example .env
 
-# 4. Start Go services (each in a separate terminal, requires `air` installed)
-cd services/identity-service && air
-cd services/community-service && air
-cd services/api-gateway && air
+# 4. Source .env in the shell — air runs from the service directory,
+#    so godotenv.Load() won't find the repo-root .env otherwise.
+set -a && source .env && set +a
 
-# 5. Start frontend
+# 5. Start Go services (each in a separate terminal, requires `air` installed)
+cd services/identity-service     && air
+cd services/community-service    && air
+cd services/organization-service && air
+cd services/api-gateway          && air
+
+# 6. Start frontends + docs (runs web :5173, admin :5174, docs :5175)
 pnpm dev
 
 # Install air for hot reload (one-time):
 go install github.com/air-verse/air@latest
 ```
+
+## CI gates
+
+PRs must pass:
+
+- **`pnpm format:check`** — Prettier over `**/*.{ts,tsx,json,md}`. Fix with `pnpm exec prettier --write <file>`.
+- **`gofmt -l services/`** — must return empty. Fix with `gofmt -w services/`.
+
+Husky runs Prettier on staged files at commit time. Merges from other branches can still introduce drift — run both locally before pushing.

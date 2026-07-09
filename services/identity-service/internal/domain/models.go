@@ -34,20 +34,20 @@ const (
 // User is the core identity entity.
 // All IDs are UUIDs — never expose sequential database IDs.
 type User struct {
-	ID                string                    `gorm:"type:uuid;primaryKey" json:"id"`
-	Email             string                    `gorm:"uniqueIndex;not null" json:"email"`
-	Name              string                    `gorm:"not null" json:"name"`
-	PasswordHash      string                    `gorm:"not null" json:"-"` // never serialised
-	Role              UserRole                  `gorm:"type:varchar(30);default:'CITIZEN'" json:"role"`
-	AvatarURL         *string                   `json:"avatarUrl,omitempty"`
-	ActiveCommunityID *string                   `gorm:"type:uuid;column:community_id" json:"activeCommunityId,omitempty"`
+	ID                string   `gorm:"type:uuid;primaryKey" json:"id"`
+	Email             string   `gorm:"uniqueIndex;not null" json:"email"`
+	Name              string   `gorm:"not null" json:"name"`
+	PasswordHash      string   `gorm:"not null" json:"-"` // never serialised
+	Role              UserRole `gorm:"type:varchar(30);default:'CITIZEN'" json:"role"`
+	AvatarURL         *string  `json:"avatarUrl,omitempty"`
+	ActiveCommunityID *string  `gorm:"type:uuid;column:community_id" json:"activeCommunityId,omitempty"`
 	// PrimaryCommunityID is the user's home constituency — the one they can
 	// create issues, petitions, and rep-profile edits in. Set on first join
 	// and only changed via the change-primary endpoint (30-day cooldown).
 	// Distinct from ActiveCommunityID, which is the community the user is
 	// currently viewing/acting in for signatures, comments, and upvotes.
-	PrimaryCommunityID        *string    `gorm:"type:uuid;index" json:"primaryCommunityId,omitempty"`
-	PrimaryCommunityChangedAt *time.Time `json:"primaryCommunityChangedAt,omitempty"`
+	PrimaryCommunityID        *string                   `gorm:"type:uuid;index" json:"primaryCommunityId,omitempty"`
+	PrimaryCommunityChangedAt *time.Time                `json:"primaryCommunityChangedAt,omitempty"`
 	Memberships               []UserCommunityMembership `gorm:"foreignKey:UserID" json:"-"`
 
 	// RequestedAccountType captures the signup intent separately from the

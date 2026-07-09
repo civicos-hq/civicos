@@ -1,0 +1,998 @@
+openapi: 3.0.3
+info:
+  title: CivicOS Community Service
+  version: 1.0.0
+  description: |
+    Community-scoped resources: communities themselves, issues, petitions,
+    representatives, comments, notifications (including SSE stream), search,
+    discover feed, and image uploads.
+
+    All routes are proxied by the API gateway at `/api/v1/*`. The service
+    itself mounts them under `/v1/*`.
+
+    ## Response envelope
+
+    Every response is a JSON envelope:
+
+    ```json
+    { "success": true, "data": { ... } }
+    ```
+
+    On failure:
+
+    ```json
+    { "success": false, "code": "ERR_CODE", "message": "Human-readable text" }
+    ```
+
+    ## Community scoping
+
+    Users have a **primary** community (their home constituency — where they
+    can create issues, petitions, representatives) and an **active** community
+    (what they're currently viewing/acting in). Comments, upvotes, signatures,
+    and follows require membership in the target's community.
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Local (via API Gateway)
+  - url: http://localhost:3002/v1
+    description: Direct to community-service
+
+tags:
+  - name: Communities
+    description: Geographic units — state + LGA. Everything else belongs to a community.
+  - name: Issues
+    description: Citizen-reported community problems with status lifecycle.
+  - name: Petitions
+    description: Citizen-created petitions with signature goals and deadlines.
+  - name: Representatives
+    description: Public officials tied to a constituency.
+  - name: Notifications
+    description: In-app alerts with realtime SSE stream.
+  - name: Discover
+    description: Personalized feed tiered by geographic proximity.
+  - name: Search
+    description: Global search across issues, petitions, representatives.
+  - name: Uploads
+    description: Image uploads for issue and petition attachments.
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    ErrorResponse:
+      type: object
+      required: [success, code, message]
+      properties:
+        success: { type: boolean, example: false }
+        code: { type: string, example: VALIDATION_ERROR }
+        message: { type: string }
+
+    IssueStatus:
+      type: string
+      enum: [OPEN, UNDER_REVIEW, IN_PROGRESS, RESOLVED, CLOSED]
+    IssueCategory:
+      type: string
+      enum: [INFRASTRUCTURE, HEALTH, EDUCATION, SECURITY, ENVIRONMENT, UTILITIES, TRANSPORT, OTHER]
+    PetitionStatus:
+      type: string
+      enum: [DRAFT, ACTIVE, CLOSED, SUCCESSFUL]
+    NotificationType:
+      type: string
+      enum: [ISSUE_UPDATE, PETITION_UPDATE, REPRESENTATIVE_RESPONSE, COMMUNITY_UPDATE, SYSTEM]
+    DiscoverTier:
+      type: string
+      enum: [COMMUNITY, LGA, STATE, COUNTRY]
+
+    Community:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        slug: { type: string }
+        description: { type: string, nullable: true }
+        state: { type: string }
+        lga: { type: string }
+        country: { type: string, example: Nigeria }
+        logoUrl: { type: string, nullable: true }
+        createdById: { type: string, format: uuid }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    Issue:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        description: { type: string }
+        category: { $ref: '#/components/schemas/IssueCategory' }
+        status: { $ref: '#/components/schemas/IssueStatus' }
+        location: { type: string, nullable: true }
+        imageUrls:
+          type: array
+          items: { type: string }
+        upvoteCount: { type: integer }
+        commentCount: { type: integer }
+        communityId: { type: string, format: uuid }
+        reportedById: { type: string, format: uuid }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    Petition:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        description: { type: string }
+        goal: { type: integer }
+        signatureCount: { type: integer }
+        commentCount: { type: integer }
+        status: { $ref: '#/components/schemas/PetitionStatus' }
+        deadline: { type: string, format: date-time, nullable: true }
+        imageUrls:
+          type: array
+          items: { type: string }
+        communityId: { type: string, format: uuid }
+        createdById: { type: string, format: uuid }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    Representative:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        title: { type: string }
+        position: { type: string }
+        constituency: { type: string }
+        party: { type: string, nullable: true }
+        bio: { type: string, nullable: true }
+        avatarUrl: { type: string, nullable: true }
+        email: { type: string, nullable: true }
+        phone: { type: string, nullable: true }
+        website: { type: string, nullable: true }
+        communityId: { type: string, format: uuid }
+        responseRate: { type: integer, description: '0-100 percent.' }
+        followerCount: { type: integer }
+        commentCount: { type: integer }
+        createdById: { type: string, format: uuid }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    Comment:
+      type: object
+      description: |
+        Shared shape across issue, petition, and representative comments.
+        `isHidden` is computed at query time from content flags — when true
+        the server has already replaced content/author with placeholders,
+        preserving conversation flow while removing the offending payload.
+      properties:
+        id: { type: string, format: uuid }
+        content: { type: string }
+        authorId: { type: string, format: uuid }
+        authorName: { type: string }
+        authorRole: { type: string }
+        isOfficialResponse: { type: boolean }
+        isHidden: { type: boolean }
+        createdAt: { type: string, format: date-time }
+
+    Notification:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        type: { $ref: '#/components/schemas/NotificationType' }
+        title: { type: string }
+        body: { type: string }
+        read: { type: boolean }
+        linkUrl: { type: string, nullable: true }
+        userId: { type: string, format: uuid }
+        createdAt: { type: string, format: date-time }
+
+    FeedItem:
+      type: object
+      description: Discriminated union — exactly one of `issue` or `petition` is set.
+      properties:
+        kind: { type: string, enum: [issue, petition] }
+        tier: { $ref: '#/components/schemas/DiscoverTier' }
+        createdAt: { type: string, format: date-time }
+        communityId: { type: string, format: uuid }
+        community:
+          type: object
+          properties:
+            id: { type: string, format: uuid }
+            name: { type: string }
+            state: { type: string }
+            lga: { type: string }
+        issue:
+          allOf:
+            - $ref: '#/components/schemas/Issue'
+          nullable: true
+        petition:
+          allOf:
+            - $ref: '#/components/schemas/Petition'
+          nullable: true
+
+paths:
+  # ────────────────────── COMMUNITIES ──────────────────────
+  /communities:
+    get:
+      tags: [Communities]
+      security: []
+      summary: List communities
+      parameters:
+        - in: query
+          name: state
+          schema: { type: string }
+        - in: query
+          name: lga
+          schema: { type: string }
+      responses:
+        '200':
+          description: Communities matching the filter, or all if no filter.
+          content:
+            application/json:
+              examples:
+                default:
+                  value:
+                    success: true
+                    data:
+                      communities:
+                        - id: 6f2a1c4d-9b3e-4a1f-8c7d-2b3e4f5a6b7c
+                          name: Enugu East
+                          slug: enugu-east
+                          state: Enugu
+                          lga: Enugu East
+                          country: Nigeria
+                          createdById: 3f1a...
+                          createdAt: 2026-06-01T09:00:00Z
+                          updatedAt: 2026-06-01T09:00:00Z
+    post:
+      tags: [Communities]
+      summary: Create a community (GOVERNMENT_ADMIN, PLATFORM_ADMIN, NGO)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, slug, state, lga]
+              properties:
+                name: { type: string, minLength: 2 }
+                slug: { type: string, minLength: 2 }
+                state: { type: string }
+                lga: { type: string }
+                description: { type: string, nullable: true }
+            examples:
+              default:
+                value: { name: Enugu East, slug: enugu-east, state: Enugu, lga: Enugu East }
+      responses:
+        '201':
+          description: Community created.
+        '403':
+          description: Caller lacks required role.
+
+  /communities/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Communities]
+      security: []
+      summary: Get a community by ID
+      responses:
+        '200': { description: Community detail. }
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              examples:
+                default:
+                  {
+                    value:
+                      { success: false, code: COMMUNITY_NOT_FOUND, message: Community not found },
+                  }
+
+  # ──────────────────────── ISSUES ────────────────────────
+  /issues:
+    get:
+      tags: [Issues]
+      security: []
+      summary: List issues
+      parameters:
+        - in: query
+          name: communityId
+          schema: { type: string, format: uuid }
+        - in: query
+          name: status
+          schema: { $ref: '#/components/schemas/IssueStatus' }
+        - in: query
+          name: category
+          schema: { $ref: '#/components/schemas/IssueCategory' }
+      responses:
+        '200':
+          description: Issues.
+          content:
+            application/json:
+              examples:
+                default:
+                  value:
+                    success: true
+                    data:
+                      issues:
+                        - id: 7f8e9d0c-1234-5678-9abc-def012345678
+                          title: Burst water main on Abakpa Rd
+                          description: Water has been running for three days
+                          category: UTILITIES
+                          status: OPEN
+                          upvoteCount: 42
+                          commentCount: 8
+                          communityId: 6f2a1c4d-...
+                          reportedById: 3f1a...
+                          imageUrls: []
+                          createdAt: 2026-07-09T09:00:00Z
+                          updatedAt: 2026-07-09T09:00:00Z
+    post:
+      tags: [Issues]
+      summary: Report an issue (verified user, primary community must match)
+      description: |
+        The caller's `primaryCommunityId` must match `communityId` — you can
+        only report issues in your own home constituency.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, description, category, communityId]
+              properties:
+                title: { type: string, minLength: 5 }
+                description: { type: string, minLength: 10 }
+                category: { $ref: '#/components/schemas/IssueCategory' }
+                communityId: { type: string, format: uuid }
+                location: { type: string, nullable: true }
+                imageUrls:
+                  type: array
+                  items: { type: string }
+            examples:
+              default:
+                value:
+                  title: Burst water main on Abakpa Rd
+                  description: Water has been running for three days near Junction 4.
+                  category: UTILITIES
+                  communityId: 6f2a1c4d-9b3e-4a1f-8c7d-2b3e4f5a6b7c
+                  location: Abakpa Road, Junction 4
+                  imageUrls: [/api/v1/uploads/abc123.jpg]
+      responses:
+        '201':
+          description: Issue created.
+        '403':
+          description: Caller's primary community does not match.
+
+  /issues/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Issues]
+      security: []
+      summary: Get an issue by ID
+      responses:
+        '200': { description: Issue detail. }
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              examples:
+                default:
+                  { value: { success: false, code: ISSUE_NOT_FOUND, message: Issue not found } }
+
+  /issues/{id}/upvote:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [Issues]
+      summary: Toggle upvote (verified, must be a member of the issue's community)
+      description: |
+        Flips the caller's upvote state on the issue. One vote per account
+        is enforced by a compound unique index — repeated calls flip between
+        upvoted/not upvoted.
+      responses:
+        '200':
+          description: Current state after toggle.
+          content:
+            application/json:
+              examples:
+                default:
+                  value: { success: true, data: { upvoted: true, upvoteCount: 43 } }
+
+  /issues/{id}/status:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      tags: [Issues]
+      summary: Update issue status (admin/rep action)
+      description: Every change is written to the audit log with the previous status.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { $ref: '#/components/schemas/IssueStatus' }
+            examples:
+              default: { value: { status: IN_PROGRESS } }
+      responses:
+        '200':
+          description: Status updated; reporter notified.
+
+  /issues/{id}/comments:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Issues]
+      security: []
+      summary: List comments on an issue
+      responses:
+        '200':
+          description: Comments.
+          content:
+            application/json:
+              examples:
+                default:
+                  value:
+                    success: true
+                    data:
+                      comments:
+                        - id: c1a2b3d4-...
+                          content: Thanks for reporting — we're on it.
+                          authorId: 3f1a...
+                          authorName: Water Corp
+                          authorRole: GOVERNMENT_ADMIN
+                          isOfficialResponse: true
+                          isHidden: false
+                          createdAt: 2026-07-09T10:15:00Z
+    post:
+      tags: [Issues]
+      summary: Comment on an issue (verified, must be member of the issue's community)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                content: { type: string, minLength: 1, maxLength: 2000 }
+      responses:
+        '201':
+          description: Comment added; reporter notified if not the author.
+
+  # ─────────────────────── PETITIONS ───────────────────────
+  /petitions:
+    get:
+      tags: [Petitions]
+      security: []
+      summary: List petitions
+      parameters:
+        - in: query
+          name: communityId
+          schema: { type: string, format: uuid }
+        - in: query
+          name: status
+          schema: { $ref: '#/components/schemas/PetitionStatus' }
+      responses:
+        '200':
+          description: Petitions.
+    post:
+      tags: [Petitions]
+      summary: Create a petition (verified, primary community must match)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, description, goal, communityId]
+              properties:
+                title: { type: string, minLength: 5 }
+                description: { type: string, minLength: 10 }
+                goal: { type: integer, minimum: 1 }
+                deadline: { type: string, format: date-time, nullable: true }
+                communityId: { type: string, format: uuid }
+                imageUrls:
+                  type: array
+                  items: { type: string }
+            examples:
+              default:
+                value:
+                  title: Fix the Aba Road pothole crisis
+                  description: The main road is impassable after every rain.
+                  goal: 500
+                  deadline: 2026-09-30T23:59:59Z
+                  communityId: 6f2a1c4d-9b3e-4a1f-8c7d-2b3e4f5a6b7c
+      responses:
+        '201':
+          description: Petition created.
+
+  /petitions/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Petitions]
+      security: []
+      summary: Get a petition
+      responses:
+        '200': { description: Petition detail. }
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              examples:
+                default:
+                  {
+                    value:
+                      { success: false, code: PETITION_NOT_FOUND, message: Petition not found },
+                  }
+
+  /petitions/{id}/sign:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [Petitions]
+      summary: Sign a petition (verified, must be member of petition's community)
+      description: |
+        One signature per user (enforced by compound unique index). Fires a
+        milestone notification to the creator when the signature crosses
+        25 %, 50 %, or 100 % of the goal.
+      responses:
+        '200':
+          description: Signed.
+          content:
+            application/json:
+              examples:
+                default: { value: { success: true, data: { signed: true } } }
+
+  /petitions/{id}/comments:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Petitions]
+      security: []
+      summary: List comments on a petition
+      responses:
+        '200': { description: Comments. }
+    post:
+      tags: [Petitions]
+      summary: Comment on a petition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                content: { type: string, minLength: 1, maxLength: 2000 }
+      responses:
+        '201':
+          description: Comment added.
+
+  # ───────────────────── REPRESENTATIVES ─────────────────────
+  /representatives:
+    get:
+      tags: [Representatives]
+      security: []
+      summary: List representatives
+      parameters:
+        - in: query
+          name: communityId
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Representatives. }
+    post:
+      tags: [Representatives]
+      summary: Add a representative (admin roles + primary community match)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, title, position, constituency, communityId]
+              properties:
+                name: { type: string, minLength: 2 }
+                title: { type: string }
+                position: { type: string }
+                constituency: { type: string }
+                communityId: { type: string, format: uuid }
+                party: { type: string, nullable: true }
+                bio: { type: string, nullable: true }
+                avatarUrl: { type: string, nullable: true }
+                email: { type: string, format: email, nullable: true }
+                phone: { type: string, nullable: true }
+                website: { type: string, format: uri, nullable: true }
+      responses:
+        '201': { description: Representative created. }
+
+  /representatives/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Representatives]
+      security: []
+      summary: Get a representative
+      responses:
+        '200': { description: Representative detail. }
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              examples:
+                default:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: REPRESENTATIVE_NOT_FOUND,
+                        message: Representative not found,
+                      },
+                  }
+    patch:
+      tags: [Representatives]
+      summary: Update a representative (admin roles)
+      description: All fields are optional — omit to leave unchanged. String fields set to empty clear the value.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, minLength: 2 }
+                title: { type: string }
+                position: { type: string }
+                constituency: { type: string }
+                party: { type: string }
+                bio: { type: string }
+                avatarUrl: { type: string }
+                email: { type: string, format: email }
+                phone: { type: string }
+                website: { type: string, format: uri }
+      responses:
+        '200': { description: Updated representative. }
+
+  /representatives/{id}/follow:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [Representatives]
+      summary: Follow a representative (verified, community member)
+      responses:
+        '200':
+          description: Following.
+          content:
+            application/json:
+              examples:
+                default: { value: { success: true, data: { following: true } } }
+    delete:
+      tags: [Representatives]
+      summary: Unfollow a representative
+      responses:
+        '200':
+          description: Unfollowed.
+          content:
+            application/json:
+              examples:
+                default: { value: { success: true, data: { following: false } } }
+
+  /representatives/{id}/comments:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Representatives]
+      security: []
+      summary: List comments on a representative's page
+      responses:
+        '200': { description: Comments. }
+    post:
+      tags: [Representatives]
+      summary: Comment on a representative (verified, community member)
+      description: |
+        Official responses (from REP/GOV_ADMIN/PLATFORM_ADMIN/NGO/MODERATOR)
+        fan out a notification to every follower except the author.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                content: { type: string, minLength: 1, maxLength: 2000 }
+      responses:
+        '201': { description: Comment added. }
+
+  /me/follows/representatives:
+    get:
+      tags: [Representatives]
+      summary: Which representative IDs does the caller follow
+      description: Returned so the frontend can seed its "already followed" state on load.
+      responses:
+        '200':
+          description: List of representative UUIDs.
+          content:
+            application/json:
+              examples:
+                default:
+                  { value: { success: true, data: { representativeIds: [3f1a..., 9a8b...] } } }
+
+  /me/upvotes/issues:
+    get:
+      tags: [Issues]
+      summary: Which issue IDs has the caller upvoted
+      description: Returned so the frontend can seed its "already upvoted" state on load.
+      responses:
+        '200':
+          description: List of issue UUIDs.
+          content:
+            application/json:
+              examples:
+                default: { value: { success: true, data: { issueIds: [7f8e..., abc1...] } } }
+
+  # ───────────────────── NOTIFICATIONS ─────────────────────
+  /notifications:
+    get:
+      tags: [Notifications]
+      summary: List the caller's notifications
+      parameters:
+        - in: query
+          name: limit
+          schema: { type: integer, default: 50, maximum: 200 }
+      responses:
+        '200':
+          description: Notifications, newest first.
+          content:
+            application/json:
+              examples:
+                default:
+                  value:
+                    success: true
+                    data:
+                      notifications:
+                        - id: n1a2b3c4-...
+                          type: PETITION_UPDATE
+                          title: 'Petition milestone: 50%'
+                          body: '"Fix the Aba Road pothole crisis" hit 50% of its goal (250/500).'
+                          read: false
+                          linkUrl: /petitions/p1a2b3c4-...
+                          userId: 3f1a...
+                          createdAt: 2026-07-09T12:00:00Z
+
+  /notifications/unread-count:
+    get:
+      tags: [Notifications]
+      summary: Count unread notifications for the caller
+      responses:
+        '200':
+          description: Count.
+          content:
+            application/json:
+              examples:
+                default: { value: { success: true, data: { count: 3 } } }
+
+  /notifications/{id}/read:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      tags: [Notifications]
+      summary: Mark one notification as read
+      responses:
+        '200': { description: Marked read. }
+
+  /notifications/read-all:
+    post:
+      tags: [Notifications]
+      summary: Mark all the caller's notifications as read
+      responses:
+        '200': { description: Marked read. }
+
+  /notifications/stream:
+    get:
+      tags: [Notifications]
+      summary: Realtime notifications via Server-Sent Events
+      description: |
+        Server-Sent Events stream. Each event is a JSON `Notification`.
+        A `: ping` keep-alive comment is written every 25s so
+        intermediaries (proxies, load balancers) don't close the idle
+        connection.
+
+        Frames:
+
+        ```
+        event: notification
+        data: {"id":"...","type":"ISSUE_UPDATE","title":"...","body":"...","read":false,"createdAt":"..."}
+        ```
+      responses:
+        '200':
+          description: SSE stream open.
+          content:
+            text/event-stream:
+              schema: { type: string }
+        '503':
+          description: Realtime stream disabled (Hub unavailable).
+
+  # ───────────────────────── SEARCH ─────────────────────────
+  /search:
+    get:
+      tags: [Search]
+      security: []
+      summary: Global search — issues, petitions, representatives
+      description: Queries under 2 characters return empty buckets rather than 400.
+      parameters:
+        - in: query
+          name: q
+          required: true
+          schema: { type: string, minLength: 2 }
+      responses:
+        '200':
+          description: Three buckets, capped at 8 items each.
+          content:
+            application/json:
+              examples:
+                default:
+                  value:
+                    success: true
+                    data:
+                      issues: []
+                      petitions: []
+                      representatives: []
+
+  # ──────────────────────── DISCOVER ────────────────────────
+  /discover/feed:
+    get:
+      tags: [Discover]
+      summary: Personalized feed of issues + petitions
+      description: |
+        Items are labelled with a `tier` based on proximity to the caller's
+        community: `COMMUNITY` (same community), `LGA` (same LGA, different
+        community), `STATE` (same state, different LGA), `COUNTRY` (same
+        country, different state). Pass `tier=` to filter to one tier.
+      parameters:
+        - in: query
+          name: communityId
+          schema: { type: string, format: uuid }
+          description: The caller's active community. Empty = no personalization; everything is TierCountry sorted by recency.
+        - in: query
+          name: tier
+          schema: { $ref: '#/components/schemas/DiscoverTier' }
+        - in: query
+          name: kind
+          schema: { type: string, enum: [issue, petition] }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 20, maximum: 50 }
+        - in: query
+          name: offset
+          schema: { type: integer, default: 0 }
+      responses:
+        '200':
+          description: Feed items.
+          content:
+            application/json:
+              examples:
+                default:
+                  value:
+                    success: true
+                    data:
+                      items:
+                        - kind: issue
+                          tier: COMMUNITY
+                          createdAt: 2026-07-09T12:00:00Z
+                          communityId: 6f2a1c4d-...
+                          community:
+                            { id: 6f2a1c4d-..., name: Enugu East, state: Enugu, lga: Enugu East }
+                          issue:
+                            {
+                              id: 7f8e9d0c-...,
+                              title: 'Burst water main on Abakpa Rd',
+                              status: OPEN,
+                              category: UTILITIES,
+                            }
+
+  # ───────────────────────── UPLOADS ─────────────────────────
+  /uploads:
+    post:
+      tags: [Uploads]
+      summary: Upload an image (verified user, 5MB max, JPG/PNG/GIF/WEBP)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Filename.
+          content:
+            application/json:
+              examples:
+                default:
+                  {
+                    value:
+                      {
+                        success: true,
+                        data: { filename: 8a3f9c0b-1234-5678-9abc-def012345678.jpg },
+                      },
+                  }
+        '400':
+          description: No `file` field in the form.
+        '413':
+          description: File too large (>5MB).
+        '415':
+          description: Invalid file type.
+
+  /uploads/{filename}:
+    parameters:
+      - in: path
+        name: filename
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Uploads]
+      security: []
+      summary: Fetch an uploaded image
+      description: Public GET so images render in `<img>` tags without an auth header.
+      responses:
+        '200':
+          description: The image.
+          content:
+            image/*:
+              schema: { type: string, format: binary }
+        '400':
+          description: Bad filename (path traversal attempt).

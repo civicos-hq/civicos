@@ -1,0 +1,1456 @@
+openapi: 3.0.3
+info:
+  title: CivicOS Identity Service
+  version: 1.0.0
+  description: |
+    Authentication, users, applications (representative/organization signup),
+    content flags, audit logs, and platform-wide admin metrics.
+
+    All routes are proxied by the API gateway at `/api/v1/*`. The service
+    itself mounts them under `/v1/*`.
+
+    ## Response envelope
+
+    Every response is a JSON envelope:
+
+    ```json
+    { "success": true, "data": { ... } }
+    ```
+
+    On failure:
+
+    ```json
+    { "success": false, "code": "ERR_CODE", "message": "Human-readable text" }
+    ```
+
+    ## Authentication
+
+    Protected routes require `Authorization: Bearer <accessToken>`. Access
+    tokens are short-lived; refresh via `POST /auth/refresh`.
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Local (via API Gateway)
+  - url: http://localhost:3001/v1
+    description: Direct to identity-service
+
+tags:
+  - name: Auth
+    description: Register, login, refresh, session management, profile.
+  - name: Applications
+    description: Representative and organization signup applications.
+  - name: Admin — Applications
+    description: Platform-admin review queue for representative and organization applications.
+  - name: Admin — Users
+    description: Platform-admin user administration (list, role, ban).
+  - name: Moderation — Flags
+    description: Citizen-filed content flags and moderator resolution queue.
+  - name: Moderation — Audit Log
+    description: Immutable trail of administrative actions.
+  - name: Admin — Metrics
+    description: Platform-wide and per-community statistics.
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # ── Envelopes ───────────────────────────────────────────
+    ErrorResponse:
+      type: object
+      required: [success, code, message]
+      properties:
+        success:
+          type: boolean
+          example: false
+        code:
+          type: string
+          example: VALIDATION_ERROR
+        message:
+          type: string
+          example: Email is required
+
+    # ── Domain ──────────────────────────────────────────────
+    UserRole:
+      type: string
+      enum: [CITIZEN, REPRESENTATIVE, GOVERNMENT_ADMIN, NGO, MODERATOR, PLATFORM_ADMIN]
+    RequestedAccountType:
+      type: string
+      enum: [CITIZEN, REPRESENTATIVE, ORGANIZATION]
+    ApprovalStatus:
+      type: string
+      enum: [NONE, PENDING, APPROVED, NEEDS_CHANGES, REJECTED]
+
+    CommunityMembership:
+      type: object
+      required: [communityId, joinedAt]
+      properties:
+        communityId:
+          type: string
+          format: uuid
+        joinedAt:
+          type: string
+          format: date-time
+
+    PublicUser:
+      type: object
+      required:
+        [
+          id,
+          email,
+          name,
+          role,
+          memberships,
+          requestedAccountType,
+          approvalStatus,
+          emailVerified,
+          createdAt,
+        ]
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        name:
+          type: string
+        role:
+          $ref: '#/components/schemas/UserRole'
+        avatarUrl:
+          type: string
+          format: uri
+          nullable: true
+        activeCommunityId:
+          type: string
+          format: uuid
+          nullable: true
+        primaryCommunityId:
+          type: string
+          format: uuid
+          nullable: true
+        primaryCommunityChangedAt:
+          type: string
+          format: date-time
+          nullable: true
+        memberships:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommunityMembership'
+        requestedAccountType:
+          $ref: '#/components/schemas/RequestedAccountType'
+        approvalStatus:
+          $ref: '#/components/schemas/ApprovalStatus'
+        approvalReviewedAt:
+          type: string
+          format: date-time
+          nullable: true
+        approvalReviewedById:
+          type: string
+          format: uuid
+          nullable: true
+        approvalNote:
+          type: string
+          nullable: true
+        emailVerified:
+          type: boolean
+        emailVerifiedAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    TokenPair:
+      type: object
+      required: [accessToken, refreshToken, expiresIn]
+      properties:
+        accessToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        refreshToken:
+          type: string
+          example: 8a3f9c0b1d2e3f4a5b6c7d8e9f0a1b2c
+        expiresIn:
+          type: integer
+          description: Seconds until the access token expires.
+          example: 900
+
+    RepresentativeApplication:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        userId: { type: string, format: uuid }
+        status: { $ref: '#/components/schemas/ApprovalStatus' }
+        fullName: { type: string }
+        title: { type: string }
+        position: { type: string }
+        constituency: { type: string }
+        communityId: { type: string, format: uuid }
+        party: { type: string, nullable: true }
+        bio: { type: string, nullable: true }
+        avatarUrl: { type: string, nullable: true }
+        officialEmail: { type: string, nullable: true }
+        officialPhone: { type: string, nullable: true }
+        website: { type: string, nullable: true }
+        proofUrls:
+          type: array
+          items: { type: string }
+        submittedAt: { type: string, format: date-time }
+        reviewedAt: { type: string, format: date-time, nullable: true }
+        reviewedByUserId: { type: string, format: uuid, nullable: true }
+        reviewNote: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    OrganizationApplication:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        userId: { type: string, format: uuid }
+        status: { $ref: '#/components/schemas/ApprovalStatus' }
+        name: { type: string }
+        slug: { type: string }
+        kind:
+          type: string
+          enum: [GOVERNMENT, AGENCY, NGO, UTILITY, OTHER]
+        jurisdiction:
+          type: string
+          enum: [NATIONAL, STATE, LGA, COMMUNITY]
+        state: { type: string, nullable: true }
+        lga: { type: string, nullable: true }
+        description: { type: string, nullable: true }
+        logoUrl: { type: string, nullable: true }
+        officialEmail: { type: string, nullable: true }
+        officialPhone: { type: string, nullable: true }
+        website: { type: string, nullable: true }
+        proofUrls:
+          type: array
+          items: { type: string }
+        submittedAt: { type: string, format: date-time }
+        reviewedAt: { type: string, format: date-time, nullable: true }
+        reviewNote: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    ContentFlag:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        contentType:
+          type: string
+          enum:
+            [
+              ISSUE,
+              ISSUE_COMMENT,
+              PETITION,
+              PETITION_COMMENT,
+              REPRESENTATIVE_COMMENT,
+              ANNOUNCEMENT,
+              PROGRESS_UPDATE,
+            ]
+        contentId: { type: string, format: uuid }
+        reporterId: { type: string, format: uuid }
+        reporterName: { type: string }
+        reason:
+          type: string
+          enum: [SPAM, ABUSE, MISINFO, HATE, OTHER]
+        description: { type: string, nullable: true }
+        status:
+          type: string
+          enum: [PENDING, REVIEWED, HIDDEN, DISMISSED]
+        resolvedById: { type: string, format: uuid, nullable: true }
+        resolvedByName: { type: string, nullable: true }
+        resolutionNote: { type: string, nullable: true }
+        resolvedAt: { type: string, format: date-time, nullable: true }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    AuditLog:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        actorId: { type: string, format: uuid }
+        actorName: { type: string }
+        actorRole: { type: string }
+        action: { type: string, example: user.role_changed }
+        targetType: { type: string, example: USER }
+        targetId: { type: string, format: uuid }
+        metadata:
+          type: string
+          description: JSON-encoded structured metadata.
+        ipAddress: { type: string, nullable: true }
+        userAgent: { type: string, nullable: true }
+        createdAt: { type: string, format: date-time }
+
+    Metrics:
+      type: object
+      properties:
+        users:
+          type: object
+          properties:
+            total: { type: integer }
+            newToday: { type: integer }
+            newThisWeek: { type: integer }
+            verifiedRate: { type: integer, description: '0-100 percent.' }
+            bannedTotal: { type: integer }
+        communities:
+          type: object
+          properties:
+            total: { type: integer }
+        issues:
+          type: object
+          properties:
+            total: { type: integer }
+            byStatus:
+              type: object
+              additionalProperties: { type: integer }
+            responseRate: { type: integer, description: '0-100 percent.' }
+        petitions:
+          type: object
+          properties:
+            total: { type: integer }
+            signaturesTotal: { type: integer }
+            signaturesThisWeek: { type: integer }
+        representatives:
+          type: object
+          properties:
+            total: { type: integer }
+        organizations:
+          type: object
+          properties:
+            total: { type: integer }
+            verified: { type: integer }
+        moderation:
+          type: object
+          properties:
+            pendingFlags: { type: integer }
+            hiddenAllTime: { type: integer }
+            auditLogEntries: { type: integer }
+
+    CommunityStats:
+      type: object
+      properties:
+        citizenCount: { type: integer }
+        issueTotal: { type: integer }
+        issuesByStatus:
+          type: object
+          additionalProperties: { type: integer }
+        petitionTotal: { type: integer }
+        representativeTotal: { type: integer }
+
+paths:
+  # ─────────────────────────── AUTH ───────────────────────────
+  /auth/register:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Register a new account
+      description: |
+        Creates a citizen, representative, or organization account. Citizen
+        accounts are active immediately; representative and organization
+        signups create a pending application that a platform admin must
+        approve before elevated privileges are granted. All new accounts
+        start with `emailVerified=false` — a verification email is sent
+        automatically and the client can call `/auth/resend-verification`
+        to trigger another.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password]
+              properties:
+                name: { type: string, minLength: 2, maxLength: 100 }
+                email: { type: string, format: email }
+                password: { type: string, minLength: 8 }
+                requestedAccountType:
+                  $ref: '#/components/schemas/RequestedAccountType'
+                representativeApplication:
+                  type: object
+                  description: Required when requestedAccountType=REPRESENTATIVE
+                organizationApplication:
+                  type: object
+                  description: Required when requestedAccountType=ORGANIZATION
+            examples:
+              citizen:
+                summary: Citizen signup
+                value:
+                  name: Amina Bello
+                  email: amina@example.com
+                  password: correcthorsebattery
+                  requestedAccountType: CITIZEN
+              representative:
+                summary: Representative signup
+                value:
+                  name: Chidi Okafor
+                  email: chidi@example.com
+                  password: correcthorsebattery
+                  requestedAccountType: REPRESENTATIVE
+                  representativeApplication:
+                    fullName: Chidi Okafor
+                    title: Hon.
+                    position: House of Representatives
+                    constituency: Enugu East
+                    communityId: 6f2a1c4d-9b3e-4a1f-8c7d-2b3e4f5a6b7c
+                    party: PDP
+                    proofUrls:
+                      - https://example.com/id-card.png
+      responses:
+        '201':
+          description: Account created; access + refresh tokens issued.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      user: { $ref: '#/components/schemas/PublicUser' }
+                      tokens: { $ref: '#/components/schemas/TokenPair' }
+              examples:
+                default:
+                  value:
+                    success: true
+                    data:
+                      user:
+                        id: 3f1a2b3c-4d5e-6f7a-8b9c-0d1e2f3a4b5c
+                        email: amina@example.com
+                        name: Amina Bello
+                        role: CITIZEN
+                        emailVerified: false
+                        requestedAccountType: CITIZEN
+                        approvalStatus: NONE
+                        memberships: []
+                        createdAt: 2026-07-09T12:34:56Z
+                      tokens:
+                        accessToken: eyJhbGciOiJIUzI1NiJ9...
+                        refreshToken: 8a3f9c0b1d2e3f4a5b6c7d8e9f0a1b2c
+                        expiresIn: 900
+        '400':
+          description: Validation failed or application shape mismatched.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+              examples:
+                missingApp:
+                  value:
+                    {
+                      success: false,
+                      code: REPRESENTATIVE_APPLICATION_REQUIRED,
+                      message: Representative signup requires application details,
+                    }
+        '409':
+          description: Email already registered.
+          content:
+            application/json:
+              examples:
+                emailTaken:
+                  value:
+                    {
+                      success: false,
+                      code: EMAIL_ALREADY_IN_USE,
+                      message: This email is already registered,
+                    }
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Log in with email and password
+      description: Returns the public user profile and a fresh token pair.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+            examples:
+              default:
+                value: { email: amina@example.com, password: correcthorsebattery }
+      responses:
+        '200':
+          description: Login successful.
+          content:
+            application/json:
+              examples:
+                default:
+                  value:
+                    success: true
+                    data:
+                      user:
+                        {
+                          id: 3f1a2b3c-4d5e-6f7a-8b9c-0d1e2f3a4b5c,
+                          email: amina@example.com,
+                          name: Amina Bello,
+                          role: CITIZEN,
+                          emailVerified: true,
+                          memberships: [],
+                          requestedAccountType: CITIZEN,
+                          approvalStatus: NONE,
+                          createdAt: 2026-07-09T12:34:56Z,
+                        }
+                      tokens:
+                        { accessToken: eyJhbGciOi..., refreshToken: 8a3f9c..., expiresIn: 900 }
+        '401':
+          description: Invalid credentials.
+          content:
+            application/json:
+              examples:
+                default:
+                  value:
+                    {
+                      success: false,
+                      code: INVALID_CREDENTIALS,
+                      message: Invalid email or password,
+                    }
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Exchange a refresh token for a new token pair
+      description: |
+        Consumes the presented refresh token and issues a fresh pair in the
+        same family (OWASP rotation). Replaying a consumed token revokes
+        the entire family, forcing every open session for the user to
+        re-authenticate — this is the token-theft defence.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refreshToken]
+              properties:
+                refreshToken: { type: string }
+      responses:
+        '200':
+          description: New token pair issued.
+          content:
+            application/json:
+              examples:
+                default:
+                  value:
+                    {
+                      success: true,
+                      data:
+                        {
+                          tokens:
+                            { accessToken: eyJhbGciOi..., refreshToken: 8a3f9c..., expiresIn: 900 },
+                        },
+                    }
+        '401':
+          description: Token invalid, expired, revoked, or replayed.
+          content:
+            application/json:
+              examples:
+                default:
+                  value:
+                    {
+                      success: false,
+                      code: INVALID_REFRESH_TOKEN,
+                      message: Token is invalid or expired,
+                    }
+        '403':
+          description: Account banned or deleted.
+          content:
+            application/json:
+              examples:
+                banned:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: ACCOUNT_BANNED,
+                        message: 'Your account has been suspended. Contact support if you believe this is a mistake.',
+                      },
+                  }
+                deleted:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: ACCOUNT_DELETED,
+                        message: This account has been deleted and cannot sign in.,
+                      },
+                  }
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Revoke a refresh token family
+      description: |
+        Not gated by JWT auth: a user with an expired access token still
+        needs to sign out cleanly, and legitimate refresh material is proof
+        enough. Unknown / already-revoked tokens still return 200 so the
+        client can safely wipe local state either way.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken: { type: string }
+      responses:
+        '200':
+          description: Session revoked (idempotent).
+          content:
+            application/json:
+              examples:
+                default: { value: { success: true, data: { loggedOut: true } } }
+
+  /auth/verify-email:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Verify an email address with a one-time token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token]
+              properties:
+                token: { type: string }
+      responses:
+        '200':
+          description: Email marked verified. If the caller was previously unauthenticated the response also includes fresh tokens.
+        '400':
+          description: Token invalid or expired.
+          content:
+            application/json:
+              examples:
+                invalid:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: VERIFICATION_TOKEN_INVALID,
+                        message: Invalid verification link,
+                      },
+                  }
+                expired:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: VERIFICATION_TOKEN_EXPIRED,
+                        message: This verification link has expired. Request a new one.,
+                      },
+                  }
+
+  /auth/resend-verification:
+    post:
+      tags: [Auth]
+      summary: Resend the verification email to the current user
+      responses:
+        '200':
+          description: Verification email queued.
+          content:
+            application/json:
+              examples:
+                default: { value: { success: true, data: { sent: true } } }
+        '500':
+          description: Mailer failed.
+
+  /auth/forgot-password:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Request a password reset email
+      description: |
+        Always returns 200 — even for unknown emails — so an attacker
+        cannot enumerate accounts by timing or status codes. Backend
+        failures (SMTP down, DB error) log server-side and still
+        respond 200.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+      responses:
+        '200':
+          description: Reset request accepted.
+          content:
+            application/json:
+              examples:
+                default: { value: { success: true, data: { sent: true } } }
+
+  /auth/reset-password:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Reset password using a one-time token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, newPassword]
+              properties:
+                token: { type: string }
+                newPassword: { type: string, minLength: 8 }
+      responses:
+        '200':
+          description: Password reset; fresh tokens issued.
+        '400':
+          description: Token invalid, expired, or password too short.
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Get the current user's profile
+      responses:
+        '200':
+          description: Public user profile.
+          content:
+            application/json:
+              examples:
+                default:
+                  value:
+                    success: true
+                    data:
+                      user:
+                        id: 3f1a2b3c-4d5e-6f7a-8b9c-0d1e2f3a4b5c
+                        email: amina@example.com
+                        name: Amina Bello
+                        role: CITIZEN
+                        emailVerified: true
+                        activeCommunityId: 6f2a1c4d-9b3e-4a1f-8c7d-2b3e4f5a6b7c
+                        primaryCommunityId: 6f2a1c4d-9b3e-4a1f-8c7d-2b3e4f5a6b7c
+                        memberships:
+                          - communityId: 6f2a1c4d-9b3e-4a1f-8c7d-2b3e4f5a6b7c
+                            joinedAt: 2026-07-01T09:00:00Z
+                        requestedAccountType: CITIZEN
+                        approvalStatus: NONE
+                        createdAt: 2026-07-09T12:34:56Z
+        '401':
+          description: Missing or invalid access token.
+    patch:
+      tags: [Auth]
+      summary: Update the current user's profile
+      description: Fields omitted from the request are left unchanged.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, minLength: 2, maxLength: 100 }
+                email: { type: string, format: email }
+      responses:
+        '200':
+          description: Updated profile.
+        '409':
+          description: Email already registered.
+    delete:
+      tags: [Auth]
+      summary: Delete the current user's account
+      description: |
+        Soft-deletes the user (PII anonymized, refresh tokens revoked).
+        Once deleted, the account cannot log in or refresh. Content the
+        user authored stays in place with an anonymized author name — the
+        public record survives while PII is scrubbed.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason: { type: string, nullable: true }
+      responses:
+        '200':
+          description: Account deleted.
+          content:
+            application/json:
+              examples:
+                default: { value: { success: true, data: { ok: true } } }
+        '404':
+          description: User not found (already deleted).
+
+  /auth/me/community:
+    post:
+      tags: [Auth]
+      summary: Join a community
+      description: Adds the community to the caller's membership set. First join also sets both `activeCommunityId` and `primaryCommunityId`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [communityId]
+              properties:
+                communityId: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Membership added; returns updated profile.
+
+  /auth/me/active-community:
+    patch:
+      tags: [Auth]
+      summary: Switch the active community
+      description: The active community is the one the user is currently viewing/acting in for signatures, comments, and upvotes.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [communityId]
+              properties:
+                communityId: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Active community switched.
+        '400':
+          description: The user hasn't joined that community.
+          content:
+            application/json:
+              examples:
+                default:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: COMMUNITY_MEMBERSHIP_REQUIRED,
+                        message: Join this community before switching to it,
+                      },
+                  }
+
+  /auth/me/primary-community:
+    patch:
+      tags: [Auth]
+      summary: Change the primary community (30-day cooldown)
+      description: |
+        The primary community is the user's home constituency — the one
+        they can create issues, petitions, and rep-profile edits in.
+        Changes are limited to once per 30 days to reduce vote-stacking
+        by users bouncing between communities.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [communityId]
+              properties:
+                communityId: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Primary community changed.
+        '400':
+          description: The user hasn't joined that community.
+        '404':
+          description: User not found.
+        '429':
+          description: 30-day cooldown active.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  code: { type: string }
+                  message: { type: string }
+                  nextEligibleAt: { type: string, format: date-time }
+              examples:
+                default:
+                  value:
+                    success: false
+                    code: PRIMARY_COMMUNITY_COOLDOWN
+                    message: Primary community can only be changed once per 30 days
+                    nextEligibleAt: 2026-08-08T00:00:00Z
+
+  # ─────────────────────── APPLICATIONS ───────────────────────
+  /applications/me:
+    get:
+      tags: [Applications]
+      summary: Get the caller's own application (representative or organization)
+      responses:
+        '200':
+          description: Applicant view.
+          content:
+            application/json:
+              examples:
+                default:
+                  value:
+                    success: true
+                    data:
+                      application:
+                        requestedAccountType: REPRESENTATIVE
+                        approvalStatus: PENDING
+                        representativeApplication:
+                          id: 1a2b3c4d-...
+                          fullName: Chidi Okafor
+                          title: Hon.
+                          position: House of Representatives
+                          constituency: Enugu East
+                          communityId: 6f2a1c4d-...
+                          submittedAt: 2026-07-09T12:34:56Z
+
+  /applications/me/representative:
+    put:
+      tags: [Applications]
+      summary: Create or update the caller's representative application
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [fullName, title, position, constituency, communityId]
+              properties:
+                fullName: { type: string, minLength: 2, maxLength: 100 }
+                title: { type: string }
+                position: { type: string }
+                constituency: { type: string }
+                communityId: { type: string, format: uuid }
+                party: { type: string, nullable: true }
+                bio: { type: string, nullable: true }
+                avatarUrl: { type: string, nullable: true }
+                officialEmail: { type: string, format: email, nullable: true }
+                officialPhone: { type: string, nullable: true }
+                website: { type: string, format: uri, nullable: true }
+                proofUrls:
+                  type: array
+                  items: { type: string }
+      responses:
+        '200':
+          description: Application saved.
+
+  /applications/me/organization:
+    put:
+      tags: [Applications]
+      summary: Create or update the caller's organization application
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, slug, kind, jurisdiction]
+              properties:
+                name: { type: string, minLength: 2, maxLength: 120 }
+                slug: { type: string, description: 'lowercase-hyphenated' }
+                kind:
+                  type: string
+                  enum: [GOVERNMENT, AGENCY, NGO, UTILITY, OTHER]
+                jurisdiction:
+                  type: string
+                  enum: [NATIONAL, STATE, LGA, COMMUNITY]
+                state: { type: string, nullable: true }
+                lga: { type: string, nullable: true }
+                description: { type: string, nullable: true }
+                logoUrl: { type: string, nullable: true }
+                officialEmail: { type: string, format: email, nullable: true }
+                officialPhone: { type: string, nullable: true }
+                website: { type: string, format: uri, nullable: true }
+                proofUrls:
+                  type: array
+                  items: { type: string }
+      responses:
+        '200':
+          description: Application saved.
+
+  # ──────────────────── ADMIN — APPLICATIONS ────────────────
+  /admin/applications:
+    get:
+      tags: [Admin — Applications]
+      summary: List submitted applications (admin review queue)
+      parameters:
+        - in: query
+          name: kind
+          schema: { type: string, enum: [REPRESENTATIVE, ORGANIZATION] }
+        - in: query
+          name: status
+          schema: { $ref: '#/components/schemas/ApprovalStatus' }
+        - in: query
+          name: q
+          schema: { type: string }
+          description: Search headline/subhead/applicant.
+        - in: query
+          name: staleAfterHours
+          schema: { type: integer }
+          description: Only include applications older than N hours since submission.
+        - in: query
+          name: limit
+          schema: { type: integer, default: 20 }
+        - in: query
+          name: offset
+          schema: { type: integer, default: 0 }
+      responses:
+        '200':
+          description: Paginated list of application summaries.
+          content:
+            application/json:
+              examples:
+                default:
+                  value:
+                    success: true
+                    data:
+                      total: 12
+                      applications:
+                        - kind: REPRESENTATIVE
+                          id: 1a2b3c4d-...
+                          status: PENDING
+                          submittedAt: 2026-07-09T12:34:56Z
+                          headline: Chidi Okafor — House of Representatives
+                          subhead: Enugu East
+                          applicant:
+                            {
+                              id: 3f1a...,
+                              email: chidi@example.com,
+                              name: Chidi Okafor,
+                              role: CITIZEN,
+                              memberships: [],
+                              requestedAccountType: REPRESENTATIVE,
+                              approvalStatus: PENDING,
+                              emailVerified: true,
+                              createdAt: 2026-07-09T12:34:56Z,
+                            }
+
+  /admin/applications/{kind}/{id}:
+    parameters:
+      - in: path
+        name: kind
+        required: true
+        schema: { type: string, enum: [REPRESENTATIVE, ORGANIZATION] }
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Admin — Applications]
+      summary: Full application detail including review history
+      responses:
+        '200':
+          description: Applicant, application payload, review history.
+    patch:
+      tags: [Admin — Applications]
+      summary: Approve, request changes, or reject an application
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [APPROVED, NEEDS_CHANGES, REJECTED]
+                note: { type: string, nullable: true }
+            examples:
+              approve: { value: { status: APPROVED } }
+              needsChanges:
+                { value: { status: NEEDS_CHANGES, note: 'Please attach a valid party ID card.' } }
+      responses:
+        '200':
+          description: Decision recorded and audit-logged.
+
+  # ──────────────────── ADMIN — USERS ────────────────────
+  /users:
+    get:
+      tags: [Admin — Users]
+      summary: List users (admin)
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string }
+        - in: query
+          name: role
+          schema: { $ref: '#/components/schemas/UserRole' }
+        - in: query
+          name: banned
+          schema: { type: string, enum: ['true', 'false'] }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 20 }
+        - in: query
+          name: offset
+          schema: { type: integer, default: 0 }
+      responses:
+        '200':
+          description: Users + total count.
+          content:
+            application/json:
+              examples:
+                default:
+                  value:
+                    success: true
+                    data:
+                      total: 137
+                      users:
+                        - id: 3f1a...
+                          email: amina@example.com
+                          name: Amina Bello
+                          role: CITIZEN
+                          emailVerified: true
+                          activeCommunityId: 6f2a...
+                          primaryCommunityId: 6f2a...
+                          memberships: []
+                          bannedAt: null
+                          createdAt: 2026-07-09T12:34:56Z
+
+  /users/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Admin — Users]
+      summary: Get a user by ID (admin)
+      responses:
+        '200':
+          description: Public user view.
+        '404':
+          description: User not found.
+
+  /users/{id}/role:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      tags: [Admin — Users]
+      summary: Change a user's platform role
+      description: Writes a `user.role_changed` audit-log entry.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [role]
+              properties:
+                role: { $ref: '#/components/schemas/UserRole' }
+      responses:
+        '200':
+          description: Role updated.
+        '400':
+          description: Unknown role.
+
+  /users/{id}/ban:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [Admin — Users]
+      summary: Ban a user
+      description: Sets `bannedAt`. Their JWT still works until it expires; the refresh-token path enforces the block on next rotation.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason: { type: string, nullable: true }
+      responses:
+        '200':
+          description: User banned.
+
+  /users/{id}/unban:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [Admin — Users]
+      summary: Lift a ban
+      responses:
+        '200':
+          description: User unbanned.
+
+  # ─────────────────── MODERATION — FLAGS ───────────────────
+  /flags:
+    post:
+      tags: [Moderation — Flags]
+      summary: File a content flag (verified users)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [contentType, contentId, reason]
+              properties:
+                contentType:
+                  type: string
+                  enum:
+                    [
+                      ISSUE,
+                      ISSUE_COMMENT,
+                      PETITION,
+                      PETITION_COMMENT,
+                      REPRESENTATIVE_COMMENT,
+                      ANNOUNCEMENT,
+                      PROGRESS_UPDATE,
+                    ]
+                contentId: { type: string, format: uuid }
+                reason:
+                  type: string
+                  enum: [SPAM, ABUSE, MISINFO, HATE, OTHER]
+                description: { type: string, nullable: true }
+            examples:
+              default:
+                value:
+                  {
+                    contentType: ISSUE_COMMENT,
+                    contentId: 7f8e9d0c-1234-5678-9abc-def012345678,
+                    reason: ABUSE,
+                    description: 'Contains a personal threat.',
+                  }
+      responses:
+        '201':
+          description: Flag recorded.
+        '409':
+          description: The caller has already flagged this piece of content.
+    get:
+      tags: [Moderation — Flags]
+      summary: List content flags (admin queue)
+      parameters:
+        - in: query
+          name: status
+          schema: { type: string, enum: [PENDING, REVIEWED, HIDDEN, DISMISSED] }
+        - in: query
+          name: contentType
+          schema: { type: string }
+        - in: query
+          name: reason
+          schema: { type: string }
+        - in: query
+          name: reporterId
+          schema: { type: string, format: uuid }
+        - in: query
+          name: q
+          schema: { type: string }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 20 }
+        - in: query
+          name: offset
+          schema: { type: integer, default: 0 }
+      responses:
+        '200':
+          description: Flags list.
+          content:
+            application/json:
+              examples:
+                default: { value: { success: true, data: { flags: [] } } }
+
+  /flags/counts:
+    get:
+      tags: [Moderation — Flags]
+      summary: Flag counts by status
+      responses:
+        '200':
+          description: Map of status → count.
+          content:
+            application/json:
+              examples:
+                default:
+                  {
+                    value:
+                      {
+                        success: true,
+                        data: { counts: { PENDING: 4, REVIEWED: 12, HIDDEN: 3, DISMISSED: 20 } },
+                      },
+                  }
+
+  /flags/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Moderation — Flags]
+      summary: Get a flag by ID
+      responses:
+        '200': { description: Flag detail. }
+        '404': { description: Flag not found. }
+    patch:
+      tags: [Moderation — Flags]
+      summary: Resolve a flag (moderator action)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status: { type: string, enum: [REVIEWED, HIDDEN, DISMISSED] }
+                resolutionNote: { type: string, nullable: true }
+      responses:
+        '200': { description: Flag resolved; audit log written. }
+
+  /flags/direct-hide:
+    post:
+      tags: [Moderation — Flags]
+      summary: Admin proactive-hide (create + hide in one call)
+      description: |
+        The admin has already decided the content should be hidden; this
+        creates the flag and immediately marks it HIDDEN. Distinct from
+        `POST /flags` which is citizen-facing. Writes a `flag.direct_hide`
+        audit entry so proactive hides are distinguishable from resolutions
+        of citizen-filed flags.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [contentType, contentId, reason]
+              properties:
+                contentType: { type: string }
+                contentId: { type: string, format: uuid }
+                reason: { type: string }
+                resolutionNote: { type: string, nullable: true }
+      responses:
+        '201': { description: Flag created and marked HIDDEN. }
+
+  # ────────────────── MODERATION — AUDIT LOG ──────────────────
+  /audit-logs:
+    get:
+      tags: [Moderation — Audit Log]
+      summary: Query the audit log (admin)
+      parameters:
+        - in: query
+          name: actorId
+          schema: { type: string, format: uuid }
+        - in: query
+          name: action
+          schema: { type: string, example: user.banned }
+        - in: query
+          name: targetType
+          schema: { type: string, example: USER }
+        - in: query
+          name: targetId
+          schema: { type: string, format: uuid }
+        - in: query
+          name: since
+          schema: { type: string, format: date-time }
+        - in: query
+          name: until
+          schema: { type: string, format: date-time }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 50 }
+        - in: query
+          name: offset
+          schema: { type: integer, default: 0 }
+      responses:
+        '200':
+          description: Paginated audit entries.
+          content:
+            application/json:
+              examples:
+                default:
+                  value:
+                    success: true
+                    data:
+                      total: 245
+                      auditLogs:
+                        - id: b3c4d5e6-...
+                          actorId: 9a8b7c6d-...
+                          actorName: Platform Admin
+                          actorRole: PLATFORM_ADMIN
+                          action: user.banned
+                          targetType: USER
+                          targetId: 3f1a2b3c-...
+                          metadata: '{"reason":"repeated spam","email":"spam@example.com"}'
+                          ipAddress: 203.0.113.5
+                          userAgent: Mozilla/5.0
+                          createdAt: 2026-07-09T12:34:56Z
+
+  # ─────────────────── ADMIN — METRICS ───────────────────
+  /admin/metrics:
+    get:
+      tags: [Admin — Metrics]
+      summary: Platform-wide metrics snapshot
+      description: A fresh COUNT(*) sweep — cheap because everything is indexed.
+      responses:
+        '200':
+          description: Snapshot metrics.
+          content:
+            application/json:
+              examples:
+                default:
+                  value:
+                    success: true
+                    data:
+                      metrics:
+                        users:
+                          {
+                            total: 1024,
+                            newToday: 12,
+                            newThisWeek: 88,
+                            verifiedRate: 82,
+                            bannedTotal: 3,
+                          }
+                        communities: { total: 47 }
+                        issues:
+                          {
+                            total: 512,
+                            byStatus: { OPEN: 210, IN_PROGRESS: 180, RESOLVED: 122 },
+                            responseRate: 67,
+                          }
+                        petitions: { total: 89, signaturesTotal: 4210, signaturesThisWeek: 340 }
+                        representatives: { total: 128 }
+                        organizations: { total: 19, verified: 12 }
+                        moderation: { pendingFlags: 4, hiddenAllTime: 18, auditLogEntries: 902 }
+
+  /admin/communities/{id}/stats:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Admin — Metrics]
+      summary: Per-community drill-down stats
+      responses:
+        '200':
+          description: Stats for one community.
+          content:
+            application/json:
+              examples:
+                default:
+                  value:
+                    success: true
+                    data:
+                      stats:
+                        citizenCount: 142
+                        issueTotal: 33
+                        issuesByStatus: { OPEN: 12, IN_PROGRESS: 8, RESOLVED: 13 }
+                        petitionTotal: 6
+                        representativeTotal: 4

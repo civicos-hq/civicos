@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/civicos/api-gateway/internal/docs"
 	"github.com/civicos/api-gateway/internal/middleware"
 	"github.com/civicos/api-gateway/internal/proxy"
 	"github.com/civicos/api-gateway/pkg/config"
@@ -66,6 +67,9 @@ func main() {
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "ok", "service": "api-gateway"})
 	})
+
+	// Swagger UI at /docs, backed by embedded per-service OpenAPI specs.
+	docs.RegisterRoutes(r)
 
 	// Server-side health probes for the admin console — the browser can't
 	// reach the internal services, so the gateway checks on its behalf.
