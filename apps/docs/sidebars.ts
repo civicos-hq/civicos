@@ -24,13 +24,18 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'For Citizens',
       collapsed: false,
-      items: ['citizens/report-issue', 'citizens/voting', 'citizens/notifications'],
+      items: [
+        'citizens/report-issue',
+        'citizens/voting',
+        'citizens/notifications',
+        'citizens/consultations',
+      ],
     },
     {
       type: 'category',
       label: 'For Organizations',
       collapsed: false,
-      items: ['organizations/managing-organizations'],
+      items: ['organizations/managing-organizations', 'organizations/running-consultations'],
     },
     {
       type: 'category',

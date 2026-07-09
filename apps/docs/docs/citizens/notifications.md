@@ -41,6 +41,9 @@ You'll get notified when:
 | Your petition hits 25 %, 50 %, or 100 % of its goal         | "Petition milestone: 50%"                                        |
 | A representative you follow posts an official response      | "New response from &lt;name&gt;"                                 |
 | Your representative or organization application is reviewed | "Application approved" / "Needs changes" / "Rejected"            |
+| An organization publishes a new consultation                | "New consultation: &lt;title&gt;"                                |
+| A consultation you responded to closes                      | "Consultation closed: &lt;title&gt;"                             |
+| A consultation you responded to has its outcome published   | "Outcome published: &lt;title&gt;"                               |
 
 ## What doesn't notify you
 
@@ -67,3 +70,7 @@ To keep the noise down, CivicOS **doesn't** notify you when:
 Every notification carries a deep link to the exact place the event
 happened — the specific comment, the milestone timeline, the
 representative's response section. Click and go straight there.
+
+---
+
+Next: [Responding to a consultation →](./consultations.md)

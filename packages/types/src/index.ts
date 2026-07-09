@@ -419,3 +419,166 @@ export interface ProgressUpdate {
   authorName: string;
   createdAt: ISODateTime;
 }
+
+// ─── Consultations ───────────────────────────────────────────────────────────
+
+export enum ConsultationStatus {
+  DRAFT = 'DRAFT',
+  PUBLISHED = 'PUBLISHED',
+  CLOSED = 'CLOSED',
+}
+
+export enum ConsultationQuestionType {
+  SHORT_TEXT = 'SHORT_TEXT',
+  LONG_TEXT = 'LONG_TEXT',
+  SINGLE_CHOICE = 'SINGLE_CHOICE',
+  MULTI_CHOICE = 'MULTI_CHOICE',
+  YES_NO = 'YES_NO',
+}
+
+/**
+ * A structured feedback ask published by an organization.
+ *
+ * `communityId` is an audience label — it's shown to citizens but NOT
+ * enforced on response submission. Any verified user can answer.
+ */
+export interface Consultation {
+  id: UUID;
+  organizationId: UUID;
+  communityId?: UUID;
+  title: string;
+  summary: string;
+  description: string;
+  coverImageUrl?: string;
+  status: ConsultationStatus;
+  opensAt?: ISODateTime;
+  closesAt?: ISODateTime;
+  responseCount: number;
+  authorId: UUID;
+  authorName: string;
+  publishedAt?: ISODateTime;
+  closedAt?: ISODateTime;
+  createdAt: ISODateTime;
+  updatedAt: ISODateTime;
+}
+
+/**
+ * A question inside a consultation. `options` is only meaningful for
+ * SINGLE_CHOICE and MULTI_CHOICE. YES_NO answers are encoded as the
+ * selection `"YES"` or `"NO"` on the answer.
+ */
+export interface ConsultationQuestion {
+  id: UUID;
+  consultationId: UUID;
+  position: number;
+  prompt: string;
+  helpText?: string;
+  type: ConsultationQuestionType;
+  options: string[];
+  required: boolean;
+  createdAt: ISODateTime;
+  updatedAt: ISODateTime;
+}
+
+export interface ConsultationResponse {
+  id: UUID;
+  consultationId: UUID;
+  userId: UUID;
+  submittedAt: ISODateTime;
+  createdAt: ISODateTime;
+}
+
+/**
+ * A single question's answer inside a response. Exactly one of
+ * `textValue` or `selections` carries data based on the question type.
+ */
+export interface ConsultationAnswer {
+  id: UUID;
+  responseId: UUID;
+  questionId: UUID;
+  textValue?: string;
+  selections?: string[];
+}
+
+/**
+ * Bundled shape returned by the admin `GET /consultations/:id/responses`
+ * — one response with its answers grouped.
+ */
+export interface ConsultationResponseWithAnswers {
+  response: ConsultationResponse;
+  answers: ConsultationAnswer[];
+}
+
+/**
+ * The "close the loop" primitive. One outcome per consultation;
+ * re-publishing overwrites.
+ */
+export interface ConsultationOutcome {
+  id: UUID;
+  consultationId: UUID;
+  summary: string;
+  decisions: string;
+  nextSteps: string;
+  authorId: UUID;
+  authorName: string;
+  publishedAt: ISODateTime;
+  createdAt: ISODateTime;
+  updatedAt: ISODateTime;
+}
+
+/**
+ * Per-question rollup returned by `GET /consultations/:id/analytics`.
+ * `optionCounts` for choice + Yes/No questions; `textValues` for text
+ * questions (capped at 100 samples server-side).
+ */
+export interface ConsultationAggregate {
+  questionId: UUID;
+  prompt: string;
+  type: ConsultationQuestionType;
+  answerCount: number;
+  optionCounts?: Record<string, number>;
+  textValues?: string[];
+}
+
+// ─── Consultation request DTOs ──────────────────────────────────────
+
+export interface CreateConsultationInput {
+  title: string;
+  summary: string;
+  description: string;
+  coverImageUrl?: string;
+  communityId?: UUID;
+  opensAt?: ISODateTime;
+  closesAt?: ISODateTime;
+}
+
+export type UpdateConsultationInput = Partial<CreateConsultationInput>;
+
+export interface ConsultationQuestionInput {
+  prompt: string;
+  helpText?: string;
+  type: ConsultationQuestionType;
+  options?: string[];
+  required?: boolean;
+  /** Omit to append at the end of the current question list. */
+  position?: number;
+}
+
+export interface ConsultationAnswerInput {
+  questionId: UUID;
+  textValue?: string;
+  selections?: string[];
+}
+
+export interface SubmitConsultationResponseInput {
+  answers: ConsultationAnswerInput[];
+}
+
+export interface ConsultationOutcomeInput {
+  summary: string;
+  decisions: string;
+  nextSteps: string;
+}
+
+/** Map of questionId → new zero-based position. */
+export type ConsultationQuestionOrdering = Record<UUID, number>;
