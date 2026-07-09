@@ -215,6 +215,7 @@ First-boot notes:
 | Community service    | http://localhost:3002      | Communities, issues, petitions, reps, flags                                 |
 | Organization service | http://localhost:3003      | Organizations, announcements, projects                                      |
 | Swagger UI           | http://localhost:3000/docs | Interactive API docs — picker for identity / community / organization specs |
+| User Guide (docs)    | http://localhost:5175      | Docusaurus site — how-to for citizens, orgs, reps                           |
 | Postgres             | localhost:5433             | Data                                                                        |
 | Redis                | localhost:6379             | Rate-limit counters + SSE fan-out                                           |
 | NATS                 | localhost:4222             | Inter-service messaging (monitor: `:8222`)                                  |
@@ -286,6 +287,7 @@ See `.env.example` for the complete list.
 
 ## Documentation
 
+- **User Guide** at `http://localhost:5175` — Docusaurus site for end users (citizens, orgs, reps). Content lives in `apps/docs/docs/`
 - **Swagger UI** at `http://localhost:3000/docs` — browseable API docs with a picker for identity / community / organization
 - `docs/product/` — the five source documents that drive every product and architectural decision (Blueprint, Roadmap, Architecture, Experience, Engineering Playbook)
 - `docs/api/openapi-*.yaml` — canonical OpenAPI 3.0 specs, one per service (mirrored into the gateway for embedding)

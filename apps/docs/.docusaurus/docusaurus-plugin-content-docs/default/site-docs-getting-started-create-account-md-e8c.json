@@ -1,0 +1,29 @@
+{
+  "id": "getting-started/create-account",
+  "title": "Create an account",
+  "description": "You need an account to file issues, sign petitions, comment, or upvote.",
+  "source": "@site/docs/getting-started/create-account.md",
+  "sourceDirName": "getting-started",
+  "slug": "/getting-started/create-account",
+  "permalink": "/getting-started/create-account",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/civicos/civicos/tree/main/apps/docs/docs/getting-started/create-account.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "id": "create-account",
+    "title": "Create an account",
+    "sidebar_position": 1
+  },
+  "sidebar": "userGuide",
+  "previous": {
+    "title": "Welcome to CivicOS",
+    "permalink": "/"
+  },
+  "next": {
+    "title": "Join a community",
+    "permalink": "/getting-started/join-community"
+  }
+}

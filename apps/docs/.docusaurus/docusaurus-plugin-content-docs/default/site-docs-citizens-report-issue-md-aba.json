@@ -1,0 +1,29 @@
+{
+  "id": "citizens/report-issue",
+  "title": "Report an issue",
+  "description": "Issues are how citizens surface a problem in their community — a",
+  "source": "@site/docs/citizens/report-issue.md",
+  "sourceDirName": "citizens",
+  "slug": "/citizens/report-issue",
+  "permalink": "/citizens/report-issue",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/civicos/civicos/tree/main/apps/docs/docs/citizens/report-issue.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "id": "report-issue",
+    "title": "Report an issue",
+    "sidebar_position": 1
+  },
+  "sidebar": "userGuide",
+  "previous": {
+    "title": "Join a community",
+    "permalink": "/getting-started/join-community"
+  },
+  "next": {
+    "title": "Voting",
+    "permalink": "/citizens/voting"
+  }
+}

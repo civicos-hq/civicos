@@ -1,0 +1,29 @@
+{
+  "id": "getting-started/join-community",
+  "title": "Join a community",
+  "description": "Everything in CivicOS is scoped to a community — a state + Local",
+  "source": "@site/docs/getting-started/join-community.md",
+  "sourceDirName": "getting-started",
+  "slug": "/getting-started/join-community",
+  "permalink": "/getting-started/join-community",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/civicos/civicos/tree/main/apps/docs/docs/getting-started/join-community.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 2,
+  "frontMatter": {
+    "id": "join-community",
+    "title": "Join a community",
+    "sidebar_position": 2
+  },
+  "sidebar": "userGuide",
+  "previous": {
+    "title": "Create an account",
+    "permalink": "/getting-started/create-account"
+  },
+  "next": {
+    "title": "Report an issue",
+    "permalink": "/citizens/report-issue"
+  }
+}

@@ -1,0 +1,274 @@
+{
+  "allContent": {
+    "docusaurus-plugin-content-docs": {
+      "default": {
+        "loadedVersions": [
+          {
+            "versionName": "current",
+            "label": "Next",
+            "banner": null,
+            "badge": false,
+            "noIndex": false,
+            "className": "docs-version-current",
+            "path": "/",
+            "tagsPath": "/tags",
+            "editUrl": "https://github.com/civicos/civicos/tree/main/apps/docs/docs",
+            "isLast": true,
+            "routePriority": -1,
+            "sidebarFilePath": "/Users/gino/civicos/apps/docs/sidebars.ts",
+            "contentPath": "/Users/gino/civicos/apps/docs/docs",
+            "docs": [
+              {
+                "id": "citizens/notifications",
+                "title": "Notifications",
+                "description": "CivicOS keeps you in the loop when something happens that concerns you —",
+                "source": "@site/docs/citizens/notifications.md",
+                "sourceDirName": "citizens",
+                "slug": "/citizens/notifications",
+                "permalink": "/citizens/notifications",
+                "draft": false,
+                "unlisted": false,
+                "editUrl": "https://github.com/civicos/civicos/tree/main/apps/docs/docs/citizens/notifications.md",
+                "tags": [],
+                "version": "current",
+                "sidebarPosition": 3,
+                "frontMatter": {
+                  "id": "notifications",
+                  "title": "Notifications",
+                  "sidebar_position": 3
+                },
+                "sidebar": "userGuide",
+                "previous": { "title": "Voting", "permalink": "/citizens/voting" },
+                "next": {
+                  "title": "Managing organizations",
+                  "permalink": "/organizations/managing-organizations"
+                }
+              },
+              {
+                "id": "citizens/report-issue",
+                "title": "Report an issue",
+                "description": "Issues are how citizens surface a problem in their community — a",
+                "source": "@site/docs/citizens/report-issue.md",
+                "sourceDirName": "citizens",
+                "slug": "/citizens/report-issue",
+                "permalink": "/citizens/report-issue",
+                "draft": false,
+                "unlisted": false,
+                "editUrl": "https://github.com/civicos/civicos/tree/main/apps/docs/docs/citizens/report-issue.md",
+                "tags": [],
+                "version": "current",
+                "sidebarPosition": 1,
+                "frontMatter": {
+                  "id": "report-issue",
+                  "title": "Report an issue",
+                  "sidebar_position": 1
+                },
+                "sidebar": "userGuide",
+                "previous": {
+                  "title": "Join a community",
+                  "permalink": "/getting-started/join-community"
+                },
+                "next": { "title": "Voting", "permalink": "/citizens/voting" }
+              },
+              {
+                "id": "citizens/voting",
+                "title": "Voting",
+                "description": "CivicOS has three kinds of \"voting\" that citizens use to make their",
+                "source": "@site/docs/citizens/voting.md",
+                "sourceDirName": "citizens",
+                "slug": "/citizens/voting",
+                "permalink": "/citizens/voting",
+                "draft": false,
+                "unlisted": false,
+                "editUrl": "https://github.com/civicos/civicos/tree/main/apps/docs/docs/citizens/voting.md",
+                "tags": [],
+                "version": "current",
+                "sidebarPosition": 2,
+                "frontMatter": { "id": "voting", "title": "Voting", "sidebar_position": 2 },
+                "sidebar": "userGuide",
+                "previous": { "title": "Report an issue", "permalink": "/citizens/report-issue" },
+                "next": { "title": "Notifications", "permalink": "/citizens/notifications" }
+              },
+              {
+                "id": "getting-started/create-account",
+                "title": "Create an account",
+                "description": "You need an account to file issues, sign petitions, comment, or upvote.",
+                "source": "@site/docs/getting-started/create-account.md",
+                "sourceDirName": "getting-started",
+                "slug": "/getting-started/create-account",
+                "permalink": "/getting-started/create-account",
+                "draft": false,
+                "unlisted": false,
+                "editUrl": "https://github.com/civicos/civicos/tree/main/apps/docs/docs/getting-started/create-account.md",
+                "tags": [],
+                "version": "current",
+                "sidebarPosition": 1,
+                "frontMatter": {
+                  "id": "create-account",
+                  "title": "Create an account",
+                  "sidebar_position": 1
+                },
+                "sidebar": "userGuide",
+                "previous": { "title": "Welcome to CivicOS", "permalink": "/" },
+                "next": {
+                  "title": "Join a community",
+                  "permalink": "/getting-started/join-community"
+                }
+              },
+              {
+                "id": "getting-started/join-community",
+                "title": "Join a community",
+                "description": "Everything in CivicOS is scoped to a community — a state + Local",
+                "source": "@site/docs/getting-started/join-community.md",
+                "sourceDirName": "getting-started",
+                "slug": "/getting-started/join-community",
+                "permalink": "/getting-started/join-community",
+                "draft": false,
+                "unlisted": false,
+                "editUrl": "https://github.com/civicos/civicos/tree/main/apps/docs/docs/getting-started/join-community.md",
+                "tags": [],
+                "version": "current",
+                "sidebarPosition": 2,
+                "frontMatter": {
+                  "id": "join-community",
+                  "title": "Join a community",
+                  "sidebar_position": 2
+                },
+                "sidebar": "userGuide",
+                "previous": {
+                  "title": "Create an account",
+                  "permalink": "/getting-started/create-account"
+                },
+                "next": { "title": "Report an issue", "permalink": "/citizens/report-issue" }
+              },
+              {
+                "id": "intro",
+                "title": "Welcome to CivicOS",
+                "description": "CivicOS is a public platform that lets citizens raise problems, sign petitions,",
+                "source": "@site/docs/intro.md",
+                "sourceDirName": ".",
+                "slug": "/",
+                "permalink": "/",
+                "draft": false,
+                "unlisted": false,
+                "editUrl": "https://github.com/civicos/civicos/tree/main/apps/docs/docs/intro.md",
+                "tags": [],
+                "version": "current",
+                "sidebarPosition": 1,
+                "frontMatter": {
+                  "id": "intro",
+                  "title": "Welcome to CivicOS",
+                  "sidebar_position": 1,
+                  "slug": "/"
+                },
+                "sidebar": "userGuide",
+                "next": {
+                  "title": "Create an account",
+                  "permalink": "/getting-started/create-account"
+                }
+              },
+              {
+                "id": "organizations/managing-organizations",
+                "title": "Managing organizations",
+                "description": "An organization on CivicOS is a public body, agency, NGO, or utility",
+                "source": "@site/docs/organizations/managing-organizations.md",
+                "sourceDirName": "organizations",
+                "slug": "/organizations/managing-organizations",
+                "permalink": "/organizations/managing-organizations",
+                "draft": false,
+                "unlisted": false,
+                "editUrl": "https://github.com/civicos/civicos/tree/main/apps/docs/docs/organizations/managing-organizations.md",
+                "tags": [],
+                "version": "current",
+                "sidebarPosition": 1,
+                "frontMatter": {
+                  "id": "managing-organizations",
+                  "title": "Managing organizations",
+                  "sidebar_position": 1
+                },
+                "sidebar": "userGuide",
+                "previous": { "title": "Notifications", "permalink": "/citizens/notifications" },
+                "next": {
+                  "title": "Representative dashboard",
+                  "permalink": "/representatives/dashboard"
+                }
+              },
+              {
+                "id": "representatives/dashboard",
+                "title": "Representative dashboard",
+                "description": "This guide is for elected representatives who have been approved on",
+                "source": "@site/docs/representatives/dashboard.md",
+                "sourceDirName": "representatives",
+                "slug": "/representatives/dashboard",
+                "permalink": "/representatives/dashboard",
+                "draft": false,
+                "unlisted": false,
+                "editUrl": "https://github.com/civicos/civicos/tree/main/apps/docs/docs/representatives/dashboard.md",
+                "tags": [],
+                "version": "current",
+                "sidebarPosition": 1,
+                "frontMatter": {
+                  "id": "dashboard",
+                  "title": "Representative dashboard",
+                  "sidebar_position": 1
+                },
+                "sidebar": "userGuide",
+                "previous": {
+                  "title": "Managing organizations",
+                  "permalink": "/organizations/managing-organizations"
+                }
+              }
+            ],
+            "drafts": [],
+            "sidebars": {
+              "userGuide": [
+                { "type": "doc", "id": "intro" },
+                {
+                  "type": "category",
+                  "label": "Getting Started",
+                  "collapsed": false,
+                  "items": [
+                    { "type": "doc", "id": "getting-started/create-account" },
+                    { "type": "doc", "id": "getting-started/join-community" }
+                  ],
+                  "collapsible": true
+                },
+                {
+                  "type": "category",
+                  "label": "For Citizens",
+                  "collapsed": false,
+                  "items": [
+                    { "type": "doc", "id": "citizens/report-issue" },
+                    { "type": "doc", "id": "citizens/voting" },
+                    { "type": "doc", "id": "citizens/notifications" }
+                  ],
+                  "collapsible": true
+                },
+                {
+                  "type": "category",
+                  "label": "For Organizations",
+                  "collapsed": false,
+                  "items": [{ "type": "doc", "id": "organizations/managing-organizations" }],
+                  "collapsible": true
+                },
+                {
+                  "type": "category",
+                  "label": "For Representatives",
+                  "collapsed": false,
+                  "items": [{ "type": "doc", "id": "representatives/dashboard" }],
+                  "collapsible": true
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "docusaurus-plugin-content-pages": { "default": null },
+    "docusaurus-plugin-debug": {},
+    "docusaurus-plugin-svgr": {},
+    "docusaurus-theme-classic": {},
+    "docusaurus-bootstrap-plugin": {},
+    "docusaurus-mdx-fallback-plugin": {}
+  }
+}

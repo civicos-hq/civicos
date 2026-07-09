@@ -1,0 +1,68 @@
+{
+  "docusaurus-plugin-content-docs": {
+    "default": {
+      "path": "/",
+      "versions": [
+        {
+          "name": "current",
+          "label": "Next",
+          "isLast": true,
+          "path": "/",
+          "mainDocId": "intro",
+          "docs": [
+            {
+              "id": "citizens/notifications",
+              "path": "/citizens/notifications",
+              "sidebar": "userGuide"
+            },
+            {
+              "id": "citizens/report-issue",
+              "path": "/citizens/report-issue",
+              "sidebar": "userGuide"
+            },
+            {
+              "id": "citizens/voting",
+              "path": "/citizens/voting",
+              "sidebar": "userGuide"
+            },
+            {
+              "id": "getting-started/create-account",
+              "path": "/getting-started/create-account",
+              "sidebar": "userGuide"
+            },
+            {
+              "id": "getting-started/join-community",
+              "path": "/getting-started/join-community",
+              "sidebar": "userGuide"
+            },
+            {
+              "id": "intro",
+              "path": "/",
+              "sidebar": "userGuide"
+            },
+            {
+              "id": "organizations/managing-organizations",
+              "path": "/organizations/managing-organizations",
+              "sidebar": "userGuide"
+            },
+            {
+              "id": "representatives/dashboard",
+              "path": "/representatives/dashboard",
+              "sidebar": "userGuide"
+            }
+          ],
+          "draftIds": [],
+          "sidebars": {
+            "userGuide": {
+              "link": {
+                "path": "/",
+                "label": "intro"
+              }
+            }
+          }
+        }
+      ],
+      "breadcrumbs": true
+    }
+  }
+}

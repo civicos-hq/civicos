@@ -1,0 +1,25 @@
+{
+  "id": "representatives/dashboard",
+  "title": "Representative dashboard",
+  "description": "This guide is for elected representatives who have been approved on",
+  "source": "@site/docs/representatives/dashboard.md",
+  "sourceDirName": "representatives",
+  "slug": "/representatives/dashboard",
+  "permalink": "/representatives/dashboard",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/civicos/civicos/tree/main/apps/docs/docs/representatives/dashboard.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "id": "dashboard",
+    "title": "Representative dashboard",
+    "sidebar_position": 1
+  },
+  "sidebar": "userGuide",
+  "previous": {
+    "title": "Managing organizations",
+    "permalink": "/organizations/managing-organizations"
+  }
+}

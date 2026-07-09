@@ -1,0 +1,29 @@
+{
+  "id": "citizens/voting",
+  "title": "Voting",
+  "description": "CivicOS has three kinds of \"voting\" that citizens use to make their",
+  "source": "@site/docs/citizens/voting.md",
+  "sourceDirName": "citizens",
+  "slug": "/citizens/voting",
+  "permalink": "/citizens/voting",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/civicos/civicos/tree/main/apps/docs/docs/citizens/voting.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 2,
+  "frontMatter": {
+    "id": "voting",
+    "title": "Voting",
+    "sidebar_position": 2
+  },
+  "sidebar": "userGuide",
+  "previous": {
+    "title": "Report an issue",
+    "permalink": "/citizens/report-issue"
+  },
+  "next": {
+    "title": "Notifications",
+    "permalink": "/citizens/notifications"
+  }
+}

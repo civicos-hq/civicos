@@ -1,0 +1,29 @@
+{
+  "id": "citizens/notifications",
+  "title": "Notifications",
+  "description": "CivicOS keeps you in the loop when something happens that concerns you —",
+  "source": "@site/docs/citizens/notifications.md",
+  "sourceDirName": "citizens",
+  "slug": "/citizens/notifications",
+  "permalink": "/citizens/notifications",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/civicos/civicos/tree/main/apps/docs/docs/citizens/notifications.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 3,
+  "frontMatter": {
+    "id": "notifications",
+    "title": "Notifications",
+    "sidebar_position": 3
+  },
+  "sidebar": "userGuide",
+  "previous": {
+    "title": "Voting",
+    "permalink": "/citizens/voting"
+  },
+  "next": {
+    "title": "Managing organizations",
+    "permalink": "/organizations/managing-organizations"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "id": "intro",
+  "title": "Welcome to CivicOS",
+  "description": "CivicOS is a public platform that lets citizens raise problems, sign petitions,",
+  "source": "@site/docs/intro.md",
+  "sourceDirName": ".",
+  "slug": "/",
+  "permalink": "/",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/civicos/civicos/tree/main/apps/docs/docs/intro.md",
+  "tags": [],
+  "version": "current",
+  "sidebarPosition": 1,
+  "frontMatter": {
+    "id": "intro",
+    "title": "Welcome to CivicOS",
+    "sidebar_position": 1,
+    "slug": "/"
+  },
+  "sidebar": "userGuide",
+  "next": {
+    "title": "Create an account",
+    "permalink": "/getting-started/create-account"
+  }
+}
