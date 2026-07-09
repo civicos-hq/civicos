@@ -138,4 +138,4 @@ to org members.
 
 ---
 
-Related: [Representative dashboard →](../representatives/dashboard)
+Related: [Representative dashboard →](../representatives/dashboard.md)

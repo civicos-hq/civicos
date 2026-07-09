@@ -16,7 +16,7 @@ held to account.
 Representatives don't self-onboard as reps directly. The flow is:
 
 1. Sign up with **account type = Representative** (see [Create an
-   account](../getting-started/create-account)).
+   account](../getting-started/create-account.md)).
 2. Fill in your **application**: full name, title, position,
    constituency, community, and any proof URLs (ID card, official
    directory listing, etc.).
@@ -123,4 +123,4 @@ for. It's the platform's most direct accountability signal.
 
 ---
 
-Related: [Notifications →](../citizens/notifications)
+Related: [Notifications →](../citizens/notifications.md)

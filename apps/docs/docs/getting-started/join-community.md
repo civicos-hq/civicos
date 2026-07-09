@@ -70,4 +70,4 @@ next date you can change.
 
 ---
 
-Next: [Report an issue →](../citizens/report-issue)
+Next: [Report an issue →](../citizens/report-issue.md)

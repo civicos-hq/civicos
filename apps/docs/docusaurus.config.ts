@@ -57,6 +57,12 @@ const config: Config = {
           label: 'User Guide',
         },
         {
+          type: 'docSidebar',
+          sidebarId: 'developerGuide',
+          position: 'left',
+          label: 'Developer Guide',
+        },
+        {
           href: 'http://localhost:3000/docs',
           label: 'API Reference',
           position: 'right',

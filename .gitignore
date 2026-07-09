@@ -7,6 +7,9 @@
 **/.vite
 **/.swc
 **/.next
+# Docusaurus (apps/docs)
+**/.docusaurus
+apps/docs/build
 
 # ─── TypeScript ───────────────────────────────────────────────────────────────
 **/*.tsbuildinfo
@@ -27,10 +30,9 @@
 # ─── Go ───────────────────────────────────────────────────────────────────────
 **/tmp/
 **/vendor/
-# compiled binaries (service names)
-services/*/identity-service
-services/*/community-service
-services/*/api-gateway
+# Compiled service binaries — the entry point is cmd/server, so `go build`
+# from the service root drops a `server` executable there.
+services/*/server
 
 # ─── Prisma ───────────────────────────────────────────────────────────────────
 **/prisma/generated

@@ -15,9 +15,9 @@ track.
 
 You need three things:
 
-1. A **verified email** (see [Create an account](../getting-started/create-account#verify-your-email)).
+1. A **verified email** (see [Create an account](../getting-started/create-account.md#verify-your-email)).
 2. A **primary community** — you can only file issues in your home
-   constituency (see [Join a community](../getting-started/join-community#primary-vs-active-community)).
+   constituency (see [Join a community](../getting-started/join-community.md#primary-vs-active-community)).
 3. Basic details of the problem — title, description, category.
 
 ## Filing an issue
@@ -53,7 +53,7 @@ You get a notification every time the status changes.
 
 ## After you file
 
-- **You** and every other member of the community can [upvote](voting)
+- **You** and every other member of the community can [upvote](./voting.md)
   the issue to push it up the feed.
 - **Anyone** with a verified account and community membership can
   comment.
@@ -65,7 +65,7 @@ You get a notification every time the status changes.
 
 ## If your issue is off-topic or abusive
 
-Anyone can [flag](../citizens/voting#flagging-content) an issue for
+Anyone can [flag](../citizens/voting.md#flagging-content) an issue for
 review. A moderator looks at flagged content and can hide it (with a
 resolution note that's audit-logged) or dismiss the flag.
 
@@ -84,4 +84,4 @@ Bad issues get flagged and hidden. Good issues get resolved.
 
 ---
 
-Next: [Voting →](voting)
+Next: [Voting →](./voting.md)

@@ -18,10 +18,10 @@ citizen, an organization admin, or an elected representative.
 
 Pick the path that matches you:
 
-- **New to CivicOS?** Start with [Create an account](getting-started/create-account) and then [Join your community](getting-started/join-community).
-- **You're a citizen** who wants to change something? Learn how to [report an issue](citizens/report-issue) and how [voting](citizens/voting) works.
-- **You run an organization** — an NGO, agency, or public body? See [Managing organizations](organizations/managing-organizations).
-- **You're an elected representative**? Read the [Representative dashboard guide](representatives/dashboard).
+- **New to CivicOS?** Start with [Create an account](./getting-started/create-account.md) and then [Join your community](./getting-started/join-community.md).
+- **You're a citizen** who wants to change something? Learn how to [report an issue](./citizens/report-issue.md) and how [voting](./citizens/voting.md) works.
+- **You run an organization** — an NGO, agency, or public body? See [Managing organizations](./organizations/managing-organizations.md).
+- **You're an elected representative**? Read the [Representative dashboard guide](./representatives/dashboard.md).
 
 ## What CivicOS is not
 
@@ -40,4 +40,4 @@ notification. When someone signs a petition you started, you get a
 notification. When an admin hides content, that decision is logged too —
 so moderation stays reviewable.
 
-Ready? [Create your account →](getting-started/create-account)
+Ready? [Create your account →](./getting-started/create-account.md)

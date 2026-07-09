@@ -28,6 +28,53 @@ const sidebars: SidebarsConfig = {
       items: ['representatives/dashboard'],
     },
   ],
+
+  developerGuide: [
+    'developer/index',
+    {
+      type: 'category',
+      label: 'Overview',
+      collapsed: false,
+      items: [
+        'developer/overview/architecture',
+        'developer/overview/repository-structure',
+        'developer/overview/monorepo',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Development',
+      collapsed: false,
+      items: [
+        'developer/development/running-locally',
+        'developer/development/packages',
+        'developer/development/contributing',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Services',
+      collapsed: false,
+      items: [
+        'developer/services/api-gateway',
+        'developer/services/identity-service',
+        'developer/services/community-service',
+        'developer/services/organization-service',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Backend systems',
+      collapsed: false,
+      items: ['developer/backend/database', 'developer/backend/events'],
+    },
+    {
+      type: 'category',
+      label: 'Operations',
+      collapsed: false,
+      items: ['developer/operations/deployment'],
+    },
+  ],
 };
 
 export default sidebars;

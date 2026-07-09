@@ -64,4 +64,4 @@ Deletion is **not reversible**.
 
 ---
 
-Next: [Join a community →](join-community)
+Next: [Join a community →](./join-community.md)
