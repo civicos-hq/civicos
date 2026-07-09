@@ -368,6 +368,16 @@ export interface OrgMember {
   joinedAt: ISODateTime;
 }
 
+/**
+ * Returned by `GET /me/organizations` — each org the caller belongs to
+ * paired with the membership row so the frontend knows the caller's
+ * role in that org without a second request.
+ */
+export interface MyOrgMembership {
+  organization: Organization;
+  membership: OrgMember;
+}
+
 export interface Announcement {
   id: UUID;
   organizationId: UUID;

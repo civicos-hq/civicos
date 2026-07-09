@@ -270,7 +270,10 @@ func (h *Handler) close(c *gin.Context) {
 	if handleAppErr(c, err) {
 		return
 	}
-	if err := h.requireAdmin(c, cur.OrganizationID); err != nil {
+	// Close is the emergency lever — platform admins retain this even
+	// without org membership so a bad consultation can be frozen
+	// without escalating to full moderation.
+	if err := h.requireCloseAuthority(c, cur.OrganizationID); err != nil {
 		handleAppErr(c, err)
 		return
 	}
@@ -404,7 +407,7 @@ func (h *Handler) listResponses(c *gin.Context) {
 	if handleAppErr(c, err) {
 		return
 	}
-	if err := h.requireAdmin(c, cur.OrganizationID); err != nil {
+	if err := h.requireInternalRead(c, cur.OrganizationID); err != nil {
 		handleAppErr(c, err)
 		return
 	}
@@ -424,7 +427,7 @@ func (h *Handler) analytics(c *gin.Context) {
 	if handleAppErr(c, err) {
 		return
 	}
-	if err := h.requireAdmin(c, cur.OrganizationID); err != nil {
+	if err := h.requireInternalRead(c, cur.OrganizationID); err != nil {
 		handleAppErr(c, err)
 		return
 	}
@@ -490,9 +493,11 @@ func (h *Handler) publishOutcome(c *gin.Context) {
 
 // ── Auth helpers ─────────────────────────────────────────────────
 
-// requireAdmin gates every write path. Reuses the same CanAdmin check
-// that announcements/projects/assignments use so PLATFORM_ADMIN is
-// treated as super-user consistently.
+// requireAdmin gates content-authorship write paths. Strict: the caller
+// must be an OWNER or ADMIN member of the target org. Platform admins
+// who aren't in the org are refused — the consultation's authorship
+// belongs to the org itself. See organizations.CanAdmin for the
+// underlying rule.
 func (h *Handler) requireAdmin(c *gin.Context, orgID string) error {
 	userID, _ := c.Get("userID")
 	userRole, _ := c.Get("userRole")
@@ -502,6 +507,34 @@ func (h *Handler) requireAdmin(c *gin.Context, orgID string) error {
 		return &AppError{Code: "UNAUTHORIZED", Message: "Sign in required", Status: http.StatusUnauthorized}
 	}
 	return h.orgs.CanAdmin(orgID, uid, role)
+}
+
+// requireCloseAuthority gates emergency-close actions. Same rules as
+// requireAdmin plus PLATFORM_ADMIN is allowed even without org
+// membership — the platform must be able to freeze a bad consultation
+// without joining the org first.
+func (h *Handler) requireCloseAuthority(c *gin.Context, orgID string) error {
+	userID, _ := c.Get("userID")
+	userRole, _ := c.Get("userRole")
+	uid, _ := userID.(string)
+	role, _ := userRole.(string)
+	if uid == "" {
+		return &AppError{Code: "UNAUTHORIZED", Message: "Sign in required", Status: http.StatusUnauthorized}
+	}
+	return h.orgs.CanClose(orgID, uid, role)
+}
+
+// requireInternalRead gates admin-only reads (response list, analytics).
+// Any org member (including STAFF) can view, plus PLATFORM_ADMIN.
+func (h *Handler) requireInternalRead(c *gin.Context, orgID string) error {
+	userID, _ := c.Get("userID")
+	userRole, _ := c.Get("userRole")
+	uid, _ := userID.(string)
+	role, _ := userRole.(string)
+	if uid == "" {
+		return &AppError{Code: "UNAUTHORIZED", Message: "Sign in required", Status: http.StatusUnauthorized}
+	}
+	return h.orgs.CanReadInternal(orgID, uid, role)
 }
 
 func handleAppErr(c *gin.Context, err error) bool {

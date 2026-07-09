@@ -70,12 +70,29 @@ Two role systems overlap here:
 - **Platform role** — on the `User` JWT — determines who can _create_
   a new org (`GOVERNMENT_ADMIN`, `PLATFORM_ADMIN`, `NGO`).
 - **Org role** — on the `OrgMember` row — governs who can post
-  announcements, assignments, etc. _inside_ an org.
+  announcements, projects, assignments, and consultations _inside_ an org.
 
-Once an org exists, everything internal (edits, adds, deletes) is
-gated by org role, not platform role. `PLATFORM_ADMIN` is the
-super-user that bypasses org-role checks (used by
-`assignments.Handler.create` and `listByOrg`).
+Once an org exists, content-authorship writes (create / edit / delete /
+publish) are gated **strictly** by org role — `PLATFORM_ADMIN` does
+not bypass. Attribution matters: an announcement or consultation
+should read as coming from the org, not from the platform.
+
+Three authorization helpers on `organizations.Service`:
+
+- **`CanAdmin(orgID, userID, userRole)`** — strict. Requires OWNER or
+  ADMIN membership in the target org. Used for all content-authorship
+  writes.
+- **`CanClose(orgID, userID, userRole)`** — the emergency lever.
+  Allows the same OWNER/ADMIN plus PLATFORM_ADMIN. Wired to
+  `consultations.close` and `announcements.archive` so the platform
+  can freeze problematic content without joining the org first.
+- **`CanReadInternal(orgID, userID, userRole)`** — admin reads. Allows
+  any org member (including STAFF) plus PLATFORM_ADMIN. Used for
+  response lists, analytics, and org-only announcement drafts.
+
+If PLATFORM_ADMIN legitimately needs to intervene beyond
+close/archive/read, the correct path is to join the org first — that
+action is audit-logged, so the intervention is properly attributed.
 
 ### The verified badge is its own audit action
 

@@ -15,7 +15,23 @@ info:
     Roles allowed to **create** a top-level org from scratch: `GOVERNMENT_ADMIN`,
     `PLATFORM_ADMIN`, `NGO`. Once created, the org's internal role
     (`OWNER` / `ADMIN` / `STAFF`) governs edits — not the platform JWT role.
-    Reads are generally public; writes require org membership + admin privilege.
+
+    **Content-authorship writes are strictly org-only.** A `PLATFORM_ADMIN`
+    who is not a member of the org **cannot** create, edit, publish, or
+    delete announcements / projects / assignments / consultations on the
+    org's behalf. Attribution belongs to the organization itself.
+
+    Platform admins retain two narrow powers:
+
+    - **Emergency close/archive** — `PLATFORM_ADMIN` can close a published
+      consultation or archive an announcement without joining the org first.
+      Written to the audit log with the actor's identity.
+    - **Oversight reads** — `PLATFORM_ADMIN` can view responses, analytics,
+      and org-only content (draft announcements, assignment inboxes) for
+      any org.
+
+    Anything beyond these two levers requires the platform admin to be
+    added as a member of the target org first.
 
 servers:
   - url: http://localhost:3000/api/v1
@@ -656,7 +672,11 @@ paths:
         schema: { type: string, format: uuid }
     post:
       tags: [Announcements]
-      summary: Archive an announcement (org admin)
+      summary: Archive an announcement (org admin OR platform admin)
+      description: |
+        Emergency lever — same rationale as consultation close.
+        `PLATFORM_ADMIN` can archive without joining the org first;
+        every other announcement write is strictly org-only.
       responses:
         '200': { description: Archived; audit-logged. }
 
@@ -1158,10 +1178,16 @@ paths:
         schema: { type: string, format: uuid }
     post:
       tags: [Consultations]
-      summary: Close a published consultation (org admin)
+      summary: Close a published consultation (org admin OR platform admin)
       description: |
         PUBLISHED → CLOSED. Idempotent — closing a closed consultation is
         a no-op. Responders are notified so they can watch for the outcome.
+
+        **Emergency lever.** This is the one consultation-lifecycle endpoint
+        that a `PLATFORM_ADMIN` can invoke without being a member of the
+        org. Every other write (create, edit, publish, delete, outcome) is
+        strictly org-only. Platform-admin closes write an audit entry with
+        the actor's identity.
       responses:
         '200': { description: Closed. }
         '409': { description: Invalid transition. }

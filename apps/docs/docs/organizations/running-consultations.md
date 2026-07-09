@@ -20,8 +20,17 @@ Anyone with `OWNER` or `ADMIN` role in your organization. `STAFF` can
 read drafts but cannot publish. This mirrors how announcements and
 projects work.
 
-Platform admins (`PLATFORM_ADMIN`) can create consultations in any
-organization from the admin console.
+**Platform admins cannot create consultations on your behalf.** The
+platform is deliberately hands-off with authorship — a consultation
+carries the org's voice, and citizens should be able to trust that the
+questions came from your organization. If a platform admin ever needs
+to intervene (compromised owner, urgent correction), they add
+themselves to your organization as a member first — that action is
+audit-logged, so the intervention is clearly attributed.
+
+Platform admins **do** retain one narrow power: **closing** an active
+consultation (see [emergency close](#emergency-close-platform-admin)
+below).
 
 ## The lifecycle
 
@@ -120,6 +129,22 @@ If you set `closesAt` on the consultation, submissions after that time
 are automatically rejected — but you still need to click Close to
 transition the state. (Automatic state transitions are on the
 [roadmap](../about/roadmap.md).)
+
+### Emergency close (platform admin)
+
+Platform admins can close a published consultation from any organization
+without being a member of that org. This is the one platform-level
+lever on consultation lifecycle — every other write (create, edit,
+publish, delete, outcome) is org-only.
+
+The intended use is: a consultation is causing real harm (leading
+questions targeting a minority, doxxing in the description, coordinated
+misinformation) and needs to be frozen while moderation runs. Every
+platform-admin close writes to the audit log with the actor's identity,
+so this power stays reviewable.
+
+Ordinary "bad content" moderation goes through the flag system, not
+through emergency-close.
 
 ## Publishing the outcome (the important part)
 

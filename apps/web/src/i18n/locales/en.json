@@ -1108,9 +1108,87 @@
     "representatives": "Representatives",
     "organizations": "Organizations",
     "consultations": "Consultations",
+    "myOrg": "My organization",
     "notifications": "Notifications",
     "profile": "Profile",
     "signOut": "Sign out"
+  },
+  "orgLanding": {
+    "eyebrow": "Section — My organizations",
+    "title": "Act on behalf of your organization",
+    "subtitle": "Pick which organization you want to work in.",
+    "actingAs": "Acting as {{role}}",
+    "empty": {
+      "title": "You're not an admin of any organization yet",
+      "body": "Once your organization application is approved, you'll be able to create consultations and manage announcements from here."
+    }
+  },
+  "orgDashboard": {
+    "eyebrow": "Organization — {{org}}",
+    "title": "Consultations",
+    "subtitle": "Ask citizens what they think before making decisions.",
+    "back": "← Back to my organizations",
+    "notMember": "You're not a member of this organization.",
+    "newConsultation": "New consultation",
+    "empty": {
+      "title": "No consultations yet",
+      "body": "Start a consultation to gather structured input from citizens before your next decision."
+    }
+  },
+  "orgConsultationCreate": {
+    "eyebrow": "Section — New consultation",
+    "title": "Start a consultation",
+    "subtitle": "You'll add questions on the next step. Once published, the questions freeze so early and late responders answer the same form.",
+    "back": "← Back to dashboard",
+    "create": "Save draft",
+    "creating": "Saving…",
+    "error": "Could not create the consultation. Check your input and try again.",
+    "fields": {
+      "title": "Title",
+      "titleHelp": "Short and specific. 5–200 characters.",
+      "summary": "Summary",
+      "summaryHelp": "One or two sentences shown on the list page. 10–500 characters.",
+      "description": "Description",
+      "descriptionHelp": "The full context. Supports markdown.",
+      "community": "Target community (optional)",
+      "communityAny": "Any community — audience label only",
+      "communityHelp": "Citizens will see this label. Any verified user can still respond.",
+      "closesAt": "Response window closes (optional)",
+      "closesAtHelp": "After this time the server rejects new responses. You'll still need to click Close to move the state."
+    }
+  },
+  "orgConsultationDetail": {
+    "back": "← Back to organization",
+    "loadError": "Could not load this consultation.",
+    "questionsHeading": "Questions",
+    "addQuestion": "Add question",
+    "publish": "Publish",
+    "publishing": "Publishing…",
+    "close": "Close consultation",
+    "closing": "Closing…",
+    "confirmDelete": "Delete this draft? This cannot be undone.",
+    "confirmClose": "Close the consultation? No more responses will be accepted.",
+    "confirmDeleteQuestion": "Delete this question?",
+    "analyticsHeading": "Responses ({{count}})",
+    "noResponses": "No responses yet.",
+    "andMore": "…and {{n}} more",
+    "outcomeHeading": "Publish the outcome",
+    "outcomeIntro": "Close the loop for the people who responded. This is the moment CivicOS is built for.",
+    "publishOutcome": "Publish outcome",
+    "publishingOutcome": "Publishing…",
+    "fields": {
+      "prompt": "Question",
+      "helpText": "Help text (optional)",
+      "type": "Type",
+      "options": "Options",
+      "optionsPlaceholder": "One option per line",
+      "optionsHelp": "One option per line. At least two required for choice questions.",
+      "required": "Required"
+    },
+    "errors": {
+      "generic": "Something went wrong. Try again.",
+      "optionsRequired": "Choice questions need at least two options."
+    }
   },
   "consultationsPage": {
     "eyebrow": "Section — Consultations",

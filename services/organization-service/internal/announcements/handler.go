@@ -154,7 +154,10 @@ func (h *Handler) archive(c *gin.Context) {
 	}
 	userID, _ := c.Get("userID")
 	userRole, _ := c.Get("userRole")
-	if err := h.orgs.CanAdmin(a.OrganizationID, userID.(string), asString(userRole)); err != nil {
+	// Archive is the emergency lever — platform admins retain this even
+	// without org membership so a bad announcement can be pulled from
+	// the public feed. See organizations.CanClose.
+	if err := h.orgs.CanClose(a.OrganizationID, userID.(string), asString(userRole)); err != nil {
 		handleAppErr(c, err)
 		return
 	}

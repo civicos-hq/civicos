@@ -99,6 +99,7 @@ func main() {
 
 	v1 := r.Group("/v1")
 	orgHandler.RegisterRoutes(v1.Group("/organizations"), authMiddleware, requireOrgCreator)
+	orgHandler.RegisterMeRoutes(v1.Group("/me"), authMiddleware)
 
 	// Announcements, projects, assignments, progress all mount on v1 because
 	// their URL shapes span multiple resource roots (org, issue, project).

@@ -208,6 +208,8 @@ func main() {
 	r.POST("/api/v1/organizations", authMiddleware, limitStandard, orgProxy)
 	r.PATCH("/api/v1/organizations/:id", authMiddleware, limitStandard, orgProxy)
 	r.GET("/api/v1/organizations/:id/members", orgProxy)
+	// Caller-scoped — which orgs am I a member of, and with what role.
+	r.GET("/api/v1/me/organizations", authMiddleware, orgProxy)
 	r.POST("/api/v1/organizations/:id/members", authMiddleware, limitStandard, orgProxy)
 	r.PATCH("/api/v1/organizations/:id/members/:userId", authMiddleware, limitStandard, orgProxy)
 	r.DELETE("/api/v1/organizations/:id/members/:userId", authMiddleware, limitStandard, orgProxy)

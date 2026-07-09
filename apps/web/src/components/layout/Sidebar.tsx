@@ -1,6 +1,7 @@
 import {
   AlertCircle,
   Bell,
+  Briefcase,
   Building2,
   Compass,
   FileText,
@@ -13,6 +14,7 @@ import {
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useUnreadCount } from '../../hooks/useNotifications';
+import { useMyOrganizations } from '../../hooks/useConsultations';
 import { signOut } from '../../lib/api';
 
 const navItems = [
@@ -29,6 +31,12 @@ const navItems = [
 export function Sidebar() {
   const { t } = useTranslation();
   const { data: unread = 0 } = useUnreadCount();
+  const { data: myOrgs = [] } = useMyOrganizations();
+  // The "My organization" link only shows when the caller can actually
+  // act on behalf of an org. Ordinary citizens don't see it at all.
+  const canActAsOrg = myOrgs.some(
+    (m) => m.membership.role === 'OWNER' || m.membership.role === 'ADMIN',
+  );
   async function logout() {
     // Best-effort server revoke of the refresh family, then wipe local state.
     // signOut() itself never throws so the sign-out flow is idempotent.
@@ -49,6 +57,17 @@ export function Sidebar() {
       </div>
 
       <nav className="dashboard-nav" aria-label={t('common.mainNav')}>
+        {canActAsOrg && (
+          <NavLink
+            to="/org"
+            className={({ isActive }) =>
+              `dashboard-link ${isActive ? 'dashboard-link-active' : 'dashboard-link-idle'}`
+            }
+          >
+            <Briefcase className="h-4 w-4" aria-hidden="true" />
+            <span className="dashboard-link-label flex-1">{t('sidebar.myOrg')}</span>
+          </NavLink>
+        )}
         {navItems.map(({ to, i18n: i18nKey, icon: Icon }) => {
           const showBadge = to === '/notifications' && unread > 0;
           return (

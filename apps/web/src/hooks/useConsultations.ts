@@ -2,10 +2,16 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type {
   ApiResponse,
   Consultation,
+  ConsultationAggregate,
   ConsultationOutcome,
+  ConsultationOutcomeInput,
   ConsultationQuestion,
+  ConsultationQuestionInput,
   ConsultationStatus,
+  CreateConsultationInput,
+  MyOrgMembership,
   SubmitConsultationResponseInput,
+  UpdateConsultationInput,
 } from '@civicos/types';
 import { api } from '../lib/api';
 import { getApiError } from '../lib/api';
@@ -107,5 +113,159 @@ export function useSubmitConsultationResponse(consultationId: string | undefined
       qc.invalidateQueries({ queryKey: ['consultations'] });
       qc.invalidateQueries({ queryKey: ['my-consultation-responses'] });
     },
+  });
+}
+
+// ─── Org-owner surface ──────────────────────────────────────────────
+
+// useMyOrganizations lists the orgs the caller belongs to, paired with
+// the membership role. Empty array means "you don't own any orgs" —
+// the sidebar entry is hidden in that case.
+export function useMyOrganizations() {
+  return useQuery({
+    queryKey: ['my-organizations'],
+    queryFn: async () => {
+      const res = await api.get<ApiResponse<{ memberships: MyOrgMembership[] }>>(
+        '/api/v1/me/organizations',
+      );
+      return res.data.data.memberships;
+    },
+  });
+}
+
+// invalidateConsultation invalidates every query that depends on one
+// consultation. Used by all admin mutations so the frontend reflects
+// server state without individual invalidation calls in every hook.
+function invalidateConsultation(qc: ReturnType<typeof useQueryClient>, id: string | undefined) {
+  qc.invalidateQueries({ queryKey: ['consultation', id] });
+  qc.invalidateQueries({ queryKey: ['consultation-questions', id] });
+  qc.invalidateQueries({ queryKey: ['consultation-outcome', id] });
+  qc.invalidateQueries({ queryKey: ['consultation-analytics', id] });
+  qc.invalidateQueries({ queryKey: ['consultation-responses', id] });
+  qc.invalidateQueries({ queryKey: ['consultations'] });
+}
+
+export function useCreateConsultation(orgId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: CreateConsultationInput) => {
+      const res = await api.post<ApiResponse<{ consultation: Consultation }>>(
+        `/api/v1/organizations/${orgId}/consultations`,
+        input,
+      );
+      return res.data.data.consultation;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['consultations'] }),
+  });
+}
+
+export function useUpdateConsultation(id: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: UpdateConsultationInput) => {
+      await api.patch(`/api/v1/consultations/${id}`, input);
+    },
+    onSuccess: () => invalidateConsultation(qc, id),
+  });
+}
+
+export function useDeleteConsultation(id: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      await api.delete(`/api/v1/consultations/${id}`);
+    },
+    onSuccess: () => invalidateConsultation(qc, id),
+  });
+}
+
+export function usePublishConsultation(id: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      await api.post(`/api/v1/consultations/${id}/publish`);
+    },
+    onSuccess: () => invalidateConsultation(qc, id),
+  });
+}
+
+export function useCloseConsultation(id: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      await api.post(`/api/v1/consultations/${id}/close`);
+    },
+    onSuccess: () => invalidateConsultation(qc, id),
+  });
+}
+
+export function useAddConsultationQuestion(consultationId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: ConsultationQuestionInput) => {
+      const res = await api.post<ApiResponse<{ question: ConsultationQuestion }>>(
+        `/api/v1/consultations/${consultationId}/questions`,
+        input,
+      );
+      return res.data.data.question;
+    },
+    onSuccess: () => invalidateConsultation(qc, consultationId),
+  });
+}
+
+export function useUpdateConsultationQuestion(
+  consultationId: string | undefined,
+  questionId: string | undefined,
+) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: ConsultationQuestionInput) => {
+      await api.patch(`/api/v1/consultation-questions/${questionId}`, input);
+    },
+    onSuccess: () => invalidateConsultation(qc, consultationId),
+  });
+}
+
+export function useDeleteConsultationQuestion(
+  consultationId: string | undefined,
+  questionId: string | undefined,
+) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      await api.delete(`/api/v1/consultation-questions/${questionId}`);
+    },
+    onSuccess: () => invalidateConsultation(qc, consultationId),
+  });
+}
+
+export function useConsultationAnalytics(id: string | undefined) {
+  return useQuery({
+    queryKey: ['consultation-analytics', id],
+    enabled: !!id,
+    queryFn: async () => {
+      const res = await api.get<
+        ApiResponse<{
+          consultation: Consultation;
+          responseCount: number;
+          questions: ConsultationAggregate[];
+        }>
+      >(`/api/v1/consultations/${id}/analytics`);
+      return res.data.data;
+    },
+  });
+}
+
+export function usePublishConsultationOutcome(consultationId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: ConsultationOutcomeInput) => {
+      const res = await api.post<ApiResponse<{ outcome: ConsultationOutcome }>>(
+        `/api/v1/consultations/${consultationId}/outcome`,
+        input,
+      );
+      return res.data.data.outcome;
+    },
+    onSuccess: () => invalidateConsultation(qc, consultationId),
   });
 }
