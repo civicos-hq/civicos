@@ -1133,11 +1133,27 @@
     "tabs": {
       "consultations": "Consultations",
       "announcements": "Announcements",
-      "projects": "Projects"
+      "projects": "Projects",
+      "assignments": "Assignments"
     },
     "newConsultation": "New consultation",
     "newAnnouncement": "New announcement",
     "newProject": "New project",
+    "assignmentIssueLink": "Issue #{{id}}",
+    "assignmentAssignedBy": "Claimed by {{name}} on {{date}}",
+    "assignmentStatus": {
+      "RECEIVED": "Received",
+      "IN_PROGRESS": "In progress",
+      "COMPLETED": "Completed",
+      "REJECTED": "Rejected"
+    },
+    "assignmentSetStatus": "Set status:",
+    "assignmentDrop": "Drop",
+    "assignmentConfirmDelete": "Drop this assignment? The issue stays; your organization is no longer on the record for it.",
+    "emptyAssignments": {
+      "title": "No assignments yet",
+      "body": "Your organization hasn't taken responsibility for any issues yet. Open an issue and click 'Take responsibility' to claim it."
+    },
     "publishedOn": "Published {{date}}",
     "startsOn": "Starts {{date}}",
     "endsOn": "Due {{date}}",
@@ -1164,6 +1180,20 @@
     "emptyProjects": {
       "title": "No projects yet",
       "body": "Projects are the \"here's what we're building\" record. Track scope, budget, and progress publicly."
+    }
+  },
+  "issueClaim": {
+    "heading": "Who's on this",
+    "none": "No organization has taken responsibility yet.",
+    "formHeading": "Take responsibility",
+    "formIntro": "Claim this issue on behalf of your organization. Your org will appear on the public record for this issue and be able to post progress updates.",
+    "actingAs": "Acting as",
+    "noteLabel": "Note (optional)",
+    "notePlaceholder": "e.g. We've dispatched a team.",
+    "claim": "Claim for org",
+    "claiming": "Claiming…",
+    "errors": {
+      "generic": "Could not claim this issue. Try again."
     }
   },
   "orgProjectCreate": {
