@@ -89,6 +89,15 @@ and documented in the User + Developer Guides.
 - Per-question analytics rollup (option counts + text samples)
 - Outcome publishing — the "close the loop" primitive
 - Notification fan-out to org members on publish and to responders on close + outcome-published
+- **Citizen-facing UI**: browse open consultations, fill and submit responses
+- **Org-owner UI**: create + question builder + publish/close + analytics + outcome publisher
+
+### Announcements, Projects, Assignments — org-owner UI
+
+- Announcements: dashboard tab + create + edit + publish/archive/delete + notify org members on publish
+- Projects: dashboard tab + create + edit + status transitions + delete + budget in naira/kobo
+- Issue assignments: dashboard tab + "Take responsibility" flow on the citizen issue page + inline status control + drop
+- Progress updates: post from issue detail (assigned orgs) or project detail (org admins), visible on the issue and project pages
 
 ### Moderation infrastructure
 
@@ -118,8 +127,13 @@ and documented in the User + Developer Guides.
 Features we intend to build in the next phase. Not in the codebase yet
 — treat as commitments, not promises.
 
-- **Consultation frontend** — citizen web + admin console UIs for the
-  consultation service that shipped in the backend. Currently API-only.
+- **Drag-to-reorder for consultation questions** — currently reorder is
+  positional-integer edits only; a proper drag UI is on the near list.
+- **Cover image upload for consultations** — API supports a URL; the UI
+  form doesn't collect it yet.
+- **Public browse UIs for announcements, projects, and assignments** —
+  org-owner surfaces shipped this cycle; the citizen-facing browse pages
+  are next.
 - **Wider notification channels** — email digests, optional SMS.
 - **Full-text search** — replace the current `ILIKE` sweep with
   Postgres `pg_trgm` or Meilisearch as the dataset grows.

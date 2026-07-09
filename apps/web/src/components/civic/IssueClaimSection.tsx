@@ -5,6 +5,7 @@ import { AssignmentStatus, type IssueAssignment, type MyOrgMembership } from '@c
 import { getApiError } from '../../lib/api';
 import { useMyOrganizations } from '../../hooks/useConsultations';
 import { useCreateAssignment, useIssueAssignments } from '../../hooks/useAssignments';
+import { PostProgressUpdateForm } from './PostProgressUpdateForm';
 
 const TONE: Record<AssignmentStatus, string> = {
   [AssignmentStatus.RECEIVED]: 'bg-slate-200 text-slate-700',
@@ -61,6 +62,17 @@ export function IssueClaimSection({ issueId }: { issueId: string }) {
       )}
 
       {claimableOrgs.length > 0 && <ClaimForm issueId={issueId} orgs={claimableOrgs} />}
+
+      {/* Once an org is assigned, its members can post progress updates
+          publicly against this issue. Restricted to already-assigned orgs
+          so a random org admin can't drop status commentary from the
+          outside — the "on the record" precondition matters here. */}
+      {assignments.length > 0 && (
+        <PostProgressUpdateForm
+          target={{ issueId }}
+          filterOrgIds={assignments.map((a) => a.organizationId)}
+        />
+      )}
     </section>
   );
 }

@@ -13,6 +13,8 @@ import {
   nairaToKobo,
 } from '../hooks/useProjects';
 import { useMyOrganizations } from '../hooks/useConsultations';
+import { useProjectProgressUpdates } from '../hooks/useProgressUpdates';
+import { PostProgressUpdateForm } from '../components/civic/PostProgressUpdateForm';
 
 const TONE: Record<ProjectStatus, string> = {
   [ProjectStatus.PLANNED]: 'bg-slate-200 text-slate-700',
@@ -314,6 +316,49 @@ export function OrgProjectDetailPage() {
           </dl>
         </article>
       )}
+
+      <ProgressUpdatesSection orgId={orgId} projectId={id} canPost={canAdmin} />
+    </section>
+  );
+}
+
+// ProgressUpdatesSection lists every progress update on the project and
+// (for org admins) shows a form to post a new one. Kept in this file
+// because it's project-specific — the parallel wiring on the issue side
+// lives in IssueClaimSection which already knows about assignments.
+function ProgressUpdatesSection({
+  orgId,
+  projectId,
+  canPost,
+}: {
+  orgId: string | undefined;
+  projectId: string | undefined;
+  canPost: boolean;
+}) {
+  const { t } = useTranslation();
+  const updatesQuery = useProjectProgressUpdates(projectId);
+  const updates = updatesQuery.data ?? [];
+
+  return (
+    <section className="space-y-3 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h3 className="font-fraunces text-base font-semibold text-slate-900">
+        {t('orgProjectDetail.progressHeading')}
+      </h3>
+      {updatesQuery.isLoading && <p className="text-sm text-slate-600">{t('common.loading')}</p>}
+      {!updatesQuery.isLoading && updates.length === 0 && (
+        <p className="text-sm text-slate-600">{t('orgProjectDetail.progressEmpty')}</p>
+      )}
+      <ul className="space-y-3">
+        {updates.map((u) => (
+          <li key={u.id} className="border-l-2 border-civic-400 pl-3">
+            <p className="whitespace-pre-wrap text-sm text-slate-700">{u.body}</p>
+            <p className="mt-1 text-xs text-slate-500">
+              {u.authorName} · {new Date(u.createdAt).toLocaleDateString()}
+            </p>
+          </li>
+        ))}
+      </ul>
+      {canPost && orgId && <PostProgressUpdateForm target={{ projectId }} filterOrgIds={[orgId]} />}
     </section>
   );
 }

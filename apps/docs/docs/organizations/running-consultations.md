@@ -63,10 +63,10 @@ Every transition writes to the audit log.
 | Title       | Short and specific. 5–200 characters                                            |
 | Summary     | One or two sentences shown on the list page. 10–500 characters                  |
 | Description | The full context. Markdown supported                                            |
-| Cover image | Optional — one image URL                                                        |
 | Community   | Optional. If set, citizens see "aimed at Enugu East" — but any user can respond |
-| Opens at    | Optional. When public responses start (leave blank to open on publish)          |
 | Closes at   | Optional. When responses stop. Server enforces this — no auto-close needed      |
+
+_The API accepts a cover image URL and `opensAt` timestamp, but the current UI form doesn't expose those yet — they're on the roadmap._
 
 Save. The consultation is now a **DRAFT**.
 
@@ -89,7 +89,7 @@ Every question has:
 - A **required** flag. Required questions must be answered before submit.
 - For choice types, **options** — at least two.
 
-Reorder questions by dragging (positions can also be set via the API).
+Order questions by editing them and setting a position number — a drag-to-reorder UI is on the roadmap.
 
 **Once the consultation is published, questions are frozen.** Change
 your mind mid-response window? You'll have to close, publish an outcome

@@ -17,6 +17,7 @@ const TYPE_TONE: Record<NotificationType, string> = {
   [NotificationType.REPRESENTATIVE_RESPONSE]: 'bg-amber-100 text-amber-700',
   [NotificationType.COMMUNITY_UPDATE]: 'bg-sky-100 text-sky-700',
   [NotificationType.CONSULTATION_UPDATE]: 'bg-emerald-100 text-emerald-700',
+  [NotificationType.ANNOUNCEMENT_UPDATE]: 'bg-indigo-100 text-indigo-700',
   [NotificationType.SYSTEM]: 'bg-slate-200 text-slate-700',
 };
 

@@ -47,10 +47,17 @@ func main() {
 	orgSvc := organizations.NewService(orgRepo)
 	orgHandler := organizations.NewHandler(orgSvc, auditor)
 
-	// Announcements — depend on orgSvc for member/admin checks.
+	// Shared notification writer — INSERTs directly into the community-
+	// service-owned notifications table (same shared-DB pattern as audit).
+	// Constructed early so downstream handlers (announcements, consultations)
+	// can wire it in.
+	notifier := notifications.NewDBNotifier(db)
+
+	// Announcements — depend on orgSvc for member/admin checks and the
+	// notifier for publish fan-out.
 	annRepo := announcements.NewRepository(db)
 	annSvc := announcements.NewService(annRepo, orgSvc)
-	annHandler := announcements.NewHandler(annSvc, orgSvc, auditor)
+	annHandler := announcements.NewHandler(annSvc, orgSvc, auditor, notifier)
 
 	// Projects.
 	projRepo := projects.NewRepository(db)
@@ -66,10 +73,6 @@ func main() {
 	progRepo := progress.NewRepository(db)
 	progSvc := progress.NewService(progRepo, orgSvc)
 	progHandler := progress.NewHandler(progSvc, orgSvc)
-
-	// Shared notification writer — INSERTs directly into the community-
-	// service-owned notifications table (same shared-DB pattern as audit).
-	notifier := notifications.NewDBNotifier(db)
 
 	// Consultations — structured feedback asks with a full lifecycle
 	// (DRAFT → PUBLISHED → CLOSED) plus the "close the loop" outcome.

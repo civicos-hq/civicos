@@ -20,6 +20,7 @@ type NotificationType string
 
 const (
 	TypeConsultationUpdate NotificationType = "CONSULTATION_UPDATE"
+	TypeAnnouncementUpdate NotificationType = "ANNOUNCEMENT_UPDATE"
 )
 
 // Notification is a re-declaration of community-service's model with

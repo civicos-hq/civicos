@@ -1184,6 +1184,19 @@
       "body": "Projects are the \"here's what we're building\" record. Track scope, budget, and progress publicly."
     }
   },
+  "progressUpdate": {
+    "heading": "Post a progress update",
+    "intro": "Post a public note about what's happening. Members of the org see internal notes; the public only sees the ones you mark public.",
+    "actingAs": "Acting as",
+    "bodyLabel": "Update",
+    "bodyPlaceholder": "e.g. Team dispatched to Junction 4; ETA 30 minutes.",
+    "publicLabel": "Public (citizens can see this)",
+    "post": "Post update",
+    "posting": "Posting…",
+    "errors": {
+      "generic": "Could not post the update. Try again."
+    }
+  },
   "issueClaim": {
     "heading": "Who's on this",
     "none": "No organization has taken responsibility yet.",
@@ -1224,6 +1237,8 @@
     "startDate": "Start date",
     "expectedEndDate": "Expected end date",
     "budget": "Budget",
+    "progressHeading": "Progress updates",
+    "progressEmpty": "No progress updates yet.",
     "errors": {
       "save": "Could not save changes.",
       "generic": "Something went wrong. Try again."
