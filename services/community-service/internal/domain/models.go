@@ -32,6 +32,7 @@ const (
 	NotificationPetitionUpdate         NotificationType = "PETITION_UPDATE"
 	NotificationRepresentativeResponse NotificationType = "REPRESENTATIVE_RESPONSE"
 	NotificationCommunityUpdate        NotificationType = "COMMUNITY_UPDATE"
+	NotificationConsultationUpdate     NotificationType = "CONSULTATION_UPDATE"
 	NotificationSystem                 NotificationType = "SYSTEM"
 )
 

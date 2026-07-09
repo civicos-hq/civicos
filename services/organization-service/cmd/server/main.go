@@ -6,8 +6,10 @@ import (
 	"github.com/civicos/organization-service/internal/announcements"
 	"github.com/civicos/organization-service/internal/assignments"
 	"github.com/civicos/organization-service/internal/audit"
+	"github.com/civicos/organization-service/internal/consultations"
 	"github.com/civicos/organization-service/internal/domain"
 	"github.com/civicos/organization-service/internal/middleware"
+	"github.com/civicos/organization-service/internal/notifications"
 	"github.com/civicos/organization-service/internal/organizations"
 	"github.com/civicos/organization-service/internal/progress"
 	"github.com/civicos/organization-service/internal/projects"
@@ -28,6 +30,11 @@ func main() {
 		&domain.Project{},
 		&domain.IssueAssignment{},
 		&domain.ProgressUpdate{},
+		&domain.Consultation{},
+		&domain.ConsultationQuestion{},
+		&domain.ConsultationResponse{},
+		&domain.ConsultationAnswer{},
+		&domain.ConsultationOutcome{},
 	); err != nil {
 		log.Fatalf("migration failed: %v", err)
 	}
@@ -60,7 +67,18 @@ func main() {
 	progSvc := progress.NewService(progRepo, orgSvc)
 	progHandler := progress.NewHandler(progSvc, orgSvc)
 
+	// Shared notification writer — INSERTs directly into the community-
+	// service-owned notifications table (same shared-DB pattern as audit).
+	notifier := notifications.NewDBNotifier(db)
+
+	// Consultations — structured feedback asks with a full lifecycle
+	// (DRAFT → PUBLISHED → CLOSED) plus the "close the loop" outcome.
+	consultRepo := consultations.NewRepository(db)
+	consultSvc := consultations.NewService(consultRepo)
+	consultHandler := consultations.NewHandler(consultSvc, orgSvc, auditor, notifier)
+
 	authMiddleware := middleware.JWTAuth(cfg, db)
+	requireVerified := middleware.RequireVerified()
 	// Roles allowed to create a brand-new organization. Anyone inside the
 	// org can be promoted to ADMIN once it exists; this only gates who can
 	// register a new one.
@@ -88,6 +106,7 @@ func main() {
 	projHandler.RegisterRoutes(v1, authMiddleware)
 	asgHandler.RegisterRoutes(v1, authMiddleware)
 	progHandler.RegisterRoutes(v1, authMiddleware)
+	consultHandler.RegisterRoutes(v1, authMiddleware, requireVerified)
 
 	addr := ":" + cfg.Port
 	log.Printf("organization-service listening on %s", addr)

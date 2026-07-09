@@ -81,6 +81,15 @@ and documented in the User + Developer Guides.
 - Discover feed tiered by geographic proximity
   (COMMUNITY → LGA → STATE → COUNTRY)
 
+### Consultations
+
+- Create structured feedback asks (DRAFT → PUBLISHED → CLOSED lifecycle)
+- Question builder with 5 types: short text, long text, single choice, multi choice, yes/no
+- Verified-user response submission with one-per-user enforcement
+- Per-question analytics rollup (option counts + text samples)
+- Outcome publishing — the "close the loop" primitive
+- Notification fan-out to org members on publish and to responders on close + outcome-published
+
 ### Moderation infrastructure
 
 - Content flags with 5 reason categories
@@ -109,8 +118,8 @@ and documented in the User + Developer Guides.
 Features we intend to build in the next phase. Not in the codebase yet
 — treat as commitments, not promises.
 
-- **Public consultations** — structured multi-question surveys tied to
-  a community, with a submission window and public results.
+- **Consultation frontend** — citizen web + admin console UIs for the
+  consultation service that shipped in the backend. Currently API-only.
 - **Wider notification channels** — email digests, optional SMS.
 - **Full-text search** — replace the current `ILIKE` sweep with
   Postgres `pg_trgm` or Meilisearch as the dataset grows.
