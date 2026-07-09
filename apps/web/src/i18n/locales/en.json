@@ -1141,6 +1141,8 @@
     "newProject": "New project",
     "assignmentIssueLink": "Issue #{{id}}",
     "assignmentAssignedBy": "Claimed by {{name}} on {{date}}",
+    "assignmentsIntro": "Assignments are the issues your organization has taken responsibility for. Claim one from the issue's own page — this list is your inbox for tracking status.",
+    "browseIssuesToClaim": "Browse issues",
     "assignmentStatus": {
       "RECEIVED": "Received",
       "IN_PROGRESS": "In progress",

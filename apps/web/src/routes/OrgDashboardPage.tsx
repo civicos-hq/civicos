@@ -366,6 +366,19 @@ function AssignmentsSection({ orgId, canAdmin }: { orgId: string | undefined; ca
 
   return (
     <div className="space-y-4">
+      {/* Explanation banner + primary CTA. Claiming happens on the
+          issue page itself (there's no "create assignment" form here
+          because you're always claiming a specific existing issue), so
+          we point the user at the issues browser. */}
+      <div className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm">
+        <p className="min-w-0 flex-1 text-slate-600">{t('orgDashboard.assignmentsIntro')}</p>
+        {canAdmin && (
+          <Link to="/issues">
+            <Button size="sm">{t('orgDashboard.browseIssuesToClaim')}</Button>
+          </Link>
+        )}
+      </div>
+
       {query.isLoading && <p className="text-sm text-slate-600">{t('common.loading')}</p>}
 
       {!query.isLoading && items.length === 0 && (
