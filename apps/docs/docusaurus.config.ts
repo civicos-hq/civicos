@@ -38,6 +38,20 @@ const config: Config = {
     ],
   ],
 
+  // Local, index-based search — no external service, no signup. Builds
+  // an index at compile time and ships it with the static bundle.
+  themes: [
+    [
+      require.resolve('@easyops-cn/docusaurus-search-local'),
+      {
+        hashed: true,
+        indexBlog: false,
+        docsRouteBasePath: '/',
+        highlightSearchTermsOnTargetPage: true,
+      },
+    ],
+  ],
+
   themeConfig: {
     colorMode: {
       defaultMode: 'light',

@@ -291,7 +291,6 @@ See `.env.example` for the complete list.
 - **Swagger UI** at `http://localhost:3000/docs` — browseable API docs with a picker for identity / community / organization
 - `docs/product/` — the five source documents that drive every product and architectural decision (Blueprint, Roadmap, Architecture, Experience, Engineering Playbook)
 - `docs/api/openapi-*.yaml` — canonical OpenAPI 3.0 specs, one per service (mirrored into the gateway for embedding)
-- `docs/setup.md` — extended local-dev notes and troubleshooting
 - `CLAUDE.md` — context file for AI assistants working in this repo (also useful as a human onboarding brief)
 
 ---
