@@ -30,7 +30,10 @@ func NewHandler(svc *Service, notifier Notifier) *Handler {
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth, verified, requireRole gin.HandlerFunc) {
 	rg.GET("", h.list)
 	rg.GET("/:id", h.get)
-	rg.POST("", auth, requireRole, h.create)
+	// Rep profiles are created only by approving a
+	// RepresentativeApplication in identity-service — there is no
+	// admin-side direct create. Admins can still PATCH existing rows
+	// to fix data.
 	rg.PATCH("/:id", auth, requireRole, h.update)
 	rg.POST("/:id/follow", auth, verified, h.follow)
 	rg.DELETE("/:id/follow", auth, h.unfollow)
@@ -124,24 +127,6 @@ func (h *Handler) update(c *gin.Context) {
 		return
 	}
 	response.Success(c, http.StatusOK, gin.H{"representative": item})
-}
-
-func (h *Handler) create(c *gin.Context) {
-	var input CreateInput
-	if err := c.ShouldBindJSON(&input); err != nil {
-		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", err.Error())
-		return
-	}
-	if !middleware.RequirePrimaryCommunityMatch(c, input.CommunityID) {
-		return
-	}
-	userID, _ := c.Get("userID")
-	item, err := h.svc.Create(input, userID.(string))
-	if err != nil {
-		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to create representative")
-		return
-	}
-	response.Success(c, http.StatusCreated, gin.H{"representative": item})
 }
 
 func (h *Handler) listComments(c *gin.Context) {

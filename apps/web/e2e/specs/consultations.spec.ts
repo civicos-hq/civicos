@@ -195,6 +195,78 @@ test.describe('consultations', () => {
       await citizenPage.context().close();
     }
   });
+
+  // Drag-to-reorder is only exposed while the consultation is still a
+  // DRAFT — matches the server-side NOT_DRAFT guard on the reorder
+  // endpoint. This test seeds an org + draft + three questions, uses
+  // Playwright's pointer API to drag the first question to the third
+  // slot, and asserts the DB positions updated.
+  test('org owner drags a draft question to a new slot → server persists new positions', async ({
+    authedAsAdmin: page,
+    admin,
+  }) => {
+    const slug = `e2e-reorder-${Date.now()}`;
+    const orgId = sql(`
+      INSERT INTO organizations (id,name,slug,kind,jurisdiction,verified,member_count,announcement_count,project_count,assignment_count,created_by_id,created_at,updated_at)
+      VALUES (gen_random_uuid(),'E2E Reorder Org','${slug}','NGO','STATE',false,1,0,0,0,'${admin.id}',now(),now())
+      RETURNING id;
+    `);
+    sql(`
+      INSERT INTO org_members (id,organization_id,user_id,user_name,user_role,role,joined_at)
+      VALUES (gen_random_uuid(),'${orgId}','${admin.id}','${admin.name}','${admin.role}','OWNER',now());
+    `);
+    // Seed the consultation + three questions directly — the lifecycle
+    // test above already covers the create/add-question UI, so here
+    // we jump straight to the reorder concern.
+    const consultationId = sql(`
+      INSERT INTO consultations (id,organization_id,title,summary,description,status,author_id,author_name,created_at,updated_at)
+      VALUES (gen_random_uuid(),'${orgId}','E2E Reorder','Reorder summary — do not review.','Reorder body — do not review.','DRAFT','${admin.id}','${admin.name}',now(),now())
+      RETURNING id;
+    `);
+    const q1 = sql(`
+      INSERT INTO consultation_questions (id,consultation_id,position,prompt,type,options,required,created_at,updated_at)
+      VALUES (gen_random_uuid(),'${consultationId}',0,'First','SHORT_TEXT','[]',false,now(),now())
+      RETURNING id;
+    `);
+    const q2 = sql(`
+      INSERT INTO consultation_questions (id,consultation_id,position,prompt,type,options,required,created_at,updated_at)
+      VALUES (gen_random_uuid(),'${consultationId}',1,'Second','SHORT_TEXT','[]',false,now(),now())
+      RETURNING id;
+    `);
+    const q3 = sql(`
+      INSERT INTO consultation_questions (id,consultation_id,position,prompt,type,options,required,created_at,updated_at)
+      VALUES (gen_random_uuid(),'${consultationId}',2,'Third','SHORT_TEXT','[]',false,now(),now())
+      RETURNING id;
+    `);
+
+    await page.goto(`/org/${orgId}/consultations/${consultationId}`);
+    // Wait for the first row to mount — the sortable list rendered.
+    const handles = page.getByRole('button', { name: /reorder question/i });
+    await expect(handles.first()).toBeVisible({ timeout: 10_000 });
+
+    // Pointer drag — dnd-kit's PointerSensor activates after 4px of
+    // movement, so we make an initial jog before the real move. Drag
+    // the FIRST question down to the THIRD row's midpoint so it lands
+    // at position 2.
+    const src = await handles.nth(0).boundingBox();
+    const dst = await handles.nth(2).boundingBox();
+    if (!src || !dst) throw new Error('missing bounding box');
+    await page.mouse.move(src.x + src.width / 2, src.y + src.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(src.x + src.width / 2, src.y + src.height / 2 + 10, { steps: 2 });
+    await page.mouse.move(dst.x + dst.width / 2, dst.y + dst.height / 2 + 5, { steps: 10 });
+    await page.mouse.up();
+
+    // Server has to write positions before we can read the new order.
+    // Poll rather than sleep — 5s is generous for a single PATCH.
+    await expect
+      .poll(() => sql(`SELECT position FROM consultation_questions WHERE id='${q1}';`), {
+        timeout: 5_000,
+      })
+      .toBe('2');
+    expect(sql(`SELECT position FROM consultation_questions WHERE id='${q2}';`)).toBe('0');
+    expect(sql(`SELECT position FROM consultation_questions WHERE id='${q3}';`)).toBe('1');
+  });
 });
 
 // Opens a new context with the given token pre-seeded in localStorage —

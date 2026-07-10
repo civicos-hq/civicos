@@ -89,10 +89,6 @@ func main() {
 
 	authMiddleware := middleware.JWTAuth(cfg, db)
 	requireVerified := middleware.RequireVerified()
-	// Roles allowed to create a brand-new organization. Anyone inside the
-	// org can be promoted to ADMIN once it exists; this only gates who can
-	// register a new one.
-	requireOrgCreator := middleware.RequireRole("GOVERNMENT_ADMIN", "PLATFORM_ADMIN", "NGO")
 
 	r := gin.New()
 	r.Use(gin.Logger(), gin.Recovery())
@@ -108,7 +104,7 @@ func main() {
 	})
 
 	v1 := r.Group("/v1")
-	orgHandler.RegisterRoutes(v1.Group("/organizations"), authMiddleware, requireOrgCreator)
+	orgHandler.RegisterRoutes(v1.Group("/organizations"), authMiddleware)
 	orgHandler.RegisterMeRoutes(v1.Group("/me"), authMiddleware)
 
 	// Announcements, projects, assignments, progress all mount on v1 because

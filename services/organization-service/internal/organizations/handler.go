@@ -21,16 +21,13 @@ func NewHandler(svc *Service, auditor *audit.Auditor) *Handler {
 
 func (h *Handler) Service() *Service { return h.svc }
 
-// Roles allowed to create a top-level org from scratch. Once created, the
-// org's internal role (OWNER/ADMIN) governs edits — not the JWT role.
-var orgCreatorRoles = []string{"GOVERNMENT_ADMIN", "PLATFORM_ADMIN", "NGO"}
-
-var _ = orgCreatorRoles // referenced from main.go via RegisterRoutes callers
-
-func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth, requireCreator gin.HandlerFunc) {
+// Organizations are created only by approving an
+// OrganizationApplication in identity-service — there is no admin-side
+// direct create. Admins can still PATCH existing rows to fix data or
+// promote/demote members.
+func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth gin.HandlerFunc) {
 	rg.GET("", h.list)
 	rg.GET("/:id", h.get)
-	rg.POST("", auth, requireCreator, h.create)
 	rg.PATCH("/:id", auth, h.update)
 
 	rg.GET("/:id/members", h.listMembers)
@@ -78,35 +75,6 @@ func (h *Handler) get(c *gin.Context) {
 		return
 	}
 	response.Success(c, http.StatusOK, gin.H{"organization": item})
-}
-
-func (h *Handler) create(c *gin.Context) {
-	var input CreateInput
-	if err := c.ShouldBindJSON(&input); err != nil {
-		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", err.Error())
-		return
-	}
-	userID, _ := c.Get("userID")
-	userName, _ := c.Get("userName")
-	userRole, _ := c.Get("userRole")
-	item, err := h.svc.Create(input, userID.(string), asString(userName), asString(userRole))
-	if handled := handleAppErr(c, err); handled {
-		return
-	}
-	h.auditor.Log(audit.Entry{
-		Actor:      audit.FromContext(c),
-		Action:     "org.created",
-		TargetType: "ORGANIZATION",
-		TargetID:   item.ID,
-		Metadata: map[string]any{
-			"name":         item.Name,
-			"slug":         item.Slug,
-			"kind":         item.Kind,
-			"jurisdiction": item.Jurisdiction,
-		},
-		Request: c.Request,
-	})
-	response.Success(c, http.StatusCreated, gin.H{"organization": item})
 }
 
 func (h *Handler) update(c *gin.Context) {

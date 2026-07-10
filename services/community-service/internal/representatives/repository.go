@@ -28,10 +28,6 @@ func (r *Repository) FindByID(id string) (*domain.Representative, error) {
 	return &rep, r.db.Where("id = ?", id).First(&rep).Error
 }
 
-func (r *Repository) Create(rep *domain.Representative) error {
-	return r.db.Create(rep).Error
-}
-
 func (r *Repository) Update(id string, updates map[string]any) error {
 	if len(updates) == 0 {
 		return nil

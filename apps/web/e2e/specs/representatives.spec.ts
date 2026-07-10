@@ -1,6 +1,9 @@
 import { test, expect } from '../fixtures/auth';
 
-// Representatives page — public list, follow toggle, admin can create.
+// Representatives page — public list + follow toggle. Rep profiles are
+// only created by approving a RepresentativeApplication (signup flow),
+// so the page must not expose a "new representative" affordance to
+// anyone — not even admins.
 test.describe('representatives', () => {
   test('citizen sees the reps page with follow toggles', async ({
     authedAsCitizenInCommunity: page,
@@ -19,12 +22,12 @@ test.describe('representatives', () => {
     ).toBeGreaterThan(0);
   });
 
-  test('admin sees the "+ New representative" button; citizen does not', async ({
+  test('no in-app "new representative" button — admins or citizens', async ({
     authedAsAdmin,
     authedAsCitizenInCommunity,
   }) => {
     await authedAsAdmin.goto('/representatives');
-    await expect(authedAsAdmin.getByRole('button', { name: /new representative/i })).toBeVisible();
+    await expect(authedAsAdmin.getByRole('button', { name: /new representative/i })).toHaveCount(0);
 
     await authedAsCitizenInCommunity.goto('/representatives');
     await expect(

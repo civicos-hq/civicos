@@ -3,8 +3,6 @@ package organizations
 import (
 	"errors"
 	"net/http"
-	"regexp"
-	"strings"
 	"time"
 
 	"github.com/civicos/organization-service/internal/domain"
@@ -17,7 +15,6 @@ type OrgStore interface {
 	FindByID(id string) (*domain.Organization, error)
 	FindByIDs(ids []string) ([]domain.Organization, error)
 	FindBySlug(slug string) (*domain.Organization, error)
-	Create(o *domain.Organization) error
 	Update(id string, updates map[string]any) error
 	FindMember(orgID, userID string) (*domain.OrgMember, error)
 	FindMembershipsByUser(userID string) ([]domain.OrgMember, error)
@@ -31,20 +28,6 @@ type OrgStore interface {
 type Service struct{ repo OrgStore }
 
 func NewService(repo OrgStore) *Service { return &Service{repo: repo} }
-
-type CreateInput struct {
-	Name         string  `json:"name" binding:"required,min=2"`
-	Slug         string  `json:"slug" binding:"required,min=2"`
-	Kind         string  `json:"kind" binding:"required"`
-	Jurisdiction string  `json:"jurisdiction" binding:"required"`
-	State        *string `json:"state"`
-	LGA          *string `json:"lga"`
-	Description  *string `json:"description"`
-	LogoURL      *string `json:"logoUrl"`
-	Email        *string `json:"email"`
-	Phone        *string `json:"phone"`
-	Website      *string `json:"website"`
-}
 
 type UpdateInput struct {
 	Name         *string `json:"name"`
@@ -76,8 +59,6 @@ type UpdateMemberInput struct {
 	Role string `json:"role" binding:"required"`
 }
 
-var slugRe = regexp.MustCompile(`^[a-z0-9]+(?:-[a-z0-9]+)*$`)
-
 func (s *Service) List(f ListFilters) ([]domain.Organization, error) {
 	return s.repo.FindAll(f)
 }
@@ -88,57 +69,6 @@ func (s *Service) Get(id string) (*domain.Organization, error) {
 		return nil, &AppError{Code: "ORG_NOT_FOUND", Message: "Organization not found", Status: http.StatusNotFound}
 	}
 	return o, err
-}
-
-func (s *Service) Create(input CreateInput, createdByID, createdByName, createdByRole string) (*domain.Organization, error) {
-	slug := strings.ToLower(strings.TrimSpace(input.Slug))
-	if !slugRe.MatchString(slug) {
-		return nil, &AppError{Code: "INVALID_SLUG", Message: "Slug must be lowercase, alphanumeric, and hyphen-separated", Status: http.StatusBadRequest}
-	}
-	if !validKind(input.Kind) {
-		return nil, &AppError{Code: "INVALID_KIND", Message: "Unknown organization kind", Status: http.StatusBadRequest}
-	}
-	if !validJurisdiction(input.Jurisdiction) {
-		return nil, &AppError{Code: "INVALID_JURISDICTION", Message: "Unknown jurisdiction", Status: http.StatusBadRequest}
-	}
-	if _, err := s.repo.FindBySlug(slug); err == nil {
-		return nil, &AppError{Code: "SLUG_TAKEN", Message: "That slug is already in use", Status: http.StatusConflict}
-	}
-	o := &domain.Organization{
-		ID:           uuid.New().String(),
-		Name:         input.Name,
-		Slug:         slug,
-		Kind:         domain.OrgKind(input.Kind),
-		Jurisdiction: domain.OrgJurisdiction(input.Jurisdiction),
-		State:        input.State,
-		LGA:          input.LGA,
-		Description:  input.Description,
-		LogoURL:      input.LogoURL,
-		Email:        input.Email,
-		Phone:        input.Phone,
-		Website:      input.Website,
-		CreatedByID:  createdByID,
-	}
-	if err := s.repo.Create(o); err != nil {
-		return nil, err
-	}
-	// The creator becomes the first OWNER — otherwise nobody could ever
-	// administer the org they just made.
-	owner := &domain.OrgMember{
-		ID:             uuid.New().String(),
-		OrganizationID: o.ID,
-		UserID:         createdByID,
-		UserName:       createdByName,
-		UserRole:       createdByRole,
-		Role:           domain.MemberRoleOwner,
-		JoinedAt:       time.Now().UTC(),
-	}
-	if err := s.repo.AddMember(owner); err != nil {
-		return nil, err
-	}
-	_ = s.repo.BumpMemberCount(o.ID, 1)
-	o.MemberCount = 1
-	return o, nil
 }
 
 func (s *Service) Update(id string, input UpdateInput) (*domain.Organization, error) {

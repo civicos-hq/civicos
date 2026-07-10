@@ -640,36 +640,17 @@ paths:
       tags: [Representatives]
       security: []
       summary: List representatives
+      description: |
+        Public list. Rep profiles are only minted by approving a
+        `RepresentativeApplication` in identity-service — there is no
+        direct create endpoint on this service. Admins can PATCH an
+        existing rep via `/representatives/{id}` to fix data.
       parameters:
         - in: query
           name: communityId
           schema: { type: string, format: uuid }
       responses:
         '200': { description: Representatives. }
-    post:
-      tags: [Representatives]
-      summary: Add a representative (admin roles + primary community match)
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [name, title, position, constituency, communityId]
-              properties:
-                name: { type: string, minLength: 2 }
-                title: { type: string }
-                position: { type: string }
-                constituency: { type: string }
-                communityId: { type: string, format: uuid }
-                party: { type: string, nullable: true }
-                bio: { type: string, nullable: true }
-                avatarUrl: { type: string, nullable: true }
-                email: { type: string, format: email, nullable: true }
-                phone: { type: string, nullable: true }
-                website: { type: string, format: uri, nullable: true }
-      responses:
-        '201': { description: Representative created. }
 
   /representatives/{id}:
     parameters:

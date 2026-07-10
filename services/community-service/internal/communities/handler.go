@@ -12,8 +12,10 @@ type Handler struct{ svc *Service }
 
 func NewHandler(svc *Service) *Handler { return &Handler{svc: svc} }
 
-// Roles permitted to create a community. Citizens browse and join; they don't author.
-var communityCreatorRoles = []string{"GOVERNMENT_ADMIN", "PLATFORM_ADMIN", "NGO"}
+// Roles permitted to create a community. Citizens browse and join; they
+// don't author. Orgs (NGO role) also don't — civic geography is not
+// theirs to add.
+var communityCreatorRoles = []string{"GOVERNMENT_ADMIN", "PLATFORM_ADMIN"}
 
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth, requireRole gin.HandlerFunc) {
 	rg.GET("", h.list)

@@ -60,7 +60,11 @@ export function useConsultationQuestions(id: string | undefined) {
       const res = await api.get<ApiResponse<{ questions: ConsultationQuestion[] }>>(
         `/api/v1/consultations/${id}/questions`,
       );
-      return res.data.data.questions;
+      // Server returns `options: null` for question types that don't
+      // accept options (SHORT_TEXT, LONG_TEXT, YES_NO) because a jsonb
+      // column stores an empty slice as SQL NULL. Callers assume an
+      // array, so normalize at the read boundary.
+      return res.data.data.questions.map((q) => ({ ...q, options: q.options ?? [] }));
     },
   });
 }
@@ -234,6 +238,19 @@ export function useDeleteConsultationQuestion(
   return useMutation({
     mutationFn: async () => {
       await api.delete(`/api/v1/consultation-questions/${questionId}`);
+    },
+    onSuccess: () => invalidateConsultation(qc, consultationId),
+  });
+}
+
+// useReorderConsultationQuestions writes a full ordering map — every
+// question in the consultation must appear. The server rejects partial
+// orderings so the client sends the complete snapshot after each drop.
+export function useReorderConsultationQuestions(consultationId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (ordering: Record<string, number>) => {
+      await api.patch(`/api/v1/consultations/${consultationId}/questions/reorder`, { ordering });
     },
     onSuccess: () => invalidateConsultation(qc, consultationId),
   });

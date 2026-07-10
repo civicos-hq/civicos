@@ -48,10 +48,6 @@ func (r *Repository) FindBySlug(slug string) (*domain.Organization, error) {
 	return &o, r.db.Where("slug = ?", slug).First(&o).Error
 }
 
-func (r *Repository) Create(o *domain.Organization) error {
-	return r.db.Create(o).Error
-}
-
 func (r *Repository) Update(id string, updates map[string]any) error {
 	return r.db.Model(&domain.Organization{}).Where("id = ?", id).Updates(updates).Error
 }

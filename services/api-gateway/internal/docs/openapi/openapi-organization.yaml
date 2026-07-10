@@ -367,54 +367,10 @@ paths:
                           createdById: 3f1a...
                           createdAt: 2026-06-01T09:00:00Z
                           updatedAt: 2026-06-01T09:00:00Z
-    post:
-      tags: [Organizations]
-      summary: Create a new organization (GOVERNMENT_ADMIN, PLATFORM_ADMIN, NGO)
-      description: The creator is added as `OWNER` automatically.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [name, slug, kind, jurisdiction]
-              properties:
-                name: { type: string, minLength: 2 }
-                slug: { type: string, description: lowercase-hyphenated }
-                kind: { $ref: '#/components/schemas/OrgKind' }
-                jurisdiction: { $ref: '#/components/schemas/OrgJurisdiction' }
-                state: { type: string, nullable: true }
-                lga: { type: string, nullable: true }
-                description: { type: string, nullable: true }
-                logoUrl: { type: string, nullable: true }
-                email: { type: string, format: email, nullable: true }
-                phone: { type: string, nullable: true }
-                website: { type: string, format: uri, nullable: true }
-            examples:
-              default:
-                value:
-                  {
-                    name: Enugu Water Corporation,
-                    slug: enugu-water-corp,
-                    kind: UTILITY,
-                    jurisdiction: STATE,
-                    state: Enugu,
-                  }
-      responses:
-        '201':
-          description: Organization created; audit-logged.
-        '400':
-          description: Invalid kind, jurisdiction, or slug format.
-        '409':
-          description: Slug already taken.
-          content:
-            application/json:
-              examples:
-                default:
-                  {
-                    value:
-                      { success: false, code: SLUG_TAKEN, message: That slug is already in use },
-                  }
+    # No direct POST — organizations are only minted by approving an
+    # `OrganizationApplication` in identity-service (see the applications
+    # endpoints). Admins and org owners can still PATCH via
+    # `/organizations/{id}` to fix data.
 
   /organizations/{id}:
     parameters:
