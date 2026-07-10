@@ -2,9 +2,16 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { AlertCircle, FileText, MapPin } from 'lucide-react';
+import { AlertCircle, Briefcase, FileText, MapPin, Megaphone, MessageSquare } from 'lucide-react';
 import { Button } from '@civicos/ui';
-import type { ApiResponse, Issue, Petition } from '@civicos/types';
+import type {
+  Announcement,
+  ApiResponse,
+  Consultation,
+  Issue,
+  Petition,
+  Project,
+} from '@civicos/types';
 import { api } from '../lib/api';
 import { useMe } from '../hooks/useMe';
 import { useEnumLabels } from '../hooks/useEnumLabels';
@@ -22,14 +29,30 @@ interface CommunitySummary {
   lga: string;
 }
 
+interface OrgSummary {
+  id: string;
+  name: string;
+  slug: string;
+  verified: boolean;
+  state?: string;
+  lga?: string;
+}
+
 interface FeedItem {
-  kind: 'issue' | 'petition';
+  kind: 'issue' | 'petition' | 'announcement' | 'project' | 'consultation';
   tier: Tier;
   createdAt: string;
-  communityId: string;
+  // communityId is empty for announcements + un-scoped projects and
+  // consultations. Optional in the type so unwrapping is explicit
+  // rather than relying on ''.
+  communityId?: string;
   community?: CommunitySummary;
+  organization?: OrgSummary;
   issue?: Issue;
   petition?: Petition;
+  announcement?: Announcement;
+  project?: Project;
+  consultation?: Consultation;
 }
 
 interface FeedResponse {
@@ -38,11 +61,18 @@ interface FeedResponse {
 }
 
 type TierFilter = Tier | 'ALL';
-type KindFilter = 'all' | 'issue' | 'petition';
+type KindFilter = 'all' | 'issue' | 'petition' | 'announcement' | 'project' | 'consultation';
 
 const PAGE_SIZE = 20;
 
-const KIND_KEYS: KindFilter[] = ['all', 'issue', 'petition'];
+const KIND_KEYS: KindFilter[] = [
+  'all',
+  'issue',
+  'petition',
+  'announcement',
+  'project',
+  'consultation',
+];
 
 const TIER_TONE: Record<Tier, string> = {
   COMMUNITY: 'bg-civic-100 text-civic-700',
@@ -189,7 +219,7 @@ function GroupedView({ communityId, kind }: { communityId?: string; kind: KindFi
             </div>
             <div className="grid gap-3 md:grid-cols-2">
               {tierItems.map((item) => (
-                <FeedCard key={`${item.kind}-${item.issue?.id ?? item.petition?.id}`} item={item} />
+                <FeedCard key={itemKey(item)} item={item} />
               ))}
             </div>
           </section>
@@ -235,7 +265,7 @@ function TierView({
 
       <div className="grid gap-3 md:grid-cols-2">
         {items.map((item) => (
-          <FeedCard key={`${item.kind}-${item.issue?.id ?? item.petition?.id}`} item={item} />
+          <FeedCard key={itemKey(item)} item={item} />
         ))}
       </div>
 
@@ -295,7 +325,50 @@ function FeedCard({ item }: { item: FeedItem }) {
       />
     );
   }
+  if (item.kind === 'announcement' && item.announcement) {
+    return (
+      <AnnouncementCard
+        announcement={item.announcement}
+        org={item.organization}
+        createdAt={item.createdAt}
+      />
+    );
+  }
+  if (item.kind === 'project' && item.project) {
+    return (
+      <ProjectCard
+        project={item.project}
+        org={item.organization}
+        community={item.community}
+        createdAt={item.createdAt}
+      />
+    );
+  }
+  if (item.kind === 'consultation' && item.consultation) {
+    return (
+      <ConsultationCard
+        consultation={item.consultation}
+        org={item.organization}
+        community={item.community}
+        createdAt={item.createdAt}
+      />
+    );
+  }
   return null;
+}
+
+// itemKey generates a stable react key from the five possible entity
+// pointers. Kept in one place so the .map() key line doesn't grow
+// alongside every new kind.
+function itemKey(item: FeedItem): string {
+  const id =
+    item.issue?.id ??
+    item.petition?.id ??
+    item.announcement?.id ??
+    item.project?.id ??
+    item.consultation?.id ??
+    'unknown';
+  return `${item.kind}-${id}`;
 }
 
 function IssueCard({
@@ -379,25 +452,147 @@ function PetitionCard({
   );
 }
 
+function AnnouncementCard({
+  announcement,
+  org,
+  createdAt,
+}: {
+  announcement: Announcement;
+  org?: OrgSummary;
+  createdAt: string;
+}) {
+  const { t } = useTranslation();
+  return (
+    <Link
+      to={`/announcements/${announcement.id}`}
+      className="block rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-civic-300"
+    >
+      <div className="flex items-start gap-2">
+        <Megaphone className="mt-0.5 h-4 w-4 flex-shrink-0 text-indigo-600" />
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-indigo-700">
+            {t('discoverPage.labels.announcement')}
+          </p>
+          <h3 className="mt-0.5 line-clamp-2 font-semibold text-slate-900">{announcement.title}</h3>
+          <p className="mt-1 line-clamp-2 text-sm text-slate-600">{announcement.body}</p>
+          <CardMeta org={org} createdAt={createdAt} />
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function ProjectCard({
+  project,
+  org,
+  community,
+  createdAt,
+}: {
+  project: Project;
+  org?: OrgSummary;
+  community?: CommunitySummary;
+  createdAt: string;
+}) {
+  const { t } = useTranslation();
+  const budget =
+    project.budgetKobo !== undefined && project.budgetKobo !== null
+      ? `₦${(project.budgetKobo / 100).toLocaleString()}`
+      : null;
+  return (
+    <Link
+      to={`/projects/${project.id}`}
+      className="block rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-civic-300"
+    >
+      <div className="flex items-start gap-2">
+        <Briefcase className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-600" />
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-emerald-700">
+            {t('discoverPage.labels.project')}
+          </p>
+          <h3 className="mt-0.5 line-clamp-2 font-semibold text-slate-900">{project.title}</h3>
+          <p className="mt-1 line-clamp-2 text-sm text-slate-600">{project.description}</p>
+          <CardMeta community={community} org={org} createdAt={createdAt}>
+            <span>{t(`orgDashboard.projectStatus.${project.status}`)}</span>
+            {budget && (
+              <>
+                <span>·</span>
+                <span>{budget}</span>
+              </>
+            )}
+          </CardMeta>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function ConsultationCard({
+  consultation,
+  org,
+  community,
+  createdAt,
+}: {
+  consultation: Consultation;
+  org?: OrgSummary;
+  community?: CommunitySummary;
+  createdAt: string;
+}) {
+  const { t } = useTranslation();
+  const statusKey = `consultationsPage.status.${consultation.status}`;
+  return (
+    <Link
+      to={`/consultations/${consultation.id}`}
+      className="block rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-civic-300"
+    >
+      <div className="flex items-start gap-2">
+        <MessageSquare className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-600" />
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-amber-700">
+            {t('discoverPage.labels.consultation')}
+          </p>
+          <h3 className="mt-0.5 line-clamp-2 font-semibold text-slate-900">{consultation.title}</h3>
+          <p className="mt-1 line-clamp-2 text-sm text-slate-600">{consultation.summary}</p>
+          <CardMeta community={community} org={org} createdAt={createdAt}>
+            <span>{t(statusKey)}</span>
+            <span>·</span>
+            <span>
+              {t('discoverPage.meta.responsesCount', { count: consultation.responseCount })}
+            </span>
+          </CardMeta>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
 function CardMeta({
   community,
+  org,
   createdAt,
   children,
 }: {
   community?: CommunitySummary;
+  org?: OrgSummary;
   createdAt: string;
   children?: React.ReactNode;
 }) {
   const relative = useRelativeTime();
+  // Prefer the community anchor when present; otherwise fall back to
+  // the org (announcements + un-scoped projects have no community).
+  const anchor = community
+    ? { label: community.name, mono: false }
+    : org
+      ? { label: org.name, mono: false }
+      : null;
   return (
     <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-600">
-      {community && (
+      {anchor && (
         <span className="inline-flex items-center gap-1">
           <MapPin className="h-3 w-3" />
-          {community.name}
+          {anchor.label}
         </span>
       )}
-      <span>·</span>
+      {anchor && <span>·</span>}
       <span>{relative(createdAt)}</span>
       {children && <span className="ml-auto inline-flex items-center gap-1">{children}</span>}
     </div>

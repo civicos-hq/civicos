@@ -79,7 +79,9 @@ and documented in the User + Developer Guides.
 
 - Global search across issues, petitions, representatives
 - Discover feed tiered by geographic proximity
-  (COMMUNITY → LGA → STATE → COUNTRY)
+  (COMMUNITY → LGA → STATE → COUNTRY), covering issues, petitions,
+  announcements, projects, and consultations — announcements and
+  un-scoped projects/consultations tier by the publishing org's state/lga
 
 ### Consultations
 
@@ -131,9 +133,9 @@ Features we intend to build in the next phase. Not in the codebase yet
   positional-integer edits only; a proper drag UI is on the near list.
 - **Cover image upload for consultations** — API supports a URL; the UI
   form doesn't collect it yet.
-- **Public browse UIs for announcements, projects, and assignments** —
-  org-owner surfaces shipped this cycle; the citizen-facing browse pages
-  are next.
+- **Citizen browse for standalone assignments** — announcements and
+  projects landed as their own list pages plus in the Discover feed;
+  assignments still only surface on the specific issue they're tied to.
 - **Wider notification channels** — email digests, optional SMS.
 - **Full-text search** — replace the current `ILIKE` sweep with
   Postgres `pg_trgm` or Meilisearch as the dataset grows.

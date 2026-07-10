@@ -196,26 +196,53 @@ components:
 
     FeedItem:
       type: object
-      description: Discriminated union — exactly one of `issue` or `petition` is set.
+      description: |
+        Discriminated union — exactly one of `issue`, `petition`,
+        `announcement`, `project`, or `consultation` is set based on
+        the `kind` discriminator. `communityId` is omitted for
+        announcements and for projects/consultations with no community
+        anchor; for those items the `organization` field carries
+        attribution instead.
       properties:
-        kind: { type: string, enum: [issue, petition] }
+        kind:
+          type: string
+          enum: [issue, petition, announcement, project, consultation]
         tier: { $ref: '#/components/schemas/DiscoverTier' }
         createdAt: { type: string, format: date-time }
-        communityId: { type: string, format: uuid }
+        communityId: { type: string, format: uuid, nullable: true }
         community:
           type: object
+          nullable: true
           properties:
             id: { type: string, format: uuid }
             name: { type: string }
             state: { type: string }
             lga: { type: string }
+        organization:
+          type: object
+          nullable: true
+          description: Attribution for announcement + project items. Absent for issues + petitions.
+          properties:
+            id: { type: string, format: uuid }
+            name: { type: string }
+            slug: { type: string }
+            verified: { type: boolean }
+            state: { type: string, nullable: true }
+            lga: { type: string, nullable: true }
         issue:
-          allOf:
-            - $ref: '#/components/schemas/Issue'
+          type: object
           nullable: true
         petition:
-          allOf:
-            - $ref: '#/components/schemas/Petition'
+          type: object
+          nullable: true
+        announcement:
+          type: object
+          nullable: true
+        project:
+          type: object
+          nullable: true
+        consultation:
+          type: object
           nullable: true
 
 paths:
@@ -892,12 +919,23 @@ paths:
   /discover/feed:
     get:
       tags: [Discover]
-      summary: Personalized feed of issues + petitions
+      summary: Personalized feed of issues, petitions, announcements, projects, and consultations
       description: |
         Items are labelled with a `tier` based on proximity to the caller's
         community: `COMMUNITY` (same community), `LGA` (same LGA, different
         community), `STATE` (same state, different LGA), `COUNTRY` (same
         country, different state). Pass `tier=` to filter to one tier.
+
+        The feed covers five kinds:
+
+        - **issue** and **petition** are tiered by the item's community.
+        - **announcement** is tiered by the publishing org's state/lga
+          (announcements have no community anchor of their own).
+        - **project** is tiered by `project.communityId` when set, else
+          by the owning org's state/lga.
+        - **consultation** follows the same rule as project: community
+          anchor first, then org state/lga. Only PUBLISHED and CLOSED
+          consultations are surfaced — drafts stay private.
       parameters:
         - in: query
           name: communityId
@@ -908,7 +946,7 @@ paths:
           schema: { $ref: '#/components/schemas/DiscoverTier' }
         - in: query
           name: kind
-          schema: { type: string, enum: [issue, petition] }
+          schema: { type: string, enum: [issue, petition, announcement, project, consultation] }
         - in: query
           name: limit
           schema: { type: integer, default: 20, maximum: 50 }

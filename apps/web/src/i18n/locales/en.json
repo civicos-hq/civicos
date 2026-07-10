@@ -266,7 +266,10 @@
     "kinds": {
       "all": "All types",
       "issue": "Issues",
-      "petition": "Petitions"
+      "petition": "Petitions",
+      "announcement": "Announcements",
+      "project": "Projects",
+      "consultation": "Consultations"
     },
     "itemCount_one": "{{count}} item",
     "itemCount_other": "{{count}} items",
@@ -279,12 +282,17 @@
     "loadMore": "Load more",
     "labels": {
       "issue": "Issue",
-      "petition": "Petition"
+      "petition": "Petition",
+      "announcement": "Announcement",
+      "project": "Project",
+      "consultation": "Consultation"
     },
     "meta": {
       "upvotes_one": "{{count}} upvote",
       "upvotes_other": "{{count}} upvotes",
-      "signaturesOf": "{{signatures}}/{{goal}} signatures"
+      "signaturesOf": "{{signatures}}/{{goal}} signatures",
+      "responsesCount_one": "{{count}} response",
+      "responsesCount_other": "{{count}} responses"
     }
   },
   "representativesPage": {
