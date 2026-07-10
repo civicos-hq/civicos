@@ -1,12 +1,15 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button, Input } from '@civicos/ui';
 import type { CreateConsultationInput } from '@civicos/types';
 import { PageHeader } from '../components/PageHeader';
 import { useCommunities } from '../hooks/useCommunities';
-import { getApiError } from '../lib/api';
+import { getApiError, uploadImage } from '../lib/api';
 import { useCreateConsultation } from '../hooks/useConsultations';
+
+// 5 MB cap, same as other image uploads on the platform.
+const MAX_COVER_BYTES = 5 * 1024 * 1024;
 
 export function OrgConsultationCreatePage() {
   const { t } = useTranslation();
@@ -22,17 +25,51 @@ export function OrgConsultationCreatePage() {
   const [closesAt, setClosesAt] = useState('');
   const [error, setError] = useState('');
 
+  // Cover image is a two-step ceremony: local preview → upload on submit.
+  // We defer the actual upload until form submit so a user cancelling the
+  // form doesn't leave orphaned uploads on the server.
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!coverFile) {
+      setCoverPreview(null);
+      return;
+    }
+    const url = URL.createObjectURL(coverFile);
+    setCoverPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [coverFile]);
+
+  function onCoverChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] ?? null;
+    e.target.value = '';
+    setError('');
+    if (file && file.size > MAX_COVER_BYTES) {
+      setError(t('orgConsultationCreate.coverTooBig'));
+      return;
+    }
+    setCoverFile(file);
+  }
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError('');
-    const input: CreateConsultationInput = {
-      title: title.trim(),
-      summary: summary.trim(),
-      description,
-      communityId: communityId || undefined,
-      closesAt: closesAt ? new Date(closesAt).toISOString() : undefined,
-    };
     try {
+      // Upload cover first — if it fails we abort before creating the
+      // consultation, so we don't get a half-formed draft with no image.
+      let coverImageUrl: string | undefined;
+      if (coverFile) {
+        coverImageUrl = await uploadImage(coverFile);
+      }
+      const input: CreateConsultationInput = {
+        title: title.trim(),
+        summary: summary.trim(),
+        description,
+        coverImageUrl,
+        communityId: communityId || undefined,
+        closesAt: closesAt ? new Date(closesAt).toISOString() : undefined,
+      };
       const created = await createMutation.mutateAsync(input);
       // Land directly on the detail page so the user can add questions
       // — creation without follow-through is a dead-end otherwise.
@@ -103,6 +140,47 @@ export function OrgConsultationCreatePage() {
           <p className="mt-1 text-xs text-slate-500">
             {t('orgConsultationCreate.fields.descriptionHelp')}
           </p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-semibold text-slate-700">
+            {t('orgConsultationCreate.fields.cover')}
+          </label>
+          <div className="mt-1 flex items-start gap-4">
+            <div className="flex h-24 w-40 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-300 bg-slate-50">
+              {coverPreview ? (
+                <img
+                  src={coverPreview}
+                  alt={t('orgConsultationCreate.fields.coverPreview')}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <span className="text-xs text-slate-400">
+                  {t('orgConsultationCreate.fields.coverEmpty')}
+                </span>
+              )}
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="cursor-pointer text-sm font-semibold text-civic-700 hover:underline">
+                <input type="file" accept="image/*" className="hidden" onChange={onCoverChange} />
+                {coverFile
+                  ? t('orgConsultationCreate.fields.coverChange')
+                  : t('orgConsultationCreate.fields.coverUpload')}
+              </label>
+              {coverFile && (
+                <button
+                  type="button"
+                  onClick={() => setCoverFile(null)}
+                  className="text-left text-xs text-slate-500 hover:text-slate-700 hover:underline"
+                >
+                  {t('orgConsultationCreate.fields.coverRemove')}
+                </button>
+              )}
+              <p className="text-xs text-slate-500">
+                {t('orgConsultationCreate.fields.coverHelp')}
+              </p>
+            </div>
+          </div>
         </div>
 
         <div>
