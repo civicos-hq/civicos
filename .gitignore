@@ -17,6 +17,9 @@ apps/docs/build
 # ─── Testing ──────────────────────────────────────────────────────────────────
 **/coverage
 **/.jest-cache
+# Playwright's default output directory — traces, screenshots, .last-run.json
+**/test-results
+**/playwright-report
 
 # ─── Environment — never commit secrets ───────────────────────────────────────
 .env
@@ -67,6 +70,11 @@ services/*/uploads/
 Thumbs.db
 Desktop.ini
 ehthumbs.db
+# macOS screenshots — both label variants ("Screenshot ..." on 10.15+,
+# "Screen Shot ..." on older versions). Ignored so dragging one into
+# the repo to share doesn't accidentally get committed.
+Screenshot*.png
+Screen Shot*.png
 
 # ─── Editor ───────────────────────────────────────────────────────────────────
 .idea/

@@ -427,10 +427,9 @@ function QuestionRow({
         {draggable && (
           // Deliberately a span, not a button — a native <button> would
           // swallow Space as a click and beat dnd-kit's KeyboardSensor
-          // to the event, breaking keyboard drag pickup.
+          // to the event, breaking keyboard drag pickup. dnd-kit's
+          // `attributes` already provides role="button" + tabIndex.
           <span
-            role="button"
-            tabIndex={0}
             className="mt-0.5 inline-flex cursor-grab touch-none text-slate-400 hover:text-slate-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-civic-500 active:cursor-grabbing"
             aria-label={t('orgConsultationDetail.dragHandle')}
             {...attributes}

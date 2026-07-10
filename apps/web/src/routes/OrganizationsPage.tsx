@@ -1,27 +1,12 @@
-import { useState, type FormEvent } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Building2, ShieldCheck } from 'lucide-react';
-import { Button, Input } from '@civicos/ui';
-import {
-  UserRole,
-  OrgKind,
-  OrgJurisdiction,
-  type ApiResponse,
-  type Organization,
-} from '@civicos/types';
+import { OrgKind, type ApiResponse, type Organization } from '@civicos/types';
 import { api } from '../lib/api';
-import { useMe } from '../hooks/useMe';
-import { Modal } from '../components/Modal';
 import { PageHeader, useTodayMeta } from '../components/PageHeader';
 import { EmptyState } from '../components/EmptyState';
-
-const CREATOR_ROLES = new Set<UserRole>([
-  UserRole.GOVERNMENT_ADMIN,
-  UserRole.PLATFORM_ADMIN,
-  UserRole.NGO,
-]);
 
 const KIND_OPTIONS: (OrgKind | 'ALL')[] = [
   'ALL',
@@ -30,13 +15,6 @@ const KIND_OPTIONS: (OrgKind | 'ALL')[] = [
   OrgKind.NGO,
   OrgKind.UTILITY,
   OrgKind.OTHER,
-];
-
-const JURISDICTION_OPTIONS: OrgJurisdiction[] = [
-  OrgJurisdiction.NATIONAL,
-  OrgJurisdiction.STATE,
-  OrgJurisdiction.LGA,
-  OrgJurisdiction.COMMUNITY,
 ];
 
 function useOrganizations(kind: OrgKind | 'ALL') {
@@ -56,13 +34,10 @@ function useOrganizations(kind: OrgKind | 'ALL') {
 export function OrganizationsPage() {
   const { t } = useTranslation();
   const meta = useTodayMeta();
-  const meQuery = useMe();
   const [kind, setKind] = useState<OrgKind | 'ALL'>('ALL');
-  const [isModalOpen, setModalOpen] = useState(false);
 
   const orgsQuery = useOrganizations(kind);
   const orgs = orgsQuery.data ?? [];
-  const canCreate = meQuery.data?.role ? CREATOR_ROLES.has(meQuery.data.role) : false;
 
   return (
     <section className="space-y-6">
@@ -71,13 +46,6 @@ export function OrganizationsPage() {
         title={t('organizationsPage.title')}
         subtitle={t('organizationsPage.subtitle')}
         meta={meta}
-        actions={
-          canCreate ? (
-            <Button size="sm" onClick={() => setModalOpen(true)}>
-              {t('organizationsPage.newBtn')}
-            </Button>
-          ) : undefined
-        }
       >
         <div className="mt-4 flex flex-wrap gap-2">
           {KIND_OPTIONS.map((k) => (
@@ -103,7 +71,13 @@ export function OrganizationsPage() {
         </div>
       )}
 
-      {isModalOpen && <NewOrganizationModal onClose={() => setModalOpen(false)} />}
+      {/* Orgs join by applying at signup — no in-app direct create. */}
+      <p className="text-xs text-slate-500">
+        {t('organizationsPage.applyPrompt')}{' '}
+        <Link to="/register" className="font-semibold text-civic-700 hover:underline">
+          {t('organizationsPage.applyCta')}
+        </Link>
+      </p>
     </section>
   );
 }
@@ -170,138 +144,5 @@ function OrganizationCard({ org }: { org: Organization }) {
         <span>{t('organizationsPage.card.reports', { count: org.assignmentCount })}</span>
       </div>
     </Link>
-  );
-}
-
-function NewOrganizationModal({ onClose }: { onClose: () => void }) {
-  const { t } = useTranslation();
-  const queryClient = useQueryClient();
-  const [name, setName] = useState('');
-  const [slug, setSlug] = useState('');
-  const [kind, setKind] = useState<OrgKind>(OrgKind.GOVERNMENT);
-  const [jurisdiction, setJurisdiction] = useState<OrgJurisdiction>(OrgJurisdiction.LGA);
-  const [description, setDescription] = useState('');
-  const [email, setEmail] = useState('');
-  const [error, setError] = useState('');
-
-  const mutation = useMutation({
-    mutationFn: async () => {
-      await api.post('/api/v1/organizations', {
-        name,
-        slug: slug.trim().toLowerCase(),
-        kind,
-        jurisdiction,
-        description: description.trim() || undefined,
-        email: email.trim() || undefined,
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['organizations'] });
-      onClose();
-    },
-    onError: () => setError(t('organizationsPage.modal.genericError')),
-  });
-
-  function submit(e: FormEvent) {
-    e.preventDefault();
-    setError('');
-    mutation.mutate();
-  }
-
-  return (
-    <Modal title={t('organizationsPage.modal.title')} onClose={onClose}>
-      <form onSubmit={submit} className="space-y-4">
-        <Input
-          label={t('organizationsPage.modal.fields.name')}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          minLength={2}
-        />
-        <Input
-          label={t('organizationsPage.modal.fields.slug')}
-          value={slug}
-          onChange={(e) => setSlug(e.target.value)}
-          required
-          minLength={2}
-          placeholder="e.g. lagos-water-corp"
-        />
-
-        <div className="grid gap-3 md:grid-cols-2">
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700" htmlFor="new-org-kind">
-              {t('organizationsPage.modal.fields.kind')}
-            </label>
-            <select
-              id="new-org-kind"
-              value={kind}
-              onChange={(e) => setKind(e.target.value as OrgKind)}
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-civic-500"
-            >
-              {[
-                OrgKind.GOVERNMENT,
-                OrgKind.AGENCY,
-                OrgKind.NGO,
-                OrgKind.UTILITY,
-                OrgKind.OTHER,
-              ].map((k) => (
-                <option key={k} value={k}>
-                  {t(`organizationsPage.kinds.${k}`)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700" htmlFor="new-org-jurisdiction">
-              {t('organizationsPage.modal.fields.jurisdiction')}
-            </label>
-            <select
-              id="new-org-jurisdiction"
-              value={jurisdiction}
-              onChange={(e) => setJurisdiction(e.target.value as OrgJurisdiction)}
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-civic-500"
-            >
-              {JURISDICTION_OPTIONS.map((j) => (
-                <option key={j} value={j}>
-                  {t(`organizationsPage.jurisdictions.${j}`)}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700" htmlFor="new-org-desc">
-            {t('organizationsPage.modal.fields.description')}
-          </label>
-          <textarea
-            id="new-org-desc"
-            rows={3}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-civic-500"
-          />
-        </div>
-
-        <Input
-          label={t('organizationsPage.modal.fields.email')}
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-
-        {error && <p className="text-sm text-red-600">{error}</p>}
-
-        <div className="flex justify-end gap-2 pt-2">
-          <Button type="button" variant="secondary" onClick={onClose}>
-            {t('common.cancel')}
-          </Button>
-          <Button type="submit" loading={mutation.isPending}>
-            {t('organizationsPage.modal.save')}
-          </Button>
-        </div>
-      </form>
-    </Modal>
   );
 }

@@ -26,7 +26,8 @@ and documented in the User + Developer Guides.
 - JWT access tokens + OWASP refresh-token family rotation
 - Forgot / reset password
 - Full self-service account deletion (soft delete + PII anonymization)
-- Representative and organization applications with admin review
+- Representative and organization applications with admin review — the
+  only path to a rep or org record; no admin-side direct create
 
 ### Communities
 

@@ -177,10 +177,11 @@ func main() {
 	r.GET("/api/v1/petitions/:id/comments", communityProxy)
 	r.POST("/api/v1/petitions/:id/comments", authMiddleware, limitCommentMin, limitCommentHr, communityProxy)
 
-	// Representatives
+	// Representatives — profiles are only minted by approving a
+	// RepresentativeApplication in identity-service (see the applications
+	// endpoints), so no direct POST. Admins can still PATCH to fix data.
 	r.GET("/api/v1/representatives", communityProxy)
 	r.GET("/api/v1/representatives/:id", communityProxy)
-	r.POST("/api/v1/representatives", authMiddleware, limitCreate, communityProxy)
 	r.PATCH("/api/v1/representatives/:id", authMiddleware, limitStandard, communityProxy)
 	r.POST("/api/v1/representatives/:id/follow", authMiddleware, limitStandard, communityProxy)
 	r.DELETE("/api/v1/representatives/:id/follow", authMiddleware, limitStandard, communityProxy)
@@ -202,10 +203,11 @@ func main() {
 	// --- Organization Service ---
 	orgProxy := proxy.NewReverseProxy(cfg.OrganizationServiceURL, "/api")
 
-	// Organizations (registry + membership)
+	// Organizations (registry + membership) — org rows are only minted by
+	// approving an OrganizationApplication in identity-service, so no
+	// direct POST. Admins and org-owners can still PATCH to fix data.
 	r.GET("/api/v1/organizations", orgProxy)
 	r.GET("/api/v1/organizations/:id", orgProxy)
-	r.POST("/api/v1/organizations", authMiddleware, limitStandard, orgProxy)
 	r.PATCH("/api/v1/organizations/:id", authMiddleware, limitStandard, orgProxy)
 	r.GET("/api/v1/organizations/:id/members", orgProxy)
 	// Caller-scoped — which orgs am I a member of, and with what role.

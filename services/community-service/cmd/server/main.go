@@ -82,6 +82,10 @@ func main() {
 	authMiddleware := middleware.JWTAuth(cfg, db)
 	requireVerified := middleware.RequireVerified()
 	requireAdminRole := middleware.RequireRole("GOVERNMENT_ADMIN", "PLATFORM_ADMIN", "NGO")
+	// Community creation is tighter than the general "admin" role gate:
+	// orgs (NGO) authoritatively don't own civic geography — only the
+	// platform/government admin roles can add a community.
+	requireCommunityCreator := middleware.RequireRole("GOVERNMENT_ADMIN", "PLATFORM_ADMIN")
 
 	r := gin.New()
 	r.Use(gin.Logger(), gin.Recovery())
@@ -97,7 +101,7 @@ func main() {
 	})
 
 	v1 := r.Group("/v1")
-	communityHandler.RegisterRoutes(v1.Group("/communities"), authMiddleware, requireAdminRole)
+	communityHandler.RegisterRoutes(v1.Group("/communities"), authMiddleware, requireCommunityCreator)
 	issueHandler.RegisterRoutes(v1.Group("/issues"), authMiddleware, requireVerified)
 	issueHandler.RegisterMeRoutes(v1.Group("/me"), authMiddleware)
 	petitionHandler.RegisterRoutes(v1.Group("/petitions"), authMiddleware, requireVerified)

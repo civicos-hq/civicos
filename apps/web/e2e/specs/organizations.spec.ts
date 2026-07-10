@@ -1,59 +1,32 @@
 import { test, expect } from '../fixtures/auth';
 import { sql } from '../fixtures/db';
 
-// Organizations end-to-end UI flow — this is the money-path spec for the
-// service we just built. Admin registers an org, publishes an
-// announcement, creates a project, and the flow renders each step.
+// Organizations end-to-end UI flow. Org rows are only minted by
+// approving an OrganizationApplication (signup flow) — no in-app
+// direct-create button for admins or citizens. Later tests seed
+// directly via SQL so the org-owner UI still gets coverage.
 test.describe('organizations', () => {
-  test('citizen browses org list; register button is admin-gated', async ({
-    authedAsCitizenInCommunity: page,
+  test('no in-app "register organization" button — admins or citizens', async ({
+    authedAsAdmin,
+    authedAsCitizenInCommunity,
   }) => {
-    await page.goto('/organizations');
-    await expect(page.locator('.page-header-eyebrow').first()).toBeVisible();
+    await authedAsCitizenInCommunity.goto('/organizations');
+    await expect(authedAsCitizenInCommunity.locator('.page-header-eyebrow').first()).toBeVisible();
     // Kind filter pills render.
-    await expect(page.getByRole('button', { name: /^government$/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /^utility$/i })).toBeVisible();
-    // Citizen doesn't see the create button.
-    await expect(page.getByRole('button', { name: /register organization/i })).toHaveCount(0);
-  });
+    await expect(
+      authedAsCitizenInCommunity.getByRole('button', { name: /^government$/i }),
+    ).toBeVisible();
+    await expect(
+      authedAsCitizenInCommunity.getByRole('button', { name: /^utility$/i }),
+    ).toBeVisible();
+    await expect(
+      authedAsCitizenInCommunity.getByRole('button', { name: /register organization/i }),
+    ).toHaveCount(0);
 
-  test('admin registers a new organization end to end', async ({ authedAsAdmin: page }) => {
-    await page.goto('/organizations');
-    // Open the New Organization modal.
-    await page.getByRole('button', { name: /register organization/i }).click();
-    const dialog = page
-      .locator('[role="dialog"], .fixed')
-      .filter({ hasText: /register|new organization/i })
-      .first();
-    await expect(dialog).toBeVisible();
-
-    // Fill the form. First two inputs are Name then Slug (see NewOrganizationModal).
-    const slug = `e2e-org-${Date.now()}`;
-    const inputs = dialog.locator('input:not([type="file"])');
-    await inputs.nth(0).fill(`E2E Org ${slug}`);
-    await inputs.nth(1).fill(slug);
-
-    // The two <select>s are Kind and Jurisdiction.
-    await dialog.locator('select').nth(0).selectOption('UTILITY');
-    await dialog.locator('select').nth(1).selectOption('LGA');
-
-    // Optional description.
-    await dialog.locator('textarea').fill('End-to-end test organization.');
-
-    // Submit.
-    await dialog.getByRole('button', { name: /^register$/i }).click();
-
-    // Dialog closes on success.
-    await expect(dialog).toBeHidden({ timeout: 5_000 });
-
-    // Newly created org appears in the list.
-    await expect(page.getByText(`E2E Org ${slug}`)).toBeVisible();
-
-    // DB verification — the org and the auto-owner membership both landed.
-    const memberCount = sql(
-      `SELECT COUNT(*) FROM org_members WHERE organization_id=(SELECT id FROM organizations WHERE slug='${slug}');`,
+    await authedAsAdmin.goto('/organizations');
+    await expect(authedAsAdmin.getByRole('button', { name: /register organization/i })).toHaveCount(
+      0,
     );
-    expect(Number(memberCount)).toBe(1);
   });
 
   test('admin visits the org detail page and sees empty tabs', async ({ authedAsAdmin: page }) => {
