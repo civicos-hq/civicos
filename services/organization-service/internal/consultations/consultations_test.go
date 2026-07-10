@@ -512,3 +512,60 @@ func (notFoundErr) Error() string { return "record not found" }
 func (notFoundErr) Is(target error) bool {
 	return target != nil && target.Error() == "record not found"
 }
+
+// TestDedupeUserIDs covers the audience-merge helper that the publish
+// fan-out uses. Org and community memberships often overlap in
+// practice — the same citizen joins their local NGO and the community
+// the NGO serves — and we don't want them to receive the same
+// notification twice.
+func TestDedupeUserIDs(t *testing.T) {
+	cases := []struct {
+		name          string
+		first, second []string
+		want          []string
+	}{
+		{
+			name:   "no overlap keeps both, org first",
+			first:  []string{"a", "b"},
+			second: []string{"c", "d"},
+			want:   []string{"a", "b", "c", "d"},
+		},
+		{
+			name:   "overlap keeps the org-side row",
+			first:  []string{"a", "b"},
+			second: []string{"b", "c"},
+			want:   []string{"a", "b", "c"},
+		},
+		{
+			name:   "empty inputs are safe",
+			first:  nil,
+			second: nil,
+			want:   []string{},
+		},
+		{
+			name:   "empty strings are dropped",
+			first:  []string{"", "a"},
+			second: []string{"", "b"},
+			want:   []string{"a", "b"},
+		},
+		{
+			name:   "internal duplicates in one slice are collapsed",
+			first:  []string{"a", "a", "b"},
+			second: []string{"c", "c"},
+			want:   []string{"a", "b", "c"},
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := dedupeUserIDs(tc.first, tc.second)
+			if len(got) != len(tc.want) {
+				t.Fatalf("length mismatch: got %v, want %v", got, tc.want)
+			}
+			for i := range got {
+				if got[i] != tc.want[i] {
+					t.Fatalf("at %d: got %q, want %q (full: %v)", i, got[i], tc.want[i], got)
+				}
+			}
+		})
+	}
+}
