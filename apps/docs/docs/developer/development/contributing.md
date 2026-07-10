@@ -78,8 +78,10 @@ Reach for the standard trio in the target service:
    summary, description, request/response examples, and status codes.
    Then re-sync to the embedded copy:
    ```bash
-   cp docs/api/openapi-*.yaml services/api-gateway/internal/docs/openapi/
+   scripts/openapi-sync.sh
    ```
+   CI runs the same script with `--check` and fails the build if the
+   two copies drift.
 
 ## Adding a frontend feature
 

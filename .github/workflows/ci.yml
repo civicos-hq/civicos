@@ -134,6 +134,22 @@ jobs:
           fi
           echo "All Go files are gofmt-clean."
 
+  # ── DOCS ─────────────────────────────────────────────────────────────
+
+  openapi-sync:
+    name: Docs · OpenAPI mirror sync
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify embedded gateway copies match docs/api
+        # The api-gateway serves Swagger UI by `go:embed`-ing files from
+        # services/api-gateway/internal/docs/openapi/. Because go:embed
+        # can't reach outside the module root, we mirror instead of
+        # symlink. Silent drift between the two paths is a real risk —
+        # this job catches it. Local fix: `scripts/openapi-sync.sh`.
+        run: scripts/openapi-sync.sh --check
+
   go-test:
     name: Go · Test · ${{ matrix.service }}
     runs-on: ubuntu-latest
@@ -197,6 +213,7 @@ jobs:
       - go-vet
       - go-fmt
       - go-test
+      - openapi-sync
     steps:
       - name: All required jobs passed
         run: |

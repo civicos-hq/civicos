@@ -125,6 +125,8 @@ and documented in the User + Developer Guides.
 - Four Go microservices behind an API gateway
 - Per-action rate limiting via Redis
 - Interactive Swagger UI at `/docs`
+- CI check that keeps the embedded gateway copies of the OpenAPI specs
+  in lock-step with `docs/api/`
 - This documentation site
 
 ---
@@ -140,9 +142,6 @@ Features we intend to build in the next phase. Not in the codebase yet
 - **Wider notification channels** — email digests, optional SMS.
 - **Full-text search** — replace the current `ILIKE` sweep with
   Postgres `pg_trgm` or Meilisearch as the dataset grows.
-- **CI check for OpenAPI mirror sync** — enforce that
-  `docs/api/openapi-*.yaml` and the embedded gateway copies stay in
-  sync.
 - **Uploads on durable storage** — move from local disk to S3-compatible
   object storage before scaling out.
 
