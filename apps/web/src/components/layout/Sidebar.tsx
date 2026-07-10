@@ -7,9 +7,11 @@ import {
   FileText,
   Home,
   LogOut,
+  Megaphone,
   MessageSquare,
   User,
   Users,
+  Wrench,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -25,6 +27,8 @@ const navItems = [
   { to: '/representatives', i18n: 'sidebar.representatives', icon: Users },
   { to: '/organizations', i18n: 'sidebar.organizations', icon: Building2 },
   { to: '/consultations', i18n: 'sidebar.consultations', icon: MessageSquare },
+  { to: '/announcements', i18n: 'sidebar.announcements', icon: Megaphone },
+  { to: '/projects', i18n: 'sidebar.projects', icon: Wrench },
   { to: '/notifications', i18n: 'sidebar.notifications', icon: Bell },
 ];
 

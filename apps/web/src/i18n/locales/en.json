@@ -1108,10 +1108,60 @@
     "representatives": "Representatives",
     "organizations": "Organizations",
     "consultations": "Consultations",
+    "announcements": "Announcements",
+    "projects": "Projects",
     "myOrg": "My organization",
     "notifications": "Notifications",
     "profile": "Profile",
     "signOut": "Sign out"
+  },
+  "announcementsPage": {
+    "eyebrow": "Section — Announcements",
+    "title": "What organizations are saying",
+    "subtitle": "Public statements from the agencies, NGOs, and utilities working on your community's issues.",
+    "by": "By",
+    "publishedOn": "Published {{date}}",
+    "loadError": "Could not load announcements. Try again in a moment.",
+    "empty": {
+      "title": "No announcements yet",
+      "body": "When an organization posts a public announcement, you'll find it here."
+    }
+  },
+  "announcementDetail": {
+    "back": "← Back to announcements",
+    "loadError": "Could not load this announcement.",
+    "eyebrow": "Announcement",
+    "byline": "By {{name}} · {{date}}",
+    "viewOrg": "View organization →"
+  },
+  "projectsPage": {
+    "eyebrow": "Section — Projects",
+    "title": "What's being built",
+    "subtitle": "Ongoing work from organizations serving your community — with budgets and timelines on the public record.",
+    "viewOrg": "View organization",
+    "startsOn": "Starts {{date}}",
+    "endsOn": "Due {{date}}",
+    "loadError": "Could not load projects. Try again in a moment.",
+    "filters": {
+      "all": "All",
+      "active": "Active",
+      "completed": "Completed"
+    },
+    "empty": {
+      "title": "No projects here yet",
+      "body": "When an organization posts a project, you'll find it here — with scope, budget, and progress updates."
+    }
+  },
+  "projectDetail": {
+    "back": "← Back to projects",
+    "loadError": "Could not load this project.",
+    "owner": "Run by",
+    "viewOrg": "View organization →",
+    "startDate": "Start date",
+    "expectedEndDate": "Expected end date",
+    "budget": "Budget",
+    "progressHeading": "Progress updates",
+    "progressEmpty": "The organization hasn't posted any public updates yet."
   },
   "orgLanding": {
     "eyebrow": "Section — My organizations",

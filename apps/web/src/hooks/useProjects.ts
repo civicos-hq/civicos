@@ -20,6 +20,32 @@ export interface CreateProjectInput {
 
 export type UpdateProjectInput = Partial<CreateProjectInput>;
 
+// useCitizenProjects is the global project browse — accepts optional
+// filter fields matching the /api/v1/projects query params. Any field
+// left undefined means "no filter" (server returns everything matching
+// the other fields, or all rows if none supplied).
+export interface CitizenProjectFilters {
+  organizationId?: string;
+  communityId?: string;
+  status?: ProjectStatus | '';
+}
+
+export function useCitizenProjects(filters: CitizenProjectFilters = {}) {
+  return useQuery({
+    queryKey: ['citizen-projects', filters],
+    queryFn: async () => {
+      const params: Record<string, string> = {};
+      if (filters.organizationId) params.organizationId = filters.organizationId;
+      if (filters.communityId) params.communityId = filters.communityId;
+      if (filters.status) params.status = filters.status;
+      const res = await api.get<ApiResponse<{ projects: Project[] }>>('/api/v1/projects', {
+        params,
+      });
+      return res.data.data.projects;
+    },
+  });
+}
+
 export function useOrgProjects(orgId: string | undefined) {
   return useQuery({
     queryKey: ['org-projects', orgId],

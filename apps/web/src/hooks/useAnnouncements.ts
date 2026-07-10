@@ -4,7 +4,24 @@ import { api } from '../lib/api';
 
 // The org-owner surface uses /organizations/:id/announcements which
 // returns both drafts + published to org members. The citizen surface
-// (not built yet) would use /announcements for the global published feed.
+// uses /announcements for the global published feed (see below).
+
+// usePublishedAnnouncements is the citizen-facing global feed — every
+// published announcement across every organization, newest first, with
+// a server-imposed default cap of 20 rows (up to 100 if requested).
+export function usePublishedAnnouncements(limit?: number) {
+  return useQuery({
+    queryKey: ['published-announcements', limit ?? 20],
+    queryFn: async () => {
+      const res = await api.get<ApiResponse<{ announcements: Announcement[] }>>(
+        '/api/v1/announcements',
+        { params: limit ? { limit } : undefined },
+      );
+      return res.data.data.announcements;
+    },
+  });
+}
+
 export function useOrgAnnouncements(orgId: string | undefined) {
   return useQuery({
     queryKey: ['org-announcements', orgId],

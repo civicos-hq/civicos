@@ -24,6 +24,10 @@ import { OrganizationsPage } from './routes/OrganizationsPage';
 import { OrganizationDetailPage } from './routes/OrganizationDetailPage';
 import { ConsultationsPage } from './routes/ConsultationsPage';
 import { ConsultationDetailPage } from './routes/ConsultationDetailPage';
+import { AnnouncementsPage } from './routes/AnnouncementsPage';
+import { AnnouncementDetailPage } from './routes/AnnouncementDetailPage';
+import { ProjectsPage } from './routes/ProjectsPage';
+import { ProjectDetailPage } from './routes/ProjectDetailPage';
 import { OrgLandingPage } from './routes/OrgLandingPage';
 import { OrgDashboardPage } from './routes/OrgDashboardPage';
 import { OrgConsultationCreatePage } from './routes/OrgConsultationCreatePage';
@@ -105,6 +109,10 @@ function AppRoutes() {
           <Route path="/organizations/:id" element={<OrganizationDetailPage />} />
           <Route path="/consultations" element={<ConsultationsPage />} />
           <Route path="/consultations/:id" element={<ConsultationDetailPage />} />
+          <Route path="/announcements" element={<AnnouncementsPage />} />
+          <Route path="/announcements/:id" element={<AnnouncementDetailPage />} />
+          <Route path="/projects" element={<ProjectsPage />} />
+          <Route path="/projects/:id" element={<ProjectDetailPage />} />
           <Route path="/org" element={<OrgLandingPage />} />
           <Route path="/org/:orgId" element={<OrgDashboardPage />} />
           <Route path="/org/:orgId/consultations/new" element={<OrgConsultationCreatePage />} />
