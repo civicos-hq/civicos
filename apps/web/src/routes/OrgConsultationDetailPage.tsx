@@ -1,6 +1,24 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { GripVertical } from 'lucide-react';
 import { Button, Input } from '@civicos/ui';
 import {
   ConsultationQuestionType,
@@ -22,6 +40,7 @@ import {
   useMyOrganizations,
   usePublishConsultation,
   usePublishConsultationOutcome,
+  useReorderConsultationQuestions,
   useUpdateConsultationQuestion,
 } from '../hooks/useConsultations';
 
@@ -173,22 +192,20 @@ export function OrgConsultationDetailPage() {
         <p className="whitespace-pre-wrap text-sm text-slate-700">{c.description}</p>
       </article>
 
-      {/* Questions — edit builder in DRAFT, read-only otherwise. */}
+      {/* Questions — edit builder in DRAFT, read-only otherwise.
+          Drag-to-reorder is only available while the caller is an org
+          admin and the consultation is still DRAFT — matches the
+          server-side NOT_DRAFT guard on the reorder endpoint. */}
       <section>
         <h3 className="mb-3 font-fraunces text-base font-semibold text-slate-900">
           {t('orgConsultationDetail.questionsHeading')}
         </h3>
-        <ul className="space-y-3">
-          {(questions.data ?? []).map((q, i) => (
-            <QuestionRow
-              key={q.id}
-              index={i + 1}
-              consultationId={id}
-              question={q}
-              editable={isDraft && orgAdmin}
-            />
-          ))}
-        </ul>
+        <SortableQuestions
+          consultationId={id}
+          questions={questions.data ?? []}
+          reorderable={isDraft && orgAdmin}
+          editable={isDraft && orgAdmin}
+        />
         {isDraft && orgAdmin && <QuestionAdder consultationId={id} />}
       </section>
 
@@ -272,24 +289,125 @@ export function OrgConsultationDetailPage() {
 
 // ── Question builder pieces ──────────────────────────────────────
 
+// SortableQuestions renders the question list and — when `reorderable`
+// — layers on drag-to-reorder. The local `items` state is the source of
+// truth mid-drag so the row visibly moves before the server confirms.
+// On drop the full ordering is PATCHed; on error we reset from the
+// server's copy on the next invalidation.
+function SortableQuestions({
+  consultationId,
+  questions,
+  reorderable,
+  editable,
+}: {
+  consultationId: string;
+  questions: ConsultationQuestion[];
+  reorderable: boolean;
+  editable: boolean;
+}) {
+  const reorderMutation = useReorderConsultationQuestions(consultationId);
+  const [items, setItems] = useState<ConsultationQuestion[]>(questions);
+
+  // Keep local order aligned with the server whenever the query
+  // refetches — this is what un-does an optimistic drop if the PATCH
+  // fails and the invalidation returns the pre-drag ordering.
+  useEffect(() => {
+    setItems(questions);
+  }, [questions]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  function onDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = items.findIndex((q) => q.id === active.id);
+    const newIndex = items.findIndex((q) => q.id === over.id);
+    if (oldIndex < 0 || newIndex < 0) return;
+    const next = arrayMove(items, oldIndex, newIndex);
+    setItems(next);
+    const ordering: Record<string, number> = {};
+    next.forEach((q, i) => {
+      ordering[q.id] = i;
+    });
+    reorderMutation.mutate(ordering);
+  }
+
+  // Non-draft or non-admin path: no drag context, no handle — plain
+  // read-only rendering keeps the DOM stable for responders.
+  if (!reorderable) {
+    return (
+      <ul className="space-y-3">
+        {items.map((q, i) => (
+          <QuestionRow
+            key={q.id}
+            index={i + 1}
+            consultationId={consultationId}
+            question={q}
+            editable={editable}
+          />
+        ))}
+      </ul>
+    );
+  }
+
+  return (
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+      <SortableContext items={items.map((q) => q.id)} strategy={verticalListSortingStrategy}>
+        <ul className="space-y-3">
+          {items.map((q, i) => (
+            <QuestionRow
+              key={q.id}
+              index={i + 1}
+              consultationId={consultationId}
+              question={q}
+              editable={editable}
+              draggable
+            />
+          ))}
+        </ul>
+      </SortableContext>
+    </DndContext>
+  );
+}
+
 function QuestionRow({
   index,
   consultationId,
   question,
   editable,
+  draggable = false,
 }: {
   index: number;
   consultationId: string;
   question: ConsultationQuestion;
   editable: boolean;
+  draggable?: boolean;
 }) {
   const { t } = useTranslation();
   const [editing, setEditing] = useState(false);
   const deleteMutation = useDeleteConsultationQuestion(consultationId, question.id);
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: question.id,
+    disabled: !draggable,
+  });
+  const style = draggable
+    ? {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.6 : 1,
+      }
+    : undefined;
 
   if (editing) {
     return (
-      <li className="rounded-2xl border border-civic-200 bg-white p-4 shadow-sm">
+      <li
+        ref={draggable ? setNodeRef : undefined}
+        style={style}
+        className="rounded-2xl border border-civic-200 bg-white p-4 shadow-sm"
+      >
         <QuestionForm
           consultationId={consultationId}
           initial={question}
@@ -300,8 +418,27 @@ function QuestionRow({
   }
 
   return (
-    <li className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <li
+      ref={draggable ? setNodeRef : undefined}
+      style={style}
+      className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+    >
       <div className="flex items-start justify-between gap-3">
+        {draggable && (
+          // Deliberately a span, not a button — a native <button> would
+          // swallow Space as a click and beat dnd-kit's KeyboardSensor
+          // to the event, breaking keyboard drag pickup.
+          <span
+            role="button"
+            tabIndex={0}
+            className="mt-0.5 inline-flex cursor-grab touch-none text-slate-400 hover:text-slate-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-civic-500 active:cursor-grabbing"
+            aria-label={t('orgConsultationDetail.dragHandle')}
+            {...attributes}
+            {...listeners}
+          >
+            <GripVertical size={18} />
+          </span>
+        )}
         <div className="flex-1">
           <p className="text-sm font-semibold text-slate-800">
             {index}. {question.prompt}

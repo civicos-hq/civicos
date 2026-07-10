@@ -1359,6 +1359,7 @@
     "loadError": "Could not load this consultation.",
     "questionsHeading": "Questions",
     "addQuestion": "Add question",
+    "dragHandle": "Reorder question",
     "publish": "Publish",
     "publishing": "Publishing…",
     "close": "Close consultation",

@@ -254,8 +254,13 @@ func main() {
 	// Verified-user response submission.
 	r.POST("/api/v1/consultations/:id/responses", authMiddleware, limitRespond, orgProxy)
 	r.GET("/api/v1/me/consultations/responses", authMiddleware, orgProxy)
-	// Org-admin lifecycle.
-	r.POST("/api/v1/organizations/:id/consultations", authMiddleware, limitCreate, orgProxy)
+	// Org-admin lifecycle. limitStandard matches the sibling org creates
+	// (announcements, projects) — org owners iterate on drafts and hit
+	// server-side validation while composing, and burning the tight
+	// citizen Create (5/hour) budget on those failed attempts made the
+	// UX brittle. Abuse pressure on org authoring is different from
+	// citizen-side issue/petition floods, which is what Create defends.
+	r.POST("/api/v1/organizations/:id/consultations", authMiddleware, limitStandard, orgProxy)
 	r.PATCH("/api/v1/consultations/:id", authMiddleware, limitStandard, orgProxy)
 	r.DELETE("/api/v1/consultations/:id", authMiddleware, limitStandard, orgProxy)
 	r.POST("/api/v1/consultations/:id/publish", authMiddleware, limitStandard, orgProxy)

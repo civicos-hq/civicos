@@ -89,6 +89,7 @@ and documented in the User + Developer Guides.
 - Question builder with 5 types: short text, long text, single choice, multi choice, yes/no
 - Verified-user response submission with one-per-user enforcement
 - Per-question analytics rollup (option counts + text samples)
+- Drag-to-reorder questions in the org-side builder
 - Outcome publishing — the "close the loop" primitive
 - Notification fan-out on publish reaches org members plus the target community's members (deduplicated); responders are also notified on close + outcome-published
 - **Citizen-facing UI**: browse open consultations, fill and submit responses
@@ -129,8 +130,6 @@ and documented in the User + Developer Guides.
 Features we intend to build in the next phase. Not in the codebase yet
 — treat as commitments, not promises.
 
-- **Drag-to-reorder for consultation questions** — currently reorder is
-  positional-integer edits only; a proper drag UI is on the near list.
 - **Cover image upload for consultations** — API supports a URL; the UI
   form doesn't collect it yet.
 - **Citizen browse for standalone assignments** — announcements and
