@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/civicos/organization-service/internal/audit"
+	"github.com/civicos/organization-service/internal/communities"
 	"github.com/civicos/organization-service/internal/notifications"
 	"github.com/civicos/organization-service/internal/organizations"
 	"github.com/civicos/organization-service/pkg/response"
@@ -23,14 +24,15 @@ type Notifier interface {
 }
 
 type Handler struct {
-	svc      *Service
-	orgs     *organizations.Service
-	auditor  *audit.Auditor
-	notifier Notifier
+	svc         *Service
+	orgs        *organizations.Service
+	auditor     *audit.Auditor
+	notifier    Notifier
+	communities communities.Reader
 }
 
-func NewHandler(svc *Service, orgs *organizations.Service, auditor *audit.Auditor, notifier Notifier) *Handler {
-	return &Handler{svc: svc, orgs: orgs, auditor: auditor, notifier: notifier}
+func NewHandler(svc *Service, orgs *organizations.Service, auditor *audit.Auditor, notifier Notifier, communities communities.Reader) *Handler {
+	return &Handler{svc: svc, orgs: orgs, auditor: auditor, notifier: notifier, communities: communities}
 }
 
 // RegisterRoutes mounts every consultation URL under the /v1 router.
@@ -237,31 +239,82 @@ func (h *Handler) publish(c *gin.Context) {
 		Request:    c.Request,
 	})
 
-	// Fan out a notification to org members (whole-org audience) or to
-	// the community (single-community audience). Community-scoped fan-out
-	// requires cross-service data (community memberships live in
-	// identity-service); MVP fans out to org members only. Broader
-	// fan-out lands in v1 alongside community-membership lookups.
+	// Fan out a notification to org members plus (if the consultation is
+	// community-scoped) every member of that community. The two sets
+	// overlap for org members who also joined the target community —
+	// buildPublishAudience deduplicates so each recipient gets one row.
 	if h.notifier != nil {
-		members, mErr := h.orgs.ListMembers(item.OrganizationID)
-		if mErr != nil {
-			log.Printf("notify consultation.published: list members: %v", mErr)
-		} else {
-			userIDs := make([]string, 0, len(members))
-			for _, m := range members {
-				userIDs = append(userIDs, m.UserID)
-			}
-			link := "/consultations/" + item.ID
-			h.notifier.EmitMany(userIDs,
-				notifications.TypeConsultationUpdate,
-				"New consultation: "+item.Title,
-				item.Summary,
-				&link,
-			)
-		}
+		userIDs := h.buildPublishAudience(item.OrganizationID, item.CommunityID)
+		link := "/consultations/" + item.ID
+		h.notifier.EmitMany(userIDs,
+			notifications.TypeConsultationUpdate,
+			"New consultation: "+item.Title,
+			item.Summary,
+			&link,
+		)
 	}
 
 	response.Success(c, http.StatusOK, gin.H{"consultation": item})
+}
+
+// buildPublishAudience is the fan-out set for a freshly published
+// consultation: every member of the owning org, plus every member of
+// the target community if one is set. Deduplicated so overlapping
+// membership doesn't produce duplicate notifications. Failures reading
+// either source are logged and swallowed — a partial fan-out is still
+// better than blocking the publish.
+func (h *Handler) buildPublishAudience(orgID string, communityID *string) []string {
+	orgIDs := make([]string, 0)
+	members, err := h.orgs.ListMembers(orgID)
+	if err != nil {
+		log.Printf("notify consultation.published: list members: %v", err)
+	} else {
+		for _, m := range members {
+			orgIDs = append(orgIDs, m.UserID)
+		}
+	}
+
+	communityIDs := make([]string, 0)
+	if communityID != nil && *communityID != "" && h.communities != nil {
+		ids, err := h.communities.FindMemberIDs(*communityID)
+		if err != nil {
+			log.Printf("notify consultation.published: community members for %s: %v", *communityID, err)
+		} else {
+			communityIDs = ids
+		}
+	}
+
+	return dedupeUserIDs(orgIDs, communityIDs)
+}
+
+// dedupeUserIDs returns the union of the two ID slices, preserving the
+// order of the org-member slice (org members appear first in the
+// notification queue). Empty inputs are safe. Pulled out as a pure
+// function so the merge logic is unit-testable without a live handler.
+func dedupeUserIDs(first, second []string) []string {
+	seen := make(map[string]struct{}, len(first)+len(second))
+	out := make([]string, 0, len(first)+len(second))
+	for _, id := range first {
+		if id == "" {
+			continue
+		}
+		if _, ok := seen[id]; ok {
+			continue
+		}
+		seen[id] = struct{}{}
+		out = append(out, id)
+	}
+	for _, id := range second {
+		if id == "" {
+			continue
+		}
+		if _, ok := seen[id]; ok {
+			continue
+		}
+		seen[id] = struct{}{}
+		out = append(out, id)
+	}
+	return out
 }
 
 func (h *Handler) close(c *gin.Context) {

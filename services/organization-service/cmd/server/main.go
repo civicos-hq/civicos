@@ -6,6 +6,7 @@ import (
 	"github.com/civicos/organization-service/internal/announcements"
 	"github.com/civicos/organization-service/internal/assignments"
 	"github.com/civicos/organization-service/internal/audit"
+	"github.com/civicos/organization-service/internal/communities"
 	"github.com/civicos/organization-service/internal/consultations"
 	"github.com/civicos/organization-service/internal/domain"
 	"github.com/civicos/organization-service/internal/middleware"
@@ -74,11 +75,17 @@ func main() {
 	progSvc := progress.NewService(progRepo, orgSvc)
 	progHandler := progress.NewHandler(progSvc, orgSvc)
 
+	// Community-membership reader — same shared-DB pattern as audit +
+	// notifications; identity-service owns the schema, we read from it.
+	communityReader := communities.NewReader(db)
+
 	// Consultations — structured feedback asks with a full lifecycle
 	// (DRAFT → PUBLISHED → CLOSED) plus the "close the loop" outcome.
+	// Fans notifications out to org members plus (when the consultation
+	// is community-scoped) to the community's members too.
 	consultRepo := consultations.NewRepository(db)
 	consultSvc := consultations.NewService(consultRepo)
-	consultHandler := consultations.NewHandler(consultSvc, orgSvc, auditor, notifier)
+	consultHandler := consultations.NewHandler(consultSvc, orgSvc, auditor, notifier, communityReader)
 
 	authMiddleware := middleware.JWTAuth(cfg, db)
 	requireVerified := middleware.RequireVerified()

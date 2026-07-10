@@ -58,13 +58,13 @@ Every transition writes to the audit log.
    consultation**.
 2. Fill in:
 
-| Field       | Notes                                                                           |
-| ----------- | ------------------------------------------------------------------------------- |
-| Title       | Short and specific. 5–200 characters                                            |
-| Summary     | One or two sentences shown on the list page. 10–500 characters                  |
-| Description | The full context. Markdown supported                                            |
-| Community   | Optional. If set, citizens see "aimed at Enugu East" — but any user can respond |
-| Closes at   | Optional. When responses stop. Server enforces this — no auto-close needed      |
+| Field       | Notes                                                                                                                                                       |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Title       | Short and specific. 5–200 characters                                                                                                                        |
+| Summary     | One or two sentences shown on the list page. 10–500 characters                                                                                              |
+| Description | The full context. Markdown supported                                                                                                                        |
+| Community   | Optional. If set, publish also notifies that community's members (deduplicated against your org's members) — any verified user can still respond regardless |
+| Closes at   | Optional. When responses stop. Server enforces this — no auto-close needed                                                                                  |
 
 _The API accepts a cover image URL and `opensAt` timestamp, but the current UI form doesn't expose those yet — they're on the roadmap._
 
@@ -102,7 +102,10 @@ Click **Publish** on a draft. The system:
 
 1. Requires at least one question. Refuses to publish an empty form.
 2. Sets `status = PUBLISHED` and stamps `publishedAt`.
-3. Sends a notification to every member of your organization.
+3. Sends a notification to every member of your organization — plus every
+   member of the target community if you set one. Overlapping recipients
+   (someone who's both in your org and the community) get a single
+   notification, not two.
 4. Writes `consultation.published` to the audit log.
 
 ## While the consultation is open

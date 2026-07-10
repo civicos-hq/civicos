@@ -88,7 +88,7 @@ and documented in the User + Developer Guides.
 - Verified-user response submission with one-per-user enforcement
 - Per-question analytics rollup (option counts + text samples)
 - Outcome publishing — the "close the loop" primitive
-- Notification fan-out to org members on publish and to responders on close + outcome-published
+- Notification fan-out on publish reaches org members plus the target community's members (deduplicated); responders are also notified on close + outcome-published
 - **Citizen-facing UI**: browse open consultations, fill and submit responses
 - **Org-owner UI**: create + question builder + publish/close + analytics + outcome publisher
 
