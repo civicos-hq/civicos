@@ -27,7 +27,7 @@ import {
   type ConsultationQuestionInput,
 } from '@civicos/types';
 import { PageHeader } from '../components/PageHeader';
-import { getApiError } from '../lib/api';
+import { getApiError, uploadUrl } from '../lib/api';
 import {
   useAddConsultationQuestion,
   useCloseConsultation,
@@ -186,6 +186,14 @@ export function OrgConsultationDetailPage() {
         <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
           {globalError}
         </p>
+      )}
+
+      {c.coverImageUrl && (
+        <img
+          src={uploadUrl(c.coverImageUrl)}
+          alt=""
+          className="h-48 w-full rounded-2xl border border-slate-200 object-cover shadow-sm sm:h-64"
+        />
       )}
 
       <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">

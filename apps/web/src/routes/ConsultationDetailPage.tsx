@@ -10,7 +10,7 @@ import {
 } from '@civicos/types';
 import { PageHeader } from '../components/PageHeader';
 import { UnverifiedBanner } from '../components/UnverifiedBanner';
-import { getApiError } from '../lib/api';
+import { getApiError, uploadUrl } from '../lib/api';
 import { useMe } from '../hooks/useMe';
 import {
   useConsultation,
@@ -147,6 +147,14 @@ export function ConsultationDetailPage() {
         subtitle={consultation.summary}
         titleAs="h2"
       />
+
+      {consultation.coverImageUrl && (
+        <img
+          src={uploadUrl(consultation.coverImageUrl)}
+          alt=""
+          className="h-48 w-full rounded-2xl border border-slate-200 object-cover shadow-sm sm:h-64"
+        />
+      )}
 
       {consultation.description && (
         <article className="prose prose-slate max-w-none rounded-2xl border border-slate-200 bg-white p-6 text-sm shadow-sm">

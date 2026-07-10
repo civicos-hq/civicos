@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ConsultationStatus, type Consultation } from '@civicos/types';
 import { PageHeader, useTodayMeta } from '../components/PageHeader';
 import { EmptyState } from '../components/EmptyState';
+import { uploadUrl } from '../lib/api';
 import { useConsultations, useMyConsultationResponses } from '../hooks/useConsultations';
 import { MessageSquare } from 'lucide-react';
 
@@ -106,47 +107,57 @@ export function ConsultationsPage() {
             <li key={c.id}>
               <Link
                 to={`/consultations/${c.id}`}
-                className="block rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-civic-300 hover:shadow-md"
+                className="block overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-civic-300 hover:shadow-md"
               >
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <div className="min-w-0 flex-1">
-                    <h2 className="font-fraunces text-lg font-semibold text-slate-900">
-                      {c.title}
-                    </h2>
-                    <p className="mt-1 text-sm text-slate-600">{c.summary}</p>
+                {c.coverImageUrl && (
+                  <img
+                    src={uploadUrl(c.coverImageUrl)}
+                    alt=""
+                    className="h-32 w-full object-cover"
+                    loading="lazy"
+                  />
+                )}
+                <div className="p-5">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <h2 className="font-fraunces text-lg font-semibold text-slate-900">
+                        {c.title}
+                      </h2>
+                      <p className="mt-1 text-sm text-slate-600">{c.summary}</p>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                      <span
+                        className={
+                          'rounded-full px-2 py-0.5 text-xs font-semibold uppercase tracking-wide ' +
+                          STATUS_TONE[c.status]
+                        }
+                      >
+                        {t(`consultationsPage.status.${c.status}`)}
+                      </span>
+                      {responded && (
+                        <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-emerald-700">
+                          {t('consultationsPage.youResponded')}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex flex-col items-end gap-1">
-                    <span
-                      className={
-                        'rounded-full px-2 py-0.5 text-xs font-semibold uppercase tracking-wide ' +
-                        STATUS_TONE[c.status]
-                      }
-                    >
-                      {t(`consultationsPage.status.${c.status}`)}
+
+                  <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+                    <span>
+                      {t('consultationsPage.by')}{' '}
+                      <span className="font-semibold text-slate-700">{c.authorName}</span>
                     </span>
-                    {responded && (
-                      <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-emerald-700">
-                        {t('consultationsPage.youResponded')}
+                    <span>
+                      {c.responseCount} {t('consultationsPage.responses')}
+                    </span>
+                    {c.closesAt && (
+                      <span>
+                        {c.status === ConsultationStatus.CLOSED
+                          ? t('consultationsPage.closedOn', { date: formatDate(c.closedAt) })
+                          : t('consultationsPage.closesOn', { date: formatDate(c.closesAt) })}
                       </span>
                     )}
                   </div>
-                </div>
-
-                <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
-                  <span>
-                    {t('consultationsPage.by')}{' '}
-                    <span className="font-semibold text-slate-700">{c.authorName}</span>
-                  </span>
-                  <span>
-                    {c.responseCount} {t('consultationsPage.responses')}
-                  </span>
-                  {c.closesAt && (
-                    <span>
-                      {c.status === ConsultationStatus.CLOSED
-                        ? t('consultationsPage.closedOn', { date: formatDate(c.closedAt) })
-                        : t('consultationsPage.closesOn', { date: formatDate(c.closesAt) })}
-                    </span>
-                  )}
                 </div>
               </Link>
             </li>
