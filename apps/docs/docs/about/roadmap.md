@@ -78,7 +78,9 @@ and documented in the User + Developer Guides.
 
 ### Discover + search
 
-- Global search across issues, petitions, representatives
+- Global search across seven kinds — issues, petitions, representatives,
+  organizations, consultations, announcements, projects (draft
+  consultations and non-published announcements are hidden)
 - Discover feed tiered by geographic proximity
   (COMMUNITY → LGA → STATE → COUNTRY), covering issues, petitions,
   announcements, projects, and consultations — announcements and

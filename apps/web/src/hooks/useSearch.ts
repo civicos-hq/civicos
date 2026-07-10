@@ -1,15 +1,36 @@
 import { useEffect, useState } from 'react';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
-import type { ApiResponse, Issue, Petition, Representative } from '@civicos/types';
+import type {
+  Announcement,
+  ApiResponse,
+  Consultation,
+  Issue,
+  Organization,
+  Petition,
+  Project,
+  Representative,
+} from '@civicos/types';
 import { api } from '../lib/api';
 
 export interface SearchResult {
   issues: Issue[];
   petitions: Petition[];
   representatives: Representative[];
+  organizations: Organization[];
+  consultations: Consultation[];
+  announcements: Announcement[];
+  projects: Project[];
 }
 
-const empty: SearchResult = { issues: [], petitions: [], representatives: [] };
+const empty: SearchResult = {
+  issues: [],
+  petitions: [],
+  representatives: [],
+  organizations: [],
+  consultations: [],
+  announcements: [],
+  projects: [],
+};
 
 // useDebouncedValue returns `value` after `delay` ms of stillness. Avoids
 // hammering the API on every keystroke while the user is still typing.

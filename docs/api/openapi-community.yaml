@@ -875,8 +875,18 @@ paths:
     get:
       tags: [Search]
       security: []
-      summary: Global search — issues, petitions, representatives
-      description: Queries under 2 characters return empty buckets rather than 400.
+      summary: Global search — 7 buckets across the platform
+      description: |
+        Case-insensitive ILIKE across every citizen-facing entity kind.
+        Queries under 2 characters return empty buckets rather than 400.
+
+        Visibility rules match the citizen browse pages:
+
+        - **consultations**: DRAFT is hidden (author-only visibility).
+        - **announcements**: only PUBLISHED (DRAFT + ARCHIVED are not
+          citizen-facing).
+        - **projects**: all statuses (mirrors the citizen browse).
+        - **organizations**: no status field; the registry is fully public.
       parameters:
         - in: query
           name: q
@@ -884,7 +894,7 @@ paths:
           schema: { type: string, minLength: 2 }
       responses:
         '200':
-          description: Three buckets, capped at 8 items each.
+          description: Seven buckets, capped at 8 items each.
           content:
             application/json:
               examples:
@@ -895,6 +905,10 @@ paths:
                       issues: []
                       petitions: []
                       representatives: []
+                      organizations: []
+                      consultations: []
+                      announcements: []
+                      projects: []
 
   # ──────────────────────── DISCOVER ────────────────────────
   /discover/feed:
