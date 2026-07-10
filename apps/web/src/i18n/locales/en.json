@@ -239,14 +239,18 @@
     "removed": "This comment was removed by a moderator."
   },
   "search": {
-    "placeholder": "Search issues, petitions, representatives…",
+    "placeholder": "Search issues, orgs, consultations, and more…",
     "typeToSearch": "Type at least 2 characters to search",
     "loading": "Searching…",
     "empty": "No results for \"{{query}}\".",
     "groups": {
       "issues": "Issues",
       "petitions": "Petitions",
-      "representatives": "Representatives"
+      "representatives": "Representatives",
+      "organizations": "Organizations",
+      "consultations": "Consultations",
+      "announcements": "Announcements",
+      "projects": "Projects"
     }
   },
   "discoverPage": {

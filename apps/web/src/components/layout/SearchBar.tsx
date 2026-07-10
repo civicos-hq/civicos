@@ -2,7 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Search, Loader2 } from 'lucide-react';
-import type { Petition, Representative } from '@civicos/types';
+import type {
+  Announcement,
+  Consultation,
+  Organization,
+  Petition,
+  Project,
+  Representative,
+} from '@civicos/types';
 import { useSearch } from '../../hooks/useSearch';
 import { useEnumLabels } from '../../hooks/useEnumLabels';
 
@@ -32,7 +39,14 @@ export function SearchBar() {
     navigate(path);
   }
 
-  const total = data.issues.length + data.petitions.length + data.representatives.length;
+  const total =
+    data.issues.length +
+    data.petitions.length +
+    data.representatives.length +
+    data.organizations.length +
+    data.consultations.length +
+    data.announcements.length +
+    data.projects.length;
   const showDropdown = open && enabled;
   const showEmpty = showDropdown && !isFetching && total === 0 && debouncedQuery.length >= 2;
 
@@ -108,6 +122,58 @@ export function SearchBar() {
                   primary={r.name}
                   secondary={`${r.position} · ${r.constituency}`}
                   onClick={() => go(`/representatives/${r.id}`)}
+                />
+              ))}
+            </Section>
+          )}
+
+          {data.organizations.length > 0 && (
+            <Section title={t('search.groups.organizations')}>
+              {data.organizations.map((o: Organization) => (
+                <ResultRow
+                  key={o.id}
+                  primary={o.name}
+                  secondary={`${t(`organizationsPage.kinds.${o.kind}`)} · ${t(`organizationsPage.jurisdictions.${o.jurisdiction}`)}`}
+                  onClick={() => go(`/organizations/${o.id}`)}
+                />
+              ))}
+            </Section>
+          )}
+
+          {data.consultations.length > 0 && (
+            <Section title={t('search.groups.consultations')}>
+              {data.consultations.map((c: Consultation) => (
+                <ResultRow
+                  key={c.id}
+                  primary={c.title}
+                  secondary={`${t(`consultationsPage.status.${c.status}`)} · ${c.responseCount} ${t('consultationsPage.responses')}`}
+                  onClick={() => go(`/consultations/${c.id}`)}
+                />
+              ))}
+            </Section>
+          )}
+
+          {data.announcements.length > 0 && (
+            <Section title={t('search.groups.announcements')}>
+              {data.announcements.map((a: Announcement) => (
+                <ResultRow
+                  key={a.id}
+                  primary={a.title}
+                  secondary={a.authorName}
+                  onClick={() => go(`/announcements/${a.id}`)}
+                />
+              ))}
+            </Section>
+          )}
+
+          {data.projects.length > 0 && (
+            <Section title={t('search.groups.projects')}>
+              {data.projects.map((p: Project) => (
+                <ResultRow
+                  key={p.id}
+                  primary={p.title}
+                  secondary={t(`orgDashboard.projectStatus.${p.status}`)}
+                  onClick={() => go(`/projects/${p.id}`)}
                 />
               ))}
             </Section>
