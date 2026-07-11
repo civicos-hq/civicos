@@ -515,6 +515,7 @@
     "saveChanges": "Save changes",
     "errors": {
       "emailInUse": "That email is already registered to another account.",
+      "disposableEmail": "Please use a personal or work email — temporary email services aren't accepted.",
       "validation": "Please double-check the values you entered.",
       "generic": "Could not save changes. Please try again."
     },
@@ -939,6 +940,7 @@
       "submit": "Create account",
       "submitting": "Creating account…",
       "error": "Could not create your account. Try a different email or try again shortly.",
+      "disposableEmail": "Please use a personal or work email — temporary email services (like 10-minute mail) aren't accepted.",
       "emailInUse": "This email is already registered.",
       "emailInUseSignIn": "Sign in instead",
       "emailInUseForgot": "or reset your password",

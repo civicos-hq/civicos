@@ -48,6 +48,9 @@ func (h *Handler) register(c *gin.Context) {
 		case "EMAIL_ALREADY_IN_USE":
 			response.Error(c, http.StatusConflict, "EMAIL_ALREADY_IN_USE", "This email is already registered")
 			return
+		case "DISPOSABLE_EMAIL_DOMAIN":
+			response.Error(c, http.StatusBadRequest, "DISPOSABLE_EMAIL_DOMAIN", "Please use a personal or work email — temporary email services are not accepted")
+			return
 		case "INVALID_REQUESTED_ACCOUNT_TYPE":
 			response.Error(c, http.StatusBadRequest, "INVALID_REQUESTED_ACCOUNT_TYPE", "Choose citizen, representative, or organization")
 			return
@@ -157,8 +160,12 @@ func (h *Handler) updateMe(c *gin.Context) {
 	userID, _ := c.Get("userID")
 	user, err := h.service.UpdateProfile(userID.(string), input)
 	if err != nil {
-		if err.Error() == "EMAIL_ALREADY_IN_USE" {
+		switch err.Error() {
+		case "EMAIL_ALREADY_IN_USE":
 			response.Error(c, http.StatusConflict, "EMAIL_ALREADY_IN_USE", "This email is already registered")
+			return
+		case "DISPOSABLE_EMAIL_DOMAIN":
+			response.Error(c, http.StatusBadRequest, "DISPOSABLE_EMAIL_DOMAIN", "Please use a personal or work email — temporary email services are not accepted")
 			return
 		}
 		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to update profile")

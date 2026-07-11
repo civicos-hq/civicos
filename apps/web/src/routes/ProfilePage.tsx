@@ -325,6 +325,10 @@ function AccountSection({ user, language }: { user: User; language: string }) {
           setError(t('profilePage.errors.emailInUse'));
           return;
         }
+        if (code === 'DISPOSABLE_EMAIL_DOMAIN') {
+          setError(t('profilePage.errors.disposableEmail'));
+          return;
+        }
         if (code === 'VALIDATION_ERROR') {
           setError(t('profilePage.errors.validation'));
           return;

@@ -28,6 +28,10 @@ and documented in the User + Developer Guides.
 - Full self-service account deletion (soft delete + PII anonymization)
 - Representative and organization applications with admin review — the
   only path to a rep or org record; no admin-side direct create
+- Sybil resistance — Phase 1: disposable / temporary email domains
+  rejected at registration and on email change (250-domain embedded
+  blocklist). Phases 2 (SMS OTP as a gate on write actions) and 3
+  (optional NIN verification) are deferred.
 
 ### Communities
 

@@ -147,6 +147,8 @@ export function RegisterPage() {
       const code = (err as { response?: { data?: { code?: string } } })?.response?.data?.code;
       if (code === 'EMAIL_ALREADY_IN_USE') {
         setError({ kind: 'emailInUse' });
+      } else if (code === 'DISPOSABLE_EMAIL_DOMAIN') {
+        setError({ kind: 'other', message: t('auth.register.disposableEmail') });
       } else {
         setError({ kind: 'other', message: t('auth.register.error') });
       }
