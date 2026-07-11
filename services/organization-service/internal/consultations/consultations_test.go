@@ -220,6 +220,55 @@ func TestConsultationLifecycle(t *testing.T) {
 	}
 }
 
+// TestAddQuestion_OptionsAlwaysEmptySlice locks in the API contract that
+// caused the citizen-side render crash reported earlier: a question type
+// that doesn't take options (SHORT_TEXT, LONG_TEXT, YES_NO) must have
+// Options == []string{} on read, never nil. If this ever regresses the
+// downstream JSON serializes as `null`, and any client doing
+// `q.options.length` crashes on mount.
+func TestAddQuestion_OptionsAlwaysEmptySlice(t *testing.T) {
+	svc := NewService(newFakeStore())
+	authorID, authorName := uuid.NewString(), "Ada"
+
+	c, err := svc.Create(uuid.NewString(), CreateInput{
+		Title:       "Options contract",
+		Summary:     "Verifying that empty options come back as [] not nil.",
+		Description: "This test documents the write-path invariant.",
+	}, authorID, authorName)
+	if err != nil {
+		t.Fatalf("create: %v", err)
+	}
+
+	// Every non-choice type must round-trip with Options == []string{}.
+	cases := []struct {
+		name string
+		typ  domain.QuestionType
+	}{
+		{"short_text", domain.QuestionShortText},
+		{"long_text", domain.QuestionLongText},
+		{"yes_no", domain.QuestionYesNo},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			q, err := svc.AddQuestion(c.ID, QuestionInput{
+				Prompt: "Any prompt",
+				Type:   tc.typ,
+				// deliberately nil — the caller may or may not pass an
+				// empty slice; either way the stored value must be [].
+			})
+			if err != nil {
+				t.Fatalf("add: %v", err)
+			}
+			if q.Options == nil {
+				t.Fatalf("Options was nil after AddQuestion — should be []string{}")
+			}
+			if len(q.Options) != 0 {
+				t.Fatalf("expected empty options, got %v", q.Options)
+			}
+		})
+	}
+}
+
 // ── fake store ───────────────────────────────────────────────────
 
 type fakeStore struct {

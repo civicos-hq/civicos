@@ -60,11 +60,7 @@ export function useConsultationQuestions(id: string | undefined) {
       const res = await api.get<ApiResponse<{ questions: ConsultationQuestion[] }>>(
         `/api/v1/consultations/${id}/questions`,
       );
-      // Server returns `options: null` for question types that don't
-      // accept options (SHORT_TEXT, LONG_TEXT, YES_NO) because a jsonb
-      // column stores an empty slice as SQL NULL. Callers assume an
-      // array, so normalize at the read boundary.
-      return res.data.data.questions.map((q) => ({ ...q, options: q.options ?? [] }));
+      return res.data.data.questions;
     },
   });
 }

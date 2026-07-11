@@ -186,10 +186,16 @@ type ConsultationQuestion struct {
 	Prompt         string       `gorm:"not null" json:"prompt"`
 	HelpText       *string      `json:"helpText,omitempty"`
 	Type           QuestionType `gorm:"type:varchar(20);not null" json:"type"`
-	Options        []string     `gorm:"type:jsonb;serializer:json" json:"options"`
-	Required       bool         `gorm:"default:false" json:"required"`
-	CreatedAt      time.Time    `json:"createdAt"`
-	UpdatedAt      time.Time    `json:"updatedAt"`
+	// Options is `[]` for question types that don't use them (SHORT_TEXT,
+	// LONG_TEXT, YES_NO) and the choice list for SINGLE_CHOICE +
+	// MULTI_CHOICE. The service's normalizeOptions() always writes an
+	// empty slice — never nil — so the column carries JSON `[]`, never
+	// SQL NULL. The `not null default '[]'` schema tag reinforces that
+	// contract at the DB layer for any fresh AutoMigrate.
+	Options   []string  `gorm:"type:jsonb;serializer:json;not null;default:'[]'" json:"options"`
+	Required  bool      `gorm:"default:false" json:"required"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 // ConsultationResponse is a citizen's submitted response set. Compound
