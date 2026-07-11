@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/civicos/identity-service/internal/domain"
+	"github.com/civicos/identity-service/internal/emailguard"
 	"github.com/civicos/identity-service/pkg/config"
 	"github.com/civicos/identity-service/pkg/mailer"
 	"github.com/golang-jwt/jwt/v5"
@@ -62,10 +63,20 @@ type Service struct {
 	refresh RefreshStore
 	cfg     *config.Config
 	mailer  mailer.Mailer
+	// guard rejects disposable / temporary-email domains at registration
+	// and email change. Loaded from the embedded blocklist once — see
+	// the emailguard package.
+	guard *emailguard.Guard
 }
 
 func NewService(repo UserStore, refresh RefreshStore, cfg *config.Config, m mailer.Mailer) *Service {
-	return &Service{repo: repo, refresh: refresh, cfg: cfg, mailer: m}
+	return &Service{
+		repo:    repo,
+		refresh: refresh,
+		cfg:     cfg,
+		mailer:  m,
+		guard:   emailguard.NewGuard(),
+	}
 }
 
 type RegisterInput struct {
@@ -128,6 +139,13 @@ type AuthClaims struct {
 }
 
 func (s *Service) Register(input RegisterInput) (*domain.PublicUser, *TokenPair, error) {
+	// Reject disposable email domains before we do any work — cheap
+	// map lookup, and rejecting early means we never spend a bcrypt
+	// or a mail-sending cycle on abuse.
+	if s.guard != nil && s.guard.IsDisposable(input.Email) {
+		return nil, nil, errors.New("DISPOSABLE_EMAIL_DOMAIN")
+	}
+
 	// Check for existing account
 	_, err := s.repo.FindByEmail(input.Email)
 	if err == nil {
@@ -626,6 +644,11 @@ func (s *Service) UpdateProfile(userID string, input UpdateProfileInput) (*domai
 	}
 
 	if input.Email != nil {
+		// Same reasoning as Register — reject disposable domains here so
+		// a user can't sign up with gmail and then swap to a burner.
+		if s.guard != nil && s.guard.IsDisposable(*input.Email) {
+			return nil, errors.New("DISPOSABLE_EMAIL_DOMAIN")
+		}
 		existing, err := s.repo.FindByEmail(*input.Email)
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, err

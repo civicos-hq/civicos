@@ -326,6 +326,64 @@ func TestRegisterAndLoginFlow(t *testing.T) {
 	}
 }
 
+// The disposable-email guard sits in front of Register and UpdateProfile
+// as the MVP sybil-resistance layer. This test locks in that a
+// well-known temp-mail domain (mailinator) is rejected with the
+// documented error code, while a legit domain passes through.
+func TestRegisterRejectsDisposableEmail(t *testing.T) {
+	cfg := &config.Config{JWTSecret: "12345678901234567890123456789012", AppURL: "http://localhost:5173"}
+	repo := newInMemoryUserStore()
+	svc := NewService(repo, newInMemoryRefreshStore(), cfg, &captureMailer{})
+
+	_, _, err := svc.Register(RegisterInput{
+		Name:     "Sock Puppet",
+		Email:    "throwaway@mailinator.com",
+		Password: "password123",
+	})
+	if err == nil {
+		t.Fatalf("expected disposable email to be rejected; got nil")
+	}
+	if err.Error() != "DISPOSABLE_EMAIL_DOMAIN" {
+		t.Fatalf("expected DISPOSABLE_EMAIL_DOMAIN, got %q", err.Error())
+	}
+
+	// Sanity: legit domain still registers.
+	if _, _, err := svc.Register(RegisterInput{
+		Name:     "Real Person",
+		Email:    "real@example.com",
+		Password: "password123",
+	}); err != nil {
+		t.Fatalf("expected legit domain to pass through; got %v", err)
+	}
+}
+
+// The check must also apply on email change — otherwise a citizen could
+// sign up with gmail and then swap to a burner. Covers the parallel
+// error path in UpdateProfile.
+func TestUpdateProfileRejectsDisposableEmail(t *testing.T) {
+	cfg := &config.Config{JWTSecret: "12345678901234567890123456789012", AppURL: "http://localhost:5173"}
+	repo := newInMemoryUserStore()
+	svc := NewService(repo, newInMemoryRefreshStore(), cfg, &captureMailer{})
+
+	user, _, err := svc.Register(RegisterInput{
+		Name:     "Ada",
+		Email:    "ada@example.com",
+		Password: "password123",
+	})
+	if err != nil {
+		t.Fatalf("bootstrap register: %v", err)
+	}
+
+	burner := "burner@yopmail.com"
+	_, err = svc.UpdateProfile(user.ID, UpdateProfileInput{Email: &burner})
+	if err == nil {
+		t.Fatalf("expected disposable email swap to be rejected; got nil")
+	}
+	if err.Error() != "DISPOSABLE_EMAIL_DOMAIN" {
+		t.Fatalf("expected DISPOSABLE_EMAIL_DOMAIN, got %q", err.Error())
+	}
+}
+
 func TestRepresentativeRegistrationCreatesPendingApplication(t *testing.T) {
 	cfg := &config.Config{JWTSecret: "12345678901234567890123456789012", AppURL: "http://localhost:5173"}
 	repo := newInMemoryUserStore()
