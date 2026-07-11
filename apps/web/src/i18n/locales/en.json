@@ -580,7 +580,9 @@
       "docket": "Docket",
       "whatItDoes": "What it does",
       "howItWorks": "How it works",
-      "faq": "FAQ"
+      "faq": "FAQ",
+      "docs": "Docs",
+      "github": "GitHub"
     },
     "signIn": "Sign in",
     "register": "Register"

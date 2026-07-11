@@ -12,7 +12,7 @@ declaratively in `render.yaml` at the repo root — one Blueprint apply
 brings it all up.
 
 The full playbook lives in
-[`docs/deploy.md`](https://github.com/civicos/civicos/blob/main/docs/deploy.md).
+[`docs/deploy.md`](https://github.com/civicos-hq/civicos/blob/main/docs/deploy.md).
 This page is the tour, not the replacement.
 
 ## What Render provisions
