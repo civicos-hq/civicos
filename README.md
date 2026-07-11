@@ -317,4 +317,4 @@ MVP complete. Currently in local-development phase — deployment and CI are the
 
 ## License
 
-TBD — check with the maintainers before redistributing.
+MIT — see [`LICENSE`](./LICENSE). Free to use, modify, distribute, and sublicense; attribution required, no warranty.
