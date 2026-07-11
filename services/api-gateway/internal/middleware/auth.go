@@ -59,6 +59,13 @@ func JWTAuth(cfg *config.Config) gin.HandlerFunc {
 		c.Request.Header.Set("X-User-ID", claims.UserID)
 		c.Request.Header.Set("X-User-Email", claims.Email)
 		c.Request.Header.Set("X-User-Role", claims.Role)
+		// Also expose identity on the gin context so any middleware
+		// chained after JWTAuth on this same gateway route can read it
+		// without re-parsing the JWT. The rate-limit middleware relies
+		// on this: without it, `Limit` fell back to per-IP keying,
+		// which was silently the case in production until this fix.
+		c.Set("userID", claims.UserID)
+		c.Set("userRole", claims.Role)
 		c.Next()
 	}
 }

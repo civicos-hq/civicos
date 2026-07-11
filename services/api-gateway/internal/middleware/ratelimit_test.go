@@ -10,8 +10,10 @@ import (
 	"time"
 
 	"github.com/alicebob/miniredis/v2"
+	"github.com/civicos/api-gateway/pkg/config"
 	"github.com/civicos/api-gateway/pkg/ratelimit"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -122,5 +124,69 @@ func TestLimitIsolatesUsers(t *testing.T) {
 	// B on the same IP still gets their fresh budget.
 	if code := call("B"); code != http.StatusOK {
 		t.Fatalf("B first call (should share nothing with A): got %d", code)
+	}
+}
+
+// TestJWTAuthPopulatesRateLimitContext locks in the fix for a subtle
+// prod bug: JWTAuth used to forward identity as request headers only,
+// never calling c.Set("userID", ...). Rate-limit keying then fell
+// through to per-IP, silently — the existing per-user isolation test
+// passed only because it faked what JWTAuth was supposed to do.
+//
+// This test exercises the *real* JWTAuth → Limit chain: two valid JWTs
+// from the same IP must have independent budgets. If someone removes
+// the c.Set calls in JWTAuth again, this fails.
+func TestJWTAuthPopulatesRateLimitContext(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	mr := miniredis.RunT(t)
+	rdb := redis.NewClient(&redis.Options{Addr: mr.Addr()})
+	lim := ratelimit.New(rdb)
+	profile := Profile{Name: "jwtiso", Limit: 1, Window: time.Minute}
+
+	cfg := &config.Config{JWTSecret: "test-secret-minimum-thirty-two-chars-long-x"}
+
+	r := gin.New()
+	r.POST("/x", JWTAuth(cfg), Limit(lim, profile), func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"ok": true})
+	})
+
+	mint := func(userID string) string {
+		claims := &Claims{
+			UserID: userID,
+			Email:  userID + "@example.com",
+			Role:   "CITIZEN",
+			RegisteredClaims: jwt.RegisteredClaims{
+				ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
+			},
+		}
+		tok := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		signed, err := tok.SignedString([]byte(cfg.JWTSecret))
+		if err != nil {
+			t.Fatalf("mint token: %v", err)
+		}
+		return signed
+	}
+
+	call := func(userID string) int {
+		w := httptest.NewRecorder()
+		req := httptest.NewRequest("POST", "/x", nil)
+		req.RemoteAddr = "9.9.9.9:1234" // same IP for both users
+		req.Header.Set("Authorization", "Bearer "+mint(userID))
+		r.ServeHTTP(w, req)
+		return w.Code
+	}
+
+	if code := call("user-A"); code != http.StatusOK {
+		t.Fatalf("user-A first call: got %d", code)
+	}
+	if code := call("user-A"); code != http.StatusTooManyRequests {
+		t.Fatalf("user-A over-limit: expected 429, got %d", code)
+	}
+	// Same IP, different user — must have its own budget. Before the
+	// c.Set fix in JWTAuth, this returned 429 because both users
+	// keyed as "jwtiso:ip:9.9.9.9".
+	if code := call("user-B"); code != http.StatusOK {
+		t.Fatalf("user-B first call: got %d (bug regressed — Limit is IP-keying authed calls)", code)
 	}
 }
