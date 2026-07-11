@@ -28,7 +28,7 @@ const config: Config = {
         docs: {
           sidebarPath: './sidebars.ts',
           routeBasePath: '/',
-          editUrl: 'https://github.com/civicos/civicos/tree/main/apps/docs/',
+          editUrl: 'https://github.com/civicos-hq/civicos/tree/main/apps/docs/',
         },
         blog: false,
         theme: {
@@ -82,7 +82,7 @@ const config: Config = {
           position: 'right',
         },
         {
-          href: 'https://github.com/civicos/civicos',
+          href: 'https://github.com/civicos-hq/civicos',
           label: 'GitHub',
           position: 'right',
         },
@@ -111,7 +111,7 @@ const config: Config = {
           title: 'Developers',
           items: [
             { label: 'API Reference (Swagger)', href: 'http://localhost:3000/docs' },
-            { label: 'GitHub', href: 'https://github.com/civicos/civicos' },
+            { label: 'GitHub', href: 'https://github.com/civicos-hq/civicos' },
           ],
         },
       ],

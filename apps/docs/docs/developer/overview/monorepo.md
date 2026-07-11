@@ -103,7 +103,7 @@ pnpm add --filter @civicos/web @civicos/new-pkg
 1. `mkdir services/new-service` and copy the layout from an existing
    service (`cmd/server/`, `internal/`, `pkg/`, `.air.toml`,
    `Dockerfile`).
-2. `cd services/new-service && go mod init github.com/civicos/new-service`.
+2. `cd services/new-service && go mod init github.com/civicos-hq/new-service`.
 3. Wire it into `render.yaml` and the gateway (`services/api-gateway/cmd/server/main.go`
    plus its `pkg/config`) so requests can route to it.
 4. Add it to the running-services table in the root README.

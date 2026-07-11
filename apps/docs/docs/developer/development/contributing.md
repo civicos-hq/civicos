@@ -56,7 +56,7 @@ commits, squash on merge.
 10. **`PasswordHash` never serialised.** Use `json:"-"` on any
     sensitive field.
 
-Details in [`CLAUDE.md`](https://github.com/civicos/civicos/blob/main/CLAUDE.md)
+Details in [`CLAUDE.md`](https://github.com/civicos-hq/civicos/blob/main/CLAUDE.md)
 at the repo root.
 
 ## Adding a Go endpoint

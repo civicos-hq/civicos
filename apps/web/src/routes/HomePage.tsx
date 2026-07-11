@@ -257,6 +257,16 @@ export function TopNav() {
         <Link to="/#articles">{t('nav.links.whatItDoes')}</Link>
         <Link to="/#how">{t('nav.links.howItWorks')}</Link>
         <Link to="/#faq">{t('nav.links.faq')}</Link>
+        {/* External resources — new tab so citizens don't lose their
+            place on the landing page. rel="noopener" is standard for
+            target="_blank" links; noreferrer keeps the destination
+            from seeing where the click came from. */}
+        <a href="https://docs.civicos.ng" target="_blank" rel="noopener noreferrer">
+          {t('nav.links.docs')}
+        </a>
+        <a href="https://github.com/civicos-hq/civicos" target="_blank" rel="noopener noreferrer">
+          {t('nav.links.github')}
+        </a>
       </nav>
 
       <div className="home-nav-cta">
