@@ -1589,6 +1589,12 @@
     "pcm": "Pidgin",
     "ha": "Hausa"
   },
+  "theme": {
+    "label": "Theme — currently {{current}}",
+    "system": "System",
+    "light": "Light",
+    "dark": "Dark"
+  },
   "manifesto": {
     "marker": "§ 00 — Manifesto",
     "headline": "An operating system for <em>civic participation</em>.",
