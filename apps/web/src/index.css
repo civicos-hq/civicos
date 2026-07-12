@@ -771,10 +771,11 @@ button {
    pages keep their existing theme.
 */
 
-.home-shell {
-  /* Dark graph-paper palette — inspired by Render's startups page.
-     Near-black background with a subtle white grid overlay, geometric sans
-     throughout (Space Grotesk stands in for their PP Neue Montreal). */
+/* Dark palette — the original Render-startups-inspired aesthetic.
+   Near-black background, white text, cyan/blue accents. Applied when
+   <html data-theme="dark"> — the pre-paint script in index.html
+   ensures the attribute is set before first paint. */
+[data-theme='dark'] .home-shell {
   --pr-bg: #0d0d0d;
   --pr-panel: #141414;
   --pr-card: #191919;
@@ -793,8 +794,6 @@ button {
   --pr-border-cy: rgba(56, 189, 248, 0.3);
   --pr-border-bl: rgba(59, 130, 246, 0.4);
 
-  /* Legacy aliases so the rest of the home stylesheet keeps working
-     without a full rename pass. */
   --pr-ink: var(--pr-text);
   --pr-ink-soft: var(--pr-muted);
   --pr-ink-mute: var(--pr-faint);
@@ -807,21 +806,77 @@ button {
   --pr-stamp: var(--pr-cyan);
   --pr-seal: var(--pr-mint);
 
+  /* Sticky nav backdrop — dark translucent so content behind it fades
+     out. The scrolled variant is a touch more opaque + a shadow. */
+  --pr-nav-bg: rgba(13, 13, 13, 0.78);
+  --pr-nav-bg-scrolled: rgba(13, 13, 13, 0.9);
+  --pr-nav-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  --pr-nav-border-scrolled: rgba(255, 255, 255, 0.12);
+}
+
+/* Light palette — warm-paper counterpart. Reinforces the "public
+   record / newspaper" metaphor the copy leans into ("§ 00 —
+   Manifesto"). Cream background, warm dark ink, same blue accent but
+   deeper cyan/mint variants that hold contrast on light surfaces. */
+[data-theme='light'] .home-shell {
+  --pr-bg: #f7f4ef;
+  --pr-panel: #ede8de;
+  --pr-card: #ffffff;
+  --pr-card-up: #f2ede2;
+
+  --pr-text: #1a1a1a;
+  --pr-muted: #4a4a4a;
+  --pr-faint: #8a8a8a;
+
+  --pr-primary: #3b82f6;
+  --pr-cyan: #0284c7;
+  --pr-mint: #0369a1;
+  --pr-lavender: #2d3436;
+
+  --pr-border: rgba(0, 0, 0, 0.09);
+  --pr-border-cy: rgba(2, 132, 199, 0.35);
+  --pr-border-bl: rgba(59, 130, 246, 0.4);
+
+  --pr-ink: var(--pr-text);
+  --pr-ink-soft: var(--pr-muted);
+  --pr-ink-mute: var(--pr-faint);
+  --pr-paper: var(--pr-card);
+  --pr-paper-soft: rgba(255, 255, 255, 0.65);
+  --pr-paper-deep: rgba(242, 237, 226, 0.75);
+  --pr-rule: var(--pr-border);
+  --pr-rule-soft: var(--pr-border);
+  --pr-rule-hair: rgba(0, 0, 0, 0.06);
+  --pr-stamp: var(--pr-cyan);
+  --pr-seal: var(--pr-mint);
+
+  /* Light-mode nav backdrop — cream translucent, subtle shadow. */
+  --pr-nav-bg: rgba(247, 244, 239, 0.85);
+  --pr-nav-bg-scrolled: rgba(247, 244, 239, 0.95);
+  --pr-nav-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+  --pr-nav-border-scrolled: rgba(0, 0, 0, 0.1);
+}
+
+.home-shell {
+  /* Fonts + layout tokens don't change between themes. */
   --pr-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   --pr-serif: 'Space Grotesk', 'Inter', system-ui, sans-serif;
   --pr-sans: 'Space Grotesk', 'Inter', system-ui, sans-serif;
   --pr-pad: clamp(1.25rem, 4vw, 2.5rem);
   --pr-max: 1320px;
+  /* Grid overlay colour — themed alongside the palette below so the
+     graph-paper is visible on both dark (white lines) and light
+     (dark ink lines) backgrounds. */
+  --pr-grid: rgba(255, 255, 255, 0.05);
 
   position: relative;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  /* Subtle 40px graph-paper grid over the near-black base — 1px lines at
-     8% white alpha, exactly the pattern Render uses on their startups page. */
+  /* Subtle 40px graph-paper grid over the base. Colour flips per theme
+     via --pr-grid so the lines stay visible in either mode. */
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 0) 0 0 / 40px 40px,
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05) 1px, transparent 0) 0 0 / 40px 40px,
+    linear-gradient(90deg, var(--pr-grid) 1px, transparent 0) 0 0 / 40px 40px,
+    linear-gradient(180deg, var(--pr-grid) 1px, transparent 0) 0 0 / 40px 40px,
     var(--pr-bg);
   color: var(--pr-text);
   font-family: var(--pr-sans);
@@ -829,6 +884,10 @@ button {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overflow-x: clip;
+}
+
+[data-theme='light'] .home-shell {
+  --pr-grid: rgba(0, 0, 0, 0.06);
 }
 
 .home-shell > * {
@@ -845,7 +904,7 @@ button {
   align-items: center;
   gap: 1.25rem;
   padding: 0.7rem var(--pr-pad);
-  background: rgba(13, 13, 13, 0.78);
+  background: var(--pr-nav-bg);
   backdrop-filter: blur(10px) saturate(140%);
   -webkit-backdrop-filter: blur(10px) saturate(140%);
   border-bottom: 1px solid var(--pr-border);
@@ -1033,16 +1092,20 @@ button {
   color: var(--pr-text);
 }
 
+/* The "on-dark" variant is used inside sections that stay dark in
+   both themes (currently the CTA strip). Force white text so it
+   doesn't inherit the themed --pr-text, which would be dark ink in
+   light mode → invisible on the dark section background. */
 .home-btn-on-dark {
   background: transparent;
-  color: var(--pr-text);
+  color: #f7f4ef;
   border-color: var(--pr-border-cy);
 }
 
 .home-btn-on-dark:hover {
   border-color: rgba(56, 189, 248, 0.6);
   background: rgba(56, 189, 248, 0.06);
-  color: var(--pr-text);
+  color: #ffffff;
 }
 
 /* ── Hero ── */
@@ -1543,11 +1606,11 @@ button {
     border-color 240ms ease;
 }
 .home-nav.is-scrolled {
-  background: rgba(13, 13, 13, 0.9);
+  background: var(--pr-nav-bg-scrolled);
   backdrop-filter: blur(16px) saturate(160%);
   -webkit-backdrop-filter: blur(16px) saturate(160%);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
-  border-bottom-color: rgba(255, 255, 255, 0.12);
+  box-shadow: var(--pr-nav-shadow);
+  border-bottom-color: var(--pr-nav-border-scrolled);
 }
 
 /* ── § 00 Manifesto — pull-quote preamble ── */
@@ -2179,7 +2242,11 @@ button {
     radial-gradient(circle at 90% 0%, rgba(56, 189, 248, 0.18), transparent 45%),
     radial-gradient(circle at 0% 100%, rgba(59, 130, 246, 0.22), transparent 50%),
     linear-gradient(135deg, #141414 0%, #272727 100%);
-  color: var(--pr-text);
+  /* Deliberately stays dark in both themes — a high-contrast "call
+     to action" band that pops against the rest of the page. Force
+     white text so it stays legible in light mode, where the themed
+     --pr-text would be dark ink on this dark background. */
+  color: #f7f4ef;
   position: relative;
   overflow: hidden;
   border-top: 1px solid var(--pr-border);

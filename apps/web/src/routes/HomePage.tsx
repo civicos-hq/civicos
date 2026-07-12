@@ -15,6 +15,7 @@ import {
   Users,
 } from 'lucide-react';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { ThemeToggle } from '../components/ThemeToggle';
 import { useSeo } from '../hooks/useSeo';
 
 export function HomePage() {
@@ -276,6 +277,7 @@ export function TopNav() {
       </nav>
 
       <div className="home-nav-cta">
+        <ThemeToggle />
         <LanguageSwitcher />
         <Link to="/login" className="home-link">
           {t('nav.signIn')}

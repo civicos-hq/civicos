@@ -1,9 +1,35 @@
 <!doctype html>
-<html lang="en">
+<!-- data-theme defaults to "dark" for no-JS visitors and gets rewritten
+     by the inline bootstrap script below before first paint. Never
+     unset — the CSS palette is scoped under [data-theme='…']. -->
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#3b82f6" />
+    <!-- Adaptive theme-color — mobile browser chrome picks the right
+         value based on OS preference. -->
+    <meta name="theme-color" content="#f7f4ef" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)" />
+
+    <!-- Theme bootstrap — runs SYNCHRONOUSLY before any CSS so the
+         document paints in the correct mode from frame 1. Order of
+         precedence: explicit user choice (localStorage) > OS preference
+         > dark fallback (the site's original palette). Writes to
+         <html data-theme="…"> which the stylesheet keys off of. -->
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem('civicos-theme');
+          var mode = saved && saved !== 'system' ? saved : null;
+          if (!mode) {
+            mode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+          document.documentElement.setAttribute('data-theme', mode);
+        } catch (_) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      })();
+    </script>
 
     <!-- Primary meta tags. Title ~60 chars, description ~145 chars so
          the SERP snippet doesn't get truncated. -->
