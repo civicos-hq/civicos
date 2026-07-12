@@ -1,0 +1,25 @@
+# Robots directives for civicos.ng. Everything is crawlable — CivicOS
+# is deliberately public infrastructure. Authenticated routes redirect
+# unauthenticated visitors to /login, so no ranking value leaks even if
+# they're crawled. Deep dashboard routes are excluded below just to
+# keep the SERP focused on the marketing surface.
+
+User-agent: *
+Allow: /
+
+# Auth flows and account tools — not useful in search.
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /verify-email
+Disallow: /verify-email-sent
+
+# Authenticated dashboard — content is behind a JWT, indexing the
+# shell would just show a redirect.
+Disallow: /profile
+Disallow: /notifications
+Disallow: /onboarding
+Disallow: /org/
+
+Sitemap: https://civicos.ng/sitemap.xml

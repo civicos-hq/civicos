@@ -15,10 +15,16 @@ import {
   Users,
 } from 'lucide-react';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { useSeo } from '../hooks/useSeo';
 
 export function HomePage() {
   useScrollReveal();
   useScrollToHash();
+  useSeo({
+    title: 'CivicOS — Open civic infrastructure for citizens and governments',
+    description:
+      'Open civic infrastructure for continuous participation between elections. Citizens, governments, universities, and NGOs on one public record.',
+  });
   return (
     <div className="home-shell">
       <TopNav />
@@ -759,6 +765,11 @@ export function Footer() {
   const { t } = useTranslation();
   return (
     <footer className="home-footer">
+      {/* Three-column footer row: brand (left), link columns
+          (center), mission (right). The parent .home-footer-row uses
+          justify-content: space-between so the middle .home-footer-columns
+          block sits naturally between brand and mission at full width,
+          and each piece wraps to its own row on narrow screens. */}
       <div className="home-footer-row">
         <div className="home-brand">
           <span className="home-brand-mark" aria-hidden="true">
@@ -769,14 +780,41 @@ export function Footer() {
             <p className="home-brand-subtitle">{t('nav.brandSubtitle')}</p>
           </div>
         </div>
+
+        <div className="home-footer-columns">
+          <nav className="home-footer-col" aria-label={t('footer.developers.label')}>
+            <p className="home-footer-col-title">{t('footer.developers.title')}</p>
+            <a href="https://docs.civicos.ng" target="_blank" rel="noopener noreferrer">
+              {t('footer.developers.docs')}
+            </a>
+            <a
+              href="https://github.com/civicos-hq/civicos"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t('footer.developers.github')}
+            </a>
+            <a
+              href="https://civicos-gateway.onrender.com/docs"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t('footer.developers.api')}
+            </a>
+          </nav>
+
+          <nav className="home-footer-col" aria-label={t('footer.legal.label')}>
+            <p className="home-footer-col-title">{t('footer.legal.label')}</p>
+            <Link to="/privacy">{t('footer.legal.privacy')}</Link>
+            <Link to="/terms">{t('footer.legal.terms')}</Link>
+          </nav>
+        </div>
+
         <p className="home-footer-mission">{t('footer.mission')}</p>
       </div>
+
       <div className="home-footer-row home-footer-meta">
         <p>{t('footer.meta', { year: new Date().getFullYear() })}</p>
-        <nav className="home-footer-links" aria-label={t('footer.legal.label')}>
-          <Link to="/privacy">{t('footer.legal.privacy')}</Link>
-          <Link to="/terms">{t('footer.legal.terms')}</Link>
-        </nav>
         <p className="home-footer-checks">
           <span>
             <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" /> {t('footer.checks.privacy')}

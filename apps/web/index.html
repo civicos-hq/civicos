@@ -3,11 +3,92 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="CivicOS — The open civic operating system" />
+    <meta name="theme-color" content="#3b82f6" />
+
+    <!-- Primary meta tags. Title ~60 chars, description ~145 chars so
+         the SERP snippet doesn't get truncated. -->
+    <title>CivicOS — Open civic infrastructure for citizens and governments</title>
+    <meta
+      name="description"
+      content="Open civic infrastructure for continuous participation between elections. Citizens, governments, universities, and NGOs on one public record."
+    />
+    <link rel="canonical" href="https://civicos.ng/" />
+
+    <!-- Open Graph — WhatsApp, LinkedIn, Facebook, Slack, iMessage cards. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CivicOS" />
+    <meta
+      property="og:title"
+      content="CivicOS — Open civic infrastructure for citizens and governments"
+    />
+    <meta
+      property="og:description"
+      content="Open civic infrastructure for continuous participation between elections. Citizens, governments, universities, and NGOs on one public record."
+    />
+    <meta property="og:url" content="https://civicos.ng/" />
+    <meta property="og:image" content="https://civicos.ng/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="CivicOS — An operating system for civic participation. Open civic infrastructure."
+    />
+    <meta property="og:locale" content="en_NG" />
+
+    <!-- Twitter Card — summary_large_image gets the full 1200x630 hero. -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="CivicOS — Open civic infrastructure for citizens and governments"
+    />
+    <meta
+      name="twitter:description"
+      content="Open civic infrastructure for continuous participation between elections. Citizens, governments, universities, and NGOs on one public record."
+    />
+    <meta name="twitter:image" content="https://civicos.ng/og-image.png" />
+    <meta
+      name="twitter:image:alt"
+      content="CivicOS — An operating system for civic participation."
+    />
+
     <link rel="icon" type="image/png" href="/civicos-mark.png" />
+    <link rel="apple-touch-icon" href="/civicos-mark.png" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <title>CivicOS</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Structured data — Organization + WebSite. Helps Google render
+         a knowledge-panel-style summary and eventually a Sitelinks
+         Search Box under the CivicOS listing. `sameAs` cross-references
+         our authoritative external presences. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://civicos.ng/#organization",
+            "name": "CivicOS",
+            "url": "https://civicos.ng/",
+            "logo": "https://civicos.ng/civicos-mark.png",
+            "description": "Open civic infrastructure that lets citizens, governments, universities, NGOs, and communities build trusted civic experiences.",
+            "sameAs": ["https://github.com/civicos-hq/civicos", "https://docs.civicos.ng/"]
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://civicos.ng/#website",
+            "url": "https://civicos.ng/",
+            "name": "CivicOS",
+            "publisher": { "@id": "https://civicos.ng/#organization" },
+            "inLanguage": "en-NG"
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

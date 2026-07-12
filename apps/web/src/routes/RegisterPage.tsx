@@ -6,6 +6,7 @@ import { RequestedAccountType, type ApiResponse, type Community } from '@civicos
 import { api } from '../lib/api';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { NIGERIAN_STATES } from '../data/nigeria';
+import { useSeo } from '../hooks/useSeo';
 
 type RegisterError = { kind: 'emailInUse' } | { kind: 'other'; message: string } | null;
 
@@ -39,6 +40,11 @@ function parseProofUrls(input: string): string[] {
 export function RegisterPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  useSeo({
+    title: 'Register — CivicOS',
+    description:
+      'Create your CivicOS account — register as a citizen, apply as a representative, or apply to list your organization.',
+  });
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
