@@ -13,7 +13,7 @@ import {
   Users,
   Wrench,
 } from 'lucide-react';
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useUnreadCount } from '../../hooks/useNotifications';
 import { useMyOrganizations } from '../../hooks/useConsultations';
@@ -50,7 +50,10 @@ export function Sidebar() {
 
   return (
     <aside className="dashboard-sidebar" aria-label={t('common.mainNav')}>
-      <div className="dashboard-brand">
+      {/* Brand block doubles as a shortcut back to the public landing
+          page — standard "click the logo to go home" pattern that
+          users reach for reflexively. */}
+      <Link to="/" className="dashboard-brand" aria-label={t('common.backToHome')}>
         <span className="brand-mark" aria-hidden="true">
           <img src="/civicos-mark.png" alt="" />
         </span>
@@ -58,7 +61,7 @@ export function Sidebar() {
           <p className="brand-title">CivicOS</p>
           <p className="brand-subtitle">Public Action Console</p>
         </div>
-      </div>
+      </Link>
 
       <nav className="dashboard-nav" aria-label={t('common.mainNav')}>
         {canActAsOrg && (

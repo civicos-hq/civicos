@@ -74,9 +74,13 @@ export function Topbar() {
           )}
         </Link>
 
-        <div className="dashboard-avatar" aria-hidden="true">
+        {/* Avatar is the universal shortcut to Profile — users click
+            here reflexively expecting account settings, so honour the
+            pattern. Aria-label spells out the destination for screen
+            readers since the visible content is just initials. */}
+        <Link to="/profile" className="dashboard-avatar" aria-label={t('common.openProfile')}>
           CO
-        </div>
+        </Link>
       </div>
     </header>
   );

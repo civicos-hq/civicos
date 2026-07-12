@@ -168,13 +168,19 @@ export function RegisterPage() {
       <div className="auth-pulse auth-pulse-left" aria-hidden="true" />
       <div className="auth-pulse auth-pulse-right" aria-hidden="true" />
 
+      <Link to="/" className="auth-home" aria-label={t('common.backToHome')}>
+        {t('common.backToHomeShort')}
+      </Link>
+
       <div className="auth-lang">
         <LanguageSwitcher />
       </div>
 
       <div className="auth-grid">
         <aside className="auth-copy">
-          <img src="/civicos-mark.png" alt="CivicOS" className="auth-mark" />
+          <Link to="/" className="auth-mark-link" aria-label={t('common.backToHome')}>
+            <img src="/civicos-mark.png" alt="CivicOS" className="auth-mark" />
+          </Link>
           <p className="auth-eyebrow">{t('auth.register.eyebrow')}</p>
           <h1 className="auth-title">{t('auth.register.title')}</h1>
           <p className="auth-description">{t('auth.register.description')}</p>

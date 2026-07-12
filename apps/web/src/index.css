@@ -522,6 +522,18 @@ button {
   gap: 0.75rem;
   padding: 1.1rem 1rem;
   border-bottom: 1px solid var(--line);
+  /* Brand is now a Link to the public landing page — reset anchor
+     defaults and add a subtle background hover so it reads as
+     interactive without shouting about it. */
+  color: inherit;
+  text-decoration: none;
+  transition: background-color 140ms ease;
+}
+
+.dashboard-brand:hover,
+.dashboard-brand:focus-visible {
+  background-color: rgba(59, 130, 246, 0.06);
+  outline: none;
 }
 
 .brand-mark {
@@ -652,6 +664,19 @@ button {
   letter-spacing: 0.06em;
   color: #fff;
   background: linear-gradient(125deg, var(--brand-700), var(--accent-500));
+  /* Avatar is now a Link to /profile — reset anchor defaults + add
+     a subtle interactive cue so users notice it's clickable. */
+  text-decoration: none;
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.dashboard-avatar:hover,
+.dashboard-avatar:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+  outline: none;
 }
 
 :focus-visible {
@@ -3213,6 +3238,57 @@ button {
   top: 1.25rem;
   right: 1.5rem;
   z-index: 5;
+}
+
+/* Back-to-home affordance on every auth flow page (login, register,
+   forgot-password, reset-password, verify-email). Mirrors .auth-lang's
+   top-corner positioning but sits on the left. Explicit text link is
+   the redundant discoverable path for users who don't try clicking
+   the logo — the logo is also a Link on these pages. */
+.auth-home {
+  position: absolute;
+  top: 1.25rem;
+  left: 1.5rem;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--pr-mono, ui-monospace, monospace);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(15, 23, 42, 0.6);
+  text-decoration: none;
+  padding: 0.4rem 0.65rem;
+  border-radius: 999px;
+  transition:
+    color 140ms ease,
+    background-color 140ms ease;
+}
+
+.auth-home:hover,
+.auth-home:focus-visible {
+  color: rgb(15, 23, 42);
+  background-color: rgba(15, 23, 42, 0.05);
+  outline: none;
+}
+
+/* The mark on the auth pages is now wrapped in a Link to the landing
+   page. The class is on the img so its size/shape styling is preserved;
+   this rule just tames the wrapping anchor so it doesn't get default
+   underline/color and picks up a subtle scale on hover as an
+   interactive cue that matches the explicit "← Home" text link. */
+.auth-mark-link {
+  display: inline-block;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 140ms ease;
+}
+
+.auth-mark-link:hover,
+.auth-mark-link:focus-visible {
+  transform: scale(1.04);
+  outline: none;
 }
 
 /* --- Verification pages --- */
