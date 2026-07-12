@@ -1,11 +1,17 @@
 import { useEffect } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { TopNav, Footer } from './HomePage';
+import { useSeo } from '../hooks/useSeo';
 
 const EFFECTIVE_DATE = '2026-07-04';
 
 export function TermsPage() {
   const { t, i18n } = useTranslation();
+  useSeo({
+    title: 'Terms of Service — CivicOS',
+    description:
+      'The terms governing use of CivicOS — public register conduct, moderation, verified accounts, petitions, and account termination.',
+  });
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });

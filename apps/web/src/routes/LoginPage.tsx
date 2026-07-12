@@ -3,10 +3,16 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { useSeo } from '../hooks/useSeo';
 
 export function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  useSeo({
+    title: 'Sign in — CivicOS',
+    description:
+      'Sign in to your CivicOS account to report issues, sign petitions, and follow your representatives.',
+  });
   const location = useLocation();
   // If routed here from "Sign in instead" on the register page, pre-fill the
   // email so the user doesn't retype it.

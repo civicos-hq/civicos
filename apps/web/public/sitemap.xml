@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Static sitemap for the marketing surface of civicos.ng. Only public,
+  cacheable pages are listed — authenticated routes redirect and add
+  no ranking value. Content-heavy dynamic routes (public issues,
+  petitions, org profiles, consultations) can be added later when we
+  have a prerender or SSR path; today they need JS to render.
+-->
+<urlset xmlns="http://www.sitemap.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://civicos.ng/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://civicos.ng/privacy</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://civicos.ng/terms</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+</urlset>

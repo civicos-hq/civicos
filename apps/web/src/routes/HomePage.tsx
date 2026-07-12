@@ -15,10 +15,16 @@ import {
   Users,
 } from 'lucide-react';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { useSeo } from '../hooks/useSeo';
 
 export function HomePage() {
   useScrollReveal();
   useScrollToHash();
+  useSeo({
+    title: 'CivicOS — Open civic infrastructure for citizens and governments',
+    description:
+      'Open civic infrastructure for continuous participation between elections. Citizens, governments, universities, and NGOs on one public record.',
+  });
   return (
     <div className="home-shell">
       <TopNav />

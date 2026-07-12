@@ -1,11 +1,17 @@
 import { useEffect } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { TopNav, Footer } from './HomePage';
+import { useSeo } from '../hooks/useSeo';
 
 const EFFECTIVE_DATE = '2026-07-03';
 
 export function PrivacyPage() {
   const { t, i18n } = useTranslation();
+  useSeo({
+    title: 'Privacy Policy — CivicOS',
+    description:
+      'How CivicOS collects, uses, and protects your data. Bcrypt-hashed passwords, short-lived JWTs, audit-logged admin actions, no third-party trackers.',
+  });
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
