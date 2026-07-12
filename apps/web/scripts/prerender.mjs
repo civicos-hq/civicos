@@ -74,10 +74,17 @@ async function main() {
   }
 
   console.log('[prerender] booting vite preview…');
-  const preview = spawn('npx', ['vite', 'preview', '--port', String(PORT), '--strictPort'], {
-    cwd: APP_DIR,
-    stdio: ['ignore', 'inherit', 'inherit'],
-  });
+  // Use `pnpm exec` rather than `npx` — npx's PATH resolution through
+  // pnpm's symlinked node_modules can be flaky in CI environments.
+  // `pnpm exec` uses pnpm's own package resolution and is deterministic.
+  const preview = spawn(
+    'pnpm',
+    ['exec', 'vite', 'preview', '--port', String(PORT), '--strictPort'],
+    {
+      cwd: APP_DIR,
+      stdio: ['ignore', 'inherit', 'inherit'],
+    },
+  );
 
   try {
     await waitForServer(`http://localhost:${PORT}/`);
