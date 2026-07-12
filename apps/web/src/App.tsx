@@ -1,42 +1,117 @@
+import { lazy } from 'react';
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { DashboardLayout } from './components/layout/DashboardLayout';
-import { CommunityPage } from './routes/CommunityPage';
-import { DiscoverPage } from './routes/DiscoverPage';
+import { RateLimitToast } from './components/RateLimitToast';
+
+// Marketing + auth surfaces stay eagerly imported: fresh visitors land on
+// one of them, so any lazy split just adds a paint delay to the first
+// screen a user ever sees. The dashboard routes below are behind a login
+// wall — nobody sees them without an authenticated round-trip — so
+// splitting cuts the initial payload for the visitor traffic that matters
+// most (marketing → sign-up conversion).
 import { HomePage } from './routes/HomePage';
-import { IssueDetailPage } from './routes/IssueDetailPage';
-import { IssuesPage } from './routes/IssuesPage';
-import { LoginPage } from './routes/LoginPage';
-import { NotificationsPage } from './routes/NotificationsPage';
-import { PetitionDetailPage } from './routes/PetitionDetailPage';
-import { PetitionsPage } from './routes/PetitionsPage';
-import { ProfilePage } from './routes/ProfilePage';
-import { RegisterPage } from './routes/RegisterPage';
-import { RepresentativeDetailPage } from './routes/RepresentativeDetailPage';
-import { RepresentativesPage } from './routes/RepresentativesPage';
-import { VerifyEmailPage } from './routes/VerifyEmailPage';
-import { VerifyEmailSentPage } from './routes/VerifyEmailSentPage';
-import { ForgotPasswordPage } from './routes/ForgotPasswordPage';
-import { ResetPasswordPage } from './routes/ResetPasswordPage';
-import { OnboardingPage } from './routes/OnboardingPage';
 import { PrivacyPage } from './routes/PrivacyPage';
 import { TermsPage } from './routes/TermsPage';
-import { OrganizationsPage } from './routes/OrganizationsPage';
-import { OrganizationDetailPage } from './routes/OrganizationDetailPage';
-import { ConsultationsPage } from './routes/ConsultationsPage';
-import { ConsultationDetailPage } from './routes/ConsultationDetailPage';
-import { AnnouncementsPage } from './routes/AnnouncementsPage';
-import { AnnouncementDetailPage } from './routes/AnnouncementDetailPage';
-import { ProjectsPage } from './routes/ProjectsPage';
-import { ProjectDetailPage } from './routes/ProjectDetailPage';
-import { OrgLandingPage } from './routes/OrgLandingPage';
-import { OrgDashboardPage } from './routes/OrgDashboardPage';
-import { OrgConsultationCreatePage } from './routes/OrgConsultationCreatePage';
-import { OrgConsultationDetailPage } from './routes/OrgConsultationDetailPage';
-import { OrgAnnouncementCreatePage } from './routes/OrgAnnouncementCreatePage';
-import { OrgAnnouncementDetailPage } from './routes/OrgAnnouncementDetailPage';
-import { OrgProjectCreatePage } from './routes/OrgProjectCreatePage';
-import { OrgProjectDetailPage } from './routes/OrgProjectDetailPage';
-import { RateLimitToast } from './components/RateLimitToast';
+import { LoginPage } from './routes/LoginPage';
+import { RegisterPage } from './routes/RegisterPage';
+import { ForgotPasswordPage } from './routes/ForgotPasswordPage';
+import { ResetPasswordPage } from './routes/ResetPasswordPage';
+import { VerifyEmailPage } from './routes/VerifyEmailPage';
+import { VerifyEmailSentPage } from './routes/VerifyEmailSentPage';
+import { OnboardingPage } from './routes/OnboardingPage';
+
+// Dashboard routes — lazy. Each becomes its own Vite chunk, fetched only
+// when the user actually navigates to it. Suspense boundary lives inside
+// DashboardLayout so the sidebar + topbar stay stable during the fetch;
+// only the main content area shows the fallback.
+const DiscoverPage = lazy(() =>
+  import('./routes/DiscoverPage').then((m) => ({ default: m.DiscoverPage })),
+);
+const CommunityPage = lazy(() =>
+  import('./routes/CommunityPage').then((m) => ({ default: m.CommunityPage })),
+);
+const IssuesPage = lazy(() =>
+  import('./routes/IssuesPage').then((m) => ({ default: m.IssuesPage })),
+);
+const IssueDetailPage = lazy(() =>
+  import('./routes/IssueDetailPage').then((m) => ({ default: m.IssueDetailPage })),
+);
+const PetitionsPage = lazy(() =>
+  import('./routes/PetitionsPage').then((m) => ({ default: m.PetitionsPage })),
+);
+const PetitionDetailPage = lazy(() =>
+  import('./routes/PetitionDetailPage').then((m) => ({ default: m.PetitionDetailPage })),
+);
+const RepresentativesPage = lazy(() =>
+  import('./routes/RepresentativesPage').then((m) => ({ default: m.RepresentativesPage })),
+);
+const RepresentativeDetailPage = lazy(() =>
+  import('./routes/RepresentativeDetailPage').then((m) => ({
+    default: m.RepresentativeDetailPage,
+  })),
+);
+const OrganizationsPage = lazy(() =>
+  import('./routes/OrganizationsPage').then((m) => ({ default: m.OrganizationsPage })),
+);
+const OrganizationDetailPage = lazy(() =>
+  import('./routes/OrganizationDetailPage').then((m) => ({ default: m.OrganizationDetailPage })),
+);
+const ConsultationsPage = lazy(() =>
+  import('./routes/ConsultationsPage').then((m) => ({ default: m.ConsultationsPage })),
+);
+const ConsultationDetailPage = lazy(() =>
+  import('./routes/ConsultationDetailPage').then((m) => ({ default: m.ConsultationDetailPage })),
+);
+const AnnouncementsPage = lazy(() =>
+  import('./routes/AnnouncementsPage').then((m) => ({ default: m.AnnouncementsPage })),
+);
+const AnnouncementDetailPage = lazy(() =>
+  import('./routes/AnnouncementDetailPage').then((m) => ({ default: m.AnnouncementDetailPage })),
+);
+const ProjectsPage = lazy(() =>
+  import('./routes/ProjectsPage').then((m) => ({ default: m.ProjectsPage })),
+);
+const ProjectDetailPage = lazy(() =>
+  import('./routes/ProjectDetailPage').then((m) => ({ default: m.ProjectDetailPage })),
+);
+const OrgLandingPage = lazy(() =>
+  import('./routes/OrgLandingPage').then((m) => ({ default: m.OrgLandingPage })),
+);
+const OrgDashboardPage = lazy(() =>
+  import('./routes/OrgDashboardPage').then((m) => ({ default: m.OrgDashboardPage })),
+);
+const OrgConsultationCreatePage = lazy(() =>
+  import('./routes/OrgConsultationCreatePage').then((m) => ({
+    default: m.OrgConsultationCreatePage,
+  })),
+);
+const OrgConsultationDetailPage = lazy(() =>
+  import('./routes/OrgConsultationDetailPage').then((m) => ({
+    default: m.OrgConsultationDetailPage,
+  })),
+);
+const OrgAnnouncementCreatePage = lazy(() =>
+  import('./routes/OrgAnnouncementCreatePage').then((m) => ({
+    default: m.OrgAnnouncementCreatePage,
+  })),
+);
+const OrgAnnouncementDetailPage = lazy(() =>
+  import('./routes/OrgAnnouncementDetailPage').then((m) => ({
+    default: m.OrgAnnouncementDetailPage,
+  })),
+);
+const OrgProjectCreatePage = lazy(() =>
+  import('./routes/OrgProjectCreatePage').then((m) => ({ default: m.OrgProjectCreatePage })),
+);
+const OrgProjectDetailPage = lazy(() =>
+  import('./routes/OrgProjectDetailPage').then((m) => ({ default: m.OrgProjectDetailPage })),
+);
+const NotificationsPage = lazy(() =>
+  import('./routes/NotificationsPage').then((m) => ({ default: m.NotificationsPage })),
+);
+const ProfilePage = lazy(() =>
+  import('./routes/ProfilePage').then((m) => ({ default: m.ProfilePage })),
+);
 
 function hasAccessToken() {
   return Boolean(localStorage.getItem('accessToken'));

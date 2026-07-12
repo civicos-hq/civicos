@@ -10,6 +10,7 @@ import (
 	"github.com/civicos/api-gateway/internal/proxy"
 	"github.com/civicos/api-gateway/pkg/config"
 	"github.com/civicos/api-gateway/pkg/ratelimit"
+	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -39,6 +40,15 @@ func main() {
 
 	r := gin.New()
 	r.Use(gin.Logger(), gin.Recovery())
+
+	// Gzip every JSON response the gateway proxies out. Typical
+	// JSON payloads shrink 3–5× on the wire, and Go's stdlib
+	// http.Server doesn't compress by default. The SSE notification
+	// stream is excluded — gzip's chunked buffer breaks the
+	// event-flush semantics that keep the connection live.
+	r.Use(gzip.Gzip(gzip.DefaultCompression, gzip.WithExcludedPaths([]string{
+		"/api/v1/notifications/stream",
+	})))
 
 	// Add CORS middleware that sets headers on all responses
 	r.Use(func(c *gin.Context) {
