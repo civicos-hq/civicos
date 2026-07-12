@@ -768,6 +768,13 @@
       "privacy": "Privacy",
       "terms": "Terms"
     },
+    "developers": {
+      "label": "Developer resources",
+      "title": "Developers",
+      "docs": "Docs",
+      "github": "GitHub",
+      "api": "API Reference"
+    },
     "checks": {
       "privacy": "Privacy-respecting",
       "audit": "Audit-friendly",

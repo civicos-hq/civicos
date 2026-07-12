@@ -66,7 +66,7 @@ test.describe('homepage', () => {
   test('privacy link in footer navigates to /privacy', async ({ browser }) => {
     const page = await browser.newPage();
     await page.goto('/');
-    await page.locator('.home-footer-links a[href="/privacy"]').click();
+    await page.locator('.home-footer-col a[href="/privacy"]').click();
     await expect(page).toHaveURL(/\/privacy$/);
     await page.close();
   });
