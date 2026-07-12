@@ -12,6 +12,9 @@
   "common": {
     "mainNav": "Main navigation",
     "topbar": "Top toolbar",
+    "backToHome": "Back to CivicOS home",
+    "backToHomeShort": "← Home",
+    "openProfile": "Open your profile",
     "loading": "Loading…",
     "loadingMore": "Loading more…",
     "retry": "Try again",

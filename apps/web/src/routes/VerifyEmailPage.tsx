@@ -58,6 +58,10 @@ export function VerifyEmailPage() {
       <div className="auth-pulse auth-pulse-left" aria-hidden="true" />
       <div className="auth-pulse auth-pulse-right" aria-hidden="true" />
 
+      <Link to="/" className="auth-home" aria-label={t('common.backToHome')}>
+        {t('common.backToHomeShort')}
+      </Link>
+
       <div className="auth-grid auth-grid--single">
         <div className="auth-card auth-card--centered">
           {state.kind === 'verifying' && (

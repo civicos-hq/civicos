@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import type { ApiResponse, Community } from '@civicos/types';
@@ -56,6 +56,10 @@ export function OnboardingPage() {
     <section className="onboarding-shell">
       <div className="auth-pulse auth-pulse-left" aria-hidden="true" />
       <div className="auth-pulse auth-pulse-right" aria-hidden="true" />
+
+      <Link to="/" className="auth-home" aria-label={t('common.backToHome')}>
+        {t('common.backToHomeShort')}
+      </Link>
 
       <div className="auth-lang">
         <LanguageSwitcher />
