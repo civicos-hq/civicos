@@ -1,4 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Space+Grotesk:wght@400;500;600;700&family=Instrument+Serif:ital,wght@0,400;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+/* Font stack — trimmed to the brand-guide direction (Inter as the
+   workhorse) plus a small pair kept for personality: Fraunces for the
+   marketing headline moments, JetBrains Mono for the § markers and
+   monospace tags. Dropped Space Grotesk + Instrument Serif in favour
+   of Inter to reduce the number of font families the browser has to
+   download from Google. */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -12,18 +18,35 @@
   --ink-700: #2f455a;
   --line: #d9e3ec;
   --surface: #ffffff;
-  --brand-500: #1f6ed4;
-  --brand-700: #174d95;
+  /* Legacy tokens — kept for backwards compatibility with auth +
+     dashboard styles that already use them. Values now anchored on
+     the brand palette: --brand-500 = Civic Blue, --brand-700 = Deep
+     Navy for a darker text-hierarchy variant. New work should use
+     the semantic --brand-blue / --brand-navy tokens below instead. */
+  --brand-500: #2563eb;
+  --brand-700: #0f2747;
   --accent-500: #ee7f3b;
   --danger-500: #e34a47;
+
+  /* Brand palette v1.0 — named tokens sourced directly from the
+     CivicOS brand guidelines. Use these in new work rather than
+     hardcoded hex. */
+  --brand-navy: #0f2747; /* Deep Navy — hierarchy, deep surfaces */
+  --brand-blue: #2563eb; /* Civic Blue — primary accent */
+  --brand-white: #ffffff; /* White — light surfaces */
+  --brand-light-gray: #f8fafc; /* Light Gray — panel backgrounds */
+  --brand-slate: #64748b; /* Slate — muted text */
+  --brand-success: #10b981; /* Success — completed / verified */
+  --brand-warning: #f59e0b; /* Warning — attention / needs review */
+  --brand-danger: #ef4444; /* Danger — errors / destructive actions */
 }
 
 body {
   margin: 0;
-  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
   color: var(--ink-900);
   background:
-    radial-gradient(circle at 8% 12%, rgba(31, 110, 212, 0.16), transparent 32%),
+    radial-gradient(circle at 8% 12%, rgba(37, 99, 235, 0.16), transparent 32%),
     radial-gradient(circle at 90% 3%, rgba(238, 127, 59, 0.14), transparent 28%),
     linear-gradient(180deg, #f8fbff 0%, #f1f6fb 100%);
   min-height: 100vh;
@@ -71,7 +94,7 @@ button {
   background: #ffffff;
   padding: 5px;
   margin: 0 0 1.1rem;
-  box-shadow: 0 10px 28px rgba(23, 77, 149, 0.18);
+  box-shadow: 0 10px 28px rgba(15, 39, 71, 0.18);
   object-fit: contain;
 }
 
@@ -142,7 +165,7 @@ button {
   min-height: 2rem;
   padding: 0.3rem 0.7rem;
   border-radius: 999px;
-  background: rgba(31, 110, 212, 0.1);
+  background: rgba(37, 99, 235, 0.1);
   color: var(--brand-700);
   font-size: 0.78rem;
   font-weight: 700;
@@ -169,7 +192,7 @@ button {
 }
 
 .auth-progress-step--active {
-  background: rgba(31, 110, 212, 0.11);
+  background: rgba(37, 99, 235, 0.11);
   color: var(--brand-700);
 }
 
@@ -222,13 +245,13 @@ button {
 }
 
 .auth-choice-card:hover {
-  border-color: rgba(31, 110, 212, 0.35);
+  border-color: rgba(37, 99, 235, 0.35);
   background: rgba(248, 250, 252, 0.98);
 }
 
 .auth-choice-card:has(input:checked) {
   border-color: var(--brand-500);
-  box-shadow: 0 0 0 3px rgba(31, 110, 212, 0.14);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
   background: rgba(240, 247, 255, 0.82);
 }
 
@@ -273,7 +296,7 @@ button {
 .auth-input:focus {
   border-color: var(--brand-500);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(31, 110, 212, 0.2);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
 }
 
 .auth-textarea {
@@ -330,8 +353,8 @@ button {
   gap: 0.25rem;
   padding: 0.85rem 0.95rem;
   border-radius: 1rem;
-  border: 1px solid rgba(31, 110, 212, 0.18);
-  background: rgba(31, 110, 212, 0.07);
+  border: 1px solid rgba(37, 99, 235, 0.18);
+  background: rgba(37, 99, 235, 0.07);
 }
 
 .auth-note strong {
@@ -455,7 +478,7 @@ button {
 .auth-pulse-left {
   left: -5rem;
   top: 10%;
-  background: radial-gradient(circle at 40% 40%, rgba(31, 110, 212, 0.3), transparent 70%);
+  background: radial-gradient(circle at 40% 40%, rgba(37, 99, 235, 0.3), transparent 70%);
 }
 
 .auth-pulse-right {
@@ -497,7 +520,7 @@ button {
 .dashboard-glow-a {
   top: -12rem;
   right: -9rem;
-  background: rgba(31, 110, 212, 0.3);
+  background: rgba(37, 99, 235, 0.3);
 }
 
 .dashboard-glow-b {
@@ -532,7 +555,7 @@ button {
 
 .dashboard-brand:hover,
 .dashboard-brand:focus-visible {
-  background-color: rgba(59, 130, 246, 0.06);
+  background-color: rgba(37, 99, 235, 0.06);
   outline: none;
 }
 
@@ -545,7 +568,7 @@ button {
   background: #ffffff;
   padding: 2px;
   overflow: hidden;
-  box-shadow: 0 4px 14px rgba(23, 77, 149, 0.18);
+  box-shadow: 0 4px 14px rgba(15, 39, 71, 0.18);
   flex: none;
 }
 
@@ -596,14 +619,14 @@ button {
 }
 
 .dashboard-link-idle:hover {
-  background: rgba(31, 110, 212, 0.08);
-  border-color: rgba(31, 110, 212, 0.12);
+  background: rgba(37, 99, 235, 0.08);
+  border-color: rgba(37, 99, 235, 0.12);
 }
 
 .dashboard-link-active {
-  background: rgba(31, 110, 212, 0.14);
+  background: rgba(37, 99, 235, 0.14);
   color: var(--brand-700);
-  border-color: rgba(31, 110, 212, 0.18);
+  border-color: rgba(37, 99, 235, 0.18);
   font-weight: 700;
 }
 
@@ -631,7 +654,7 @@ button {
 .dashboard-search:focus {
   outline: none;
   border-color: var(--brand-500);
-  box-shadow: 0 0 0 3px rgba(31, 110, 212, 0.18);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
 }
 
 .dashboard-icon-btn {
@@ -647,7 +670,7 @@ button {
 }
 
 .dashboard-icon-btn:hover {
-  border-color: rgba(31, 110, 212, 0.24);
+  border-color: rgba(37, 99, 235, 0.24);
   color: var(--brand-700);
 }
 
@@ -675,12 +698,12 @@ button {
 .dashboard-avatar:hover,
 .dashboard-avatar:focus-visible {
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
   outline: none;
 }
 
 :focus-visible {
-  outline: 3px solid rgba(31, 110, 212, 0.45);
+  outline: 3px solid rgba(37, 99, 235, 0.45);
   outline-offset: 2px;
 }
 
@@ -771,28 +794,31 @@ button {
    pages keep their existing theme.
 */
 
-/* Dark palette — the original Render-startups-inspired aesthetic.
-   Near-black background, white text, cyan/blue accents. Applied when
-   <html data-theme="dark"> — the pre-paint script in index.html
-   ensures the attribute is set before first paint. */
+/* Dark palette — Deep Navy hierarchy, tuned to the brand guide's
+   primary palette (Deep Navy + Civic Blue + White). Elevation is
+   expressed by lightening the same navy hue rather than moving
+   toward grey, which keeps the "civic blueprint" feel rather than
+   the cold near-black startup aesthetic we started with. Applied
+   when <html data-theme="dark"> — the pre-paint script in
+   index.html ensures the attribute is set before first paint. */
 [data-theme='dark'] .home-shell {
-  --pr-bg: #0d0d0d;
-  --pr-panel: #141414;
-  --pr-card: #191919;
-  --pr-card-up: #272727;
+  --pr-bg: #0f2747;
+  --pr-panel: #122c50;
+  --pr-card: #1a3866;
+  --pr-card-up: #254a7e;
 
   --pr-text: #ffffff;
   --pr-muted: #a3a3a3;
   --pr-faint: #545454;
 
-  --pr-primary: #3b82f6;
+  --pr-primary: #2563eb;
   --pr-cyan: #38bdf8;
   --pr-mint: #7dd3fc;
   --pr-lavender: #e2e2e2;
 
   --pr-border: rgba(255, 255, 255, 0.08);
   --pr-border-cy: rgba(56, 189, 248, 0.3);
-  --pr-border-bl: rgba(59, 130, 246, 0.4);
+  --pr-border-bl: rgba(37, 99, 235, 0.4);
 
   --pr-ink: var(--pr-text);
   --pr-ink-soft: var(--pr-muted);
@@ -808,8 +834,8 @@ button {
 
   /* Sticky nav backdrop — dark translucent so content behind it fades
      out. The scrolled variant is a touch more opaque + a shadow. */
-  --pr-nav-bg: rgba(13, 13, 13, 0.78);
-  --pr-nav-bg-scrolled: rgba(13, 13, 13, 0.9);
+  --pr-nav-bg: rgba(15, 39, 71, 0.82);
+  --pr-nav-bg-scrolled: rgba(15, 39, 71, 0.92);
   --pr-nav-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
   --pr-nav-border-scrolled: rgba(255, 255, 255, 0.12);
 }
@@ -828,14 +854,14 @@ button {
   --pr-muted: #4a4a4a;
   --pr-faint: #8a8a8a;
 
-  --pr-primary: #3b82f6;
+  --pr-primary: #2563eb;
   --pr-cyan: #0284c7;
   --pr-mint: #0369a1;
   --pr-lavender: #2d3436;
 
   --pr-border: rgba(0, 0, 0, 0.09);
   --pr-border-cy: rgba(2, 132, 199, 0.35);
-  --pr-border-bl: rgba(59, 130, 246, 0.4);
+  --pr-border-bl: rgba(37, 99, 235, 0.4);
 
   --pr-ink: var(--pr-text);
   --pr-ink-soft: var(--pr-muted);
@@ -857,10 +883,15 @@ button {
 }
 
 .home-shell {
-  /* Fonts + layout tokens don't change between themes. */
+  /* Fonts + layout tokens don't change between themes. Inter is the
+     workhorse (both --pr-sans and --pr-serif — legacy naming; both
+     point at the same stack for compat with existing usages).
+     Fraunces stays available as a direct 'Fraunces', Georgia, serif
+     declaration on the marketing headline moments (auth title,
+     manifesto title, hero em, cta title). JetBrains Mono covers § markers. */
   --pr-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  --pr-serif: 'Space Grotesk', 'Inter', system-ui, sans-serif;
-  --pr-sans: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  --pr-serif: 'Inter', system-ui, sans-serif;
+  --pr-sans: 'Inter', system-ui, sans-serif;
   --pr-pad: clamp(1.25rem, 4vw, 2.5rem);
   --pr-max: 1320px;
   /* Grid overlay colour — themed alongside the palette below so the
@@ -926,7 +957,7 @@ button {
   border-radius: 10px;
   background: #ffffff;
   padding: 3px;
-  box-shadow: 0 6px 22px rgba(59, 130, 246, 0.32);
+  box-shadow: 0 6px 22px rgba(37, 99, 235, 0.32);
   overflow: hidden;
   flex: none;
 }
@@ -1056,14 +1087,14 @@ button {
   color: var(--pr-bg);
   font-weight: 600;
   border: none;
-  box-shadow: 0 8px 28px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 8px 28px rgba(37, 99, 235, 0.4);
   position: relative;
   overflow: hidden;
 }
 
 .home-btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 36px rgba(59, 130, 246, 0.55);
+  box-shadow: 0 12px 36px rgba(37, 99, 235, 0.55);
   color: var(--pr-bg);
 }
 
@@ -1133,7 +1164,9 @@ button {
 
 .home-hero-title {
   margin: 1.6rem 0 0;
-  font-family: var(--pr-serif);
+  /* Marketing headline moment — Fraunces (serif) rather than the
+     Inter workhorse, per the brand-guide trimmed compromise. */
+  font-family: 'Fraunces', Georgia, serif;
   font-weight: 700;
   font-size: clamp(2.6rem, 7.5vw, 5.8rem);
   line-height: 0.96;
@@ -1176,7 +1209,7 @@ button {
   top: 0;
   left: 0;
   white-space: nowrap;
-  background: linear-gradient(110deg, #3b82f6, #93c5fd, #38bdf8, #7dd3fc, #38bdf8, #3b82f6);
+  background: linear-gradient(110deg, #2563eb, #93c5fd, #38bdf8, #7dd3fc, #38bdf8, #2563eb);
   background-size: 300% 300%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -1513,8 +1546,8 @@ button {
   z-index: 0;
   background: radial-gradient(
     520px circle at var(--mx, 50%) var(--my, 30%),
-    rgba(59, 130, 246, 0.18),
-    rgba(59, 130, 246, 0.06) 30%,
+    rgba(37, 99, 235, 0.18),
+    rgba(37, 99, 235, 0.06) 30%,
     transparent 60%
   );
   opacity: 0;
@@ -1542,10 +1575,10 @@ button {
 @keyframes cta-breathe {
   0%,
   100% {
-    box-shadow: 0 8px 28px rgba(59, 130, 246, 0.35);
+    box-shadow: 0 8px 28px rgba(37, 99, 235, 0.35);
   }
   50% {
-    box-shadow: 0 12px 40px rgba(59, 130, 246, 0.6);
+    box-shadow: 0 12px 40px rgba(37, 99, 235, 0.6);
   }
 }
 .home-btn-primary:hover {
@@ -1561,8 +1594,8 @@ button {
 }
 .home-hero-body > .docket .docket-record:hover {
   transform: translateY(-2px);
-  border-color: rgba(59, 130, 246, 0.35);
-  box-shadow: 0 8px 22px rgba(59, 130, 246, 0.14);
+  border-color: rgba(37, 99, 235, 0.35);
+  box-shadow: 0 8px 22px rgba(37, 99, 235, 0.14);
 }
 
 /* ── Docket progress bars — cascade draw ── */
@@ -1635,7 +1668,8 @@ button {
 
 .home-manifesto-title {
   margin: 0;
-  font-family: var(--pr-sans);
+  /* Marketing headline moment — Fraunces (serif). */
+  font-family: 'Fraunces', Georgia, serif;
   font-weight: 500;
   font-size: clamp(2.2rem, 5vw, 4rem);
   line-height: 1.05;
@@ -1647,7 +1681,7 @@ button {
 .home-manifesto-title em {
   font-style: normal;
   font-weight: 500;
-  background: linear-gradient(110deg, #3b82f6, #93c5fd, #38bdf8, #7dd3fc, #38bdf8, #3b82f6);
+  background: linear-gradient(110deg, #2563eb, #93c5fd, #38bdf8, #7dd3fc, #38bdf8, #2563eb);
   background-size: 300% 300%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -1695,9 +1729,59 @@ button {
 
 .home-manifesto-actor:hover {
   color: var(--pr-ink);
-  border-color: rgba(59, 130, 246, 0.45);
-  background: rgba(59, 130, 246, 0.08);
+  border-color: rgba(37, 99, 235, 0.45);
+  background: rgba(37, 99, 235, 0.08);
   transform: translateY(-2px);
+}
+
+/* Poetic beliefs block — sits under the actors row, closes the
+   manifesto section with the brand's declarative voice. Serif so the
+   lines read as considered rather than announced; slight opacity on
+   the heading so it reads as a section label. Closer line takes the
+   full ink colour for a small crescendo. Inherits text-align: center
+   from the parent .home-manifesto so it lines up with the rest of
+   the section rather than reading as a left-anchored footnote. */
+.home-manifesto-beliefs {
+  margin: 2.4rem auto 0;
+  max-width: 60ch;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.home-manifesto-beliefs-heading {
+  margin: 0;
+  font-family: var(--pr-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--pr-ink-soft);
+  opacity: 0.7;
+}
+
+.home-manifesto-beliefs-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  font-family: var(--pr-serif);
+  font-size: 1.02rem;
+  line-height: 1.5;
+  color: var(--pr-ink-soft);
+}
+
+.home-manifesto-beliefs-list li {
+  padding-left: 0;
+}
+
+.home-manifesto-beliefs-closer {
+  margin: 0.3rem 0 0;
+  font-family: var(--pr-serif);
+  font-size: 1.02rem;
+  font-style: italic;
+  color: var(--pr-ink);
 }
 
 /* Stagger actor tags in after the section reveals. */
@@ -2240,8 +2324,8 @@ button {
   padding: clamp(3rem, 6vw, 5rem) var(--pr-pad);
   background:
     radial-gradient(circle at 90% 0%, rgba(56, 189, 248, 0.18), transparent 45%),
-    radial-gradient(circle at 0% 100%, rgba(59, 130, 246, 0.22), transparent 50%),
-    linear-gradient(135deg, #141414 0%, #272727 100%);
+    radial-gradient(circle at 0% 100%, rgba(37, 99, 235, 0.22), transparent 50%),
+    linear-gradient(135deg, #0f2747 0%, #254a7e 100%);
   /* Deliberately stays dark in both themes — a high-contrast "call
      to action" band that pops against the rest of the page. Force
      white text so it stays legible in light mode, where the themed
@@ -2292,7 +2376,8 @@ button {
 
 .home-cta-title {
   margin: 0 auto;
-  font-family: var(--pr-serif);
+  /* Marketing headline moment — Fraunces (serif). */
+  font-family: 'Fraunces', Georgia, serif;
   font-weight: 700;
   font-size: clamp(2rem, 4.5vw, 3.4rem);
   line-height: 1.02;
@@ -2303,7 +2388,7 @@ button {
 .home-cta-title em {
   font-style: italic;
   font-weight: 400;
-  background: linear-gradient(110deg, #3b82f6, #93c5fd, #38bdf8, #7dd3fc, #38bdf8, #3b82f6);
+  background: linear-gradient(110deg, #2563eb, #93c5fd, #38bdf8, #7dd3fc, #38bdf8, #2563eb);
   background-size: 300% 300%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -2655,7 +2740,7 @@ button {
   left: 8%;
   width: clamp(380px, 50vw, 750px);
   aspect-ratio: 1;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.22) 0%, transparent 65%);
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.22) 0%, transparent 65%);
   animation: pr-orb-drift-1 14s ease-in-out infinite;
 }
 .home-hero-orb--2 {
@@ -2849,8 +2934,8 @@ button {
 .home-step:hover {
   background: var(--pr-paper-soft);
   transform: translateY(-3px);
-  border-color: rgba(59, 130, 246, 0.35);
-  box-shadow: 0 10px 26px rgba(59, 130, 246, 0.14);
+  border-color: rgba(37, 99, 235, 0.35);
+  box-shadow: 0 10px 26px rgba(37, 99, 235, 0.14);
   z-index: 1;
 }
 
@@ -3389,7 +3474,7 @@ button {
   border-radius: 999px;
 }
 .verify-icon--info {
-  background: rgba(31, 110, 212, 0.12);
+  background: rgba(37, 99, 235, 0.12);
   color: var(--brand-700, #174d95);
 }
 .verify-icon--ok {
@@ -3527,7 +3612,7 @@ button {
   width: 2.75rem;
   height: 2.75rem;
   border-radius: 999px;
-  background: rgba(31, 110, 212, 0.08);
+  background: rgba(37, 99, 235, 0.08);
   color: var(--brand-700, #174d95);
   margin-bottom: 0.15rem;
 }
@@ -3739,7 +3824,7 @@ button {
 .onboarding-search:focus-within {
   border-color: var(--brand-500, #1f6ed4);
   background: #fff;
-  box-shadow: 0 0 0 3px rgba(31, 110, 212, 0.14);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
 }
 .onboarding-search input {
   flex: 1;
@@ -3786,11 +3871,11 @@ button {
 }
 .onboarding-option:hover,
 .onboarding-community:hover {
-  background: rgba(31, 110, 212, 0.06);
+  background: rgba(37, 99, 235, 0.06);
 }
 .onboarding-option.is-selected,
 .onboarding-community.is-selected {
-  background: rgba(31, 110, 212, 0.1);
+  background: rgba(37, 99, 235, 0.1);
   color: var(--brand-700, #174d95);
 }
 .onboarding-option-icon {
@@ -3949,8 +4034,8 @@ button {
   margin: 0 0 0.75rem;
   padding: 0.7rem 0.9rem;
   border-radius: 10px;
-  background: rgba(31, 110, 212, 0.08);
-  border: 1px solid rgba(31, 110, 212, 0.24);
+  background: rgba(37, 99, 235, 0.08);
+  border: 1px solid rgba(37, 99, 235, 0.24);
 }
 .auth-hint-title {
   margin: 0;
@@ -4144,7 +4229,7 @@ button {
   font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: 0.06em;
-  box-shadow: 0 6px 18px -8px rgba(23, 77, 149, 0.45);
+  box-shadow: 0 6px 18px -8px rgba(15, 39, 71, 0.45);
   flex: none;
 }
 
