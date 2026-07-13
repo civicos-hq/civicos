@@ -13,23 +13,17 @@ citizens have reported.
 
 This guide is for organization owners and admins.
 
-## Who can create an organization
+## How an organization comes to exist
 
-You need one of these platform roles to register a new org:
+Organizations are minted by **applying at signup and getting approved by
+a platform admin**. There is no in-app "New organization" button —
+neither citizens nor admins can create an org directly. The application
+is the only door, and admin approval is the only key.
 
-- `PLATFORM_ADMIN`
-- `GOVERNMENT_ADMIN`
-- `NGO`
+### Step 1 — apply at signup
 
-Regular citizen accounts cannot create organizations. If you represent
-an eligible body, apply during signup with **account type =
-Organization** — a platform admin reviews and approves.
-
-## Creating an organization
-
-1. Once your organization application is approved, go to **Organizations
-   → New organization**.
-2. Fill in:
+On `/register`, choose **account type = Organization** and fill in the
+organization block of the form:
 
 | Field        | Notes                                                                                             |
 | ------------ | ------------------------------------------------------------------------------------------------- |
@@ -42,7 +36,40 @@ Organization** — a platform admin reviews and approves.
 | Contact      | Public email, phone, website — how citizens reach you                                             |
 | Logo         | Public logo URL                                                                                   |
 
-You're added as the **Owner** of the new org automatically.
+Submitting creates an `OrganizationApplication` with status `PENDING`
+and a user account that can log in but is limited to citizen actions
+until approval lands.
+
+### Step 2 — admin review
+
+A platform admin sees your application in the admin console's
+**Applications** queue. They can **approve**, **request changes**, or
+**reject** with a note. When they approve, a single database transaction:
+
+- Creates the public `organizations` row using your submitted details
+- Adds you as the `OWNER` in `org_members`
+- Sets your platform role to `NGO` (or `GOVERNMENT_ADMIN` for
+  government kinds)
+- Sends you an in-app + email notification
+
+### Step 3 — you're the owner
+
+After approval, your organization already exists — there is no separate
+"Create org" step. Head to your org-owner surface:
+
+- **My organization** in the sidebar (visible only to OWNER/ADMIN
+  members of any organization), or directly at `/org/<your-org-id>`
+
+From there you manage announcements, projects, consultations,
+assignments, and members — the rest of this page walks through each.
+
+### Fixing details after approval
+
+Something wrong in the approved details? A platform admin can PATCH the
+organization via the admin console. Members with OWNER or ADMIN role
+can also edit the org's public-facing fields (name, description,
+contact, logo) from the org-owner surface. The slug is fixed after
+creation.
 
 ## The verified badge
 

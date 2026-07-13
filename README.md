@@ -17,15 +17,18 @@ Built for Nigeria first (36 states + FCT, 774 LGAs), designed to work in any dem
 
 - Animated homepage — live "docket" of civic activity, mission manifesto, procedure explainer, FAQ
 - Multilingual — English, Nigerian Pidgin, Yoruba, Igbo, Hausa
+- Light + dark mode with system-preference default and warm-paper light palette
 - Terms of Service + Privacy notice, linked from footer and auth pages
 
 **Accounts**
 
 - Register with email + password (bcrypt cost 12)
+- Disposable / temporary email domains rejected at signup and on email change (Phase 1 sybil resistance)
 - Email verification via one-time link
 - Login with JWT access + refresh-token family rotation
 - Forgot / reset password
 - Full account deletion — anonymizes PII, revokes all sessions, immediate ban of legacy tokens
+- Apply during signup as **Representative** or **Organization** — admin reviews + approves; no admin-side direct create
 
 **Onboarding**
 
@@ -43,9 +46,22 @@ Built for Nigeria first (36 states + FCT, 774 LGAs), designed to work in any dem
 **Feed**
 
 - Community-scoped filters — status, category, date, upvotes
-- Discover feed — cross-community browsing sorted by tier + kind
-- Global search — issues, petitions, representatives, organizations
+- Discover feed — cross-community browsing sorted by tier + kind, covering issues, petitions, announcements, projects, and consultations
+- Global search — 7 buckets: issues, petitions, representatives, organizations, consultations, announcements, projects
 - Notifications — in-app + Server-Sent-Events realtime push
+
+**Consultations, Announcements & Projects**
+
+- **Consultations** — structured feedback asks published by orgs (DRAFT → PUBLISHED → CLOSED). 5 question types, one-response-per-user, per-question analytics, outcome publishing to "close the loop." Cover images. Notifications fan out to org members + the target community, deduplicated.
+- **Announcements** — org-published updates with citizen browse page + detail view
+- **Projects** — org-tracked initiatives with status lifecycle and budget in kobo
+
+**Org-owner surface** (`/org/*`)
+
+- Tabbed dashboard for OWNER/ADMIN members of any organization
+- Create + manage announcements, projects, consultations (with drag-to-reorder question builder)
+- Publish outcomes on closed consultations — the "close the loop" primitive
+- Take responsibility for citizen-reported issues (assignments) + post public progress updates
 
 **Profile**
 
@@ -65,10 +81,16 @@ Access requires role `PLATFORM_ADMIN`, `GOVERNMENT_ADMIN`, or `NGO`.
 
 **People**
 
-- **Users** — filter by role, click through to per-user detail with audit trail + reports filed
-- **Communities** — list, create, drill down to per-community stats (citizens, issues by status, petitions, representatives)
-- **Representatives** — list, create (10 fields including community linkage), filter by community
-- **Organizations** — list, create (with `NATIONAL` / `STATE` / `LGA` / `COMMUNITY` jurisdiction), verify / revoke verified badge, drill down to activity + members
+- **Users** — filter by role, click through to per-user detail with audit trail + reports filed. Promote self-registered users to admin roles via role change (the "admins create admins" path — no signup form for admin accounts).
+- **Communities** — list, create, drill down to per-community stats (citizens, issues by status, petitions, representatives). Only PLATFORM_ADMIN + GOVERNMENT_ADMIN can add a community.
+- **Representatives** — list, filter by community, PATCH to fix data. **Direct create is disabled** — rep profiles are minted only by approving a `RepresentativeApplication` in the review queue.
+- **Organizations** — list, verify / revoke verified badge, PATCH members and metadata, drill down to activity + members. **Direct create is disabled** — orgs are minted only by approving an `OrganizationApplication` in the review queue.
+
+**Applications review queue**
+
+- Every representative + organization exists because a user applied at signup and an admin approved the application here
+- One-click approve creates the public profile in a single transaction (rep row or org row + owner membership)
+- Reject or request-changes with a note; the applicant is notified
 
 **Trust**
 
@@ -78,10 +100,10 @@ Access requires role `PLATFORM_ADMIN`, `GOVERNMENT_ADMIN`, or `NGO`.
 
 ### Backend
 
-- **api-gateway** (`:3000`) — reverse proxy, JWT validation, tiered rate limiting (Strict / Standard / Lenient) via Redis
-- **identity-service** (`:3001`) — auth, users, sessions, refresh-token family rotation with replay detection, email verification, password reset, admin metrics endpoint
-- **community-service** (`:3002`) — communities, issues (+ image upload), petitions, representatives, comments, notifications (SSE hub), content flags with placeholder-based hiding, discover feed, search
-- **organization-service** (`:3003`) — organizations, membership, announcements, projects, issue assignments, progress updates, verified-badge control
+- **api-gateway** (`:3000`) — reverse proxy, JWT validation, tiered rate limiting (Strict / Standard / Lenient + per-action budgets) via Redis, gzip compression, embedded Swagger UI at `/docs`
+- **identity-service** (`:3001`) — auth, users, sessions, refresh-token family rotation with replay detection, email verification, password reset, disposable-email rejection, representative + organization application review, admin metrics
+- **community-service** (`:3002`) — communities, issues (+ image upload), petitions, representatives, comments, notifications (SSE hub), content flags with placeholder-based hiding, discover feed (5 kinds), search (7 buckets)
+- **organization-service** (`:3003`) — organizations, membership, announcements, projects, issue assignments, progress updates, consultations (with questions, responses, per-question analytics, outcome publishing), verified-badge control
 
 Shared behaviour across services:
 
@@ -287,10 +309,16 @@ See `.env.example` for the complete list.
 
 ## Documentation
 
-- **User Guide** at `http://localhost:5175` — Docusaurus site for end users (citizens, orgs, reps). Content lives in `apps/docs/docs/`
-- **Swagger UI** at `http://localhost:3000/docs` — browseable API docs with a picker for identity / community / organization
-- `docs/product/` — the five source documents that drive every product and architectural decision (Blueprint, Roadmap, Architecture, Experience, Engineering Playbook)
-- `docs/api/openapi-*.yaml` — canonical OpenAPI 3.0 specs, one per service (mirrored into the gateway for embedding)
+**Live**
+
+- **[docs.civicos.ng](https://docs.civicos.ng/)** — public Docusaurus site with User Guide (citizens, orgs, reps) and Developer Guide (architecture, per-service pages, contributing, deployment)
+- **Swagger UI** — served by the deployed api-gateway at `/docs`, backed by hand-written OpenAPI 3.0 specs
+
+**In the repo**
+
+- `apps/docs/docs/` — source for the Docusaurus site above (runs locally at `:5175`)
+- `docs/product/` — the five source PDFs that drive every product and architectural decision (Blueprint, Roadmap, Architecture, Experience, Engineering Playbook)
+- `docs/api/openapi-*.yaml` — canonical OpenAPI 3.0 specs, one per service. Mirrored into `services/api-gateway/internal/docs/openapi/` (a CI check enforces the mirror stays in sync; run `scripts/openapi-sync.sh` locally after editing a spec)
 - `CLAUDE.md` — context file for AI assistants working in this repo (also useful as a human onboarding brief)
 
 ---
@@ -313,7 +341,7 @@ The Go architecture diverges from the Engineering Playbook PDF (which specifies 
 
 ## Status
 
-MVP complete. Currently in local-development phase — deployment and CI are the next launch-blockers. See `docs/product/CivicOS Product Roadmap.pdf` for the five-phase build order.
+MVP complete and in launch prep. GitHub Actions CI runs Prettier, gofmt, OpenAPI mirror sync, Go vet + test on all four services, and the frontend build. The 4 Go services deploy to Render; the citizen web and admin console deploy as static sites. Source of truth for what's shipped vs. next vs. later: [`apps/docs/docs/about/roadmap.md`](./apps/docs/docs/about/roadmap.md) (also published at [docs.civicos.ng](https://docs.civicos.ng/about/roadmap)). Longer-horizon phasing is in `docs/product/CivicOS Product Roadmap.pdf`.
 
 ## License
 
