@@ -515,6 +515,7 @@ function Docket() {
 function Manifesto() {
   const { t } = useTranslation();
   const actorKeys = ['governments', 'universities', 'ngos', 'communities'] as const;
+  const beliefKeys = ['one', 'two', 'three', 'four', 'five'] as const;
   return (
     <section className="home-section home-section-manifesto reveal">
       <TypedMarker text={t('manifesto.marker')} />
@@ -530,6 +531,19 @@ function Manifesto() {
             </li>
           ))}
         </ul>
+
+        {/* Brand-guide beliefs — poetic closer to the manifesto. Each
+            "we believe" line stands alone; the closer lands on
+            "together" to match the tagline in the hero + top nav. */}
+        <div className="home-manifesto-beliefs" aria-label={t('manifesto.beliefs.heading')}>
+          <p className="home-manifesto-beliefs-heading">{t('manifesto.beliefs.heading')}</p>
+          <ul className="home-manifesto-beliefs-list">
+            {beliefKeys.map((k) => (
+              <li key={k}>{t(`manifesto.beliefs.${k}`)}</li>
+            ))}
+          </ul>
+          <p className="home-manifesto-beliefs-closer">{t('manifesto.beliefs.closer')}</p>
+        </div>
       </div>
     </section>
   );

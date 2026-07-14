@@ -578,7 +578,7 @@
     "unread": "Unread"
   },
   "nav": {
-    "brandSubtitle": "Public Record · Est. 2026",
+    "brandSubtitle": "The Open Civic Operating System",
     "links": {
       "docket": "Docket",
       "whatItDoes": "What it does",
@@ -591,7 +591,7 @@
     "register": "Register"
   },
   "hero": {
-    "masthead": "Vol. 01 · No. 001 · Open Civic Infrastructure",
+    "masthead": "Building better communities, together.",
     "headline": "Democracy is <em>daily</em>, not just on election day.",
     "sub": "CivicOS keeps the public record of citizen action between elections — issues reported, petitions signed, responses received — on your street, in your community, today.",
     "ctaPrimary": "Join CivicOS — it's free",
@@ -1604,6 +1604,15 @@
       "universities": "Universities",
       "ngos": "NGOs",
       "communities": "Communities"
+    },
+    "beliefs": {
+      "heading": "What we believe",
+      "one": "Communities deserve better digital infrastructure.",
+      "two": "Participation should be open, accessible, and meaningful.",
+      "three": "Trust is earned through transparency, not promised through technology.",
+      "four": "Software should strengthen relationships, not complicate them.",
+      "five": "The future of civic technology should be open.",
+      "closer": "And we're building it together."
     }
   }
 }
