@@ -17,11 +17,12 @@ import { useProjectProgressUpdates } from '../hooks/useProgressUpdates';
 import { PostProgressUpdateForm } from '../components/civic/PostProgressUpdateForm';
 
 const TONE: Record<ProjectStatus, string> = {
-  [ProjectStatus.PLANNED]: 'bg-slate-200 text-slate-700',
-  [ProjectStatus.ACTIVE]: 'bg-civic-100 text-civic-700',
-  [ProjectStatus.PAUSED]: 'bg-amber-100 text-amber-700',
-  [ProjectStatus.COMPLETED]: 'bg-emerald-100 text-emerald-700',
-  [ProjectStatus.CANCELLED]: 'bg-slate-300 text-slate-700',
+  [ProjectStatus.PLANNED]: 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300',
+  [ProjectStatus.ACTIVE]: 'bg-civic-100 dark:bg-civic-500/15 text-civic-700 dark:text-civic-200',
+  [ProjectStatus.PAUSED]: 'bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300',
+  [ProjectStatus.COMPLETED]:
+    'bg-emerald-100 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300',
+  [ProjectStatus.CANCELLED]: 'bg-slate-300 dark:bg-slate-600 text-slate-700 dark:text-slate-300',
 };
 
 const STATUSES: ProjectStatus[] = [
@@ -75,17 +76,18 @@ export function OrgProjectDetailPage() {
     }
   }, [query.data]);
 
-  if (query.isLoading) return <p className="text-sm text-slate-600">{t('common.loading')}</p>;
+  if (query.isLoading)
+    return <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>;
   if (query.isError || !query.data) {
     return (
       <section className="space-y-4">
         <Link
           to={`/org/${orgId}?tab=projects`}
-          className="text-sm font-semibold text-civic-700 hover:underline"
+          className="text-sm font-semibold text-civic-700 dark:text-civic-200 hover:underline"
         >
           {t('orgProjectDetail.back')}
         </Link>
-        <p className="text-sm text-red-600">{t('orgProjectDetail.loadError')}</p>
+        <p className="text-sm text-red-600 dark:text-red-400">{t('orgProjectDetail.loadError')}</p>
       </section>
     );
   }
@@ -132,7 +134,7 @@ export function OrgProjectDetailPage() {
     <section className="space-y-6">
       <Link
         to={`/org/${orgId}?tab=projects`}
-        className="text-sm font-semibold text-civic-700 hover:underline"
+        className="text-sm font-semibold text-civic-700 dark:text-civic-200 hover:underline"
       >
         {t('orgProjectDetail.back')}
       </Link>
@@ -168,7 +170,7 @@ export function OrgProjectDetailPage() {
       />
 
       {error && (
-        <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        <p className="rounded-lg border border-red-200 dark:border-red-500/40 bg-red-50 dark:bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300">
           {error}
         </p>
       )}
@@ -176,7 +178,7 @@ export function OrgProjectDetailPage() {
       {editing ? (
         <form onSubmit={onSave} className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-slate-700">
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
               {t('orgProjectCreate.fields.title')}
             </label>
             <Input
@@ -188,7 +190,7 @@ export function OrgProjectDetailPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-slate-700">
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
               {t('orgProjectCreate.fields.description')}
             </label>
             <textarea
@@ -197,18 +199,18 @@ export function OrgProjectDetailPage() {
               rows={6}
               required
               minLength={10}
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
+              className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-slate-700">
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
               {t('orgProjectCreate.fields.status')}
             </label>
             <select
               value={form.status}
               onChange={(e) => setForm({ ...form, status: e.target.value as ProjectStatus })}
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
+              className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
             >
               {STATUSES.map((s) => (
                 <option key={s} value={s}>
@@ -220,42 +222,42 @@ export function OrgProjectDetailPage() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="block text-sm font-semibold text-slate-700">
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
                 {t('orgProjectCreate.fields.startDate')}
               </label>
               <input
                 type="date"
                 value={form.startDate}
                 onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
+                className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-slate-700">
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
                 {t('orgProjectCreate.fields.expectedEndDate')}
               </label>
               <input
                 type="date"
                 value={form.expectedEndDate}
                 onChange={(e) => setForm({ ...form, expectedEndDate: e.target.value })}
-                className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
+                className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-slate-700">
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
               {t('orgProjectCreate.fields.budget')}
             </label>
             <div className="mt-1 flex items-center gap-2">
-              <span className="text-lg text-slate-500">₦</span>
+              <span className="text-lg text-slate-500 dark:text-slate-400">₦</span>
               <input
                 type="number"
                 min="0"
                 step="0.01"
                 value={form.budgetNaira}
                 onChange={(e) => setForm({ ...form, budgetNaira: e.target.value })}
-                className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
+                className="w-full rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
               />
             </div>
           </div>
@@ -278,7 +280,7 @@ export function OrgProjectDetailPage() {
           </div>
         </form>
       ) : (
-        <article className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <article className="space-y-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
           <span
             className={
               'inline-block rounded-full px-2 py-0.5 text-xs font-semibold uppercase tracking-wide ' +
@@ -287,8 +289,10 @@ export function OrgProjectDetailPage() {
           >
             {t(`orgDashboard.projectStatus.${p.status}`)}
           </span>
-          <p className="whitespace-pre-wrap text-sm text-slate-700">{p.description}</p>
-          <dl className="grid grid-cols-2 gap-4 text-sm text-slate-600">
+          <p className="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
+            {p.description}
+          </p>
+          <dl className="grid grid-cols-2 gap-4 text-sm text-slate-600 dark:text-slate-400">
             {p.startDate && (
               <div>
                 <dt className="text-xs uppercase tracking-wide text-slate-400">
@@ -340,19 +344,25 @@ function ProgressUpdatesSection({
   const updates = updatesQuery.data ?? [];
 
   return (
-    <section className="space-y-3 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h3 className="font-fraunces text-base font-semibold text-slate-900">
+    <section className="space-y-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+      <h3 className="font-fraunces text-base font-semibold text-slate-900 dark:text-slate-100">
         {t('orgProjectDetail.progressHeading')}
       </h3>
-      {updatesQuery.isLoading && <p className="text-sm text-slate-600">{t('common.loading')}</p>}
+      {updatesQuery.isLoading && (
+        <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>
+      )}
       {!updatesQuery.isLoading && updates.length === 0 && (
-        <p className="text-sm text-slate-600">{t('orgProjectDetail.progressEmpty')}</p>
+        <p className="text-sm text-slate-600 dark:text-slate-400">
+          {t('orgProjectDetail.progressEmpty')}
+        </p>
       )}
       <ul className="space-y-3">
         {updates.map((u) => (
           <li key={u.id} className="border-l-2 border-civic-400 pl-3">
-            <p className="whitespace-pre-wrap text-sm text-slate-700">{u.body}</p>
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
+              {u.body}
+            </p>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
               {u.authorName} · {new Date(u.createdAt).toLocaleDateString()}
             </p>
           </li>

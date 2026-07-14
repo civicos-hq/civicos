@@ -35,30 +35,37 @@ const TABS: Array<{ id: Tab; i18n: string }> = [
 ];
 
 const CONSULTATION_TONE: Record<ConsultationStatus, string> = {
-  [ConsultationStatus.DRAFT]: 'bg-slate-200 text-slate-700',
-  [ConsultationStatus.PUBLISHED]: 'bg-civic-100 text-civic-700',
-  [ConsultationStatus.CLOSED]: 'bg-amber-100 text-amber-700',
+  [ConsultationStatus.DRAFT]: 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300',
+  [ConsultationStatus.PUBLISHED]:
+    'bg-civic-100 dark:bg-civic-500/15 text-civic-700 dark:text-civic-200',
+  [ConsultationStatus.CLOSED]:
+    'bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300',
 };
 
 const ANNOUNCEMENT_TONE: Record<AnnouncementStatus, string> = {
-  [AnnouncementStatus.DRAFT]: 'bg-slate-200 text-slate-700',
-  [AnnouncementStatus.PUBLISHED]: 'bg-civic-100 text-civic-700',
-  [AnnouncementStatus.ARCHIVED]: 'bg-amber-100 text-amber-700',
+  [AnnouncementStatus.DRAFT]: 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300',
+  [AnnouncementStatus.PUBLISHED]:
+    'bg-civic-100 dark:bg-civic-500/15 text-civic-700 dark:text-civic-200',
+  [AnnouncementStatus.ARCHIVED]:
+    'bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300',
 };
 
 const PROJECT_TONE: Record<ProjectStatus, string> = {
-  [ProjectStatus.PLANNED]: 'bg-slate-200 text-slate-700',
-  [ProjectStatus.ACTIVE]: 'bg-civic-100 text-civic-700',
-  [ProjectStatus.PAUSED]: 'bg-amber-100 text-amber-700',
-  [ProjectStatus.COMPLETED]: 'bg-emerald-100 text-emerald-700',
-  [ProjectStatus.CANCELLED]: 'bg-slate-300 text-slate-700',
+  [ProjectStatus.PLANNED]: 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300',
+  [ProjectStatus.ACTIVE]: 'bg-civic-100 dark:bg-civic-500/15 text-civic-700 dark:text-civic-200',
+  [ProjectStatus.PAUSED]: 'bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300',
+  [ProjectStatus.COMPLETED]:
+    'bg-emerald-100 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300',
+  [ProjectStatus.CANCELLED]: 'bg-slate-300 dark:bg-slate-600 text-slate-700 dark:text-slate-300',
 };
 
 const ASSIGNMENT_TONE: Record<AssignmentStatus, string> = {
-  [AssignmentStatus.RECEIVED]: 'bg-slate-200 text-slate-700',
-  [AssignmentStatus.IN_PROGRESS]: 'bg-civic-100 text-civic-700',
-  [AssignmentStatus.COMPLETED]: 'bg-emerald-100 text-emerald-700',
-  [AssignmentStatus.REJECTED]: 'bg-rose-100 text-rose-700',
+  [AssignmentStatus.RECEIVED]: 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300',
+  [AssignmentStatus.IN_PROGRESS]:
+    'bg-civic-100 dark:bg-civic-500/15 text-civic-700 dark:text-civic-200',
+  [AssignmentStatus.COMPLETED]:
+    'bg-emerald-100 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300',
+  [AssignmentStatus.REJECTED]: 'bg-rose-100 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300',
 };
 
 const ASSIGNMENT_STATUSES: AssignmentStatus[] = [
@@ -87,10 +94,13 @@ export function OrgDashboardPage() {
   if (!membership) {
     return (
       <section className="space-y-4">
-        <Link to="/org" className="text-sm font-semibold text-civic-700 hover:underline">
+        <Link
+          to="/org"
+          className="text-sm font-semibold text-civic-700 dark:text-civic-200 hover:underline"
+        >
           {t('orgDashboard.back')}
         </Link>
-        <p className="text-sm text-red-600">{t('orgDashboard.notMember')}</p>
+        <p className="text-sm text-red-600 dark:text-red-400">{t('orgDashboard.notMember')}</p>
       </section>
     );
   }
@@ -113,7 +123,7 @@ export function OrgDashboardPage() {
       />
 
       <nav
-        className="flex flex-wrap gap-2 border-b border-slate-200"
+        className="flex flex-wrap gap-2 border-b border-slate-200 dark:border-slate-700"
         aria-label={t('orgDashboard.tabsAria')}
       >
         {TABS.map((tab) => (
@@ -124,8 +134,8 @@ export function OrgDashboardPage() {
             className={
               'border-b-2 px-3 py-2 text-sm font-semibold transition ' +
               (activeTab === tab.id
-                ? 'border-civic-600 text-civic-700'
-                : 'border-transparent text-slate-500 hover:text-slate-700')
+                ? 'border-civic-600 text-civic-700 dark:text-civic-200'
+                : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300')
             }
           >
             {t(tab.i18n)}
@@ -164,7 +174,9 @@ function ConsultationsSection({
         )}
       </div>
 
-      {query.isLoading && <p className="text-sm text-slate-600">{t('common.loading')}</p>}
+      {query.isLoading && (
+        <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>
+      )}
 
       {!query.isLoading && items.length === 0 && (
         <EmptyState
@@ -179,12 +191,14 @@ function ConsultationsSection({
           <li key={c.id}>
             <Link
               to={`/org/${orgId}/consultations/${c.id}`}
-              className="block rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-civic-300 hover:shadow-md"
+              className="block rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500 hover:shadow-md"
             >
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
-                  <h2 className="font-fraunces text-lg font-semibold text-slate-900">{c.title}</h2>
-                  <p className="mt-1 text-sm text-slate-600">{c.summary}</p>
+                  <h2 className="font-fraunces text-lg font-semibold text-slate-900 dark:text-slate-100">
+                    {c.title}
+                  </h2>
+                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{c.summary}</p>
                 </div>
                 <span
                   className={
@@ -195,7 +209,7 @@ function ConsultationsSection({
                   {t(`consultationsPage.status.${c.status}`)}
                 </span>
               </div>
-              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
                 <span>
                   {c.responseCount} {t('consultationsPage.responses')}
                 </span>
@@ -232,7 +246,9 @@ function AnnouncementsSection({
         )}
       </div>
 
-      {query.isLoading && <p className="text-sm text-slate-600">{t('common.loading')}</p>}
+      {query.isLoading && (
+        <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>
+      )}
 
       {!query.isLoading && items.length === 0 && (
         <EmptyState
@@ -247,12 +263,16 @@ function AnnouncementsSection({
           <li key={a.id}>
             <Link
               to={`/org/${orgId}/announcements/${a.id}`}
-              className="block rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-civic-300 hover:shadow-md"
+              className="block rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500 hover:shadow-md"
             >
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
-                  <h2 className="font-fraunces text-lg font-semibold text-slate-900">{a.title}</h2>
-                  <p className="mt-1 line-clamp-2 text-sm text-slate-600">{a.body}</p>
+                  <h2 className="font-fraunces text-lg font-semibold text-slate-900 dark:text-slate-100">
+                    {a.title}
+                  </h2>
+                  <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-400">
+                    {a.body}
+                  </p>
                 </div>
                 <span
                   className={
@@ -263,7 +283,7 @@ function AnnouncementsSection({
                   {t(`orgDashboard.announcementStatus.${a.status}`)}
                 </span>
               </div>
-              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
                 <span>{a.authorName}</span>
                 <span>{new Date(a.createdAt).toLocaleDateString()}</span>
                 {a.publishedAt && (
@@ -299,7 +319,9 @@ function ProjectsSection({ orgId, canAdmin }: { orgId: string | undefined; canAd
         )}
       </div>
 
-      {query.isLoading && <p className="text-sm text-slate-600">{t('common.loading')}</p>}
+      {query.isLoading && (
+        <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>
+      )}
 
       {!query.isLoading && items.length === 0 && (
         <EmptyState
@@ -314,12 +336,16 @@ function ProjectsSection({ orgId, canAdmin }: { orgId: string | undefined; canAd
           <li key={p.id}>
             <Link
               to={`/org/${orgId}/projects/${p.id}`}
-              className="block rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-civic-300 hover:shadow-md"
+              className="block rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500 hover:shadow-md"
             >
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
-                  <h2 className="font-fraunces text-lg font-semibold text-slate-900">{p.title}</h2>
-                  <p className="mt-1 line-clamp-2 text-sm text-slate-600">{p.description}</p>
+                  <h2 className="font-fraunces text-lg font-semibold text-slate-900 dark:text-slate-100">
+                    {p.title}
+                  </h2>
+                  <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-400">
+                    {p.description}
+                  </p>
                 </div>
                 <span
                   className={
@@ -330,7 +356,7 @@ function ProjectsSection({ orgId, canAdmin }: { orgId: string | undefined; canAd
                   {t(`orgDashboard.projectStatus.${p.status}`)}
                 </span>
               </div>
-              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
                 {p.budgetKobo !== null && p.budgetKobo !== undefined && (
                   <span>{formatNaira(p.budgetKobo)}</span>
                 )}
@@ -370,8 +396,10 @@ function AssignmentsSection({ orgId, canAdmin }: { orgId: string | undefined; ca
           issue page itself (there's no "create assignment" form here
           because you're always claiming a specific existing issue), so
           we point the user at the issues browser. */}
-      <div className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm">
-        <p className="min-w-0 flex-1 text-slate-600">{t('orgDashboard.assignmentsIntro')}</p>
+      <div className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 p-4 text-sm">
+        <p className="min-w-0 flex-1 text-slate-600 dark:text-slate-400">
+          {t('orgDashboard.assignmentsIntro')}
+        </p>
         {canAdmin && (
           <Link to="/issues">
             <Button size="sm">{t('orgDashboard.browseIssuesToClaim')}</Button>
@@ -379,7 +407,9 @@ function AssignmentsSection({ orgId, canAdmin }: { orgId: string | undefined; ca
         )}
       </div>
 
-      {query.isLoading && <p className="text-sm text-slate-600">{t('common.loading')}</p>}
+      {query.isLoading && (
+        <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>
+      )}
 
       {!query.isLoading && items.length === 0 && (
         <EmptyState
@@ -412,21 +442,23 @@ function AssignmentRow({
   const deleteMutation = useDeleteAssignment(assignment.id, orgId, assignment.issueId);
 
   return (
-    <li className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <li className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-5 shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <Link
             to={`/issues/${assignment.issueId}`}
-            className="font-fraunces text-base font-semibold text-slate-900 hover:underline"
+            className="font-fraunces text-base font-semibold text-slate-900 dark:text-slate-100 hover:underline"
           >
             {t('orgDashboard.assignmentIssueLink', {
               id: assignment.issueId.slice(0, 8),
             })}
           </Link>
           {assignment.note && (
-            <p className="mt-1 text-sm italic text-slate-600">&ldquo;{assignment.note}&rdquo;</p>
+            <p className="mt-1 text-sm italic text-slate-600 dark:text-slate-400">
+              &ldquo;{assignment.note}&rdquo;
+            </p>
           )}
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
             {t('orgDashboard.assignmentAssignedBy', {
               name: assignment.assignedByName,
               date: new Date(assignment.createdAt).toLocaleDateString(),
@@ -445,14 +477,14 @@ function AssignmentRow({
 
       {canAdmin && (
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <label className="text-xs font-semibold text-slate-600">
+          <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">
             {t('orgDashboard.assignmentSetStatus')}
           </label>
           <select
             value={assignment.status}
             onChange={(e) => updateStatus.mutate({ status: e.target.value as AssignmentStatus })}
             disabled={updateStatus.isPending}
-            className="rounded-lg border border-slate-300 px-2 py-1 text-xs shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
+            className="rounded-lg border border-slate-300 dark:border-slate-600 px-2 py-1 text-xs shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
           >
             {ASSIGNMENT_STATUSES.map((s) => (
               <option key={s} value={s}>

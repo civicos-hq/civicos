@@ -60,7 +60,7 @@ export function OrgProjectCreatePage() {
     <section className="space-y-6">
       <Link
         to={`/org/${orgId}?tab=projects`}
-        className="text-sm font-semibold text-civic-700 hover:underline"
+        className="text-sm font-semibold text-civic-700 dark:text-civic-200 hover:underline"
       >
         {t('orgProjectCreate.back')}
       </Link>
@@ -73,14 +73,14 @@ export function OrgProjectCreatePage() {
 
       <form onSubmit={onSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-semibold text-slate-700">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
             {t('orgProjectCreate.fields.title')}
           </label>
           <Input value={title} onChange={(e) => setTitle(e.target.value)} required minLength={2} />
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-700">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
             {t('orgProjectCreate.fields.description')}
           </label>
           <textarea
@@ -89,18 +89,18 @@ export function OrgProjectCreatePage() {
             required
             minLength={10}
             rows={6}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
+            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-700">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
             {t('orgProjectCreate.fields.status')}
           </label>
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value as ProjectStatus)}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
+            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
           >
             {STATUSES.map((s) => (
               <option key={s} value={s}>
@@ -112,56 +112,58 @@ export function OrgProjectCreatePage() {
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <label className="block text-sm font-semibold text-slate-700">
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
               {t('orgProjectCreate.fields.startDate')}
             </label>
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
+              className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-slate-700">
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
               {t('orgProjectCreate.fields.expectedEndDate')}
             </label>
             <input
               type="date"
               value={expectedEndDate}
               onChange={(e) => setExpectedEndDate(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
+              className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-700">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
             {t('orgProjectCreate.fields.budget')}
           </label>
           <div className="mt-1 flex items-center gap-2">
-            <span className="text-lg text-slate-500">₦</span>
+            <span className="text-lg text-slate-500 dark:text-slate-400">₦</span>
             <input
               type="number"
               min="0"
               step="0.01"
               value={budgetNaira}
               onChange={(e) => setBudgetNaira(e.target.value)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
+              className="w-full rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
               placeholder="e.g. 500000"
             />
           </div>
-          <p className="mt-1 text-xs text-slate-500">{t('orgProjectCreate.fields.budgetHelp')}</p>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            {t('orgProjectCreate.fields.budgetHelp')}
+          </p>
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-700">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
             {t('orgProjectCreate.fields.community')}
           </label>
           <select
             value={communityId}
             onChange={(e) => setCommunityId(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
+            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
           >
             <option value="">{t('orgProjectCreate.fields.communityNone')}</option>
             {(communitiesQuery.data ?? []).map((c) => (
@@ -173,7 +175,7 @@ export function OrgProjectCreatePage() {
         </div>
 
         {error && (
-          <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          <p className="rounded-lg border border-red-200 dark:border-red-500/40 bg-red-50 dark:bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300">
             {error}
           </p>
         )}

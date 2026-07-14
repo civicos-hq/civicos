@@ -42,7 +42,7 @@ export function OrgAnnouncementCreatePage() {
     <section className="space-y-6">
       <Link
         to={`/org/${orgId}?tab=announcements`}
-        className="text-sm font-semibold text-civic-700 hover:underline"
+        className="text-sm font-semibold text-civic-700 dark:text-civic-200 hover:underline"
       >
         {t('orgAnnouncementCreate.back')}
       </Link>
@@ -55,14 +55,14 @@ export function OrgAnnouncementCreatePage() {
 
       <form onSubmit={onSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-semibold text-slate-700">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
             {t('orgAnnouncementCreate.fields.title')}
           </label>
           <Input value={title} onChange={(e) => setTitle(e.target.value)} required minLength={2} />
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-700">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
             {t('orgAnnouncementCreate.fields.body')}
           </label>
           <textarea
@@ -71,25 +71,25 @@ export function OrgAnnouncementCreatePage() {
             required
             minLength={10}
             rows={10}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
+            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
           />
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
             {t('orgAnnouncementCreate.fields.bodyHelp')}
           </p>
         </div>
 
-        <label className="flex items-center gap-2 text-sm text-slate-700">
+        <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
           <input
             type="checkbox"
             checked={publishNow}
             onChange={(e) => setPublishNow(e.target.checked)}
-            className="rounded text-civic-600 focus:ring-civic-500"
+            className="rounded text-civic-600 dark:text-civic-300 focus:ring-civic-500"
           />
           {t('orgAnnouncementCreate.publishNow')}
         </label>
 
         {error && (
-          <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          <p className="rounded-lg border border-red-200 dark:border-red-500/40 bg-red-50 dark:bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300">
             {error}
           </p>
         )}
