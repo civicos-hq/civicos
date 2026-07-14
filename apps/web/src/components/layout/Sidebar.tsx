@@ -59,7 +59,7 @@ export function Sidebar() {
         </span>
         <div>
           <p className="brand-title">CivicOS</p>
-          <p className="brand-subtitle">Public Action Console</p>
+          <p className="brand-subtitle">{t('nav.brandSubtitle')}</p>
         </div>
       </Link>
 
@@ -88,7 +88,7 @@ export function Sidebar() {
               <Icon className="h-4 w-4" aria-hidden="true" />
               <span className="dashboard-link-label flex-1">{t(i18nKey)}</span>
               {showBadge && (
-                <span className="dashboard-link-badge inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-500 px-1.5 text-[10px] font-bold leading-none text-white">
+                <span className="dashboard-link-badge inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold leading-none text-white">
                   {unread > 99 ? '99+' : unread}
                 </span>
               )}

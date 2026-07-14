@@ -27,7 +27,13 @@ export function DashboardLayout() {
               stable while the next route's chunk is being fetched —
               users see a small text placeholder in the content area
               instead of the entire dashboard chrome flashing away. */}
-          <Suspense fallback={<p className="text-sm text-slate-500">{t('common.loading')}</p>}>
+          <Suspense
+            fallback={
+              <p className="text-sm" style={{ color: 'var(--dash-muted)' }}>
+                {t('common.loading')}
+              </p>
+            }
+          >
             <Outlet />
           </Suspense>
         </main>
