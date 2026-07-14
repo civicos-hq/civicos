@@ -52,7 +52,7 @@ export function SearchBar() {
 
   return (
     <div ref={wrapRef} className="relative max-w-xl flex-1">
-      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
       <input
         type="search"
         value={query}
@@ -72,13 +72,13 @@ export function SearchBar() {
         }}
       />
       {isFetching && enabled && (
-        <Loader2 className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-slate-400" />
+        <Loader2 className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 animate-spin text-slate-400 dark:text-slate-500" />
       )}
 
       {showDropdown && (
-        <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-20 max-h-[28rem] overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-lg">
+        <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-20 max-h-[28rem] overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-900">
           {showEmpty && (
-            <p className="px-4 py-6 text-center text-sm text-slate-600">
+            <p className="px-4 py-6 text-center text-sm text-slate-600 dark:text-slate-400">
               {t('search.empty', { query: debouncedQuery })}
             </p>
           )}
@@ -186,8 +186,8 @@ export function SearchBar() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="border-b border-slate-100 last:border-b-0">
-      <p className="px-4 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+    <div className="border-b border-slate-100 last:border-b-0 dark:border-slate-800">
+      <p className="px-4 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400 dark:text-slate-500">
         {title}
       </p>
       <div className="pb-2">{children}</div>
@@ -208,10 +208,12 @@ function ResultRow({
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full flex-col items-start gap-0.5 px-4 py-2 text-left hover:bg-slate-50"
+      className="flex w-full flex-col items-start gap-0.5 px-4 py-2 text-left hover:bg-slate-50 dark:hover:bg-slate-800/60"
     >
-      <span className="line-clamp-1 text-sm font-medium text-slate-900">{primary}</span>
-      <span className="line-clamp-1 text-xs text-slate-600">{secondary}</span>
+      <span className="line-clamp-1 text-sm font-medium text-slate-900 dark:text-slate-100">
+        {primary}
+      </span>
+      <span className="line-clamp-1 text-xs text-slate-600 dark:text-slate-400">{secondary}</span>
     </button>
   );
 }

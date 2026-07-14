@@ -12,13 +12,19 @@ import { EmptyState } from '../components/EmptyState';
 import { Bell } from 'lucide-react';
 
 const TYPE_TONE: Record<NotificationType, string> = {
-  [NotificationType.ISSUE_UPDATE]: 'bg-rose-100 text-rose-700',
-  [NotificationType.PETITION_UPDATE]: 'bg-civic-100 text-civic-700',
-  [NotificationType.REPRESENTATIVE_RESPONSE]: 'bg-amber-100 text-amber-700',
-  [NotificationType.COMMUNITY_UPDATE]: 'bg-sky-100 text-sky-700',
-  [NotificationType.CONSULTATION_UPDATE]: 'bg-emerald-100 text-emerald-700',
-  [NotificationType.ANNOUNCEMENT_UPDATE]: 'bg-indigo-100 text-indigo-700',
-  [NotificationType.SYSTEM]: 'bg-slate-200 text-slate-700',
+  [NotificationType.ISSUE_UPDATE]:
+    'bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300',
+  [NotificationType.PETITION_UPDATE]:
+    'bg-civic-100 text-civic-700 dark:bg-civic-500/15 dark:text-civic-200',
+  [NotificationType.REPRESENTATIVE_RESPONSE]:
+    'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300',
+  [NotificationType.COMMUNITY_UPDATE]:
+    'bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300',
+  [NotificationType.CONSULTATION_UPDATE]:
+    'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300',
+  [NotificationType.ANNOUNCEMENT_UPDATE]:
+    'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300',
+  [NotificationType.SYSTEM]: 'bg-slate-200 text-slate-700 dark:bg-slate-500/15 dark:text-slate-300',
 };
 
 export function NotificationsPage() {
@@ -72,10 +78,12 @@ export function NotificationsPage() {
         }
       />
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-900">{t('notificationsPage.recent')}</h2>
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/60">
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+          {t('notificationsPage.recent')}
+        </h2>
         {notificationsQuery.isLoading ? (
-          <p className="mt-4 text-sm text-slate-600">{t('common.loading')}</p>
+          <p className="mt-4 text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>
         ) : notifications.length === 0 ? (
           <div className="mt-4">
             <EmptyState icon={<Bell className="h-5 w-5" />} title={t('notificationsPage.empty')} />
@@ -109,7 +117,11 @@ function NotificationRow({
 
   const content = (
     <article
-      className={`flex flex-wrap items-start justify-between gap-3 rounded-xl border p-4 ${notification.read ? 'border-slate-200 bg-slate-50/40' : 'border-civic-200 bg-white'}`}
+      className={`flex flex-wrap items-start justify-between gap-3 rounded-xl border p-4 ${
+        notification.read
+          ? 'border-slate-200 bg-slate-50/40 dark:border-slate-700 dark:bg-slate-800/30'
+          : 'border-civic-200 bg-white dark:border-civic-500/40 dark:bg-slate-900/60'
+      }`}
     >
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
@@ -120,16 +132,18 @@ function NotificationRow({
           </span>
           {!notification.read && (
             <span
-              className="h-2 w-2 rounded-full bg-civic-600"
+              className="h-2 w-2 rounded-full bg-civic-600 dark:bg-civic-500"
               aria-label={t('notificationsPage.unread')}
             />
           )}
-          <span className="ml-auto text-xs font-medium text-slate-600">
+          <span className="ml-auto text-xs font-medium text-slate-600 dark:text-slate-400">
             {relative(notification.createdAt)}
           </span>
         </div>
-        <h3 className="mt-2 font-semibold text-slate-900">{notification.title}</h3>
-        <p className="mt-1 text-sm text-slate-600">{notification.body}</p>
+        <h3 className="mt-2 font-semibold text-slate-900 dark:text-slate-100">
+          {notification.title}
+        </h3>
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{notification.body}</p>
       </div>
     </article>
   );

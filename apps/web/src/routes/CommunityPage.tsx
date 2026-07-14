@@ -93,11 +93,11 @@ export function CommunityPage() {
       />
 
       {meQuery.isLoading || communitiesQuery.isLoading ? (
-        <p className="text-sm text-slate-600">{t('common.loading')}</p>
+        <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>
       ) : activeCommunity ? (
         <>
-          <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-slate-900">
+          <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
               {t('communityPage.activeCommunity')}
             </h2>
             <div className="mt-3 grid gap-4 md:grid-cols-3">
@@ -106,17 +106,25 @@ export function CommunityPage() {
               <Stat label={t('communityPage.stats.country')} value={activeCommunity.country} />
             </div>
             {activeCommunity.description && (
-              <p className="mt-4 text-sm text-slate-600">{activeCommunity.description}</p>
+              <p className="mt-4 text-sm text-slate-600 dark:text-slate-400">
+                {activeCommunity.description}
+              </p>
             )}
           </article>
 
-          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-slate-900">
+          <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
               {t('communityPage.joinedCommunities')}
             </h2>
-            <p className="mt-1 text-sm text-slate-600">{t('communityPage.joinedSub')}</p>
-            <p className="mt-2 text-xs text-slate-500">{t('communityPage.primary.explainer')}</p>
-            {primaryError && <p className="mt-2 text-sm text-red-600">{primaryError}</p>}
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+              {t('communityPage.joinedSub')}
+            </p>
+            <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+              {t('communityPage.primary.explainer')}
+            </p>
+            {primaryError && (
+              <p className="mt-2 text-sm text-red-600 dark:text-red-400">{primaryError}</p>
+            )}
             <div className="mt-4 grid gap-3">
               {joinedCommunities.map((c) => (
                 <JoinedCommunityRow
@@ -147,11 +155,13 @@ export function CommunityPage() {
             </div>
           </section>
 
-          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-slate-900">
+          <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
               {t('communityPage.availableCommunities')}
             </h2>
-            <p className="mt-1 text-sm text-slate-600">{t('communityPage.availableSub')}</p>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+              {t('communityPage.availableSub')}
+            </p>
             {availableCommunities.length === 0 ? (
               <div className="mt-4">
                 <EmptyState
@@ -175,8 +185,8 @@ export function CommunityPage() {
           </section>
         </>
       ) : (
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-900">
+        <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
             {t('communityPage.availableCommunities')}
           </h2>
           {communities.length === 0 ? (
@@ -197,7 +207,9 @@ export function CommunityPage() {
             </div>
           )}
           {(joinMutation.isError || switchMutation.isError) && (
-            <p className="mt-3 text-sm text-red-600">{t('communityPage.joinError')}</p>
+            <p className="mt-3 text-sm text-red-600 dark:text-red-400">
+              {t('communityPage.joinError')}
+            </p>
           )}
         </section>
       )}
@@ -217,10 +229,10 @@ function AvailableCommunityRow({
   onAction: () => void;
 }) {
   return (
-    <article className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+    <article className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50/70 dark:bg-slate-800/40 p-4">
       <div>
-        <h3 className="font-semibold text-slate-900">{community.name}</h3>
-        <p className="mt-1 text-sm text-slate-600">
+        <h3 className="font-semibold text-slate-900 dark:text-slate-100">{community.name}</h3>
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
           {community.lga}, {community.state}
         </p>
       </div>
@@ -255,18 +267,18 @@ function JoinedCommunityRow({
   onMakePrimary: () => void;
 }) {
   return (
-    <article className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50/70 p-4">
+    <article className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50/70 dark:bg-slate-800/40 p-4">
       <div>
         <div className="flex flex-wrap items-center gap-2">
-          <h3 className="font-semibold text-slate-900">{community.name}</h3>
+          <h3 className="font-semibold text-slate-900 dark:text-slate-100">{community.name}</h3>
           {isPrimary && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800">
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 dark:bg-amber-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800 dark:text-amber-200">
               <Crown className="h-3 w-3" aria-hidden="true" />
               {primaryBadge}
             </span>
           )}
         </div>
-        <p className="mt-1 text-sm text-slate-600">
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
           {community.lga}, {community.state}
         </p>
       </div>
@@ -290,9 +302,11 @@ function JoinedCommunityRow({
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-4">
-      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600">{label}</p>
-      <p className="mt-2 text-base font-semibold text-slate-900">{value}</p>
+    <div className="rounded-xl border border-slate-200 bg-slate-50/70 dark:bg-slate-800/40 p-4">
+      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600 dark:text-slate-400">
+        {label}
+      </p>
+      <p className="mt-2 text-base font-semibold text-slate-900 dark:text-slate-100">{value}</p>
     </div>
   );
 }

@@ -18,9 +18,18 @@ const MAX_IMAGE_MB = 5;
 // Lane tiles show community-wide counts by status. The tone is UI-only —
 // the label itself comes from enums.issueStatus.* via useEnumLabels().
 const LANES: { status: IssueStatus; tone: string }[] = [
-  { status: IssueStatus.OPEN, tone: 'bg-rose-100 text-rose-700' },
-  { status: IssueStatus.UNDER_REVIEW, tone: 'bg-amber-100 text-amber-700' },
-  { status: IssueStatus.RESOLVED, tone: 'bg-emerald-100 text-emerald-700' },
+  {
+    status: IssueStatus.OPEN,
+    tone: 'bg-rose-100 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300',
+  },
+  {
+    status: IssueStatus.UNDER_REVIEW,
+    tone: 'bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300',
+  },
+  {
+    status: IssueStatus.RESOLVED,
+    tone: 'bg-emerald-100 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300',
+  },
 ];
 
 type IssueSort = 'newest' | 'oldest' | 'upvotes' | 'comments';
@@ -120,13 +129,15 @@ export function IssuesPage() {
         {lanes.map((lane) => (
           <article
             key={lane.status}
-            className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+            className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-5 shadow-sm"
           >
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600 dark:text-slate-400">
               {enums.issueStatus(lane.status)}
             </p>
             <div className="mt-3 flex items-center justify-between">
-              <p className="text-3xl font-semibold text-slate-900">{lane.count}</p>
+              <p className="text-3xl font-semibold text-slate-900 dark:text-slate-100">
+                {lane.count}
+              </p>
               <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${lane.tone}`}>
                 {enums.issueStatus(lane.status)}
               </span>
@@ -135,11 +146,13 @@ export function IssuesPage() {
         ))}
       </div>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-lg font-semibold text-slate-900">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
             {hasFilters ? t('issuesPage.filteredHeading') : t('issuesPage.recentHeading')}
-            <span className="ml-2 text-sm font-normal text-slate-600">({visible.length})</span>
+            <span className="ml-2 text-sm font-normal text-slate-600 dark:text-slate-400">
+              ({visible.length})
+            </span>
           </h2>
           <div className="flex items-center gap-2">
             {hasFilters && (
@@ -151,17 +164,17 @@ export function IssuesPage() {
                   next.delete('category');
                   setParams(next, { replace: true });
                 }}
-                className="text-xs font-semibold text-civic-700 hover:underline"
+                className="text-xs font-semibold text-civic-700 dark:text-civic-200 hover:underline"
               >
                 {t('common.clearFilters')}
               </button>
             )}
-            <label className="text-xs font-semibold text-slate-600">
+            <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">
               {t('common.sortBy')}
               <select
                 value={sort}
                 onChange={(e) => setFilter('sort', e.target.value)}
-                className="ml-2 rounded-lg border border-slate-200 bg-white px-2 py-1 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-civic-500"
+                className="ml-2 rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 px-2 py-1 text-sm font-medium text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-civic-500"
               >
                 {SORT_VALUES.map((value) => (
                   <option key={value} value={value}>
@@ -205,7 +218,7 @@ export function IssuesPage() {
         </div>
 
         {issuesQuery.isLoading ? (
-          <p className="mt-4 text-sm text-slate-600">{t('common.loading')}</p>
+          <p className="mt-4 text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>
         ) : visible.length === 0 ? (
           <div className="mt-6">
             <EmptyState
@@ -228,7 +241,7 @@ export function IssuesPage() {
                 <Link
                   key={issue.id}
                   to={`/issues/${issue.id}`}
-                  className="flex gap-4 rounded-xl border border-slate-200 bg-slate-50/70 p-4 transition hover:border-civic-300 hover:bg-white"
+                  className="flex gap-4 rounded-xl border border-slate-200 bg-slate-50/70 dark:bg-slate-800/40 p-4 transition hover:border-civic-300 dark:hover:border-civic-500 hover:bg-white dark:hover:bg-slate-900/70"
                 >
                   {thumb ? (
                     <div className="relative h-20 w-20 flex-shrink-0">
@@ -246,17 +259,19 @@ export function IssuesPage() {
                   ) : null}
                   <div className="flex min-w-0 flex-1 flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <h3 className="truncate font-semibold text-slate-900">{issue.title}</h3>
-                      <p className="mt-1 text-sm text-slate-600">
+                      <h3 className="truncate font-semibold text-slate-900 dark:text-slate-100">
+                        {issue.title}
+                      </h3>
+                      <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
                         {enums.issueCategory(issue.category)}
                         {issue.location ? ` · ${issue.location}` : ''}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-semibold text-slate-900">
+                      <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                         {t('issuesPage.meta.upvotes', { count: issue.upvoteCount })}
                       </p>
-                      <p className="text-xs text-slate-600">
+                      <p className="text-xs text-slate-600 dark:text-slate-400">
                         {t('common.commentCount', { count: issue.commentCount })} ·{' '}
                         {enums.issueStatus(issue.status)}
                       </p>
@@ -295,7 +310,7 @@ function FilterPill({
       className={
         active
           ? 'rounded-full bg-civic-700 px-3 py-1 text-xs font-semibold text-white shadow-sm'
-          : 'rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 hover:border-civic-300 hover:text-civic-700'
+          : 'rounded-full border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-400 hover:border-civic-300 dark:hover:border-civic-500 hover:text-civic-700 dark:hover:text-civic-200'
       }
     >
       {label}
@@ -327,14 +342,14 @@ function Modal({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl"
+        className="w-full max-w-lg rounded-2xl bg-white dark:bg-slate-900 p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4">
-          <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
           <button
             type="button"
-            className="text-slate-400 hover:text-slate-600"
+            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-400"
             onClick={onClose}
             aria-label={t('common.close')}
           >
@@ -422,12 +437,15 @@ function ReportIssueModal({ communityId, onClose }: { communityId: string; onClo
         />
 
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700" htmlFor="description">
+          <label
+            className="text-sm font-medium text-gray-700 dark:text-gray-300"
+            htmlFor="description"
+          >
             {t('issuesPage.modal.description')}
           </label>
           <textarea
             id="description"
-            className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-civic-500"
+            className="w-full rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-civic-500"
             rows={4}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -438,12 +456,15 @@ function ReportIssueModal({ communityId, onClose }: { communityId: string; onClo
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700" htmlFor="category">
+          <label
+            className="text-sm font-medium text-gray-700 dark:text-gray-300"
+            htmlFor="category"
+          >
             {t('issuesPage.modal.category')}
           </label>
           <select
             id="category"
-            className="rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-civic-500"
+            className="rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-civic-500"
             value={category}
             onChange={(e) => setCategory(e.target.value as IssueCategory)}
           >
@@ -463,11 +484,11 @@ function ReportIssueModal({ communityId, onClose }: { communityId: string; onClo
         />
 
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-gray-700">
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
             {t('issuesPage.modal.photos', { max: MAX_IMAGES })}
           </label>
           <label
-            className={`flex cursor-pointer items-center justify-center rounded-lg border border-dashed border-gray-300 px-3 py-3 text-sm text-gray-600 transition hover:border-civic-400 hover:bg-civic-50 ${files.length >= MAX_IMAGES ? 'pointer-events-none opacity-50' : ''}`}
+            className={`flex cursor-pointer items-center justify-center rounded-lg border border-dashed border-gray-300 dark:border-gray-600 px-3 py-3 text-sm text-gray-600 dark:text-gray-400 transition hover:border-civic-400 hover:bg-civic-50 ${files.length >= MAX_IMAGES ? 'pointer-events-none opacity-50' : ''}`}
           >
             <input
               type="file"
@@ -505,7 +526,7 @@ function ReportIssueModal({ communityId, onClose }: { communityId: string; onClo
           )}
         </div>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
 
         <div className="flex justify-end gap-2 pt-2">
           <Button type="button" variant="secondary" onClick={onClose}>

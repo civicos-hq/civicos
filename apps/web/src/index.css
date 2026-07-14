@@ -41,6 +41,14 @@
   --brand-danger: #ef4444; /* Danger — errors / destructive actions */
 }
 
+/* Flip color-scheme with the theme so native chrome (scrollbars,
+   form controls, date pickers, autofill styling) picks the right
+   OS-drawn look. `color-scheme` doesn't cascade like colors do —
+   it needs to be set on <html> for its full effect. */
+html[data-theme='dark'] {
+  color-scheme: dark;
+}
+
 body {
   margin: 0;
   font-family: 'Inter', system-ui, sans-serif;
@@ -3706,6 +3714,28 @@ button {
   margin-top: 0.65rem;
 }
 
+/* Dark palette for empty states. Dashed border stays for the
+   "nothing here yet" affordance, but border + fill shift so it
+   reads on Deep Navy. */
+[data-theme='dark'] .empty-state {
+  background: rgba(18, 44, 80, 0.45);
+  border-color: rgba(148, 163, 184, 0.22);
+  color: #94a3b8;
+}
+
+[data-theme='dark'] .empty-state-icon {
+  background: rgba(59, 130, 246, 0.18);
+  color: #93c5fd;
+}
+
+[data-theme='dark'] .empty-state-title {
+  color: #f8fafc;
+}
+
+[data-theme='dark'] .empty-state-body {
+  color: #94a3b8;
+}
+
 /* --- Shared CommunityGate ----------------------------------------
    Amber notice used across Discover/Issues/Petitions/Reps to nudge
    users toward joining a community. One visual voice instead of four.
@@ -4185,15 +4215,16 @@ button {
   overflow: hidden;
 }
 
-/* Thin accent rule at the top — brand blues warming into terracotta.
-   Makes the header instantly readable as "section masthead" without
-   requiring anything heavier than a 3px bar. */
+/* Thin accent rule at the top — Deep Navy to Civic Blue. Was a
+   navy-blue-terracotta gradient; terracotta (--accent-500) is off
+   the brand palette so it was retired in favour of the two-tone
+   brand primary. */
 .page-header::before {
   content: '';
   position: absolute;
   inset: 0 0 auto 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--brand-700), var(--brand-500) 55%, var(--accent-500));
+  background: linear-gradient(90deg, var(--brand-navy), var(--brand-blue));
 }
 
 .page-header-top {
@@ -4218,7 +4249,9 @@ button {
 }
 
 .page-header-marker {
-  color: var(--accent-500);
+  /* § marker was orange (--accent-500) — off palette. Now Civic
+     Blue, aligned with the header gradient. */
+  color: var(--brand-blue);
   font-family: 'Fraunces', Georgia, serif;
   font-size: 1.05rem;
   line-height: 1;
@@ -4279,6 +4312,34 @@ button {
   margin: 1.2rem 0 0;
   padding-top: 1rem;
   border-top: 1px dashed rgba(15, 23, 42, 0.08);
+}
+
+/* Dark palette for the page header. Card sits on Deep Navy shell,
+   so the surface lifts one step (rgba(18, 44, 80, X)) — same
+   elevation ladder the sidebar/topbar use. Text tokens mirror the
+   dashboard --dash-* palette so a page inherits chrome without
+   needing anything extra. */
+[data-theme='dark'] .page-header {
+  background: rgba(18, 44, 80, 0.55);
+  border-color: rgba(148, 163, 184, 0.18);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+[data-theme='dark'] .page-header-title {
+  color: #f8fafc;
+}
+
+[data-theme='dark'] .page-header-subtitle,
+[data-theme='dark'] .page-header-meta {
+  color: #94a3b8;
+}
+
+[data-theme='dark'] .page-header-eyebrow {
+  color: #93c5fd;
+}
+
+[data-theme='dark'] .page-header-notice {
+  border-top-color: rgba(148, 163, 184, 0.14);
 }
 
 /* Profile page uses the shared PageHeader with an inline avatar chip
