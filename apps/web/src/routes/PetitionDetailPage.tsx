@@ -83,7 +83,7 @@ export function PetitionDetailPage() {
   });
 
   if (petitionQuery.isLoading) {
-    return <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>;
+    return <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>;
   }
 
   if (petitionQuery.isError || !petitionQuery.data) {
@@ -119,7 +119,7 @@ export function PetitionDetailPage() {
         {t('petitionDetail.backToPetitions')}
       </Link>
 
-      <header className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+      <header className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-civic-700 dark:text-civic-200">
@@ -128,7 +128,7 @@ export function PetitionDetailPage() {
             <h1 className="mt-2 text-3xl font-semibold text-slate-900 dark:text-slate-100">
               {petition.title}
             </h1>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
               {t('petitionDetail.startedAt', { when: createdAt })}
               {community ? ` · ${community.name}, ${community.lga}` : ''}
             </p>
@@ -144,7 +144,7 @@ export function PetitionDetailPage() {
         </div>
       </header>
 
-      <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+      <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
           {t('petitionDetail.whyThisMatters')}
         </h2>
@@ -154,7 +154,7 @@ export function PetitionDetailPage() {
       </article>
 
       {petition.imageUrls && petition.imageUrls.length > 0 && (
-        <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+        <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
             {t('petitionDetail.photos')}
           </h2>
@@ -162,15 +162,15 @@ export function PetitionDetailPage() {
         </article>
       )}
 
-      <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+      <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600 dark:text-slate-400">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600 dark:text-slate-300">
               {t('petitionDetail.signatures')}
             </p>
             <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-slate-100">
               {petition.signatureCount.toLocaleString(i18n.language)}{' '}
-              <span className="text-sm font-normal text-slate-600 dark:text-slate-400">
+              <span className="text-sm font-normal text-slate-600 dark:text-slate-300">
                 {t('petitionDetail.ofTarget', {
                   goal: petition.goal.toLocaleString(i18n.language),
                 })}
@@ -178,7 +178,7 @@ export function PetitionDetailPage() {
             </p>
           </div>
           {deadlineLabel && (
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-slate-600 dark:text-slate-300">
               {t('petitionDetail.deadline')}{' '}
               <span className="font-medium text-slate-700 dark:text-slate-300">
                 {deadlineLabel}
@@ -190,7 +190,7 @@ export function PetitionDetailPage() {
                       ? 'ml-2 font-semibold text-rose-600 dark:text-rose-400'
                       : daysLeft <= 14
                         ? 'ml-2 font-semibold text-amber-600 dark:text-amber-400'
-                        : 'ml-2 text-slate-600 dark:text-slate-400'
+                        : 'ml-2 text-slate-600 dark:text-slate-300'
                   }
                 >
                   {daysLeft === 0

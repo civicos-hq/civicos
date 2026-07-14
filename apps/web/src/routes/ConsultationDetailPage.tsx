@@ -117,7 +117,7 @@ export function ConsultationDetailPage() {
   }
 
   if (consultationQuery.isLoading || questionsQuery.isLoading) {
-    return <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>;
+    return <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>;
   }
 
   if (consultationQuery.isError || !consultation) {
@@ -165,7 +165,7 @@ export function ConsultationDetailPage() {
       )}
 
       {consultation.description && (
-        <article className="prose prose-slate max-w-none rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 text-sm shadow-sm">
+        <article className="prose prose-slate max-w-none rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 text-sm shadow-sm">
           {/* Description is markdown per the API contract; rendering as
               plain text here is deliberate. When the citizen app gains a
               markdown renderer for issues/petitions, switch this too. */}
@@ -221,7 +221,7 @@ export function ConsultationDetailPage() {
               {outcome.nextSteps}
             </p>
           </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
+          <p className="text-xs text-slate-500 dark:text-slate-300">
             {t('consultationDetail.outcome.publishedBy', {
               name: outcome.authorName,
               date: new Date(outcome.publishedAt).toLocaleDateString(),
@@ -277,20 +277,20 @@ export function ConsultationDetailPage() {
           {questions.map((q, idx) => (
             <div
               key={q.id}
-              className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-4 text-sm shadow-sm"
+              className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 text-sm shadow-sm"
             >
               <p className="font-semibold text-slate-800">
                 {idx + 1}. {q.prompt}
                 {q.required && <span className="ml-1 text-red-500">*</span>}
               </p>
               {q.helpText && (
-                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{q.helpText}</p>
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">{q.helpText}</p>
               )}
               <p className="mt-2 text-xs uppercase tracking-wide text-slate-400">
                 {t(`consultationDetail.questionTypes.${q.type}`)}
               </p>
               {q.options.length > 0 && (
-                <ul className="mt-2 list-disc pl-5 text-xs text-slate-600 dark:text-slate-400">
+                <ul className="mt-2 list-disc pl-5 text-xs text-slate-600 dark:text-slate-300">
                   {q.options.map((o) => (
                     <li key={o}>{o}</li>
                   ))}
@@ -352,10 +352,10 @@ function QuestionField({
     </label>
   );
   const help = question.helpText ? (
-    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{question.helpText}</p>
+    <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">{question.helpText}</p>
   ) : null;
   const wrap = (children: React.ReactNode) => (
-    <div className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-4 shadow-sm">
+    <div className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 shadow-sm">
       {label}
       {help}
       <div className="mt-3">{children}</div>

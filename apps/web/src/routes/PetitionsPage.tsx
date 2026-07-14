@@ -121,7 +121,7 @@ export function PetitionsPage() {
         )}
       </PageHeader>
 
-      <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-4 shadow-sm">
+      <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap gap-2">
             <FilterPill
@@ -148,12 +148,12 @@ export function PetitionsPage() {
                 {t('petitionsPage.clear')}
               </button>
             )}
-            <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+            <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">
               {t('common.sortBy')}
               <select
                 value={sort}
                 onChange={(e) => setFilter('sort', e.target.value)}
-                className="ml-2 rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 px-2 py-1 text-sm font-medium text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-civic-500"
+                className="ml-2 rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 px-2 py-1 text-sm font-medium text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-civic-500"
               >
                 {SORT_VALUES.map((value) => (
                   <option key={value} value={value}>
@@ -167,7 +167,7 @@ export function PetitionsPage() {
       </section>
 
       {petitionsQuery.isLoading ? (
-        <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>
+        <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>
       ) : visible.length === 0 ? (
         <EmptyState
           icon={<FileText className="h-5 w-5" />}
@@ -197,7 +197,7 @@ export function PetitionsPage() {
               <Link
                 key={petition.id}
                 to={`/petitions/${petition.id}`}
-                className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
+                className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
               >
                 <div className="flex items-start justify-between gap-3">
                   <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
@@ -209,7 +209,7 @@ export function PetitionsPage() {
                     {enums.petitionStatus(petition.status)}
                   </span>
                 </div>
-                <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
                   {t('petitionsPage.signaturesOf', {
                     count: petition.signatureCount,
                     goal: petition.goal.toLocaleString(),
@@ -227,7 +227,7 @@ export function PetitionsPage() {
                   <span className="rounded-full bg-civic-50 px-2.5 py-1 font-semibold text-civic-700 dark:text-civic-200">
                     {t('petitionsPage.percentComplete', { percent: progress })}
                   </span>
-                  <span className="text-slate-600 dark:text-slate-400">
+                  <span className="text-slate-600 dark:text-slate-300">
                     {t('common.commentCount', { count: petition.commentCount })}
                     {deadlineFragment}
                   </span>
@@ -262,7 +262,7 @@ function FilterPill({
       className={
         active
           ? 'rounded-full bg-civic-700 px-3 py-1 text-xs font-semibold text-white shadow-sm'
-          : 'rounded-full border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-400 hover:border-civic-300 dark:hover:border-civic-500 hover:text-civic-700 dark:hover:text-civic-200'
+          : 'rounded-full border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300 hover:border-civic-300 dark:hover:border-civic-500 hover:text-civic-700 dark:hover:text-civic-200'
       }
     >
       {label}

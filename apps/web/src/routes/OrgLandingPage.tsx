@@ -19,7 +19,7 @@ export function OrgLandingPage() {
   );
 
   if (isLoading) {
-    return <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>;
+    return <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>;
   }
 
   if (admins.length === 1) {
@@ -47,12 +47,12 @@ export function OrgLandingPage() {
             <li key={organization.id}>
               <Link
                 to={`/org/${organization.id}`}
-                className="block rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500 hover:shadow-md"
+                className="block rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500 hover:shadow-md"
               >
                 <h2 className="font-fraunces text-lg font-semibold text-slate-900 dark:text-slate-100">
                   {organization.name}
                 </h2>
-                <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
                   {t('orgLanding.actingAs', { role: membership.role })}
                 </p>
               </Link>

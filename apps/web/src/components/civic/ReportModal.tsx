@@ -74,14 +74,14 @@ export function ReportModal({ contentType, contentId, onClose }: Props) {
           <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
             {t('report.success.title')}
           </p>
-          <p className="text-sm text-slate-600 dark:text-slate-400">{t('report.success.body')}</p>
+          <p className="text-sm text-slate-600 dark:text-slate-300">{t('report.success.body')}</p>
           <Button onClick={onClose} className="mt-2">
             {t('report.success.close')}
           </Button>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
-          <p className="text-sm text-slate-600 dark:text-slate-400">{t('report.intro')}</p>
+          <p className="text-sm text-slate-600 dark:text-slate-300">{t('report.intro')}</p>
 
           <fieldset className="space-y-2">
             <legend className="text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -104,7 +104,7 @@ export function ReportModal({ contentType, contentId, onClose }: Props) {
                   <span className="block text-sm font-semibold text-slate-900 dark:text-slate-100">
                     {t(`report.reasons.${r}.label`)}
                   </span>
-                  <span className="block text-xs text-slate-600 dark:text-slate-400">
+                  <span className="block text-xs text-slate-600 dark:text-slate-300">
                     {t(`report.reasons.${r}.hint`)}
                   </span>
                 </span>
@@ -127,7 +127,7 @@ export function ReportModal({ contentType, contentId, onClose }: Props) {
               placeholder={t('report.descriptionPlaceholder')}
               className="w-full rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-civic-500"
             />
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-slate-500 dark:text-slate-300">
               {description.length}/{MAX_DESCRIPTION}
             </p>
           </div>

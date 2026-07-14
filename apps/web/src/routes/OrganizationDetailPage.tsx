@@ -94,7 +94,7 @@ export function OrganizationDetailPage() {
   const projQuery = useProjects(id);
 
   if (orgQuery.isLoading || !org) {
-    return <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>;
+    return <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>;
   }
   if (orgQuery.isError) {
     return (
@@ -174,7 +174,7 @@ export function OrganizationDetailPage() {
 function OrgHeader({ org }: { org: Organization }) {
   const { t } = useTranslation();
   return (
-    <header className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+    <header className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
       <div className="flex flex-wrap items-start gap-4">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
@@ -265,7 +265,7 @@ function AnnouncementList({
   const { t } = useTranslation();
   const relative = useRelativeTime();
   if (isLoading)
-    return <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>;
+    return <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>;
   if (items.length === 0) {
     return (
       <EmptyState
@@ -281,7 +281,7 @@ function AnnouncementList({
           key={a.id}
           className={`rounded-xl border p-4 shadow-sm ${
             a.status === AnnouncementStatus.PUBLISHED
-              ? 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60'
+              ? 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70'
               : 'border-amber-300 dark:border-amber-500/50 bg-amber-50/60'
           }`}
         >
@@ -289,7 +289,7 @@ function AnnouncementList({
             <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
               {a.title}
             </h3>
-            <span className="text-xs text-slate-500 dark:text-slate-400">
+            <span className="text-xs text-slate-500 dark:text-slate-300">
               {a.publishedAt ? relative(a.publishedAt) : relative(a.createdAt)}
             </span>
           </div>
@@ -302,7 +302,7 @@ function AnnouncementList({
             {a.body}
           </p>
           <div className="mt-3 flex items-center justify-between gap-2">
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-slate-500 dark:text-slate-300">
               {t('organizationDetail.byAuthor', { name: a.authorName })}
             </p>
             <ReportButton contentType="ANNOUNCEMENT" contentId={a.id} />
@@ -404,7 +404,7 @@ function NewAnnouncementModal({ orgId, onClose }: { orgId: string; onClose: () =
 function ProjectList({ items, isLoading }: { items: Project[]; isLoading: boolean }) {
   const { t } = useTranslation();
   if (isLoading)
-    return <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>;
+    return <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>;
   if (items.length === 0) {
     return (
       <EmptyState
@@ -418,7 +418,7 @@ function ProjectList({ items, isLoading }: { items: Project[]; isLoading: boolea
       {items.map((p) => (
         <article
           key={p.id}
-          className="rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-4 shadow-sm"
+          className="rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 shadow-sm"
         >
           <div className="flex items-baseline justify-between gap-2">
             <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
@@ -428,11 +428,11 @@ function ProjectList({ items, isLoading }: { items: Project[]; isLoading: boolea
               {t(`organizationDetail.projectStatus.${p.status}`)}
             </span>
           </div>
-          <p className="mt-2 line-clamp-3 text-sm text-slate-600 dark:text-slate-400">
+          <p className="mt-2 line-clamp-3 text-sm text-slate-600 dark:text-slate-300">
             {p.description}
           </p>
           {typeof p.budgetKobo === 'number' && (
-            <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+            <p className="mt-2 text-xs text-slate-500 dark:text-slate-300">
               {t('organizationDetail.projectBudget', {
                 amount: new Intl.NumberFormat('en-NG', {
                   style: 'currency',
@@ -553,7 +553,7 @@ function AssignmentList({
   const { t } = useTranslation();
   const relative = useRelativeTime();
   if (isLoading)
-    return <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>;
+    return <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>;
   if (items.length === 0) {
     return (
       <EmptyState
@@ -610,7 +610,7 @@ function AssignmentRow({
   });
 
   return (
-    <article className="rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-4 shadow-sm">
+    <article className="rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 shadow-sm">
       <div className="flex items-baseline justify-between gap-2">
         <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
           <Link
@@ -627,9 +627,9 @@ function AssignmentRow({
         </span>
       </div>
       {assignment.note && (
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">{assignment.note}</p>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{assignment.note}</p>
       )}
-      <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+      <p className="mt-2 text-xs text-slate-500 dark:text-slate-300">
         {t('organizationDetail.assignmentAssignedBy', {
           name: assignment.assignedByName,
           when: relative(assignment.createdAt),

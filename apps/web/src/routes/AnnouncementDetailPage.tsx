@@ -23,7 +23,7 @@ export function AnnouncementDetailPage() {
   const query = useAnnouncement(id);
 
   if (query.isLoading) {
-    return <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>;
+    return <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>;
   }
 
   if (query.isError || !query.data) {
@@ -67,9 +67,9 @@ export function AnnouncementDetailPage() {
         }
       />
 
-      <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+      <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
         <p className="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">{a.body}</p>
-        <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+        <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-300">
           <span
             className={
               'rounded-full px-2 py-0.5 font-semibold uppercase tracking-wide ' +

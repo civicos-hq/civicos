@@ -52,7 +52,7 @@ export function RepresentativeDetailPage() {
   const isAdmin = meQuery.data?.role ? ADMIN_ROLES.has(meQuery.data.role) : false;
 
   if (repQuery.isLoading) {
-    return <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>;
+    return <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>;
   }
   if (repQuery.isError || !repQuery.data) {
     return (
@@ -83,7 +83,7 @@ export function RepresentativeDetailPage() {
         {t('representativeDetail.backToRepresentatives')}
       </Link>
 
-      <header className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+      <header className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
         <div className="flex flex-wrap items-center gap-5">
           <Avatar name={rep.name} src={rep.avatarUrl} size={96} />
           <div className="min-w-0 flex-1">
@@ -93,7 +93,7 @@ export function RepresentativeDetailPage() {
             <h1 className="mt-1 text-3xl font-semibold text-slate-900 dark:text-slate-100">
               {rep.title} {stripTitleFromName(rep.title, rep.name)}
             </h1>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
               {rep.position} · {rep.constituency}
               {community ? ` · ${community.name}` : ''}
             </p>
@@ -116,32 +116,32 @@ export function RepresentativeDetailPage() {
       </header>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-5 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600 dark:text-slate-400">
+        <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-5 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600 dark:text-slate-300">
             {t('representativeDetail.stats.responseRate')}
           </p>
           <p className="mt-2 text-3xl font-semibold text-slate-900 dark:text-slate-100">
             {rep.responseRate}%
           </p>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
             {t('representativeDetail.stats.responseRateSub')}
           </p>
         </article>
-        <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-5 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600 dark:text-slate-400">
+        <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-5 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600 dark:text-slate-300">
             {t('representativeDetail.stats.followers')}
           </p>
           <p className="mt-2 text-3xl font-semibold text-slate-900 dark:text-slate-100">
             {rep.followerCount.toLocaleString(i18n.language)}
           </p>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
             {t('representativeDetail.stats.followersSub')}
           </p>
         </article>
       </div>
 
       {rep.bio && (
-        <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+        <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
             {t('representativeDetail.about')}
           </h2>
@@ -151,11 +151,11 @@ export function RepresentativeDetailPage() {
         </article>
       )}
 
-      <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+      <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
           {t('representativeDetail.contact.heading')}
         </h2>
-        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
           {t('representativeDetail.contact.sub')}
         </p>
         {rep.email || rep.phone || rep.website ? (
@@ -184,7 +184,7 @@ export function RepresentativeDetailPage() {
             )}
           </div>
         ) : (
-          <p className="mt-4 text-sm italic text-slate-600 dark:text-slate-400">
+          <p className="mt-4 text-sm italic text-slate-600 dark:text-slate-300">
             {t('representativeDetail.contact.empty')}
           </p>
         )}
@@ -297,7 +297,7 @@ function EditRepresentativeModal({ rep, onClose }: { rep: Representative; onClos
         </div>
 
         <fieldset className="rounded-lg border border-slate-200 p-3">
-          <legend className="px-2 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">
+          <legend className="px-2 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
             {t('representativeDetail.editModal.contactLegend')}
           </legend>
           <div className="grid gap-3 sm:grid-cols-2">

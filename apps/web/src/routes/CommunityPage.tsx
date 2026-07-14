@@ -93,10 +93,10 @@ export function CommunityPage() {
       />
 
       {meQuery.isLoading || communitiesQuery.isLoading ? (
-        <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>
+        <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>
       ) : activeCommunity ? (
         <>
-          <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+          <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
               {t('communityPage.activeCommunity')}
             </h2>
@@ -106,20 +106,20 @@ export function CommunityPage() {
               <Stat label={t('communityPage.stats.country')} value={activeCommunity.country} />
             </div>
             {activeCommunity.description && (
-              <p className="mt-4 text-sm text-slate-600 dark:text-slate-400">
+              <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">
                 {activeCommunity.description}
               </p>
             )}
           </article>
 
-          <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+          <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
               {t('communityPage.joinedCommunities')}
             </h2>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
               {t('communityPage.joinedSub')}
             </p>
-            <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+            <p className="mt-2 text-xs text-slate-500 dark:text-slate-300">
               {t('communityPage.primary.explainer')}
             </p>
             {primaryError && (
@@ -155,11 +155,11 @@ export function CommunityPage() {
             </div>
           </section>
 
-          <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+          <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
               {t('communityPage.availableCommunities')}
             </h2>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
               {t('communityPage.availableSub')}
             </p>
             {availableCommunities.length === 0 ? (
@@ -185,7 +185,7 @@ export function CommunityPage() {
           </section>
         </>
       ) : (
-        <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+        <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
             {t('communityPage.availableCommunities')}
           </h2>
@@ -232,7 +232,7 @@ function AvailableCommunityRow({
     <article className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50/70 dark:bg-slate-800/40 p-4">
       <div>
         <h3 className="font-semibold text-slate-900 dark:text-slate-100">{community.name}</h3>
-        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
           {community.lga}, {community.state}
         </p>
       </div>
@@ -278,7 +278,7 @@ function JoinedCommunityRow({
             </span>
           )}
         </div>
-        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
           {community.lga}, {community.state}
         </p>
       </div>
@@ -303,7 +303,7 @@ function JoinedCommunityRow({
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl border border-slate-200 bg-slate-50/70 dark:bg-slate-800/40 p-4">
-      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600 dark:text-slate-400">
+      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600 dark:text-slate-300">
         {label}
       </p>
       <p className="mt-2 text-base font-semibold text-slate-900 dark:text-slate-100">{value}</p>

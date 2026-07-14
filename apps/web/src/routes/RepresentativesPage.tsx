@@ -66,7 +66,7 @@ export function RepresentativesPage() {
       </PageHeader>
 
       {repsQuery.isLoading ? (
-        <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>
+        <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>
       ) : reps.length === 0 ? (
         <EmptyState icon={<Users className="h-5 w-5" />} title={t('representativesPage.empty')} />
       ) : (
@@ -75,7 +75,7 @@ export function RepresentativesPage() {
             <Link
               key={rep.id}
               to={`/representatives/${rep.id}`}
-              className="flex gap-4 rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
+              className="flex gap-4 rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
             >
               <Avatar name={rep.name} src={rep.avatarUrl} />
               <div className="min-w-0 flex-1">
@@ -85,7 +85,7 @@ export function RepresentativesPage() {
                   </h2>
                   <FollowButton representativeId={rep.id} isFollowing={followedSet.has(rep.id)} />
                 </div>
-                <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
                   {rep.position} · {rep.constituency}
                 </p>
                 {rep.party && (
@@ -93,7 +93,7 @@ export function RepresentativesPage() {
                     {rep.party}
                   </p>
                 )}
-                <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-600 dark:text-slate-400">
+                <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-600 dark:text-slate-300">
                   <span>
                     {t('representativesPage.card.responseRate', { rate: rep.responseRate })}
                   </span>
@@ -111,7 +111,7 @@ export function RepresentativesPage() {
       {/* Rep profiles are only minted by approving a
           RepresentativeApplication in identity-service — the signup
           form's REPRESENTATIVE track is the entry point. */}
-      <p className="text-xs text-slate-500 dark:text-slate-400">
+      <p className="text-xs text-slate-500 dark:text-slate-300">
         {t('representativesPage.applyPrompt')}{' '}
         <Link
           to="/register"

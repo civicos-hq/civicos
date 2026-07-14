@@ -73,7 +73,7 @@ export function PostProgressUpdateForm({
       <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
         {t('progressUpdate.heading')}
       </p>
-      <p className="text-xs text-slate-500 dark:text-slate-400">{t('progressUpdate.intro')}</p>
+      <p className="text-xs text-slate-500 dark:text-slate-300">{t('progressUpdate.intro')}</p>
 
       {eligibleOrgs.length > 1 && (
         <div>

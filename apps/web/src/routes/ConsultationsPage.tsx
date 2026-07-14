@@ -67,7 +67,7 @@ export function ConsultationsPage() {
         meta={meta}
       />
 
-      <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-4 shadow-sm">
+      <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 shadow-sm">
         <div className="flex flex-wrap gap-2">
           {FILTER_STATUS.map((f) => (
             <button
@@ -79,7 +79,7 @@ export function ConsultationsPage() {
                 (statusFilter === f.value ||
                 (!statusFilter && f.value === ConsultationStatus.PUBLISHED)
                   ? 'border-civic-500 bg-civic-50 dark:bg-civic-500/10 text-civic-700 dark:text-civic-200'
-                  : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600')
+                  : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600')
               }
             >
               {t(f.i18nKey)}
@@ -89,7 +89,7 @@ export function ConsultationsPage() {
       </section>
 
       {listQuery.isLoading && (
-        <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>
+        <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>
       )}
 
       {listQuery.isError && (
@@ -111,7 +111,7 @@ export function ConsultationsPage() {
             <li key={c.id}>
               <Link
                 to={`/consultations/${c.id}`}
-                className="block overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500 hover:shadow-md"
+                className="block overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500 hover:shadow-md"
               >
                 {c.coverImageUrl && (
                   <img
@@ -127,7 +127,7 @@ export function ConsultationsPage() {
                       <h2 className="font-fraunces text-lg font-semibold text-slate-900 dark:text-slate-100">
                         {c.title}
                       </h2>
-                      <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{c.summary}</p>
+                      <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{c.summary}</p>
                     </div>
                     <div className="flex flex-col items-end gap-1">
                       <span
@@ -146,7 +146,7 @@ export function ConsultationsPage() {
                     </div>
                   </div>
 
-                  <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
+                  <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-300">
                     <span>
                       {t('consultationsPage.by')}{' '}
                       <span className="font-semibold text-slate-700 dark:text-slate-300">

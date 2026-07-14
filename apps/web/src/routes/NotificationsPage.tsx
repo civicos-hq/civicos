@@ -78,12 +78,12 @@ export function NotificationsPage() {
         }
       />
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/60">
+      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800/70">
         <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
           {t('notificationsPage.recent')}
         </h2>
         {notificationsQuery.isLoading ? (
-          <p className="mt-4 text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>
+          <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>
         ) : notifications.length === 0 ? (
           <div className="mt-4">
             <EmptyState icon={<Bell className="h-5 w-5" />} title={t('notificationsPage.empty')} />
@@ -120,7 +120,7 @@ function NotificationRow({
       className={`flex flex-wrap items-start justify-between gap-3 rounded-xl border p-4 ${
         notification.read
           ? 'border-slate-200 bg-slate-50/40 dark:border-slate-700 dark:bg-slate-800/30'
-          : 'border-civic-200 bg-white dark:border-civic-500/40 dark:bg-slate-900/60'
+          : 'border-civic-200 bg-white dark:border-civic-500/40 dark:bg-slate-800/70'
       }`}
     >
       <div className="min-w-0 flex-1">
@@ -136,14 +136,14 @@ function NotificationRow({
               aria-label={t('notificationsPage.unread')}
             />
           )}
-          <span className="ml-auto text-xs font-medium text-slate-600 dark:text-slate-400">
+          <span className="ml-auto text-xs font-medium text-slate-600 dark:text-slate-300">
             {relative(notification.createdAt)}
           </span>
         </div>
         <h3 className="mt-2 font-semibold text-slate-900 dark:text-slate-100">
           {notification.title}
         </h3>
-        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{notification.body}</p>
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{notification.body}</p>
       </div>
     </article>
   );

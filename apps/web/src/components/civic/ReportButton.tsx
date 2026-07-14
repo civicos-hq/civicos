@@ -24,7 +24,7 @@ export function ReportButton({ contentType, contentId, size = 'sm', className = 
         type="button"
         onClick={() => setOpen(true)}
         aria-label={t('report.buttonAria')}
-        className={`inline-flex items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition ${
+        className={`inline-flex items-center gap-1 text-slate-500 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-200 transition ${
           isSmall ? 'text-xs' : 'text-sm'
         } ${className}`}
       >

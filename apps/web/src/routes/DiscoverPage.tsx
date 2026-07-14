@@ -194,7 +194,7 @@ function GroupedView({ communityId, kind }: { communityId?: string; kind: KindFi
   }
 
   if (feedQuery.isLoading) {
-    return <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>;
+    return <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>;
   }
   if (items.length === 0) {
     return <EmptyState title={t('discoverPage.empty.grouped')} />;
@@ -213,7 +213,7 @@ function GroupedView({ communityId, kind }: { communityId?: string; kind: KindFi
               >
                 {t(`discoverPage.tiers.${tk}`)}
               </span>
-              <span className="text-xs text-slate-600 dark:text-slate-400">
+              <span className="text-xs text-slate-600 dark:text-slate-300">
                 {t('discoverPage.itemCount', { count: tierItems.length })}
               </span>
             </div>
@@ -244,7 +244,7 @@ function TierView({
   const items = pages.flatMap((p) => p.items);
 
   if (feed.isLoading) {
-    return <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>;
+    return <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>;
   }
   if (items.length === 0) {
     return <EmptyState title={t('discoverPage.empty.tier')} />;
@@ -258,7 +258,7 @@ function TierView({
         >
           {t(`discoverPage.tiers.${tier}`)}
         </span>
-        <span className="text-xs text-slate-600 dark:text-slate-400">
+        <span className="text-xs text-slate-600 dark:text-slate-300">
           {t('discoverPage.itemsLoaded', { count: items.length })}
         </span>
       </div>
@@ -304,7 +304,7 @@ function TierPill({
       className={
         active
           ? `rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide shadow-sm ${tone ?? 'bg-civic-700 text-white'}`
-          : 'rounded-full border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400 hover:border-civic-300 dark:hover:border-civic-500 hover:text-civic-700 dark:hover:text-civic-200'
+          : 'rounded-full border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300 hover:border-civic-300 dark:hover:border-civic-500 hover:text-civic-700 dark:hover:text-civic-200'
       }
     >
       {label}
@@ -385,7 +385,7 @@ function IssueCard({
   return (
     <Link
       to={`/issues/${issue.id}`}
-      className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
+      className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
     >
       <div className="flex items-start gap-2">
         <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-rose-500 dark:text-rose-400" />
@@ -396,7 +396,7 @@ function IssueCard({
           <h3 className="mt-0.5 line-clamp-2 font-semibold text-slate-900 dark:text-slate-100">
             {issue.title}
           </h3>
-          <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-400">
+          <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-300">
             {issue.description}
           </p>
           <CardMeta community={community} createdAt={createdAt}>
@@ -424,7 +424,7 @@ function PetitionCard({
   return (
     <Link
       to={`/petitions/${petition.id}`}
-      className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
+      className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
     >
       <div className="flex items-start gap-2">
         <FileText className="mt-0.5 h-4 w-4 flex-shrink-0 text-civic-600 dark:text-civic-300" />
@@ -435,7 +435,7 @@ function PetitionCard({
           <h3 className="mt-0.5 line-clamp-2 font-semibold text-slate-900 dark:text-slate-100">
             {petition.title}
           </h3>
-          <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-400">
+          <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-300">
             {petition.description}
           </p>
           <div className="mt-3 h-1.5 rounded-full bg-slate-100 dark:bg-slate-800/60">
@@ -473,7 +473,7 @@ function AnnouncementCard({
   return (
     <Link
       to={`/announcements/${announcement.id}`}
-      className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
+      className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
     >
       <div className="flex items-start gap-2">
         <Megaphone className="mt-0.5 h-4 w-4 flex-shrink-0 text-indigo-600 dark:text-indigo-400" />
@@ -484,7 +484,7 @@ function AnnouncementCard({
           <h3 className="mt-0.5 line-clamp-2 font-semibold text-slate-900 dark:text-slate-100">
             {announcement.title}
           </h3>
-          <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-400">
+          <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-300">
             {announcement.body}
           </p>
           <CardMeta org={org} createdAt={createdAt} />
@@ -513,7 +513,7 @@ function ProjectCard({
   return (
     <Link
       to={`/projects/${project.id}`}
-      className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
+      className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
     >
       <div className="flex items-start gap-2">
         <Briefcase className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-600 dark:text-emerald-400" />
@@ -524,7 +524,7 @@ function ProjectCard({
           <h3 className="mt-0.5 line-clamp-2 font-semibold text-slate-900 dark:text-slate-100">
             {project.title}
           </h3>
-          <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-400">
+          <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-300">
             {project.description}
           </p>
           <CardMeta community={community} org={org} createdAt={createdAt}>
@@ -558,7 +558,7 @@ function ConsultationCard({
   return (
     <Link
       to={`/consultations/${consultation.id}`}
-      className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
+      className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
     >
       <div className="flex items-start gap-2">
         <MessageSquare className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-600 dark:text-amber-400" />
@@ -569,7 +569,7 @@ function ConsultationCard({
           <h3 className="mt-0.5 line-clamp-2 font-semibold text-slate-900 dark:text-slate-100">
             {consultation.title}
           </h3>
-          <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-400">
+          <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-300">
             {consultation.summary}
           </p>
           <CardMeta community={community} org={org} createdAt={createdAt}>
@@ -605,7 +605,7 @@ function CardMeta({
       ? { label: org.name, mono: false }
       : null;
   return (
-    <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-600 dark:text-slate-400">
+    <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-600 dark:text-slate-300">
       {anchor && (
         <span className="inline-flex items-center gap-1">
           <MapPin className="h-3 w-3" />

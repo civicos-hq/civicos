@@ -107,7 +107,7 @@ export function OrgConsultationCreatePage() {
             required
             minLength={5}
           />
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
             {t('orgConsultationCreate.fields.titleHelp')}
           </p>
         </div>
@@ -123,7 +123,7 @@ export function OrgConsultationCreatePage() {
             required
             minLength={10}
           />
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
             {t('orgConsultationCreate.fields.summaryHelp')}
           </p>
         </div>
@@ -140,7 +140,7 @@ export function OrgConsultationCreatePage() {
             rows={6}
             className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
           />
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
             {t('orgConsultationCreate.fields.descriptionHelp')}
           </p>
         </div>
@@ -174,12 +174,12 @@ export function OrgConsultationCreatePage() {
                 <button
                   type="button"
                   onClick={() => setCoverFile(null)}
-                  className="text-left text-xs text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:underline"
+                  className="text-left text-xs text-slate-500 dark:text-slate-300 hover:text-slate-700 dark:hover:text-slate-300 hover:underline"
                 >
                   {t('orgConsultationCreate.fields.coverRemove')}
                 </button>
               )}
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <p className="text-xs text-slate-500 dark:text-slate-300">
                 {t('orgConsultationCreate.fields.coverHelp')}
               </p>
             </div>
@@ -202,7 +202,7 @@ export function OrgConsultationCreatePage() {
               </option>
             ))}
           </select>
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
             {t('orgConsultationCreate.fields.communityHelp')}
           </p>
         </div>
@@ -217,7 +217,7 @@ export function OrgConsultationCreatePage() {
             onChange={(e) => setClosesAt(e.target.value)}
             className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
           />
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
             {t('orgConsultationCreate.fields.closesAtHelp')}
           </p>
         </div>

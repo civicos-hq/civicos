@@ -73,7 +73,7 @@ export function OrgAnnouncementCreatePage() {
             rows={10}
             className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
           />
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
             {t('orgAnnouncementCreate.fields.bodyHelp')}
           </p>
         </div>

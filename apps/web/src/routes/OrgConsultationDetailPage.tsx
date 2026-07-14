@@ -100,7 +100,7 @@ export function OrgConsultationDetailPage() {
   }
 
   if (consultation.isLoading) {
-    return <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>;
+    return <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>;
   }
   if (consultation.isError || !consultation.data || !id || !orgId) {
     return (
@@ -204,7 +204,7 @@ export function OrgConsultationDetailPage() {
         />
       )}
 
-      <article className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+      <article className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
         <p className="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
           {c.description}
         </p>
@@ -229,12 +229,12 @@ export function OrgConsultationDetailPage() {
 
       {/* Analytics — visible from PUBLISHED onwards to org members. */}
       {!isDraft && analytics.data && (
-        <section className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+        <section className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
           <h3 className="mb-3 font-fraunces text-base font-semibold text-slate-900 dark:text-slate-100">
             {t('orgConsultationDetail.analyticsHeading', { count: analytics.data.responseCount })}
           </h3>
           {analytics.data.responseCount === 0 ? (
-            <p className="text-sm text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-slate-600 dark:text-slate-300">
               {t('orgConsultationDetail.noResponses')}
             </p>
           ) : (
@@ -254,7 +254,7 @@ export function OrgConsultationDetailPage() {
                         .map(([opt, n]) => (
                           <li
                             key={opt}
-                            className="flex items-center gap-3 text-xs text-slate-600 dark:text-slate-400"
+                            className="flex items-center gap-3 text-xs text-slate-600 dark:text-slate-300"
                           >
                             <span className="w-32 truncate">{opt}</span>
                             <span className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800/60">
@@ -271,7 +271,7 @@ export function OrgConsultationDetailPage() {
                     </ul>
                   )}
                   {agg.textValues && agg.textValues.length > 0 && (
-                    <ul className="mt-2 space-y-1 text-xs italic text-slate-600 dark:text-slate-400">
+                    <ul className="mt-2 space-y-1 text-xs italic text-slate-600 dark:text-slate-300">
                       {agg.textValues.slice(0, 8).map((v, i) => (
                         <li key={i}>&ldquo;{v}&rdquo;</li>
                       ))}
@@ -446,7 +446,7 @@ function QuestionRow({
     <li
       ref={draggable ? setNodeRef : undefined}
       style={style}
-      className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-4 shadow-sm"
+      className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 shadow-sm"
     >
       <div className="flex items-start justify-between gap-3">
         {draggable && (
@@ -469,13 +469,13 @@ function QuestionRow({
             {question.required && <span className="ml-1 text-red-500 dark:text-red-400">*</span>}
           </p>
           {question.helpText && (
-            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{question.helpText}</p>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">{question.helpText}</p>
           )}
           <p className="mt-1 text-xs uppercase tracking-wide text-slate-400">
             {t(`consultationDetail.questionTypes.${question.type}`)}
           </p>
           {question.options.length > 0 && (
-            <ul className="mt-1 list-disc pl-5 text-xs text-slate-600 dark:text-slate-400">
+            <ul className="mt-1 list-disc pl-5 text-xs text-slate-600 dark:text-slate-300">
               {question.options.map((o) => (
                 <li key={o}>{o}</li>
               ))}
@@ -629,7 +629,7 @@ function QuestionForm({
             className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
             placeholder={t('orgConsultationDetail.fields.optionsPlaceholder')}
           />
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
             {t('orgConsultationDetail.fields.optionsHelp')}
           </p>
         </div>

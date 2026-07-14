@@ -140,7 +140,7 @@ export function OrgProjectCreatePage() {
             {t('orgProjectCreate.fields.budget')}
           </label>
           <div className="mt-1 flex items-center gap-2">
-            <span className="text-lg text-slate-500 dark:text-slate-400">₦</span>
+            <span className="text-lg text-slate-500 dark:text-slate-300">₦</span>
             <input
               type="number"
               min="0"
@@ -151,7 +151,7 @@ export function OrgProjectCreatePage() {
               placeholder="e.g. 500000"
             />
           </div>
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
             {t('orgProjectCreate.fields.budgetHelp')}
           </p>
         </div>

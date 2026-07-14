@@ -8,6 +8,7 @@ import { useMe } from '../../hooks/useMe';
 import { api } from '../../lib/api';
 import { SearchBar } from './SearchBar';
 import { LanguageSwitcher } from '../LanguageSwitcher';
+import { ThemeToggle } from '../ThemeToggle';
 
 export function Topbar() {
   const { t } = useTranslation();
@@ -63,6 +64,7 @@ export function Topbar() {
             </select>
           </label>
         )}
+        <ThemeToggle />
         <LanguageSwitcher />
         <Link
           to="/notifications"

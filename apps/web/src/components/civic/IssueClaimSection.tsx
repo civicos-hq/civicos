@@ -48,13 +48,13 @@ export function IssueClaimSection({ issueId }: { issueId: string }) {
   }, [assignments, memberships]);
 
   return (
-    <section className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+    <section className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
       <h3 className="mb-3 font-fraunces text-base font-semibold text-slate-900 dark:text-slate-100">
         {t('issueClaim.heading')}
       </h3>
 
       {assignments.length === 0 ? (
-        <p className="text-sm text-slate-600 dark:text-slate-400">{t('issueClaim.none')}</p>
+        <p className="text-sm text-slate-600 dark:text-slate-300">{t('issueClaim.none')}</p>
       ) : (
         <ul className="space-y-2">
           {assignments.map((a) => (
@@ -95,7 +95,7 @@ function AssignmentRow({ assignment }: { assignment: IssueAssignment }) {
         {t(`orgDashboard.assignmentStatus.${assignment.status}`)}
       </span>
       {assignment.note && (
-        <span className="italic text-slate-600 dark:text-slate-400">
+        <span className="italic text-slate-600 dark:text-slate-300">
           &ldquo;{assignment.note}&rdquo;
         </span>
       )}
@@ -130,7 +130,7 @@ function ClaimForm({ issueId, orgs }: { issueId: string; orgs: MyOrgMembership[]
       <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
         {t('issueClaim.formHeading')}
       </p>
-      <p className="text-xs text-slate-500 dark:text-slate-400">{t('issueClaim.formIntro')}</p>
+      <p className="text-xs text-slate-500 dark:text-slate-300">{t('issueClaim.formIntro')}</p>
 
       {orgs.length > 1 && (
         <div>

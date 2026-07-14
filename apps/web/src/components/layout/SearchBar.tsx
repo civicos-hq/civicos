@@ -78,7 +78,7 @@ export function SearchBar() {
       {showDropdown && (
         <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-20 max-h-[28rem] overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-900">
           {showEmpty && (
-            <p className="px-4 py-6 text-center text-sm text-slate-600 dark:text-slate-400">
+            <p className="px-4 py-6 text-center text-sm text-slate-600 dark:text-slate-300">
               {t('search.empty', { query: debouncedQuery })}
             </p>
           )}
@@ -213,7 +213,7 @@ function ResultRow({
       <span className="line-clamp-1 text-sm font-medium text-slate-900 dark:text-slate-100">
         {primary}
       </span>
-      <span className="line-clamp-1 text-xs text-slate-600 dark:text-slate-400">{secondary}</span>
+      <span className="line-clamp-1 text-xs text-slate-600 dark:text-slate-300">{secondary}</span>
     </button>
   );
 }

@@ -60,7 +60,7 @@ export function OrganizationsPage() {
       </PageHeader>
 
       {orgsQuery.isLoading ? (
-        <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>
+        <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>
       ) : orgs.length === 0 ? (
         <EmptyState icon={<Building2 className="h-5 w-5" />} title={t('organizationsPage.empty')} />
       ) : (
@@ -72,7 +72,7 @@ export function OrganizationsPage() {
       )}
 
       {/* Orgs join by applying at signup — no in-app direct create. */}
-      <p className="text-xs text-slate-500 dark:text-slate-400">
+      <p className="text-xs text-slate-500 dark:text-slate-300">
         {t('organizationsPage.applyPrompt')}{' '}
         <Link
           to="/register"
@@ -102,7 +102,7 @@ function FilterPill({
       className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
         active
           ? 'border-civic-500 bg-civic-100 dark:bg-civic-500/15 text-civic-700 dark:text-civic-200'
-          : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 hover:border-civic-300 dark:hover:border-civic-500'
+          : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 text-slate-600 dark:text-slate-300 hover:border-civic-300 dark:hover:border-civic-500'
       }`}
     >
       {label}
@@ -115,7 +115,7 @@ function OrganizationCard({ org }: { org: Organization }) {
   return (
     <Link
       to={`/organizations/${org.id}`}
-      className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
+      className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
@@ -138,10 +138,10 @@ function OrganizationCard({ org }: { org: Organization }) {
       </div>
 
       {org.description && (
-        <p className="line-clamp-2 text-sm text-slate-600 dark:text-slate-400">{org.description}</p>
+        <p className="line-clamp-2 text-sm text-slate-600 dark:text-slate-300">{org.description}</p>
       )}
 
-      <div className="mt-auto flex flex-wrap gap-3 text-xs text-slate-600 dark:text-slate-400">
+      <div className="mt-auto flex flex-wrap gap-3 text-xs text-slate-600 dark:text-slate-300">
         <span>{t('organizationsPage.card.members', { count: org.memberCount })}</span>
         <span>·</span>
         <span>{t('organizationsPage.card.announcements', { count: org.announcementCount })}</span>

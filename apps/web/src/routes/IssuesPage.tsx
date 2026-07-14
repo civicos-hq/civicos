@@ -129,9 +129,9 @@ export function IssuesPage() {
         {lanes.map((lane) => (
           <article
             key={lane.status}
-            className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-5 shadow-sm"
+            className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-5 shadow-sm"
           >
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600 dark:text-slate-400">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600 dark:text-slate-300">
               {enums.issueStatus(lane.status)}
             </p>
             <div className="mt-3 flex items-center justify-between">
@@ -146,11 +146,11 @@ export function IssuesPage() {
         ))}
       </div>
 
-      <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+      <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
             {hasFilters ? t('issuesPage.filteredHeading') : t('issuesPage.recentHeading')}
-            <span className="ml-2 text-sm font-normal text-slate-600 dark:text-slate-400">
+            <span className="ml-2 text-sm font-normal text-slate-600 dark:text-slate-300">
               ({visible.length})
             </span>
           </h2>
@@ -169,12 +169,12 @@ export function IssuesPage() {
                 {t('common.clearFilters')}
               </button>
             )}
-            <label className="text-xs font-semibold text-slate-600 dark:text-slate-400">
+            <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">
               {t('common.sortBy')}
               <select
                 value={sort}
                 onChange={(e) => setFilter('sort', e.target.value)}
-                className="ml-2 rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 px-2 py-1 text-sm font-medium text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-civic-500"
+                className="ml-2 rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 px-2 py-1 text-sm font-medium text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-civic-500"
               >
                 {SORT_VALUES.map((value) => (
                   <option key={value} value={value}>
@@ -218,7 +218,7 @@ export function IssuesPage() {
         </div>
 
         {issuesQuery.isLoading ? (
-          <p className="mt-4 text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>
+          <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>
         ) : visible.length === 0 ? (
           <div className="mt-6">
             <EmptyState
@@ -262,7 +262,7 @@ export function IssuesPage() {
                       <h3 className="truncate font-semibold text-slate-900 dark:text-slate-100">
                         {issue.title}
                       </h3>
-                      <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                      <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
                         {enums.issueCategory(issue.category)}
                         {issue.location ? ` · ${issue.location}` : ''}
                       </p>
@@ -271,7 +271,7 @@ export function IssuesPage() {
                       <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                         {t('issuesPage.meta.upvotes', { count: issue.upvoteCount })}
                       </p>
-                      <p className="text-xs text-slate-600 dark:text-slate-400">
+                      <p className="text-xs text-slate-600 dark:text-slate-300">
                         {t('common.commentCount', { count: issue.commentCount })} ·{' '}
                         {enums.issueStatus(issue.status)}
                       </p>
@@ -310,7 +310,7 @@ function FilterPill({
       className={
         active
           ? 'rounded-full bg-civic-700 px-3 py-1 text-xs font-semibold text-white shadow-sm'
-          : 'rounded-full border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-400 hover:border-civic-300 dark:hover:border-civic-500 hover:text-civic-700 dark:hover:text-civic-200'
+          : 'rounded-full border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300 hover:border-civic-300 dark:hover:border-civic-500 hover:text-civic-700 dark:hover:text-civic-200'
       }
     >
       {label}

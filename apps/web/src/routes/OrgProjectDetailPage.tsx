@@ -77,7 +77,7 @@ export function OrgProjectDetailPage() {
   }, [query.data]);
 
   if (query.isLoading)
-    return <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>;
+    return <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>;
   if (query.isError || !query.data) {
     return (
       <section className="space-y-4">
@@ -250,7 +250,7 @@ export function OrgProjectDetailPage() {
               {t('orgProjectCreate.fields.budget')}
             </label>
             <div className="mt-1 flex items-center gap-2">
-              <span className="text-lg text-slate-500 dark:text-slate-400">₦</span>
+              <span className="text-lg text-slate-500 dark:text-slate-300">₦</span>
               <input
                 type="number"
                 min="0"
@@ -280,7 +280,7 @@ export function OrgProjectDetailPage() {
           </div>
         </form>
       ) : (
-        <article className="space-y-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+        <article className="space-y-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
           <span
             className={
               'inline-block rounded-full px-2 py-0.5 text-xs font-semibold uppercase tracking-wide ' +
@@ -292,7 +292,7 @@ export function OrgProjectDetailPage() {
           <p className="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
             {p.description}
           </p>
-          <dl className="grid grid-cols-2 gap-4 text-sm text-slate-600 dark:text-slate-400">
+          <dl className="grid grid-cols-2 gap-4 text-sm text-slate-600 dark:text-slate-300">
             {p.startDate && (
               <div>
                 <dt className="text-xs uppercase tracking-wide text-slate-400">
@@ -344,15 +344,15 @@ function ProgressUpdatesSection({
   const updates = updatesQuery.data ?? [];
 
   return (
-    <section className="space-y-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+    <section className="space-y-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
       <h3 className="font-fraunces text-base font-semibold text-slate-900 dark:text-slate-100">
         {t('orgProjectDetail.progressHeading')}
       </h3>
       {updatesQuery.isLoading && (
-        <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>
+        <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>
       )}
       {!updatesQuery.isLoading && updates.length === 0 && (
-        <p className="text-sm text-slate-600 dark:text-slate-400">
+        <p className="text-sm text-slate-600 dark:text-slate-300">
           {t('orgProjectDetail.progressEmpty')}
         </p>
       )}
@@ -362,7 +362,7 @@ function ProgressUpdatesSection({
             <p className="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
               {u.body}
             </p>
-            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
               {u.authorName} · {new Date(u.createdAt).toLocaleDateString()}
             </p>
           </li>

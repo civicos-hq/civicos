@@ -57,7 +57,7 @@ export function ProjectsPage() {
         meta={meta}
       />
 
-      <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-4 shadow-sm">
+      <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 shadow-sm">
         <div className="flex flex-wrap gap-2">
           {FILTERS.map((f) => (
             <button
@@ -68,7 +68,7 @@ export function ProjectsPage() {
                 'rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide transition ' +
                 (statusFilter === f.value
                   ? 'border-civic-500 bg-civic-50 dark:bg-civic-500/10 text-civic-700 dark:text-civic-200'
-                  : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600')
+                  : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600')
               }
             >
               {t(f.i18nKey)}
@@ -78,7 +78,7 @@ export function ProjectsPage() {
       </section>
 
       {query.isLoading && (
-        <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>
+        <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>
       )}
 
       {query.isError && (
@@ -98,14 +98,14 @@ export function ProjectsPage() {
           <li key={p.id}>
             <Link
               to={`/projects/${p.id}`}
-              className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500 hover:shadow-md"
+              className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500 hover:shadow-md"
             >
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
                   <h2 className="font-fraunces text-lg font-semibold text-slate-900 dark:text-slate-100">
                     {p.title}
                   </h2>
-                  <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-400">
+                  <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-300">
                     {p.description}
                   </p>
                 </div>
@@ -118,7 +118,7 @@ export function ProjectsPage() {
                   {t(`orgDashboard.projectStatus.${p.status}`)}
                 </span>
               </div>
-              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
+              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-300">
                 <Link
                   to={`/organizations/${p.organizationId}`}
                   onClick={(e) => e.stopPropagation()}

@@ -54,7 +54,7 @@ export function ProfilePage() {
 
   if (meQuery.isLoading) {
     return (
-      <p className="text-sm text-slate-600 dark:text-slate-400">
+      <p className="text-sm text-slate-600 dark:text-slate-300">
         {t('profilePage.loadingProfile')}
       </p>
     );
@@ -95,24 +95,24 @@ export function ProfilePage() {
       <div className="grid gap-4 lg:grid-cols-[1.2fr,0.8fr]">
         <AccountSection user={me} language={i18n.language} />
 
-        <aside className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+        <aside className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
             {t('profilePage.community.heading')}
           </h2>
           {communityQuery.isLoading ? (
-            <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>
+            <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>
           ) : community ? (
             <div className="mt-3 space-y-2 text-sm text-slate-700 dark:text-slate-300">
               <p className="text-base font-semibold text-slate-900 dark:text-slate-100">
                 {community.name}
               </p>
-              <p className="text-slate-600 dark:text-slate-400">
+              <p className="text-slate-600 dark:text-slate-300">
                 {community.lga}, {community.state}
               </p>
               {community.description && (
-                <p className="pt-1 text-slate-600 dark:text-slate-400">{community.description}</p>
+                <p className="pt-1 text-slate-600 dark:text-slate-300">{community.description}</p>
               )}
-              <p className="pt-1 text-xs font-medium uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
+              <p className="pt-1 text-xs font-medium uppercase tracking-[0.12em] text-slate-500 dark:text-slate-300">
                 {t('profilePage.community.joinedCount', { count: membershipCount })}
               </p>
               <Link
@@ -123,7 +123,7 @@ export function ProfilePage() {
               </Link>
             </div>
           ) : (
-            <div className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-400">
+            <div className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300">
               <p>{t('profilePage.community.empty')}</p>
               <Link
                 to="/community"
@@ -136,11 +136,11 @@ export function ProfilePage() {
         </aside>
       </div>
 
-      <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+      <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
           {t('profilePage.session.heading')}
         </h2>
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
           {t('profilePage.session.sub')}
         </p>
         <Button variant="secondary" size="sm" className="mt-4" onClick={signOut}>
@@ -261,7 +261,7 @@ function DangerZone() {
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600 dark:text-slate-400">
+      <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600 dark:text-slate-300">
         {label}
       </dt>
       <dd className="mt-1 text-sm text-slate-900 dark:text-slate-100">{value}</dd>
@@ -371,7 +371,7 @@ function AccountSection({ user, language }: { user: User; language: string }) {
 
   if (!editing) {
     return (
-      <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+      <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
         <div className="flex items-start justify-between gap-3">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
             {t('profilePage.account')}
@@ -393,7 +393,7 @@ function AccountSection({ user, language }: { user: User; language: string }) {
   const dirty = name.trim() !== user.name || email.trim() !== user.email;
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+    <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
       <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
         {t('profilePage.editAccount')}
       </h2>

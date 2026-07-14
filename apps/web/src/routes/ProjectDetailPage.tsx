@@ -25,7 +25,7 @@ export function ProjectDetailPage() {
   const updatesQuery = useProjectProgressUpdates(id);
 
   if (query.isLoading) {
-    return <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>;
+    return <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>;
   }
   if (query.isError || !query.data) {
     return (
@@ -60,7 +60,7 @@ export function ProjectDetailPage() {
         titleAs="h2"
       />
 
-      <article className="space-y-4 rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+      <article className="space-y-4 rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
         <span
           className={
             'inline-block rounded-full px-2 py-0.5 text-xs font-semibold uppercase tracking-wide ' +
@@ -74,7 +74,7 @@ export function ProjectDetailPage() {
           {p.description}
         </p>
 
-        <dl className="grid grid-cols-1 gap-4 text-sm text-slate-600 dark:text-slate-400 md:grid-cols-2">
+        <dl className="grid grid-cols-1 gap-4 text-sm text-slate-600 dark:text-slate-300 md:grid-cols-2">
           <div>
             <dt className="text-xs uppercase tracking-wide text-slate-400">
               {t('projectDetail.owner')}
@@ -115,15 +115,15 @@ export function ProjectDetailPage() {
         </dl>
       </article>
 
-      <section className="space-y-3 rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+      <section className="space-y-3 rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
         <h3 className="font-fraunces text-base font-semibold text-slate-900 dark:text-slate-100">
           {t('projectDetail.progressHeading')}
         </h3>
         {updatesQuery.isLoading && (
-          <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>
+          <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>
         )}
         {!updatesQuery.isLoading && updates.length === 0 && (
-          <p className="text-sm text-slate-600 dark:text-slate-400">
+          <p className="text-sm text-slate-600 dark:text-slate-300">
             {t('projectDetail.progressEmpty')}
           </p>
         )}
@@ -133,7 +133,7 @@ export function ProjectDetailPage() {
               <p className="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
                 {u.body}
               </p>
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
                 {u.authorName} · {new Date(u.createdAt).toLocaleDateString()}
               </p>
             </li>

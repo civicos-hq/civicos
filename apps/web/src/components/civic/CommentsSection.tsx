@@ -95,10 +95,10 @@ export function CommentsSection({
   const comments = commentsQuery.data ?? [];
 
   return (
-    <article className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+    <article className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
       <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
         {t('comments.heading')}{' '}
-        <span className="text-sm font-normal text-slate-600 dark:text-slate-400">
+        <span className="text-sm font-normal text-slate-600 dark:text-slate-300">
           ({comments.length})
         </span>
       </h2>
@@ -114,7 +114,7 @@ export function CommentsSection({
         />
         {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
         <div className="flex items-center justify-between">
-          <p className="text-xs text-slate-600 dark:text-slate-400">
+          <p className="text-xs text-slate-600 dark:text-slate-300">
             {t('comments.charCount', { count: content.length, max: COMMENT_MAX })}
           </p>
           <Button
@@ -130,7 +130,7 @@ export function CommentsSection({
 
       <div className="mt-6 space-y-4">
         {commentsQuery.isLoading ? (
-          <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>
+          <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>
         ) : comments.length === 0 ? (
           <EmptyState icon={<MessageSquare className="h-5 w-5" />} title={t('comments.empty')} />
         ) : (
@@ -138,7 +138,7 @@ export function CommentsSection({
             c.isHidden ? (
               <div
                 key={c.id}
-                className="flex items-center gap-2 rounded-xl border border-dashed border-slate-300 dark:border-slate-600 bg-slate-50/40 dark:bg-slate-800/30 p-3 text-xs italic text-slate-500 dark:text-slate-400"
+                className="flex items-center gap-2 rounded-xl border border-dashed border-slate-300 dark:border-slate-600 bg-slate-50/40 dark:bg-slate-800/30 p-3 text-xs italic text-slate-500 dark:text-slate-300"
                 data-hidden="true"
               >
                 <MessageSquare className="h-3.5 w-3.5" aria-hidden="true" />
@@ -158,7 +158,7 @@ export function CommentsSection({
                     <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                       {c.authorName}
                     </p>
-                    <span className="text-xs text-slate-600 dark:text-slate-400">
+                    <span className="text-xs text-slate-600 dark:text-slate-300">
                       {enums.userRole(c.authorRole)}
                     </span>
                     {c.isOfficialResponse && (

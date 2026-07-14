@@ -41,7 +41,7 @@ export function AnnouncementsPage() {
       />
 
       {query.isLoading && (
-        <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>
+        <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>
       )}
 
       {query.isError && (
@@ -61,13 +61,13 @@ export function AnnouncementsPage() {
           <li key={a.id}>
             <Link
               to={`/announcements/${a.id}`}
-              className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500 hover:shadow-md"
+              className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500 hover:shadow-md"
             >
               <h2 className="font-fraunces text-lg font-semibold text-slate-900 dark:text-slate-100">
                 {a.title}
               </h2>
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{preview(a.body)}</p>
-              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{preview(a.body)}</p>
+              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-300">
                 <span>
                   {t('announcementsPage.by')}{' '}
                   <Link

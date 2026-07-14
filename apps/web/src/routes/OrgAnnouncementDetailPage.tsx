@@ -55,7 +55,7 @@ export function OrgAnnouncementDetailPage() {
   }, [query.data]);
 
   if (query.isLoading) {
-    return <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>;
+    return <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>;
   }
   if (query.isError || !query.data) {
     return (
@@ -176,7 +176,7 @@ export function OrgAnnouncementDetailPage() {
         </p>
       )}
 
-      <p className="text-xs text-slate-500 dark:text-slate-400">
+      <p className="text-xs text-slate-500 dark:text-slate-300">
         {t('orgAnnouncementDetail.byline', {
           name: a.authorName,
           date: new Date(a.createdAt).toLocaleDateString(),
@@ -235,7 +235,7 @@ export function OrgAnnouncementDetailPage() {
           </div>
         </form>
       ) : (
-        <article className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+        <article className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
           <p className="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">{a.body}</p>
           <span
             className={

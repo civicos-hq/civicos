@@ -658,9 +658,15 @@ button {
    through a token so the dark counterpart below can override
    without touching component CSS. */
 [data-theme='light'] .dashboard-shell {
-  --dash-bg-base: #f1f6fb;
-  --dash-glow-a: rgba(37, 99, 235, 0.16);
-  --dash-glow-b: rgba(15, 39, 71, 0.12);
+  /* Pure white shell — no ambient tint, no glows. Earlier
+     iterations layered blue + navy radial washes over the base,
+     which muddied muted text (upvote counts, meta labels) and
+     made small copy hard to read. Now the shell is straight
+     #ffffff so those low-contrast greys land cleanly. Cards
+     still separate from the shell via their border. */
+  --dash-bg-base: #ffffff;
+  --dash-glow-a: transparent;
+  --dash-glow-b: transparent;
   --dash-sidebar-top: rgba(255, 255, 255, 0.92);
   --dash-sidebar-bottom: rgba(255, 255, 255, 0.82);
   --dash-topbar: rgba(255, 255, 255, 0.85);

@@ -147,7 +147,7 @@ export function IssueDetailPage() {
   });
 
   if (issueQuery.isLoading) {
-    return <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>;
+    return <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>;
   }
 
   if (issueQuery.isError || !issueQuery.data) {
@@ -178,7 +178,7 @@ export function IssueDetailPage() {
         {t('issueDetail.backToIssues')}
       </Link>
 
-      <header className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+      <header className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-civic-700 dark:text-civic-200">
@@ -187,7 +187,7 @@ export function IssueDetailPage() {
             <h1 className="mt-2 text-3xl font-semibold text-slate-900 dark:text-slate-100">
               {issue.title}
             </h1>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
               {t('issueDetail.reportedAt', { when: reportedAt })}
               {community ? ` · ${community.name}, ${community.lga}` : ''}
             </p>
@@ -206,7 +206,7 @@ export function IssueDetailPage() {
 
         {isStaff && (
           <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-100 dark:border-slate-800 pt-4">
-            <p className="mr-2 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-400">
+            <p className="mr-2 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300">
               {t('issueDetail.updateStatus')}
             </p>
             {(Object.values(IssueStatus) as IssueStatus[]).map((s) => (
@@ -218,7 +218,7 @@ export function IssueDetailPage() {
                 className={
                   s === issue.status
                     ? `rounded-full px-3 py-1 text-xs font-semibold ${STATUS_TONE[s]} opacity-60`
-                    : 'rounded-full border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-400 hover:border-civic-300 dark:hover:border-civic-500 hover:text-civic-700 dark:hover:text-civic-200 disabled:opacity-50'
+                    : 'rounded-full border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300 hover:border-civic-300 dark:hover:border-civic-500 hover:text-civic-700 dark:hover:text-civic-200 disabled:opacity-50'
                 }
               >
                 {enums.issueStatus(s)}
@@ -233,7 +233,7 @@ export function IssueDetailPage() {
         )}
       </header>
 
-      <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+      <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
           {t('issueDetail.description')}
         </h2>
@@ -242,7 +242,7 @@ export function IssueDetailPage() {
         </p>
         {issue.location && (
           <div className="mt-4 border-t border-slate-100 dark:border-slate-800 pt-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600 dark:text-slate-400">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600 dark:text-slate-300">
               {t('issueDetail.location')}
             </p>
             <p className="mt-1 text-sm text-slate-700 dark:text-slate-300">{issue.location}</p>
@@ -251,7 +251,7 @@ export function IssueDetailPage() {
       </article>
 
       {issue.imageUrls && issue.imageUrls.length > 0 && (
-        <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+        <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
             {t('issueDetail.photos')}
           </h2>
@@ -259,14 +259,14 @@ export function IssueDetailPage() {
         </article>
       )}
 
-      <article className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+      <article className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600 dark:text-slate-400">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600 dark:text-slate-300">
             {t('issueDetail.communitySupport')}
           </p>
           <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-slate-100">
             {issue.upvoteCount}{' '}
-            <span className="text-sm font-normal text-slate-600 dark:text-slate-400">
+            <span className="text-sm font-normal text-slate-600 dark:text-slate-300">
               {t('issueDetail.upvotesCount', { count: issue.upvoteCount })}
             </span>
           </p>
@@ -333,7 +333,7 @@ function OfficialProgressSection({ issueId }: { issueId: string }) {
         <Megaphone className="h-4 w-4 text-civic-700 dark:text-civic-200" aria-hidden="true" />
         {t('issueDetail.officialProgress.heading')}
       </h2>
-      <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+      <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
         {t('issueDetail.officialProgress.sub')}
       </p>
 
@@ -363,7 +363,7 @@ function OfficialProgressSection({ issueId }: { issueId: string }) {
                     </Link>
                   )}
                 </p>
-                <span className="text-xs text-slate-500 dark:text-slate-400">
+                <span className="text-xs text-slate-500 dark:text-slate-300">
                   {relative(u.createdAt)}
                 </span>
               </div>
@@ -371,7 +371,7 @@ function OfficialProgressSection({ issueId }: { issueId: string }) {
                 {u.body}
               </p>
               <div className="mt-2 flex items-center justify-between gap-2">
-                <p className="text-xs text-slate-500 dark:text-slate-400">
+                <p className="text-xs text-slate-500 dark:text-slate-300">
                   {t('issueDetail.officialProgress.byAuthor', { name: u.authorName })}
                 </p>
                 <ReportButton contentType="PROGRESS_UPDATE" contentId={u.id} />
@@ -389,7 +389,7 @@ function StatusTimeline({ current }: { current: IssueStatus }) {
   const enums = useEnumLabels();
   if (current === IssueStatus.CLOSED) {
     return (
-      <p className="mt-5 text-xs italic text-slate-600 dark:text-slate-400">
+      <p className="mt-5 text-xs italic text-slate-600 dark:text-slate-300">
         {t('issueDetail.statusClosedNote')}
       </p>
     );
@@ -412,7 +412,7 @@ function StatusTimeline({ current }: { current: IssueStatus }) {
                   ? 'flex h-6 w-6 items-center justify-center rounded-full bg-civic-700 text-[10px] font-bold text-white ring-4 ring-civic-100 dark:ring-civic-500/25'
                   : reached
                     ? 'flex h-6 w-6 items-center justify-center rounded-full bg-civic-600 text-[10px] font-bold text-white'
-                    : 'flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 text-[10px] font-bold text-slate-400'
+                    : 'flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 text-[10px] font-bold text-slate-400'
               }
               aria-hidden="true"
             >
