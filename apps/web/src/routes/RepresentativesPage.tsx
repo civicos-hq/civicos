@@ -66,7 +66,7 @@ export function RepresentativesPage() {
       </PageHeader>
 
       {repsQuery.isLoading ? (
-        <p className="text-sm text-slate-600">{t('common.loading')}</p>
+        <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>
       ) : reps.length === 0 ? (
         <EmptyState icon={<Users className="h-5 w-5" />} title={t('representativesPage.empty')} />
       ) : (
@@ -75,25 +75,25 @@ export function RepresentativesPage() {
             <Link
               key={rep.id}
               to={`/representatives/${rep.id}`}
-              className="flex gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-civic-300"
+              className="flex gap-4 rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
             >
               <Avatar name={rep.name} src={rep.avatarUrl} />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-start justify-between gap-2">
-                  <h2 className="truncate text-lg font-semibold text-slate-900">
+                  <h2 className="truncate text-lg font-semibold text-slate-900 dark:text-slate-100">
                     {rep.title} {stripTitleFromName(rep.title, rep.name)}
                   </h2>
                   <FollowButton representativeId={rep.id} isFollowing={followedSet.has(rep.id)} />
                 </div>
-                <p className="mt-1 text-sm text-slate-600">
+                <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
                   {rep.position} · {rep.constituency}
                 </p>
                 {rep.party && (
-                  <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-civic-700">
+                  <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-civic-700 dark:text-civic-200">
                     {rep.party}
                   </p>
                 )}
-                <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-600">
+                <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-600 dark:text-slate-400">
                   <span>
                     {t('representativesPage.card.responseRate', { rate: rep.responseRate })}
                   </span>
@@ -111,9 +111,12 @@ export function RepresentativesPage() {
       {/* Rep profiles are only minted by approving a
           RepresentativeApplication in identity-service — the signup
           form's REPRESENTATIVE track is the entry point. */}
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-slate-500 dark:text-slate-400">
         {t('representativesPage.applyPrompt')}{' '}
-        <Link to="/register" className="font-semibold text-civic-700 hover:underline">
+        <Link
+          to="/register"
+          className="font-semibold text-civic-700 dark:text-civic-200 hover:underline"
+        >
           {t('representativesPage.applyCta')}
         </Link>
       </p>
@@ -174,7 +177,7 @@ export function Avatar({ name, src, size = 64 }: { name: string; src?: string; s
       <img
         src={uploadUrl(src)}
         alt={name}
-        className="flex-shrink-0 rounded-full object-cover ring-2 ring-slate-100"
+        className="flex-shrink-0 rounded-full object-cover ring-2 ring-slate-100 dark:ring-slate-800"
         style={{ width: size, height: size }}
       />
     );
@@ -187,7 +190,7 @@ export function Avatar({ name, src, size = 64 }: { name: string; src?: string; s
     .join('');
   return (
     <div
-      className="flex flex-shrink-0 items-center justify-center rounded-full bg-civic-100 font-semibold text-civic-700 ring-2 ring-slate-100"
+      className="flex flex-shrink-0 items-center justify-center rounded-full bg-civic-100 dark:bg-civic-500/15 font-semibold text-civic-700 dark:text-civic-200 ring-2 ring-slate-100 dark:ring-slate-800"
       style={{ width: size, height: size, fontSize: Math.round(size / 2.8) }}
     >
       {initials || '?'}

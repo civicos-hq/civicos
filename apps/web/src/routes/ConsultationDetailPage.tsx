@@ -117,16 +117,21 @@ export function ConsultationDetailPage() {
   }
 
   if (consultationQuery.isLoading || questionsQuery.isLoading) {
-    return <p className="text-sm text-slate-600">{t('common.loading')}</p>;
+    return <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>;
   }
 
   if (consultationQuery.isError || !consultation) {
     return (
       <section className="space-y-4">
-        <Link to="/consultations" className="text-sm font-semibold text-civic-700 hover:underline">
+        <Link
+          to="/consultations"
+          className="text-sm font-semibold text-civic-700 dark:text-civic-200 hover:underline"
+        >
           {t('consultationDetail.back')}
         </Link>
-        <p className="text-sm text-red-600">{t('consultationDetail.loadError')}</p>
+        <p className="text-sm text-red-600 dark:text-red-400">
+          {t('consultationDetail.loadError')}
+        </p>
       </section>
     );
   }
@@ -137,7 +142,10 @@ export function ConsultationDetailPage() {
 
   return (
     <section className="space-y-6">
-      <Link to="/consultations" className="text-sm font-semibold text-civic-700 hover:underline">
+      <Link
+        to="/consultations"
+        className="text-sm font-semibold text-civic-700 dark:text-civic-200 hover:underline"
+      >
         {t('consultationDetail.back')}
       </Link>
 
@@ -157,22 +165,24 @@ export function ConsultationDetailPage() {
       )}
 
       {consultation.description && (
-        <article className="prose prose-slate max-w-none rounded-2xl border border-slate-200 bg-white p-6 text-sm shadow-sm">
+        <article className="prose prose-slate max-w-none rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 text-sm shadow-sm">
           {/* Description is markdown per the API contract; rendering as
               plain text here is deliberate. When the citizen app gains a
               markdown renderer for issues/petitions, switch this too. */}
-          <p className="whitespace-pre-wrap text-slate-700">{consultation.description}</p>
+          <p className="whitespace-pre-wrap text-slate-700 dark:text-slate-300">
+            {consultation.description}
+          </p>
         </article>
       )}
 
       {isDraft && (
-        <p className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+        <p className="rounded-lg border border-amber-200 dark:border-amber-500/40 bg-amber-50 dark:bg-amber-500/10 p-4 text-sm text-amber-800 dark:text-amber-200">
           {t('consultationDetail.draftNotice')}
         </p>
       )}
 
       {alreadyResponded && !isDraft && (
-        <p className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">
+        <p className="rounded-lg border border-emerald-200 bg-emerald-50 dark:bg-emerald-500/10 p-4 text-sm text-emerald-800">
           {t('consultationDetail.alreadyResponded')}
         </p>
       )}
@@ -182,30 +192,36 @@ export function ConsultationDetailPage() {
       {outcome && (
         <section
           id="outcome"
-          className="space-y-4 rounded-2xl border border-emerald-200 bg-emerald-50/50 p-6 shadow-sm"
+          className="space-y-4 rounded-2xl border border-emerald-200 bg-emerald-50/50 dark:bg-emerald-500/10 p-6 shadow-sm"
         >
           <h3 className="font-fraunces text-lg font-semibold text-emerald-900">
             {t('consultationDetail.outcome.heading')}
           </h3>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
+            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
               {t('consultationDetail.outcome.summary')}
             </p>
-            <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700">{outcome.summary}</p>
+            <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
+              {outcome.summary}
+            </p>
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
+            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
               {t('consultationDetail.outcome.decisions')}
             </p>
-            <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700">{outcome.decisions}</p>
+            <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
+              {outcome.decisions}
+            </p>
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
+            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
               {t('consultationDetail.outcome.nextSteps')}
             </p>
-            <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700">{outcome.nextSteps}</p>
+            <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
+              {outcome.nextSteps}
+            </p>
           </div>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             {t('consultationDetail.outcome.publishedBy', {
               name: outcome.authorName,
               date: new Date(outcome.publishedAt).toLocaleDateString(),
@@ -230,17 +246,17 @@ export function ConsultationDetailPage() {
           ))}
 
           {clientError && (
-            <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            <p className="rounded-lg border border-red-200 bg-red-50 dark:bg-red-500/10 p-3 text-sm text-red-700">
               {clientError}
             </p>
           )}
           {serverError && (
-            <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            <p className="rounded-lg border border-red-200 bg-red-50 dark:bg-red-500/10 p-3 text-sm text-red-700">
               {mapServerError(t, serverError.code, serverError.message)}
             </p>
           )}
           {submitMutation.isSuccess && (
-            <p className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
+            <p className="rounded-lg border border-emerald-200 bg-emerald-50 dark:bg-emerald-500/10 p-3 text-sm text-emerald-800">
               {t('consultationDetail.submitted')}
             </p>
           )}
@@ -255,24 +271,26 @@ export function ConsultationDetailPage() {
         </form>
       ) : (
         <section className="space-y-4">
-          <h3 className="font-fraunces text-base font-semibold text-slate-900">
+          <h3 className="font-fraunces text-base font-semibold text-slate-900 dark:text-slate-100">
             {t('consultationDetail.questionsHeading')}
           </h3>
           {questions.map((q, idx) => (
             <div
               key={q.id}
-              className="rounded-2xl border border-slate-200 bg-white p-4 text-sm shadow-sm"
+              className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-4 text-sm shadow-sm"
             >
               <p className="font-semibold text-slate-800">
                 {idx + 1}. {q.prompt}
                 {q.required && <span className="ml-1 text-red-500">*</span>}
               </p>
-              {q.helpText && <p className="mt-1 text-xs text-slate-500">{q.helpText}</p>}
+              {q.helpText && (
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{q.helpText}</p>
+              )}
               <p className="mt-2 text-xs uppercase tracking-wide text-slate-400">
                 {t(`consultationDetail.questionTypes.${q.type}`)}
               </p>
               {q.options.length > 0 && (
-                <ul className="mt-2 list-disc pl-5 text-xs text-slate-600">
+                <ul className="mt-2 list-disc pl-5 text-xs text-slate-600 dark:text-slate-400">
                   {q.options.map((o) => (
                     <li key={o}>{o}</li>
                   ))}
@@ -281,7 +299,7 @@ export function ConsultationDetailPage() {
             </div>
           ))}
           {isClosed && !outcome && (
-            <p className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+            <p className="rounded-lg border border-amber-200 dark:border-amber-500/40 bg-amber-50 dark:bg-amber-500/10 p-4 text-sm text-amber-800 dark:text-amber-200">
               {t('consultationDetail.closedNoOutcome')}
             </p>
           )}
@@ -334,10 +352,10 @@ function QuestionField({
     </label>
   );
   const help = question.helpText ? (
-    <p className="mt-1 text-xs text-slate-500">{question.helpText}</p>
+    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{question.helpText}</p>
   ) : null;
   const wrap = (children: React.ReactNode) => (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-4 shadow-sm">
       {label}
       {help}
       <div className="mt-3">{children}</div>
@@ -352,7 +370,7 @@ function QuestionField({
           value={answer?.textValue ?? ''}
           onChange={(e) => onChange({ textValue: e.target.value })}
           maxLength={500}
-          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
+          className="w-full rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
         />,
       );
     case ConsultationQuestionType.LONG_TEXT:
@@ -362,7 +380,7 @@ function QuestionField({
           onChange={(e) => onChange({ textValue: e.target.value })}
           rows={4}
           maxLength={5000}
-          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
+          className="w-full rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
         />,
       );
     case ConsultationQuestionType.SINGLE_CHOICE:
@@ -370,14 +388,17 @@ function QuestionField({
         <fieldset className="space-y-2">
           <legend className="sr-only">{question.prompt}</legend>
           {question.options.map((opt) => (
-            <label key={opt} className="flex items-center gap-2 text-sm text-slate-700">
+            <label
+              key={opt}
+              className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300"
+            >
               <input
                 type="radio"
                 name={`q-${question.id}`}
                 value={opt}
                 checked={(answer?.selections?.[0] ?? '') === opt}
                 onChange={() => onChange({ selections: [opt] })}
-                className="text-civic-600 focus:ring-civic-500"
+                className="text-civic-600 dark:text-civic-300 focus:ring-civic-500"
               />
               {opt}
             </label>
@@ -390,7 +411,10 @@ function QuestionField({
         <fieldset className="space-y-2">
           <legend className="sr-only">{question.prompt}</legend>
           {question.options.map((opt) => (
-            <label key={opt} className="flex items-center gap-2 text-sm text-slate-700">
+            <label
+              key={opt}
+              className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300"
+            >
               <input
                 type="checkbox"
                 value={opt}
@@ -401,7 +425,7 @@ function QuestionField({
                   else next.delete(opt);
                   onChange({ selections: Array.from(next) });
                 }}
-                className="rounded text-civic-600 focus:ring-civic-500"
+                className="rounded text-civic-600 dark:text-civic-300 focus:ring-civic-500"
               />
               {opt}
             </label>
@@ -414,14 +438,17 @@ function QuestionField({
         <fieldset className="flex gap-4">
           <legend className="sr-only">{question.prompt}</legend>
           {(['YES', 'NO'] as const).map((v) => (
-            <label key={v} className="flex items-center gap-2 text-sm text-slate-700">
+            <label
+              key={v}
+              className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300"
+            >
               <input
                 type="radio"
                 name={`q-${question.id}`}
                 value={v}
                 checked={(answer?.selections?.[0] ?? '') === v}
                 onChange={() => onChange({ selections: [v] })}
-                className="text-civic-600 focus:ring-civic-500"
+                className="text-civic-600 dark:text-civic-300 focus:ring-civic-500"
               />
               {t(`consultationDetail.yesNo.${v}`)}
             </label>

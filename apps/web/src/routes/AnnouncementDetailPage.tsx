@@ -5,9 +5,11 @@ import { PageHeader } from '../components/PageHeader';
 import { useAnnouncement } from '../hooks/useAnnouncements';
 
 const STATUS_TONE: Record<AnnouncementStatus, string> = {
-  [AnnouncementStatus.DRAFT]: 'bg-slate-200 text-slate-700',
-  [AnnouncementStatus.PUBLISHED]: 'bg-civic-100 text-civic-700',
-  [AnnouncementStatus.ARCHIVED]: 'bg-amber-100 text-amber-700',
+  [AnnouncementStatus.DRAFT]: 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300',
+  [AnnouncementStatus.PUBLISHED]:
+    'bg-civic-100 dark:bg-civic-500/15 text-civic-700 dark:text-civic-200',
+  [AnnouncementStatus.ARCHIVED]:
+    'bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300',
 };
 
 // Read-only citizen view of a single announcement. Any editing controls
@@ -21,16 +23,21 @@ export function AnnouncementDetailPage() {
   const query = useAnnouncement(id);
 
   if (query.isLoading) {
-    return <p className="text-sm text-slate-600">{t('common.loading')}</p>;
+    return <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>;
   }
 
   if (query.isError || !query.data) {
     return (
       <section className="space-y-4">
-        <Link to="/announcements" className="text-sm font-semibold text-civic-700 hover:underline">
+        <Link
+          to="/announcements"
+          className="text-sm font-semibold text-civic-700 dark:text-civic-200 hover:underline"
+        >
           {t('announcementDetail.back')}
         </Link>
-        <p className="text-sm text-red-600">{t('announcementDetail.loadError')}</p>
+        <p className="text-sm text-red-600 dark:text-red-400">
+          {t('announcementDetail.loadError')}
+        </p>
       </section>
     );
   }
@@ -39,7 +46,10 @@ export function AnnouncementDetailPage() {
 
   return (
     <section className="space-y-6">
-      <Link to="/announcements" className="text-sm font-semibold text-civic-700 hover:underline">
+      <Link
+        to="/announcements"
+        className="text-sm font-semibold text-civic-700 dark:text-civic-200 hover:underline"
+      >
         {t('announcementDetail.back')}
       </Link>
 
@@ -57,9 +67,9 @@ export function AnnouncementDetailPage() {
         }
       />
 
-      <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <p className="whitespace-pre-wrap text-sm text-slate-700">{a.body}</p>
-        <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-slate-500">
+      <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+        <p className="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">{a.body}</p>
+        <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
           <span
             className={
               'rounded-full px-2 py-0.5 font-semibold uppercase tracking-wide ' +
@@ -70,7 +80,7 @@ export function AnnouncementDetailPage() {
           </span>
           <Link
             to={`/organizations/${a.organizationId}`}
-            className="font-semibold text-civic-700 hover:underline"
+            className="font-semibold text-civic-700 dark:text-civic-200 hover:underline"
           >
             {t('announcementDetail.viewOrg')}
           </Link>

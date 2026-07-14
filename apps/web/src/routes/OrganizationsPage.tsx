@@ -60,7 +60,7 @@ export function OrganizationsPage() {
       </PageHeader>
 
       {orgsQuery.isLoading ? (
-        <p className="text-sm text-slate-600">{t('common.loading')}</p>
+        <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>
       ) : orgs.length === 0 ? (
         <EmptyState icon={<Building2 className="h-5 w-5" />} title={t('organizationsPage.empty')} />
       ) : (
@@ -72,9 +72,12 @@ export function OrganizationsPage() {
       )}
 
       {/* Orgs join by applying at signup — no in-app direct create. */}
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-slate-500 dark:text-slate-400">
         {t('organizationsPage.applyPrompt')}{' '}
-        <Link to="/register" className="font-semibold text-civic-700 hover:underline">
+        <Link
+          to="/register"
+          className="font-semibold text-civic-700 dark:text-civic-200 hover:underline"
+        >
           {t('organizationsPage.applyCta')}
         </Link>
       </p>
@@ -98,8 +101,8 @@ function FilterPill({
       aria-pressed={active}
       className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
         active
-          ? 'border-civic-500 bg-civic-100 text-civic-700'
-          : 'border-slate-200 bg-white text-slate-600 hover:border-civic-300'
+          ? 'border-civic-500 bg-civic-100 dark:bg-civic-500/15 text-civic-700 dark:text-civic-200'
+          : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 hover:border-civic-300 dark:hover:border-civic-500'
       }`}
     >
       {label}
@@ -112,29 +115,33 @@ function OrganizationCard({ org }: { org: Organization }) {
   return (
     <Link
       to={`/organizations/${org.id}`}
-      className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-civic-300"
+      className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h2 className="truncate text-lg font-semibold text-slate-900">{org.name}</h2>
+            <h2 className="truncate text-lg font-semibold text-slate-900 dark:text-slate-100">
+              {org.name}
+            </h2>
             {org.verified && (
               <ShieldCheck
-                className="h-4 w-4 flex-shrink-0 text-emerald-600"
+                className="h-4 w-4 flex-shrink-0 text-emerald-600 dark:text-emerald-400"
                 aria-label={t('organizationsPage.card.verified')}
               />
             )}
           </div>
-          <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-civic-700">
+          <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-civic-700 dark:text-civic-200">
             {t(`organizationsPage.kinds.${org.kind}`)} ·{' '}
             {t(`organizationsPage.jurisdictions.${org.jurisdiction}`)}
           </p>
         </div>
       </div>
 
-      {org.description && <p className="line-clamp-2 text-sm text-slate-600">{org.description}</p>}
+      {org.description && (
+        <p className="line-clamp-2 text-sm text-slate-600 dark:text-slate-400">{org.description}</p>
+      )}
 
-      <div className="mt-auto flex flex-wrap gap-3 text-xs text-slate-600">
+      <div className="mt-auto flex flex-wrap gap-3 text-xs text-slate-600 dark:text-slate-400">
         <span>{t('organizationsPage.card.members', { count: org.memberCount })}</span>
         <span>·</span>
         <span>{t('organizationsPage.card.announcements', { count: org.announcementCount })}</span>

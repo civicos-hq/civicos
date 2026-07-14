@@ -29,12 +29,12 @@ function initials(name: string): string {
 }
 
 const ROLE_TONE: Record<string, string> = {
-  CITIZEN: 'bg-slate-100 text-slate-700',
-  REPRESENTATIVE: 'bg-amber-100 text-amber-700',
-  GOVERNMENT_ADMIN: 'bg-sky-100 text-sky-700',
-  PLATFORM_ADMIN: 'bg-civic-100 text-civic-700',
-  NGO: 'bg-emerald-100 text-emerald-700',
-  MODERATOR: 'bg-purple-100 text-purple-700',
+  CITIZEN: 'bg-slate-100 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300',
+  REPRESENTATIVE: 'bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300',
+  GOVERNMENT_ADMIN: 'bg-sky-100 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300',
+  PLATFORM_ADMIN: 'bg-civic-100 dark:bg-civic-500/15 text-civic-700 dark:text-civic-200',
+  NGO: 'bg-emerald-100 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300',
+  MODERATOR: 'bg-purple-100 dark:bg-purple-500/15 text-purple-700 dark:text-purple-300',
 };
 
 export function ProfilePage() {
@@ -53,14 +53,19 @@ export function ProfilePage() {
   }
 
   if (meQuery.isLoading) {
-    return <p className="text-sm text-slate-600">{t('profilePage.loadingProfile')}</p>;
+    return (
+      <p className="text-sm text-slate-600 dark:text-slate-400">
+        {t('profilePage.loadingProfile')}
+      </p>
+    );
   }
 
   if (!me) {
-    return <p className="text-sm text-red-600">{t('profilePage.loadError')}</p>;
+    return <p className="text-sm text-red-600 dark:text-red-400">{t('profilePage.loadError')}</p>;
   }
 
-  const roleTone = ROLE_TONE[me.role] ?? 'bg-slate-100 text-slate-700';
+  const roleTone =
+    ROLE_TONE[me.role] ?? 'bg-slate-100 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300';
   const community = communityQuery.data;
   const membershipCount = me.memberships.length;
 
@@ -90,37 +95,39 @@ export function ProfilePage() {
       <div className="grid gap-4 lg:grid-cols-[1.2fr,0.8fr]">
         <AccountSection user={me} language={i18n.language} />
 
-        <aside className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-900">
+        <aside className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
             {t('profilePage.community.heading')}
           </h2>
           {communityQuery.isLoading ? (
-            <p className="mt-3 text-sm text-slate-600">{t('common.loading')}</p>
+            <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>
           ) : community ? (
-            <div className="mt-3 space-y-2 text-sm text-slate-700">
-              <p className="text-base font-semibold text-slate-900">{community.name}</p>
-              <p className="text-slate-600">
+            <div className="mt-3 space-y-2 text-sm text-slate-700 dark:text-slate-300">
+              <p className="text-base font-semibold text-slate-900 dark:text-slate-100">
+                {community.name}
+              </p>
+              <p className="text-slate-600 dark:text-slate-400">
                 {community.lga}, {community.state}
               </p>
               {community.description && (
-                <p className="pt-1 text-slate-600">{community.description}</p>
+                <p className="pt-1 text-slate-600 dark:text-slate-400">{community.description}</p>
               )}
-              <p className="pt-1 text-xs font-medium uppercase tracking-[0.12em] text-slate-500">
+              <p className="pt-1 text-xs font-medium uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
                 {t('profilePage.community.joinedCount', { count: membershipCount })}
               </p>
               <Link
                 to="/community"
-                className="mt-2 inline-block text-sm font-semibold text-civic-700 hover:text-civic-800"
+                className="mt-2 inline-block text-sm font-semibold text-civic-700 dark:text-civic-200 hover:text-civic-800"
               >
                 {t('profilePage.community.manage')} →
               </Link>
             </div>
           ) : (
-            <div className="mt-3 space-y-2 text-sm text-slate-600">
+            <div className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-400">
               <p>{t('profilePage.community.empty')}</p>
               <Link
                 to="/community"
-                className="inline-block text-sm font-semibold text-civic-700 hover:text-civic-800"
+                className="inline-block text-sm font-semibold text-civic-700 dark:text-civic-200 hover:text-civic-800"
               >
                 {t('profilePage.community.findMine')} →
               </Link>
@@ -129,9 +136,13 @@ export function ProfilePage() {
         </aside>
       </div>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-900">{t('profilePage.session.heading')}</h2>
-        <p className="mt-2 text-sm text-slate-600">{t('profilePage.session.sub')}</p>
+      <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+          {t('profilePage.session.heading')}
+        </h2>
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+          {t('profilePage.session.sub')}
+        </p>
         <Button variant="secondary" size="sm" className="mt-4" onClick={signOut}>
           {t('profilePage.session.signOut')}
         </Button>
@@ -182,7 +193,7 @@ function DangerZone() {
   }
 
   return (
-    <section className="rounded-2xl border border-red-200 bg-red-50/50 p-6 shadow-sm">
+    <section className="rounded-2xl border border-red-200 bg-red-50/50 dark:bg-red-500/10 p-6 shadow-sm">
       <h2 className="text-lg font-semibold text-red-900">{t('profilePage.delete.heading')}</h2>
       <p className="mt-2 text-sm text-red-800">{t('profilePage.delete.sub')}</p>
       <ul className="mt-3 list-disc pl-5 text-sm text-red-800 space-y-1">
@@ -194,7 +205,10 @@ function DangerZone() {
 
       <div className="mt-4 space-y-3">
         <div>
-          <label htmlFor="delete-reason" className="block text-xs font-semibold text-slate-700">
+          <label
+            htmlFor="delete-reason"
+            className="block text-xs font-semibold text-slate-700 dark:text-slate-300"
+          >
             {t('profilePage.delete.reasonLabel')}
           </label>
           <textarea
@@ -202,27 +216,30 @@ function DangerZone() {
             rows={2}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-red-400"
+            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-red-400"
             placeholder={t('profilePage.delete.reasonPlaceholder')}
           />
         </div>
 
         <div>
-          <label htmlFor="delete-confirm" className="block text-xs font-semibold text-slate-700">
+          <label
+            htmlFor="delete-confirm"
+            className="block text-xs font-semibold text-slate-700 dark:text-slate-300"
+          >
             {t('profilePage.delete.confirmLabel', { confirm: CONFIRM })}
           </label>
           <input
             id="delete-confirm"
             value={confirmText}
             onChange={(e) => setConfirmText(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-red-400 mono"
+            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-red-400 mono"
             placeholder={CONFIRM}
             autoComplete="off"
           />
         </div>
 
         {error && (
-          <p className="text-sm text-red-900 bg-red-100 border border-red-300 rounded-lg p-2">
+          <p className="text-sm text-red-900 bg-red-100 dark:bg-red-500/15 border border-red-300 rounded-lg p-2">
             {error}
           </p>
         )}
@@ -244,8 +261,10 @@ function DangerZone() {
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600">{label}</dt>
-      <dd className="mt-1 text-sm text-slate-900">{value}</dd>
+      <dt className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600 dark:text-slate-400">
+        {label}
+      </dt>
+      <dd className="mt-1 text-sm text-slate-900 dark:text-slate-100">{value}</dd>
     </div>
   );
 }
@@ -259,7 +278,7 @@ function ApprovalSection({ user }: { user: User }) {
   }
 
   return (
-    <section className="rounded-2xl border border-amber-200 bg-amber-50/60 p-6 shadow-sm">
+    <section className="rounded-2xl border border-amber-200 dark:border-amber-500/40 bg-amber-50/60 dark:bg-amber-500/10 p-6 shadow-sm">
       <h2 className="text-lg font-semibold text-amber-950">{t('profilePage.approval.heading')}</h2>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
         <Field
@@ -352,9 +371,11 @@ function AccountSection({ user, language }: { user: User; language: string }) {
 
   if (!editing) {
     return (
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
         <div className="flex items-start justify-between gap-3">
-          <h2 className="text-lg font-semibold text-slate-900">{t('profilePage.account')}</h2>
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+            {t('profilePage.account')}
+          </h2>
           <Button size="sm" variant="secondary" onClick={startEdit}>
             {t('common.edit')}
           </Button>
@@ -372,10 +393,12 @@ function AccountSection({ user, language }: { user: User; language: string }) {
   const dirty = name.trim() !== user.name || email.trim() !== user.email;
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h2 className="text-lg font-semibold text-slate-900">{t('profilePage.editAccount')}</h2>
+    <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+      <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+        {t('profilePage.editAccount')}
+      </h2>
       <form className="mt-4 grid gap-3 sm:grid-cols-2" onSubmit={submit}>
-        <label className="text-sm text-slate-700">
+        <label className="text-sm text-slate-700 dark:text-slate-300">
           {t('profilePage.fields.fullName')}
           <Input
             className="mt-1.5"
@@ -386,7 +409,7 @@ function AccountSection({ user, language }: { user: User; language: string }) {
             maxLength={100}
           />
         </label>
-        <label className="text-sm text-slate-700">
+        <label className="text-sm text-slate-700 dark:text-slate-300">
           {t('profilePage.fields.email')}
           <Input
             className="mt-1.5"
@@ -397,7 +420,7 @@ function AccountSection({ user, language }: { user: User; language: string }) {
           />
         </label>
 
-        {error && <p className="sm:col-span-2 text-sm text-red-600">{error}</p>}
+        {error && <p className="sm:col-span-2 text-sm text-red-600 dark:text-red-400">{error}</p>}
 
         <div className="sm:col-span-2 mt-2 flex items-center justify-end gap-2">
           <Button type="button" variant="secondary" size="sm" onClick={cancel}>

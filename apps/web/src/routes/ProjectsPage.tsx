@@ -7,11 +7,12 @@ import { useCitizenProjects } from '../hooks/useProjects';
 import { Briefcase } from 'lucide-react';
 
 const STATUS_TONE: Record<ProjectStatus, string> = {
-  [ProjectStatus.PLANNED]: 'bg-slate-200 text-slate-700',
-  [ProjectStatus.ACTIVE]: 'bg-civic-100 text-civic-700',
-  [ProjectStatus.PAUSED]: 'bg-amber-100 text-amber-700',
-  [ProjectStatus.COMPLETED]: 'bg-emerald-100 text-emerald-700',
-  [ProjectStatus.CANCELLED]: 'bg-slate-300 text-slate-700',
+  [ProjectStatus.PLANNED]: 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300',
+  [ProjectStatus.ACTIVE]: 'bg-civic-100 dark:bg-civic-500/15 text-civic-700 dark:text-civic-200',
+  [ProjectStatus.PAUSED]: 'bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300',
+  [ProjectStatus.COMPLETED]:
+    'bg-emerald-100 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300',
+  [ProjectStatus.CANCELLED]: 'bg-slate-300 text-slate-700 dark:text-slate-300',
 };
 
 // Only three status filter chips at the top — Active / Completed / All —
@@ -56,7 +57,7 @@ export function ProjectsPage() {
         meta={meta}
       />
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-4 shadow-sm">
         <div className="flex flex-wrap gap-2">
           {FILTERS.map((f) => (
             <button
@@ -66,8 +67,8 @@ export function ProjectsPage() {
               className={
                 'rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide transition ' +
                 (statusFilter === f.value
-                  ? 'border-civic-500 bg-civic-50 text-civic-700'
-                  : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300')
+                  ? 'border-civic-500 bg-civic-50 dark:bg-civic-500/10 text-civic-700 dark:text-civic-200'
+                  : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600')
               }
             >
               {t(f.i18nKey)}
@@ -76,9 +77,13 @@ export function ProjectsPage() {
         </div>
       </section>
 
-      {query.isLoading && <p className="text-sm text-slate-600">{t('common.loading')}</p>}
+      {query.isLoading && (
+        <p className="text-sm text-slate-600 dark:text-slate-400">{t('common.loading')}</p>
+      )}
 
-      {query.isError && <p className="text-sm text-red-600">{t('projectsPage.loadError')}</p>}
+      {query.isError && (
+        <p className="text-sm text-red-600 dark:text-red-400">{t('projectsPage.loadError')}</p>
+      )}
 
       {!query.isLoading && items.length === 0 && (
         <EmptyState
@@ -93,12 +98,16 @@ export function ProjectsPage() {
           <li key={p.id}>
             <Link
               to={`/projects/${p.id}`}
-              className="block rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-civic-300 hover:shadow-md"
+              className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500 hover:shadow-md"
             >
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
-                  <h2 className="font-fraunces text-lg font-semibold text-slate-900">{p.title}</h2>
-                  <p className="mt-1 line-clamp-2 text-sm text-slate-600">{p.description}</p>
+                  <h2 className="font-fraunces text-lg font-semibold text-slate-900 dark:text-slate-100">
+                    {p.title}
+                  </h2>
+                  <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-400">
+                    {p.description}
+                  </p>
                 </div>
                 <span
                   className={
@@ -109,11 +118,11 @@ export function ProjectsPage() {
                   {t(`orgDashboard.projectStatus.${p.status}`)}
                 </span>
               </div>
-              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
                 <Link
                   to={`/organizations/${p.organizationId}`}
                   onClick={(e) => e.stopPropagation()}
-                  className="font-semibold text-slate-700 hover:underline"
+                  className="font-semibold text-slate-700 dark:text-slate-300 hover:underline"
                 >
                   {t('projectsPage.viewOrg')}
                 </Link>
