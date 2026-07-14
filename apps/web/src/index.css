@@ -3733,13 +3733,16 @@ button {
    Slim bar between Topbar and content. Doesn't eat page real estate;
    the accent tone signals "action needed" without dominating.
    ------------------------------------------------------------------ */
+/* Verify-strip previously used an orange accent — off-brand.
+   Retargeted to the brand Warning amber (#f59e0b) so it reads as
+   "attention needed" without leaking a non-brand hue. */
 .verify-strip {
   display: flex;
   align-items: center;
   gap: 0.7rem;
   padding: 0.5rem 1rem;
-  background: linear-gradient(90deg, rgba(238, 127, 59, 0.12), rgba(238, 127, 59, 0.06));
-  border-bottom: 1px solid rgba(238, 127, 59, 0.28);
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.14), rgba(245, 158, 11, 0.06));
+  border-bottom: 1px solid rgba(245, 158, 11, 0.32);
   font-size: 0.85rem;
   color: var(--ink-900, #0f172a);
   z-index: 1;
@@ -3750,8 +3753,8 @@ button {
   width: 1.6rem;
   height: 1.6rem;
   border-radius: 999px;
-  background: rgba(238, 127, 59, 0.18);
-  color: #c2410c;
+  background: rgba(245, 158, 11, 0.22);
+  color: #b45309;
   flex: none;
 }
 .verify-strip-body {
@@ -3883,14 +3886,18 @@ button {
    Amber notice used across Discover/Issues/Petitions/Reps to nudge
    users toward joining a community. One visual voice instead of four.
    ------------------------------------------------------------------ */
+/* Community gate previously used an orange accent — off-brand.
+   Retargeted to the brand Warning amber so the "join a community
+   first" nudge stays visually consistent with .verify-strip and
+   .onboarding-empty. */
 .community-gate {
   display: flex;
   align-items: flex-start;
   gap: 0.6rem;
   padding: 0.55rem 0.85rem;
   border-radius: 10px;
-  background: rgba(238, 127, 59, 0.08);
-  border: 1px solid rgba(238, 127, 59, 0.22);
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.28);
   color: #78350f;
 }
 .community-gate-icon {
@@ -3899,8 +3906,8 @@ button {
   width: 1.5rem;
   height: 1.5rem;
   border-radius: 999px;
-  background: rgba(238, 127, 59, 0.16);
-  color: #c2410c;
+  background: rgba(245, 158, 11, 0.2);
+  color: #b45309;
   flex: none;
   margin-top: 0.05rem;
 }
@@ -3918,6 +3925,82 @@ button {
 }
 .community-gate-link:hover {
   color: var(--brand-500, #1f6ed4);
+}
+
+/* Dark palette for CSS-class-based dashboard chrome (language
+   menu, verify strip, community gate). All three appear inside
+   the dashboard shell, so their dark values follow the same
+   Deep Navy ladder — inputs / menus one step up from the shell,
+   warning tints use the brand amber at higher alpha. */
+[data-theme='dark'] .lang-btn {
+  background: rgba(18, 44, 80, 0.7);
+  border-color: rgba(148, 163, 184, 0.24);
+  color: #f8fafc;
+}
+[data-theme='dark'] .lang-btn:hover {
+  border-color: rgba(148, 163, 184, 0.4);
+}
+
+[data-theme='dark'] .lang-menu {
+  background: #1a3866;
+  border-color: rgba(148, 163, 184, 0.2);
+  box-shadow:
+    0 10px 30px -10px rgba(0, 0, 0, 0.6),
+    0 2px 6px rgba(0, 0, 0, 0.35);
+}
+[data-theme='dark'] .lang-item {
+  color: #f8fafc;
+}
+[data-theme='dark'] .lang-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+[data-theme='dark'] .lang-item-code {
+  color: #93c5fd;
+}
+[data-theme='dark'] .lang-item-check {
+  color: #93c5fd;
+}
+
+[data-theme='dark'] .verify-strip {
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.08));
+  border-bottom-color: rgba(245, 158, 11, 0.4);
+  color: #f8fafc;
+}
+[data-theme='dark'] .verify-strip-icon {
+  background: rgba(245, 158, 11, 0.3);
+  color: #fbbf24;
+}
+[data-theme='dark'] .verify-strip-body {
+  color: #f8fafc;
+}
+[data-theme='dark'] .verify-strip-ack {
+  color: #86efac;
+}
+[data-theme='dark'] .verify-strip-dismiss {
+  color: #94a3b8;
+}
+[data-theme='dark'] .verify-strip-dismiss:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+}
+
+[data-theme='dark'] .community-gate {
+  background: rgba(245, 158, 11, 0.14);
+  border-color: rgba(245, 158, 11, 0.36);
+  color: #fde68a;
+}
+[data-theme='dark'] .community-gate-icon {
+  background: rgba(245, 158, 11, 0.28);
+  color: #fbbf24;
+}
+[data-theme='dark'] .community-gate-body {
+  color: #fde68a;
+}
+[data-theme='dark'] .community-gate-link {
+  color: #93c5fd;
+}
+[data-theme='dark'] .community-gate-link:hover {
+  color: #bfdbfe;
 }
 
 /* Forgot-password link on the login form */

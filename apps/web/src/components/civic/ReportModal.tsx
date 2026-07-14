@@ -70,25 +70,27 @@ export function ReportModal({ contentType, contentId, onClose }: Props) {
     <Modal title={t('report.modal.title')} onClose={onClose}>
       {submit.isSuccess ? (
         <div className="flex flex-col items-center gap-3 py-4 text-center">
-          <ShieldAlert className="h-8 w-8 text-civic-700" aria-hidden="true" />
-          <p className="text-sm font-semibold text-slate-900">{t('report.success.title')}</p>
-          <p className="text-sm text-slate-600">{t('report.success.body')}</p>
+          <ShieldAlert className="h-8 w-8 text-civic-700 dark:text-civic-200" aria-hidden="true" />
+          <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+            {t('report.success.title')}
+          </p>
+          <p className="text-sm text-slate-600 dark:text-slate-400">{t('report.success.body')}</p>
           <Button onClick={onClose} className="mt-2">
             {t('report.success.close')}
           </Button>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
-          <p className="text-sm text-slate-600">{t('report.intro')}</p>
+          <p className="text-sm text-slate-600 dark:text-slate-400">{t('report.intro')}</p>
 
           <fieldset className="space-y-2">
-            <legend className="text-sm font-medium text-slate-700">
+            <legend className="text-sm font-medium text-slate-700 dark:text-slate-300">
               {t('report.reasonLegend')}
             </legend>
             {REASONS.map((r) => (
               <label
                 key={r}
-                className="flex items-start gap-2 rounded-lg border border-slate-200 p-2 hover:border-civic-300 cursor-pointer"
+                className="flex items-start gap-2 rounded-lg border border-slate-200 dark:border-slate-700 p-2 hover:border-civic-300 dark:hover:border-civic-500 cursor-pointer"
               >
                 <input
                   type="radio"
@@ -99,10 +101,10 @@ export function ReportModal({ contentType, contentId, onClose }: Props) {
                   className="mt-1"
                 />
                 <span>
-                  <span className="block text-sm font-semibold text-slate-900">
+                  <span className="block text-sm font-semibold text-slate-900 dark:text-slate-100">
                     {t(`report.reasons.${r}.label`)}
                   </span>
-                  <span className="block text-xs text-slate-600">
+                  <span className="block text-xs text-slate-600 dark:text-slate-400">
                     {t(`report.reasons.${r}.hint`)}
                   </span>
                 </span>
@@ -111,7 +113,10 @@ export function ReportModal({ contentType, contentId, onClose }: Props) {
           </fieldset>
 
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-slate-700" htmlFor="report-description">
+            <label
+              className="text-sm font-medium text-slate-700 dark:text-slate-300"
+              htmlFor="report-description"
+            >
               {t('report.descriptionLabel')}
             </label>
             <textarea
@@ -120,9 +125,9 @@ export function ReportModal({ contentType, contentId, onClose }: Props) {
               value={description}
               onChange={(e) => setDescription(e.target.value.slice(0, MAX_DESCRIPTION))}
               placeholder={t('report.descriptionPlaceholder')}
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-civic-500"
+              className="w-full rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-civic-500"
             />
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               {description.length}/{MAX_DESCRIPTION}
             </p>
           </div>
@@ -149,25 +154,25 @@ function ErrorPanel({ code, retryAfter }: { code: string; retryAfter: number | n
   switch (code) {
     case 'ALREADY_FLAGGED':
       return (
-        <p className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
+        <p className="rounded-lg border border-amber-300 dark:border-amber-500/50 bg-amber-50 dark:bg-amber-500/10 p-3 text-sm text-amber-900 dark:text-amber-100">
           {t('report.errors.alreadyFlagged')}
         </p>
       );
     case 'EMAIL_NOT_VERIFIED':
       return (
-        <p className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
+        <p className="rounded-lg border border-amber-300 dark:border-amber-500/50 bg-amber-50 dark:bg-amber-500/10 p-3 text-sm text-amber-900 dark:text-amber-100">
           {t('report.errors.emailNotVerified')}
         </p>
       );
     case 'RATE_LIMITED':
       return (
-        <p className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
+        <p className="rounded-lg border border-amber-300 dark:border-amber-500/50 bg-amber-50 dark:bg-amber-500/10 p-3 text-sm text-amber-900 dark:text-amber-100">
           {t('report.errors.rateLimited', { seconds: retryAfter ?? 60 })}
         </p>
       );
     default:
       return (
-        <p className="rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-900">
+        <p className="rounded-lg border border-red-300 bg-red-50 dark:bg-red-500/10 p-3 text-sm text-red-900">
           {t('report.errors.generic')}
         </p>
       );

@@ -8,10 +8,12 @@ import { useCreateAssignment, useIssueAssignments } from '../../hooks/useAssignm
 import { PostProgressUpdateForm } from './PostProgressUpdateForm';
 
 const TONE: Record<AssignmentStatus, string> = {
-  [AssignmentStatus.RECEIVED]: 'bg-slate-200 text-slate-700',
-  [AssignmentStatus.IN_PROGRESS]: 'bg-civic-100 text-civic-700',
-  [AssignmentStatus.COMPLETED]: 'bg-emerald-100 text-emerald-700',
-  [AssignmentStatus.REJECTED]: 'bg-rose-100 text-rose-700',
+  [AssignmentStatus.RECEIVED]: 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300',
+  [AssignmentStatus.IN_PROGRESS]:
+    'bg-civic-100 dark:bg-civic-500/15 text-civic-700 dark:text-civic-200',
+  [AssignmentStatus.COMPLETED]:
+    'bg-emerald-100 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300',
+  [AssignmentStatus.REJECTED]: 'bg-rose-100 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300',
 };
 
 /**
@@ -46,13 +48,13 @@ export function IssueClaimSection({ issueId }: { issueId: string }) {
   }, [assignments, memberships]);
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h3 className="mb-3 font-fraunces text-base font-semibold text-slate-900">
+    <section className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-900/60 p-6 shadow-sm">
+      <h3 className="mb-3 font-fraunces text-base font-semibold text-slate-900 dark:text-slate-100">
         {t('issueClaim.heading')}
       </h3>
 
       {assignments.length === 0 ? (
-        <p className="text-sm text-slate-600">{t('issueClaim.none')}</p>
+        <p className="text-sm text-slate-600 dark:text-slate-400">{t('issueClaim.none')}</p>
       ) : (
         <ul className="space-y-2">
           {assignments.map((a) => (
@@ -81,7 +83,9 @@ function AssignmentRow({ assignment }: { assignment: IssueAssignment }) {
   const { t } = useTranslation();
   return (
     <li className="flex flex-wrap items-center gap-2 text-sm">
-      <span className="font-semibold text-slate-800">{assignment.assignedByName}</span>
+      <span className="font-semibold text-slate-800 dark:text-slate-200">
+        {assignment.assignedByName}
+      </span>
       <span
         className={
           'rounded-full px-2 py-0.5 text-xs font-semibold uppercase tracking-wide ' +
@@ -91,7 +95,9 @@ function AssignmentRow({ assignment }: { assignment: IssueAssignment }) {
         {t(`orgDashboard.assignmentStatus.${assignment.status}`)}
       </span>
       {assignment.note && (
-        <span className="italic text-slate-600">&ldquo;{assignment.note}&rdquo;</span>
+        <span className="italic text-slate-600 dark:text-slate-400">
+          &ldquo;{assignment.note}&rdquo;
+        </span>
       )}
     </li>
   );
@@ -117,19 +123,24 @@ function ClaimForm({ issueId, orgs }: { issueId: string; orgs: MyOrgMembership[]
   }
 
   return (
-    <form onSubmit={onSubmit} className="mt-4 space-y-3 border-t border-slate-100 pt-4">
-      <p className="text-sm font-semibold text-slate-800">{t('issueClaim.formHeading')}</p>
-      <p className="text-xs text-slate-500">{t('issueClaim.formIntro')}</p>
+    <form
+      onSubmit={onSubmit}
+      className="mt-4 space-y-3 border-t border-slate-100 dark:border-slate-800 pt-4"
+    >
+      <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+        {t('issueClaim.formHeading')}
+      </p>
+      <p className="text-xs text-slate-500 dark:text-slate-400">{t('issueClaim.formIntro')}</p>
 
       {orgs.length > 1 && (
         <div>
-          <label className="block text-xs font-semibold text-slate-700">
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
             {t('issueClaim.actingAs')}
           </label>
           <select
             value={orgId}
             onChange={(e) => setOrgId(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
+            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
           >
             {orgs.map((m) => (
               <option key={m.organization.id} value={m.organization.id}>
@@ -141,7 +152,7 @@ function ClaimForm({ issueId, orgs }: { issueId: string; orgs: MyOrgMembership[]
       )}
 
       <div>
-        <label className="block text-xs font-semibold text-slate-700">
+        <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
           {t('issueClaim.noteLabel')}
         </label>
         <Input
@@ -152,7 +163,7 @@ function ClaimForm({ issueId, orgs }: { issueId: string; orgs: MyOrgMembership[]
       </div>
 
       {error && (
-        <p className="rounded-lg border border-red-200 bg-red-50 p-2 text-xs text-red-700">
+        <p className="rounded-lg border border-red-200 dark:border-red-500/40 bg-red-50 dark:bg-red-500/10 p-2 text-xs text-red-700 dark:text-red-300">
           {error}
         </p>
       )}
