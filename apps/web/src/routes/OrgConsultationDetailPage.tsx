@@ -100,15 +100,20 @@ export function OrgConsultationDetailPage() {
   }
 
   if (consultation.isLoading) {
-    return <p className="text-sm text-slate-600">{t('common.loading')}</p>;
+    return <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>;
   }
   if (consultation.isError || !consultation.data || !id || !orgId) {
     return (
       <section className="space-y-4">
-        <Link to={`/org/${orgId ?? ''}`} className="text-sm font-semibold text-civic-700">
+        <Link
+          to={`/org/${orgId ?? ''}`}
+          className="text-sm font-semibold text-civic-700 dark:text-civic-200"
+        >
           {t('orgConsultationDetail.back')}
         </Link>
-        <p className="text-sm text-red-600">{t('orgConsultationDetail.loadError')}</p>
+        <p className="text-sm text-red-600 dark:text-red-400">
+          {t('orgConsultationDetail.loadError')}
+        </p>
       </section>
     );
   }
@@ -124,7 +129,10 @@ export function OrgConsultationDetailPage() {
 
   return (
     <section className="space-y-6">
-      <Link to={`/org/${orgId}`} className="text-sm font-semibold text-civic-700 hover:underline">
+      <Link
+        to={`/org/${orgId}`}
+        className="text-sm font-semibold text-civic-700 dark:text-civic-200 hover:underline"
+      >
         {t('orgConsultationDetail.back')}
       </Link>
 
@@ -183,7 +191,7 @@ export function OrgConsultationDetailPage() {
       />
 
       {globalError && (
-        <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        <p className="rounded-lg border border-red-200 dark:border-red-500/40 bg-red-50 dark:bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300">
           {globalError}
         </p>
       )}
@@ -192,12 +200,14 @@ export function OrgConsultationDetailPage() {
         <img
           src={uploadUrl(c.coverImageUrl)}
           alt=""
-          className="h-48 w-full rounded-2xl border border-slate-200 object-cover shadow-sm sm:h-64"
+          className="h-48 w-full rounded-2xl border border-slate-200 dark:border-slate-700 object-cover shadow-sm sm:h-64"
         />
       )}
 
-      <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <p className="whitespace-pre-wrap text-sm text-slate-700">{c.description}</p>
+      <article className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
+        <p className="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
+          {c.description}
+        </p>
       </article>
 
       {/* Questions — edit builder in DRAFT, read-only otherwise.
@@ -205,7 +215,7 @@ export function OrgConsultationDetailPage() {
           admin and the consultation is still DRAFT — matches the
           server-side NOT_DRAFT guard on the reorder endpoint. */}
       <section>
-        <h3 className="mb-3 font-fraunces text-base font-semibold text-slate-900">
+        <h3 className="mb-3 font-fraunces text-base font-semibold text-slate-900 dark:text-slate-100">
           {t('orgConsultationDetail.questionsHeading')}
         </h3>
         <SortableQuestions
@@ -219,28 +229,35 @@ export function OrgConsultationDetailPage() {
 
       {/* Analytics — visible from PUBLISHED onwards to org members. */}
       {!isDraft && analytics.data && (
-        <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h3 className="mb-3 font-fraunces text-base font-semibold text-slate-900">
+        <section className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
+          <h3 className="mb-3 font-fraunces text-base font-semibold text-slate-900 dark:text-slate-100">
             {t('orgConsultationDetail.analyticsHeading', { count: analytics.data.responseCount })}
           </h3>
           {analytics.data.responseCount === 0 ? (
-            <p className="text-sm text-slate-600">{t('orgConsultationDetail.noResponses')}</p>
+            <p className="text-sm text-slate-600 dark:text-slate-300">
+              {t('orgConsultationDetail.noResponses')}
+            </p>
           ) : (
             <ul className="space-y-4">
               {analytics.data.questions.map((agg) => (
                 <li
                   key={agg.questionId}
-                  className="border-t border-slate-100 pt-3 first:border-none first:pt-0"
+                  className="border-t border-slate-100 dark:border-slate-800 pt-3 first:border-none first:pt-0"
                 >
-                  <p className="text-sm font-semibold text-slate-800">{agg.prompt}</p>
+                  <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                    {agg.prompt}
+                  </p>
                   {agg.optionCounts && (
                     <ul className="mt-2 space-y-1">
                       {Object.entries(agg.optionCounts)
                         .sort(([, a], [, b]) => b - a)
                         .map(([opt, n]) => (
-                          <li key={opt} className="flex items-center gap-3 text-xs text-slate-600">
+                          <li
+                            key={opt}
+                            className="flex items-center gap-3 text-xs text-slate-600 dark:text-slate-300"
+                          >
                             <span className="w-32 truncate">{opt}</span>
-                            <span className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
+                            <span className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800/60">
                               <span
                                 className="block h-full bg-civic-500"
                                 style={{
@@ -254,7 +271,7 @@ export function OrgConsultationDetailPage() {
                     </ul>
                   )}
                   {agg.textValues && agg.textValues.length > 0 && (
-                    <ul className="mt-2 space-y-1 text-xs italic text-slate-600">
+                    <ul className="mt-2 space-y-1 text-xs italic text-slate-600 dark:text-slate-300">
                       {agg.textValues.slice(0, 8).map((v, i) => (
                         <li key={i}>&ldquo;{v}&rdquo;</li>
                       ))}
@@ -277,16 +294,16 @@ export function OrgConsultationDetailPage() {
 
       {hasOutcome && outcome.data && (
         <section className="space-y-3 rounded-2xl border border-emerald-200 bg-emerald-50/50 p-6 shadow-sm">
-          <h3 className="font-fraunces text-lg font-semibold text-emerald-900">
+          <h3 className="font-fraunces text-lg font-semibold text-emerald-900 dark:text-emerald-100">
             {t('consultationDetail.outcome.heading')}
           </h3>
-          <p className="whitespace-pre-wrap text-sm text-slate-700">
+          <p className="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
             <strong>{t('consultationDetail.outcome.summary')}:</strong> {outcome.data.summary}
           </p>
-          <p className="whitespace-pre-wrap text-sm text-slate-700">
+          <p className="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
             <strong>{t('consultationDetail.outcome.decisions')}:</strong> {outcome.data.decisions}
           </p>
-          <p className="whitespace-pre-wrap text-sm text-slate-700">
+          <p className="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
             <strong>{t('consultationDetail.outcome.nextSteps')}:</strong> {outcome.data.nextSteps}
           </p>
         </section>
@@ -414,7 +431,7 @@ function QuestionRow({
       <li
         ref={draggable ? setNodeRef : undefined}
         style={style}
-        className="rounded-2xl border border-civic-200 bg-white p-4 shadow-sm"
+        className="rounded-2xl border border-civic-200 dark:border-civic-500/40 bg-white p-4 shadow-sm"
       >
         <QuestionForm
           consultationId={consultationId}
@@ -429,7 +446,7 @@ function QuestionRow({
     <li
       ref={draggable ? setNodeRef : undefined}
       style={style}
-      className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+      className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 shadow-sm"
     >
       <div className="flex items-start justify-between gap-3">
         {draggable && (
@@ -438,7 +455,7 @@ function QuestionRow({
           // to the event, breaking keyboard drag pickup. dnd-kit's
           // `attributes` already provides role="button" + tabIndex.
           <span
-            className="mt-0.5 inline-flex cursor-grab touch-none text-slate-400 hover:text-slate-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-civic-500 active:cursor-grabbing"
+            className="mt-0.5 inline-flex cursor-grab touch-none text-slate-400 hover:text-slate-600 dark:hover:text-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-civic-500 active:cursor-grabbing"
             aria-label={t('orgConsultationDetail.dragHandle')}
             {...attributes}
             {...listeners}
@@ -447,16 +464,18 @@ function QuestionRow({
           </span>
         )}
         <div className="flex-1">
-          <p className="text-sm font-semibold text-slate-800">
+          <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
             {index}. {question.prompt}
-            {question.required && <span className="ml-1 text-red-500">*</span>}
+            {question.required && <span className="ml-1 text-red-500 dark:text-red-400">*</span>}
           </p>
-          {question.helpText && <p className="mt-1 text-xs text-slate-500">{question.helpText}</p>}
+          {question.helpText && (
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">{question.helpText}</p>
+          )}
           <p className="mt-1 text-xs uppercase tracking-wide text-slate-400">
             {t(`consultationDetail.questionTypes.${question.type}`)}
           </p>
           {question.options.length > 0 && (
-            <ul className="mt-1 list-disc pl-5 text-xs text-slate-600">
+            <ul className="mt-1 list-disc pl-5 text-xs text-slate-600 dark:text-slate-300">
               {question.options.map((o) => (
                 <li key={o}>{o}</li>
               ))}
@@ -501,7 +520,7 @@ function QuestionAdder({ consultationId }: { consultationId: string }) {
     );
   }
   return (
-    <div className="mt-3 rounded-2xl border border-civic-200 bg-white p-4 shadow-sm">
+    <div className="mt-3 rounded-2xl border border-civic-200 dark:border-civic-500/40 bg-white p-4 shadow-sm">
       <QuestionForm consultationId={consultationId} onDone={() => setOpen(false)} />
     </div>
   );
@@ -565,7 +584,7 @@ function QuestionForm({
   return (
     <form onSubmit={onSubmit} className="space-y-3">
       <div>
-        <label className="block text-sm font-semibold text-slate-700">
+        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
           {t('orgConsultationDetail.fields.prompt')}
         </label>
         <Input
@@ -577,19 +596,19 @@ function QuestionForm({
         />
       </div>
       <div>
-        <label className="block text-sm font-semibold text-slate-700">
+        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
           {t('orgConsultationDetail.fields.helpText')}
         </label>
         <Input value={helpText} onChange={(e) => setHelpText(e.target.value)} />
       </div>
       <div>
-        <label className="block text-sm font-semibold text-slate-700">
+        <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
           {t('orgConsultationDetail.fields.type')}
         </label>
         <select
           value={type}
           onChange={(e) => setType(e.target.value as ConsultationQuestionType)}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
+          className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
         >
           {QUESTION_TYPES.map((qt) => (
             <option key={qt.value} value={qt.value}>
@@ -600,32 +619,32 @@ function QuestionForm({
       </div>
       {typeNeedsOptions(type) && (
         <div>
-          <label className="block text-sm font-semibold text-slate-700">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
             {t('orgConsultationDetail.fields.options')}
           </label>
           <textarea
             value={options}
             onChange={(e) => setOptions(e.target.value)}
             rows={4}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
+            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
             placeholder={t('orgConsultationDetail.fields.optionsPlaceholder')}
           />
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
             {t('orgConsultationDetail.fields.optionsHelp')}
           </p>
         </div>
       )}
-      <label className="flex items-center gap-2 text-sm text-slate-700">
+      <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
         <input
           type="checkbox"
           checked={required}
           onChange={(e) => setRequired(e.target.checked)}
-          className="rounded text-civic-600 focus:ring-civic-500"
+          className="rounded text-civic-600 dark:text-civic-300 focus:ring-civic-500"
         />
         {t('orgConsultationDetail.fields.required')}
       </label>
       {error && (
-        <p className="rounded-lg border border-red-200 bg-red-50 p-2 text-xs text-red-700">
+        <p className="rounded-lg border border-red-200 dark:border-red-500/40 bg-red-50 dark:bg-red-500/10 p-2 text-xs text-red-700 dark:text-red-300">
           {error}
         </p>
       )}
@@ -661,14 +680,16 @@ function OutcomeForm({ consultationId }: { consultationId: string }) {
   }
 
   return (
-    <section className="space-y-3 rounded-2xl border border-emerald-300 bg-emerald-50 p-6 shadow-sm">
-      <h3 className="font-fraunces text-base font-semibold text-emerald-900">
+    <section className="space-y-3 rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-500/10 p-6 shadow-sm">
+      <h3 className="font-fraunces text-base font-semibold text-emerald-900 dark:text-emerald-100">
         {t('orgConsultationDetail.outcomeHeading')}
       </h3>
-      <p className="text-xs text-emerald-800">{t('orgConsultationDetail.outcomeIntro')}</p>
+      <p className="text-xs text-emerald-800 dark:text-emerald-200">
+        {t('orgConsultationDetail.outcomeIntro')}
+      </p>
       <form onSubmit={onSubmit} className="space-y-3">
         <div>
-          <label className="block text-sm font-semibold text-slate-700">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
             {t('consultationDetail.outcome.summary')}
           </label>
           <textarea
@@ -677,11 +698,11 @@ function OutcomeForm({ consultationId }: { consultationId: string }) {
             required
             minLength={10}
             rows={3}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
+            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
           />
         </div>
         <div>
-          <label className="block text-sm font-semibold text-slate-700">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
             {t('consultationDetail.outcome.decisions')}
           </label>
           <textarea
@@ -690,11 +711,11 @@ function OutcomeForm({ consultationId }: { consultationId: string }) {
             required
             minLength={10}
             rows={3}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
+            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
           />
         </div>
         <div>
-          <label className="block text-sm font-semibold text-slate-700">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
             {t('consultationDetail.outcome.nextSteps')}
           </label>
           <textarea
@@ -703,11 +724,11 @@ function OutcomeForm({ consultationId }: { consultationId: string }) {
             required
             minLength={10}
             rows={3}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
+            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
           />
         </div>
         {error && (
-          <p className="rounded-lg border border-red-200 bg-red-50 p-2 text-xs text-red-700">
+          <p className="rounded-lg border border-red-200 dark:border-red-500/40 bg-red-50 dark:bg-red-500/10 p-2 text-xs text-red-700 dark:text-red-300">
             {error}
           </p>
         )}

@@ -17,10 +17,11 @@ const MAX_IMAGE_MB = 5;
 
 // Tone maps stay in-page; labels come from enums.petitionStatus.*
 const STATUS_TONE: Record<PetitionStatus, string> = {
-  [PetitionStatus.DRAFT]: 'bg-slate-200 text-slate-700',
-  [PetitionStatus.ACTIVE]: 'bg-civic-100 text-civic-700',
-  [PetitionStatus.CLOSED]: 'bg-amber-100 text-amber-700',
-  [PetitionStatus.SUCCESSFUL]: 'bg-emerald-100 text-emerald-700',
+  [PetitionStatus.DRAFT]: 'bg-slate-200 text-slate-700 dark:text-slate-300',
+  [PetitionStatus.ACTIVE]: 'bg-civic-100 dark:bg-civic-500/15 text-civic-700 dark:text-civic-200',
+  [PetitionStatus.CLOSED]: 'bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300',
+  [PetitionStatus.SUCCESSFUL]:
+    'bg-emerald-100 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300',
 };
 
 type PetitionSort = 'newest' | 'oldest' | 'signatures' | 'deadline';
@@ -120,7 +121,7 @@ export function PetitionsPage() {
         )}
       </PageHeader>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap gap-2">
             <FilterPill
@@ -142,17 +143,17 @@ export function PetitionsPage() {
               <button
                 type="button"
                 onClick={() => setFilter('status', '')}
-                className="text-xs font-semibold text-civic-700 hover:underline"
+                className="text-xs font-semibold text-civic-700 dark:text-civic-200 hover:underline"
               >
                 {t('petitionsPage.clear')}
               </button>
             )}
-            <label className="text-xs font-semibold text-slate-600">
+            <label className="text-xs font-semibold text-slate-600 dark:text-slate-300">
               {t('common.sortBy')}
               <select
                 value={sort}
                 onChange={(e) => setFilter('sort', e.target.value)}
-                className="ml-2 rounded-lg border border-slate-200 bg-white px-2 py-1 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-civic-500"
+                className="ml-2 rounded-lg border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 px-2 py-1 text-sm font-medium text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-civic-500"
               >
                 {SORT_VALUES.map((value) => (
                   <option key={value} value={value}>
@@ -166,7 +167,7 @@ export function PetitionsPage() {
       </section>
 
       {petitionsQuery.isLoading ? (
-        <p className="text-sm text-slate-600">{t('common.loading')}</p>
+        <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>
       ) : visible.length === 0 ? (
         <EmptyState
           icon={<FileText className="h-5 w-5" />}
@@ -196,24 +197,26 @@ export function PetitionsPage() {
               <Link
                 key={petition.id}
                 to={`/petitions/${petition.id}`}
-                className="block rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-civic-300"
+                className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
               >
                 <div className="flex items-start justify-between gap-3">
-                  <h2 className="text-lg font-semibold text-slate-900">{petition.title}</h2>
+                  <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                    {petition.title}
+                  </h2>
                   <span
                     className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_TONE[petition.status]}`}
                   >
                     {enums.petitionStatus(petition.status)}
                   </span>
                 </div>
-                <p className="mt-2 text-sm text-slate-600">
+                <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
                   {t('petitionsPage.signaturesOf', {
                     count: petition.signatureCount,
                     goal: petition.goal.toLocaleString(),
                   })}
                 </p>
 
-                <div className="mt-4 h-2.5 rounded-full bg-slate-100">
+                <div className="mt-4 h-2.5 rounded-full bg-slate-100 dark:bg-slate-800/60">
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-civic-700 to-civic-500"
                     style={{ width: `${progress}%` }}
@@ -221,10 +224,10 @@ export function PetitionsPage() {
                 </div>
 
                 <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-sm">
-                  <span className="rounded-full bg-civic-50 px-2.5 py-1 font-semibold text-civic-700">
+                  <span className="rounded-full bg-civic-50 px-2.5 py-1 font-semibold text-civic-700 dark:text-civic-200">
                     {t('petitionsPage.percentComplete', { percent: progress })}
                   </span>
-                  <span className="text-slate-600">
+                  <span className="text-slate-600 dark:text-slate-300">
                     {t('common.commentCount', { count: petition.commentCount })}
                     {deadlineFragment}
                   </span>
@@ -259,7 +262,7 @@ function FilterPill({
       className={
         active
           ? 'rounded-full bg-civic-700 px-3 py-1 text-xs font-semibold text-white shadow-sm'
-          : 'rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 hover:border-civic-300 hover:text-civic-700'
+          : 'rounded-full border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300 hover:border-civic-300 dark:hover:border-civic-500 hover:text-civic-700 dark:hover:text-civic-200'
       }
     >
       {label}
@@ -293,14 +296,14 @@ function Modal({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl"
+        className="w-full max-w-lg rounded-2xl bg-white dark:bg-slate-900 p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4">
-          <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
           <button
             type="button"
-            className="text-slate-400 hover:text-slate-600"
+            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-400"
             onClick={onClose}
             aria-label={t('common.close')}
           >
@@ -385,12 +388,15 @@ function NewPetitionModal({ communityId, onClose }: { communityId: string; onClo
         />
 
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700" htmlFor="description">
+          <label
+            className="text-sm font-medium text-gray-700 dark:text-gray-300"
+            htmlFor="description"
+          >
             {t('petitionsPage.modal.description')}
           </label>
           <textarea
             id="description"
-            className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-civic-500"
+            className="w-full rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-civic-500"
             rows={4}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -418,11 +424,11 @@ function NewPetitionModal({ communityId, onClose }: { communityId: string; onClo
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-gray-700">
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
             {t('petitionsPage.modal.photos', { max: MAX_IMAGES })}
           </label>
           <label
-            className={`flex cursor-pointer items-center justify-center rounded-lg border border-dashed border-gray-300 px-3 py-3 text-sm text-gray-600 transition hover:border-civic-400 hover:bg-civic-50 ${files.length >= MAX_IMAGES ? 'pointer-events-none opacity-50' : ''}`}
+            className={`flex cursor-pointer items-center justify-center rounded-lg border border-dashed border-gray-300 dark:border-gray-600 px-3 py-3 text-sm text-gray-600 dark:text-gray-400 transition hover:border-civic-400 hover:bg-civic-50 ${files.length >= MAX_IMAGES ? 'pointer-events-none opacity-50' : ''}`}
           >
             <input
               type="file"
@@ -460,7 +466,7 @@ function NewPetitionModal({ communityId, onClose }: { communityId: string; onClo
           )}
         </div>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
 
         <div className="flex justify-end gap-2 pt-2">
           <Button type="button" variant="secondary" onClick={onClose}>

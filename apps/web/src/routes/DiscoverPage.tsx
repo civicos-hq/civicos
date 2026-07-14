@@ -75,10 +75,10 @@ const KIND_KEYS: KindFilter[] = [
 ];
 
 const TIER_TONE: Record<Tier, string> = {
-  COMMUNITY: 'bg-civic-100 text-civic-700',
-  LGA: 'bg-emerald-100 text-emerald-700',
-  STATE: 'bg-sky-100 text-sky-700',
-  COUNTRY: 'bg-slate-100 text-slate-700',
+  COMMUNITY: 'bg-civic-100 dark:bg-civic-500/15 text-civic-700 dark:text-civic-200',
+  LGA: 'bg-emerald-100 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300',
+  STATE: 'bg-sky-100 dark:bg-sky-500/15 text-sky-700 dark:text-sky-300',
+  COUNTRY: 'bg-slate-100 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300',
 };
 
 const TIER_ORDER: Tier[] = ['COMMUNITY', 'LGA', 'STATE', 'COUNTRY'];
@@ -194,7 +194,7 @@ function GroupedView({ communityId, kind }: { communityId?: string; kind: KindFi
   }
 
   if (feedQuery.isLoading) {
-    return <p className="text-sm text-slate-600">{t('common.loading')}</p>;
+    return <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>;
   }
   if (items.length === 0) {
     return <EmptyState title={t('discoverPage.empty.grouped')} />;
@@ -213,7 +213,7 @@ function GroupedView({ communityId, kind }: { communityId?: string; kind: KindFi
               >
                 {t(`discoverPage.tiers.${tk}`)}
               </span>
-              <span className="text-xs text-slate-600">
+              <span className="text-xs text-slate-600 dark:text-slate-300">
                 {t('discoverPage.itemCount', { count: tierItems.length })}
               </span>
             </div>
@@ -244,7 +244,7 @@ function TierView({
   const items = pages.flatMap((p) => p.items);
 
   if (feed.isLoading) {
-    return <p className="text-sm text-slate-600">{t('common.loading')}</p>;
+    return <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>;
   }
   if (items.length === 0) {
     return <EmptyState title={t('discoverPage.empty.tier')} />;
@@ -258,7 +258,7 @@ function TierView({
         >
           {t(`discoverPage.tiers.${tier}`)}
         </span>
-        <span className="text-xs text-slate-600">
+        <span className="text-xs text-slate-600 dark:text-slate-300">
           {t('discoverPage.itemsLoaded', { count: items.length })}
         </span>
       </div>
@@ -304,7 +304,7 @@ function TierPill({
       className={
         active
           ? `rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide shadow-sm ${tone ?? 'bg-civic-700 text-white'}`
-          : 'rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600 hover:border-civic-300 hover:text-civic-700'
+          : 'rounded-full border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600 dark:text-slate-300 hover:border-civic-300 dark:hover:border-civic-500 hover:text-civic-700 dark:hover:text-civic-200'
       }
     >
       {label}
@@ -385,16 +385,20 @@ function IssueCard({
   return (
     <Link
       to={`/issues/${issue.id}`}
-      className="block rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-civic-300"
+      className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
     >
       <div className="flex items-start gap-2">
-        <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-rose-500" />
+        <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-rose-500 dark:text-rose-400" />
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-rose-600">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-rose-600 dark:text-rose-400">
             {t('discoverPage.labels.issue')}
           </p>
-          <h3 className="mt-0.5 line-clamp-2 font-semibold text-slate-900">{issue.title}</h3>
-          <p className="mt-1 line-clamp-2 text-sm text-slate-600">{issue.description}</p>
+          <h3 className="mt-0.5 line-clamp-2 font-semibold text-slate-900 dark:text-slate-100">
+            {issue.title}
+          </h3>
+          <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-300">
+            {issue.description}
+          </p>
           <CardMeta community={community} createdAt={createdAt}>
             <span>{t('discoverPage.meta.upvotes', { count: issue.upvoteCount })}</span>
             <span>·</span>
@@ -420,17 +424,21 @@ function PetitionCard({
   return (
     <Link
       to={`/petitions/${petition.id}`}
-      className="block rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-civic-300"
+      className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
     >
       <div className="flex items-start gap-2">
-        <FileText className="mt-0.5 h-4 w-4 flex-shrink-0 text-civic-600" />
+        <FileText className="mt-0.5 h-4 w-4 flex-shrink-0 text-civic-600 dark:text-civic-300" />
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-civic-700">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-civic-700 dark:text-civic-200">
             {t('discoverPage.labels.petition')}
           </p>
-          <h3 className="mt-0.5 line-clamp-2 font-semibold text-slate-900">{petition.title}</h3>
-          <p className="mt-1 line-clamp-2 text-sm text-slate-600">{petition.description}</p>
-          <div className="mt-3 h-1.5 rounded-full bg-slate-100">
+          <h3 className="mt-0.5 line-clamp-2 font-semibold text-slate-900 dark:text-slate-100">
+            {petition.title}
+          </h3>
+          <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-300">
+            {petition.description}
+          </p>
+          <div className="mt-3 h-1.5 rounded-full bg-slate-100 dark:bg-slate-800/60">
             <div
               className="h-full rounded-full bg-gradient-to-r from-civic-700 to-civic-500"
               style={{ width: `${progress}%` }}
@@ -465,16 +473,20 @@ function AnnouncementCard({
   return (
     <Link
       to={`/announcements/${announcement.id}`}
-      className="block rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-civic-300"
+      className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
     >
       <div className="flex items-start gap-2">
-        <Megaphone className="mt-0.5 h-4 w-4 flex-shrink-0 text-indigo-600" />
+        <Megaphone className="mt-0.5 h-4 w-4 flex-shrink-0 text-indigo-600 dark:text-indigo-400" />
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-indigo-700">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-indigo-700 dark:text-indigo-300">
             {t('discoverPage.labels.announcement')}
           </p>
-          <h3 className="mt-0.5 line-clamp-2 font-semibold text-slate-900">{announcement.title}</h3>
-          <p className="mt-1 line-clamp-2 text-sm text-slate-600">{announcement.body}</p>
+          <h3 className="mt-0.5 line-clamp-2 font-semibold text-slate-900 dark:text-slate-100">
+            {announcement.title}
+          </h3>
+          <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-300">
+            {announcement.body}
+          </p>
           <CardMeta org={org} createdAt={createdAt} />
         </div>
       </div>
@@ -501,16 +513,20 @@ function ProjectCard({
   return (
     <Link
       to={`/projects/${project.id}`}
-      className="block rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-civic-300"
+      className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
     >
       <div className="flex items-start gap-2">
-        <Briefcase className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-600" />
+        <Briefcase className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-600 dark:text-emerald-400" />
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-emerald-700">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
             {t('discoverPage.labels.project')}
           </p>
-          <h3 className="mt-0.5 line-clamp-2 font-semibold text-slate-900">{project.title}</h3>
-          <p className="mt-1 line-clamp-2 text-sm text-slate-600">{project.description}</p>
+          <h3 className="mt-0.5 line-clamp-2 font-semibold text-slate-900 dark:text-slate-100">
+            {project.title}
+          </h3>
+          <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-300">
+            {project.description}
+          </p>
           <CardMeta community={community} org={org} createdAt={createdAt}>
             <span>{t(`orgDashboard.projectStatus.${project.status}`)}</span>
             {budget && (
@@ -542,16 +558,20 @@ function ConsultationCard({
   return (
     <Link
       to={`/consultations/${consultation.id}`}
-      className="block rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-civic-300"
+      className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
     >
       <div className="flex items-start gap-2">
-        <MessageSquare className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-600" />
+        <MessageSquare className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-600 dark:text-amber-400" />
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-amber-700">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-amber-700 dark:text-amber-300">
             {t('discoverPage.labels.consultation')}
           </p>
-          <h3 className="mt-0.5 line-clamp-2 font-semibold text-slate-900">{consultation.title}</h3>
-          <p className="mt-1 line-clamp-2 text-sm text-slate-600">{consultation.summary}</p>
+          <h3 className="mt-0.5 line-clamp-2 font-semibold text-slate-900 dark:text-slate-100">
+            {consultation.title}
+          </h3>
+          <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-300">
+            {consultation.summary}
+          </p>
           <CardMeta community={community} org={org} createdAt={createdAt}>
             <span>{t(statusKey)}</span>
             <span>·</span>
@@ -585,7 +605,7 @@ function CardMeta({
       ? { label: org.name, mono: false }
       : null;
   return (
-    <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-600">
+    <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-600 dark:text-slate-300">
       {anchor && (
         <span className="inline-flex items-center gap-1">
           <MapPin className="h-3 w-3" />

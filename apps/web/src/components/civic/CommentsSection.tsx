@@ -95,24 +95,26 @@ export function CommentsSection({
   const comments = commentsQuery.data ?? [];
 
   return (
-    <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <h2 className="text-lg font-semibold text-slate-900">
+    <article className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
+      <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
         {t('comments.heading')}{' '}
-        <span className="text-sm font-normal text-slate-600">({comments.length})</span>
+        <span className="text-sm font-normal text-slate-600 dark:text-slate-300">
+          ({comments.length})
+        </span>
       </h2>
 
       <form onSubmit={handleSubmit} className="mt-4 space-y-3">
         <textarea
-          className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-civic-500"
+          className="w-full rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-civic-500"
           rows={3}
           maxLength={COMMENT_MAX}
           placeholder={t('comments.placeholder')}
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
         <div className="flex items-center justify-between">
-          <p className="text-xs text-slate-600">
+          <p className="text-xs text-slate-600 dark:text-slate-300">
             {t('comments.charCount', { count: content.length, max: COMMENT_MAX })}
           </p>
           <Button
@@ -128,7 +130,7 @@ export function CommentsSection({
 
       <div className="mt-6 space-y-4">
         {commentsQuery.isLoading ? (
-          <p className="text-sm text-slate-600">{t('common.loading')}</p>
+          <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>
         ) : comments.length === 0 ? (
           <EmptyState icon={<MessageSquare className="h-5 w-5" />} title={t('comments.empty')} />
         ) : (
@@ -136,7 +138,7 @@ export function CommentsSection({
             c.isHidden ? (
               <div
                 key={c.id}
-                className="flex items-center gap-2 rounded-xl border border-dashed border-slate-300 bg-slate-50/40 p-3 text-xs italic text-slate-500"
+                className="flex items-center gap-2 rounded-xl border border-dashed border-slate-300 dark:border-slate-600 bg-slate-50/40 dark:bg-slate-800/30 p-3 text-xs italic text-slate-500 dark:text-slate-300"
                 data-hidden="true"
               >
                 <MessageSquare className="h-3.5 w-3.5" aria-hidden="true" />
@@ -146,15 +148,19 @@ export function CommentsSection({
             ) : (
               <div
                 key={c.id}
-                className={`flex gap-3 rounded-xl border p-3 ${c.isOfficialResponse ? 'border-civic-200 bg-civic-50/40' : 'border-slate-200 bg-slate-50/60'}`}
+                className={`flex gap-3 rounded-xl border p-3 ${c.isOfficialResponse ? 'border-civic-200 dark:border-civic-500/40 bg-civic-50 dark:bg-civic-500/10/40' : 'border-slate-200 dark:border-slate-700 bg-slate-50/60'}`}
               >
-                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-civic-100 text-xs font-semibold text-civic-700 ring-1 ring-civic-200">
+                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-civic-100 dark:bg-civic-500/15 text-xs font-semibold text-civic-700 dark:text-civic-200 ring-1 ring-civic-200">
                   {initials(c.authorName)}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-baseline gap-2">
-                    <p className="text-sm font-semibold text-slate-900">{c.authorName}</p>
-                    <span className="text-xs text-slate-600">{enums.userRole(c.authorRole)}</span>
+                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                      {c.authorName}
+                    </p>
+                    <span className="text-xs text-slate-600 dark:text-slate-300">
+                      {enums.userRole(c.authorRole)}
+                    </span>
                     {c.isOfficialResponse && (
                       <span className="rounded-full bg-civic-700 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white">
                         {t('comments.officialResponse')}
@@ -162,7 +168,9 @@ export function CommentsSection({
                     )}
                     <span className="ml-auto text-xs text-slate-400">{relative(c.createdAt)}</span>
                   </div>
-                  <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700">{c.content}</p>
+                  <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
+                    {c.content}
+                  </p>
                   {!c.isOfficialResponse && (
                     <div className="mt-2 flex justify-end">
                       <ReportButton

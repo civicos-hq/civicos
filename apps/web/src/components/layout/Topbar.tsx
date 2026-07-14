@@ -1,4 +1,4 @@
-import { Bell, Sparkles } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -8,6 +8,7 @@ import { useMe } from '../../hooks/useMe';
 import { api } from '../../lib/api';
 import { SearchBar } from './SearchBar';
 import { LanguageSwitcher } from '../LanguageSwitcher';
+import { ThemeToggle } from '../ThemeToggle';
 
 export function Topbar() {
   const { t } = useTranslation();
@@ -37,20 +38,23 @@ export function Topbar() {
     <header className="dashboard-topbar" aria-label={t('common.topbar')}>
       <SearchBar />
 
-      <div className="ml-auto hidden items-center gap-3 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 shadow-sm md:flex">
-        <Sparkles className="h-3.5 w-3.5 text-amber-500" />
-        Participation Pulse: Rising
-      </div>
-
-      <div className="ml-auto flex items-center gap-3 md:ml-0">
+      <div className="ml-auto flex items-center gap-3">
         {joinedCommunities.length > 0 && (
-          <label className="hidden items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm lg:flex">
+          <label
+            className="hidden items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium shadow-sm lg:flex"
+            style={{
+              borderColor: 'var(--dash-line)',
+              background: 'var(--dash-surface)',
+              color: 'var(--dash-muted)',
+            }}
+          >
             <span>{t('communityPage.activeSelect')}</span>
             <select
               value={activeCommunityId ?? ''}
               onChange={(e) => switchMutation.mutate(e.target.value)}
               disabled={switchMutation.isPending}
-              className="bg-transparent text-sm font-semibold text-slate-900 focus:outline-none"
+              className="bg-transparent text-sm font-semibold focus:outline-none"
+              style={{ color: 'var(--dash-ink)' }}
             >
               {joinedCommunities.map((community) => (
                 <option key={community.id} value={community.id}>
@@ -60,6 +64,7 @@ export function Topbar() {
             </select>
           </label>
         )}
+        <ThemeToggle />
         <LanguageSwitcher />
         <Link
           to="/notifications"
@@ -68,7 +73,7 @@ export function Topbar() {
         >
           <Bell className="h-5 w-5" />
           {hasUnread && (
-            <span className="absolute -right-1 -top-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold leading-none text-white">
+            <span className="absolute -right-1 -top-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white">
               {label}
             </span>
           )}

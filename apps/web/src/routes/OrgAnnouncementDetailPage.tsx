@@ -15,9 +15,11 @@ import {
 import { useMyOrganizations } from '../hooks/useConsultations';
 
 const TONE: Record<AnnouncementStatus, string> = {
-  [AnnouncementStatus.DRAFT]: 'bg-slate-200 text-slate-700',
-  [AnnouncementStatus.PUBLISHED]: 'bg-civic-100 text-civic-700',
-  [AnnouncementStatus.ARCHIVED]: 'bg-amber-100 text-amber-700',
+  [AnnouncementStatus.DRAFT]: 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300',
+  [AnnouncementStatus.PUBLISHED]:
+    'bg-civic-100 dark:bg-civic-500/15 text-civic-700 dark:text-civic-200',
+  [AnnouncementStatus.ARCHIVED]:
+    'bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300',
 };
 
 // Announcements are lower-stakes than consultations — the API allows
@@ -53,18 +55,20 @@ export function OrgAnnouncementDetailPage() {
   }, [query.data]);
 
   if (query.isLoading) {
-    return <p className="text-sm text-slate-600">{t('common.loading')}</p>;
+    return <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>;
   }
   if (query.isError || !query.data) {
     return (
       <section className="space-y-4">
         <Link
           to={`/org/${orgId}?tab=announcements`}
-          className="text-sm font-semibold text-civic-700 hover:underline"
+          className="text-sm font-semibold text-civic-700 dark:text-civic-200 hover:underline"
         >
           {t('orgAnnouncementDetail.back')}
         </Link>
-        <p className="text-sm text-red-600">{t('orgAnnouncementDetail.loadError')}</p>
+        <p className="text-sm text-red-600 dark:text-red-400">
+          {t('orgAnnouncementDetail.loadError')}
+        </p>
       </section>
     );
   }
@@ -102,7 +106,7 @@ export function OrgAnnouncementDetailPage() {
     <section className="space-y-6">
       <Link
         to={`/org/${orgId}?tab=announcements`}
-        className="text-sm font-semibold text-civic-700 hover:underline"
+        className="text-sm font-semibold text-civic-700 dark:text-civic-200 hover:underline"
       >
         {t('orgAnnouncementDetail.back')}
       </Link>
@@ -167,12 +171,12 @@ export function OrgAnnouncementDetailPage() {
       />
 
       {error && (
-        <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        <p className="rounded-lg border border-red-200 dark:border-red-500/40 bg-red-50 dark:bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300">
           {error}
         </p>
       )}
 
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-slate-500 dark:text-slate-300">
         {t('orgAnnouncementDetail.byline', {
           name: a.authorName,
           date: new Date(a.createdAt).toLocaleDateString(),
@@ -190,7 +194,7 @@ export function OrgAnnouncementDetailPage() {
       {editing ? (
         <form onSubmit={onSaveEdit} className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-slate-700">
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
               {t('orgAnnouncementCreate.fields.title')}
             </label>
             <Input
@@ -201,7 +205,7 @@ export function OrgAnnouncementDetailPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-slate-700">
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
               {t('orgAnnouncementCreate.fields.body')}
             </label>
             <textarea
@@ -210,7 +214,7 @@ export function OrgAnnouncementDetailPage() {
               rows={10}
               required
               minLength={10}
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
+              className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
             />
           </div>
           <div className="flex justify-end gap-3">
@@ -231,8 +235,8 @@ export function OrgAnnouncementDetailPage() {
           </div>
         </form>
       ) : (
-        <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <p className="whitespace-pre-wrap text-sm text-slate-700">{a.body}</p>
+        <article className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
+          <p className="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">{a.body}</p>
           <span
             className={
               'mt-4 inline-block rounded-full px-2 py-0.5 text-xs font-semibold uppercase tracking-wide ' +

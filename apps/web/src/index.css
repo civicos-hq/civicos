@@ -41,6 +41,14 @@
   --brand-danger: #ef4444; /* Danger — errors / destructive actions */
 }
 
+/* Flip color-scheme with the theme so native chrome (scrollbars,
+   form controls, date pickers, autofill styling) picks the right
+   OS-drawn look. `color-scheme` doesn't cascade like colors do —
+   it needs to be set on <html> for its full effect. */
+html[data-theme='dark'] {
+  color-scheme: dark;
+}
+
 body {
   margin: 0;
   font-family: 'Inter', system-ui, sans-serif;
@@ -481,10 +489,153 @@ button {
   background: radial-gradient(circle at 40% 40%, rgba(37, 99, 235, 0.3), transparent 70%);
 }
 
+/* Second auth pulse was an orange accent — off-brand. Now a
+   subdued Deep Navy bloom so the ambient glows read as
+   "civic blueprint" rather than "startup gradient". */
 .auth-pulse-right {
   right: -4rem;
   bottom: 12%;
-  background: radial-gradient(circle at 60% 60%, rgba(238, 127, 59, 0.26), transparent 70%);
+  background: radial-gradient(circle at 60% 60%, rgba(15, 39, 71, 0.28), transparent 70%);
+}
+
+/* Dark palette for the auth shell. Auth shares the same Deep
+   Navy elevation ladder as the dashboard: base navy for the
+   shell, one step up for the card, one step up again for the
+   inputs. Choice cards and progress steps get a lighter tint
+   from Civic Blue so selection state stays punchy on navy. */
+[data-theme='dark'] .auth-shell {
+  background:
+    radial-gradient(circle at 8% 12%, rgba(37, 99, 235, 0.28), transparent 32%),
+    radial-gradient(circle at 90% 3%, rgba(59, 130, 246, 0.16), transparent 28%),
+    linear-gradient(180deg, #0f2747 0%, #122c50 100%);
+}
+
+[data-theme='dark'] .auth-shell .auth-mark {
+  background: #f8fafc;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme='dark'] .auth-shell .auth-eyebrow {
+  color: #93c5fd;
+}
+
+[data-theme='dark'] .auth-shell .auth-title {
+  color: #f8fafc;
+}
+
+[data-theme='dark'] .auth-shell .auth-description,
+[data-theme='dark'] .auth-shell .auth-card-subtitle,
+[data-theme='dark'] .auth-shell .auth-label,
+[data-theme='dark'] .auth-shell .auth-section-sub,
+[data-theme='dark'] .auth-shell .auth-footer {
+  color: #94a3b8;
+}
+
+[data-theme='dark'] .auth-shell .auth-card {
+  background: rgba(18, 44, 80, 0.85);
+  border-color: rgba(148, 163, 184, 0.2);
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.42);
+}
+
+[data-theme='dark'] .auth-shell .auth-card-title,
+[data-theme='dark'] .auth-shell .auth-section-title,
+[data-theme='dark'] .auth-shell .auth-choice-copy strong {
+  color: #f8fafc;
+}
+
+[data-theme='dark'] .auth-shell .auth-choice-copy span {
+  color: #94a3b8;
+}
+
+[data-theme='dark'] .auth-shell .auth-account-badge {
+  background: rgba(59, 130, 246, 0.18);
+  color: #dbeafe;
+}
+
+[data-theme='dark'] .auth-shell .auth-progress-step {
+  background: rgba(255, 255, 255, 0.06);
+  color: #94a3b8;
+}
+
+[data-theme='dark'] .auth-shell .auth-progress-step--active {
+  background: rgba(59, 130, 246, 0.22);
+  color: #dbeafe;
+}
+
+[data-theme='dark'] .auth-shell .auth-progress-dot {
+  background: rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
+}
+
+[data-theme='dark'] .auth-shell .auth-input,
+[data-theme='dark'] .auth-shell .auth-textarea {
+  background: #1a3866;
+  color: #f8fafc;
+  border-color: rgba(148, 163, 184, 0.24);
+}
+
+[data-theme='dark'] .auth-shell .auth-input::placeholder,
+[data-theme='dark'] .auth-shell .auth-textarea::placeholder {
+  color: #94a3b8;
+}
+
+[data-theme='dark'] .auth-shell .auth-choice-card {
+  background: rgba(18, 44, 80, 0.65);
+  border-color: rgba(148, 163, 184, 0.22);
+}
+
+[data-theme='dark'] .auth-shell .auth-choice-card:hover {
+  background: rgba(37, 99, 235, 0.14);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+[data-theme='dark'] .auth-shell .auth-choice-card:has(input:checked) {
+  background: rgba(37, 99, 235, 0.2);
+  border-color: rgba(59, 130, 246, 0.55);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
+}
+
+[data-theme='dark'] .auth-shell .auth-note {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+[data-theme='dark'] .auth-shell .auth-note strong {
+  color: #93c5fd;
+}
+
+[data-theme='dark'] .auth-shell .auth-note span {
+  color: #94a3b8;
+}
+
+[data-theme='dark'] .auth-shell .auth-note--success {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.32);
+}
+
+[data-theme='dark'] .auth-shell .auth-note--success strong {
+  color: #86efac;
+}
+
+[data-theme='dark'] .auth-shell .auth-disclosure {
+  background: rgba(18, 44, 80, 0.55);
+  border-color: rgba(148, 163, 184, 0.18);
+}
+
+[data-theme='dark'] .auth-shell .auth-disclosure summary {
+  color: #f8fafc;
+}
+
+[data-theme='dark'] .auth-shell .auth-disclosure summary::after {
+  color: #93c5fd;
+}
+
+[data-theme='dark'] .auth-shell .auth-legal {
+  border-top-color: rgba(148, 163, 184, 0.14);
+}
+
+[data-theme='dark'] .auth-shell .auth-link {
+  color: #93c5fd;
 }
 
 .dashboard-shell {
@@ -492,6 +643,71 @@ button {
   height: 100dvh;
   position: relative;
   overflow: hidden;
+  /* Dashboard chrome is theme-scoped (see [data-theme='…']
+     .dashboard-shell blocks below). The shell paints its own
+     background so the underlying body radial isn't visible through
+     the frosted panes. */
+  background:
+    radial-gradient(circle at 8% 12%, var(--dash-glow-a), transparent 32%),
+    radial-gradient(circle at 90% 3%, var(--dash-glow-b), transparent 28%), var(--dash-bg-base);
+  color: var(--dash-ink);
+}
+
+/* Dashboard palette — light. Preserves today's frosted-white
+   treatment; every hardcoded #fff / slate value gets routed
+   through a token so the dark counterpart below can override
+   without touching component CSS. */
+[data-theme='light'] .dashboard-shell {
+  /* Pure white shell — no ambient tint, no glows. Earlier
+     iterations layered blue + navy radial washes over the base,
+     which muddied muted text (upvote counts, meta labels) and
+     made small copy hard to read. Now the shell is straight
+     #ffffff so those low-contrast greys land cleanly. Cards
+     still separate from the shell via their border. */
+  --dash-bg-base: #ffffff;
+  --dash-glow-a: transparent;
+  --dash-glow-b: transparent;
+  --dash-sidebar-top: rgba(255, 255, 255, 0.92);
+  --dash-sidebar-bottom: rgba(255, 255, 255, 0.82);
+  --dash-topbar: rgba(255, 255, 255, 0.85);
+  --dash-surface: #ffffff;
+  --dash-line: var(--line);
+  --dash-ink: var(--ink-900);
+  --dash-muted: #516579;
+  --dash-hover-tint: rgba(37, 99, 235, 0.06);
+  --dash-hover-tint-strong: rgba(37, 99, 235, 0.08);
+  --dash-active-tint: rgba(37, 99, 235, 0.14);
+  --dash-active-border: rgba(37, 99, 235, 0.18);
+  --dash-active-ink: var(--brand-navy);
+  --dash-avatar-halo: rgba(37, 99, 235, 0.35);
+  --dash-brand-mark-bg: #ffffff;
+  --dash-brand-mark-shadow: rgba(15, 39, 71, 0.18);
+}
+
+/* Dashboard palette — dark. Same Deep Navy elevation ladder the
+   homepage uses: base navy for the shell, one step up for
+   sidebar + topbar, another step up for input surfaces. Blue-on-
+   navy accents lean brighter (#3b82f6 vs #2563eb) because Civic
+   Blue against Deep Navy needs more luminance to stay readable. */
+[data-theme='dark'] .dashboard-shell {
+  --dash-bg-base: #0f2747;
+  --dash-glow-a: rgba(37, 99, 235, 0.28);
+  --dash-glow-b: rgba(59, 130, 246, 0.18);
+  --dash-sidebar-top: rgba(18, 44, 80, 0.92);
+  --dash-sidebar-bottom: rgba(18, 44, 80, 0.82);
+  --dash-topbar: rgba(18, 44, 80, 0.85);
+  --dash-surface: #1a3866;
+  --dash-line: rgba(148, 163, 184, 0.18);
+  --dash-ink: #f8fafc;
+  --dash-muted: #94a3b8;
+  --dash-hover-tint: rgba(59, 130, 246, 0.12);
+  --dash-hover-tint-strong: rgba(59, 130, 246, 0.18);
+  --dash-active-tint: rgba(59, 130, 246, 0.22);
+  --dash-active-border: rgba(59, 130, 246, 0.32);
+  --dash-active-ink: #dbeafe;
+  --dash-avatar-halo: rgba(59, 130, 246, 0.45);
+  --dash-brand-mark-bg: #f8fafc;
+  --dash-brand-mark-shadow: rgba(0, 0, 0, 0.35);
 }
 
 .dashboard-main-pane {
@@ -520,19 +736,23 @@ button {
 .dashboard-glow-a {
   top: -12rem;
   right: -9rem;
-  background: rgba(37, 99, 235, 0.3);
+  background: var(--dash-glow-a);
 }
 
+/* Second glow used to be an orange accent — off-brand under the
+   Deep Navy + Civic Blue palette. Retargeted to a subdued blue
+   variant (lighter in dark mode, deep-navy tint in light mode)
+   via the theme-scoped --dash-glow-b token. */
 .dashboard-glow-b {
   bottom: -15rem;
   left: 22%;
-  background: rgba(238, 127, 59, 0.25);
+  background: var(--dash-glow-b);
 }
 
 .dashboard-sidebar {
   width: min(280px, 82vw);
-  border-right: 1px solid var(--line);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.82));
+  border-right: 1px solid var(--dash-line);
+  background: linear-gradient(180deg, var(--dash-sidebar-top), var(--dash-sidebar-bottom));
   backdrop-filter: blur(8px);
   display: flex;
   flex-direction: column;
@@ -544,7 +764,7 @@ button {
   align-items: center;
   gap: 0.75rem;
   padding: 1.1rem 1rem;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--dash-line);
   /* Brand is now a Link to the public landing page — reset anchor
      defaults and add a subtle background hover so it reads as
      interactive without shouting about it. */
@@ -555,7 +775,7 @@ button {
 
 .dashboard-brand:hover,
 .dashboard-brand:focus-visible {
-  background-color: rgba(37, 99, 235, 0.06);
+  background-color: var(--dash-hover-tint);
   outline: none;
 }
 
@@ -565,10 +785,10 @@ button {
   border-radius: 0.6rem;
   display: grid;
   place-items: center;
-  background: #ffffff;
+  background: var(--dash-brand-mark-bg, #ffffff);
   padding: 2px;
   overflow: hidden;
-  box-shadow: 0 4px 14px rgba(15, 39, 71, 0.18);
+  box-shadow: 0 4px 14px var(--dash-brand-mark-shadow, rgba(15, 39, 71, 0.18));
   flex: none;
 }
 
@@ -588,7 +808,7 @@ button {
 .brand-subtitle {
   margin: 0.08rem 0 0;
   font-size: 0.73rem;
-  color: var(--ink-700);
+  color: var(--dash-muted);
 }
 
 .dashboard-nav,
@@ -615,18 +835,18 @@ button {
 }
 
 .dashboard-link-idle {
-  color: var(--ink-700);
+  color: var(--dash-muted);
 }
 
 .dashboard-link-idle:hover {
-  background: rgba(37, 99, 235, 0.08);
-  border-color: rgba(37, 99, 235, 0.12);
+  background: var(--dash-hover-tint-strong);
+  border-color: var(--dash-active-border);
 }
 
 .dashboard-link-active {
-  background: rgba(37, 99, 235, 0.14);
-  color: var(--brand-700);
-  border-color: rgba(37, 99, 235, 0.18);
+  background: var(--dash-active-tint);
+  color: var(--dash-active-ink);
+  border-color: var(--dash-active-border);
   font-weight: 700;
 }
 
@@ -636,42 +856,47 @@ button {
   align-items: center;
   gap: 0.8rem;
   padding: 0 1rem;
-  border-bottom: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.85);
+  border-bottom: 1px solid var(--dash-line);
+  background: var(--dash-topbar);
   backdrop-filter: blur(6px);
   z-index: 1;
 }
 
 .dashboard-search {
   width: 100%;
-  border: 1px solid var(--line);
+  border: 1px solid var(--dash-line);
   border-radius: 999px;
-  background: #fff;
+  background: var(--dash-surface);
+  color: var(--dash-ink);
   padding: 0.58rem 0.92rem 0.58rem 2.2rem;
   font-size: 0.9rem;
 }
 
+.dashboard-search::placeholder {
+  color: var(--dash-muted);
+}
+
 .dashboard-search:focus {
   outline: none;
-  border-color: var(--brand-500);
+  border-color: var(--brand-blue);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
 }
 
 .dashboard-icon-btn {
   position: relative;
-  border: 1px solid var(--line);
+  border: 1px solid var(--dash-line);
   border-radius: 999px;
   width: 2.2rem;
   height: 2.2rem;
   display: grid;
   place-items: center;
-  background: #fff;
-  color: #516579;
+  background: var(--dash-surface);
+  color: var(--dash-muted);
 }
 
 .dashboard-icon-btn:hover {
-  border-color: rgba(37, 99, 235, 0.24);
-  color: var(--brand-700);
+  border-color: var(--dash-active-border);
+  color: var(--dash-active-ink);
 }
 
 .dashboard-avatar {
@@ -686,7 +911,10 @@ button {
   font-weight: 700;
   letter-spacing: 0.06em;
   color: #fff;
-  background: linear-gradient(125deg, var(--brand-700), var(--accent-500));
+  /* Deep Navy → Civic Blue diagonal. Was Deep Navy → orange
+     (--accent-500) which is off-brand under the CivicOS palette
+     (Deep Navy + Civic Blue + neutrals only). */
+  background: linear-gradient(125deg, var(--brand-navy), var(--brand-blue));
   /* Avatar is now a Link to /profile — reset anchor defaults + add
      a subtle interactive cue so users notice it's clickable. */
   text-decoration: none;
@@ -698,7 +926,7 @@ button {
 .dashboard-avatar:hover,
 .dashboard-avatar:focus-visible {
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+  box-shadow: 0 4px 14px var(--dash-avatar-halo);
   outline: none;
 }
 
@@ -3511,13 +3739,16 @@ button {
    Slim bar between Topbar and content. Doesn't eat page real estate;
    the accent tone signals "action needed" without dominating.
    ------------------------------------------------------------------ */
+/* Verify-strip previously used an orange accent — off-brand.
+   Retargeted to the brand Warning amber (#f59e0b) so it reads as
+   "attention needed" without leaking a non-brand hue. */
 .verify-strip {
   display: flex;
   align-items: center;
   gap: 0.7rem;
   padding: 0.5rem 1rem;
-  background: linear-gradient(90deg, rgba(238, 127, 59, 0.12), rgba(238, 127, 59, 0.06));
-  border-bottom: 1px solid rgba(238, 127, 59, 0.28);
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.14), rgba(245, 158, 11, 0.06));
+  border-bottom: 1px solid rgba(245, 158, 11, 0.32);
   font-size: 0.85rem;
   color: var(--ink-900, #0f172a);
   z-index: 1;
@@ -3528,8 +3759,8 @@ button {
   width: 1.6rem;
   height: 1.6rem;
   border-radius: 999px;
-  background: rgba(238, 127, 59, 0.18);
-  color: #c2410c;
+  background: rgba(245, 158, 11, 0.22);
+  color: #b45309;
   flex: none;
 }
 .verify-strip-body {
@@ -3635,18 +3866,44 @@ button {
   margin-top: 0.65rem;
 }
 
+/* Dark palette for empty states. Dashed border stays for the
+   "nothing here yet" affordance, but border + fill shift so it
+   reads on Deep Navy. */
+[data-theme='dark'] .empty-state {
+  background: rgba(18, 44, 80, 0.45);
+  border-color: rgba(148, 163, 184, 0.22);
+  color: #94a3b8;
+}
+
+[data-theme='dark'] .empty-state-icon {
+  background: rgba(59, 130, 246, 0.18);
+  color: #93c5fd;
+}
+
+[data-theme='dark'] .empty-state-title {
+  color: #f8fafc;
+}
+
+[data-theme='dark'] .empty-state-body {
+  color: #94a3b8;
+}
+
 /* --- Shared CommunityGate ----------------------------------------
    Amber notice used across Discover/Issues/Petitions/Reps to nudge
    users toward joining a community. One visual voice instead of four.
    ------------------------------------------------------------------ */
+/* Community gate previously used an orange accent — off-brand.
+   Retargeted to the brand Warning amber so the "join a community
+   first" nudge stays visually consistent with .verify-strip and
+   .onboarding-empty. */
 .community-gate {
   display: flex;
   align-items: flex-start;
   gap: 0.6rem;
   padding: 0.55rem 0.85rem;
   border-radius: 10px;
-  background: rgba(238, 127, 59, 0.08);
-  border: 1px solid rgba(238, 127, 59, 0.22);
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.28);
   color: #78350f;
 }
 .community-gate-icon {
@@ -3655,8 +3912,8 @@ button {
   width: 1.5rem;
   height: 1.5rem;
   border-radius: 999px;
-  background: rgba(238, 127, 59, 0.16);
-  color: #c2410c;
+  background: rgba(245, 158, 11, 0.2);
+  color: #b45309;
   flex: none;
   margin-top: 0.05rem;
 }
@@ -3674,6 +3931,82 @@ button {
 }
 .community-gate-link:hover {
   color: var(--brand-500, #1f6ed4);
+}
+
+/* Dark palette for CSS-class-based dashboard chrome (language
+   menu, verify strip, community gate). All three appear inside
+   the dashboard shell, so their dark values follow the same
+   Deep Navy ladder — inputs / menus one step up from the shell,
+   warning tints use the brand amber at higher alpha. */
+[data-theme='dark'] .lang-btn {
+  background: rgba(18, 44, 80, 0.7);
+  border-color: rgba(148, 163, 184, 0.24);
+  color: #f8fafc;
+}
+[data-theme='dark'] .lang-btn:hover {
+  border-color: rgba(148, 163, 184, 0.4);
+}
+
+[data-theme='dark'] .lang-menu {
+  background: #1a3866;
+  border-color: rgba(148, 163, 184, 0.2);
+  box-shadow:
+    0 10px 30px -10px rgba(0, 0, 0, 0.6),
+    0 2px 6px rgba(0, 0, 0, 0.35);
+}
+[data-theme='dark'] .lang-item {
+  color: #f8fafc;
+}
+[data-theme='dark'] .lang-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+[data-theme='dark'] .lang-item-code {
+  color: #93c5fd;
+}
+[data-theme='dark'] .lang-item-check {
+  color: #93c5fd;
+}
+
+[data-theme='dark'] .verify-strip {
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.08));
+  border-bottom-color: rgba(245, 158, 11, 0.4);
+  color: #f8fafc;
+}
+[data-theme='dark'] .verify-strip-icon {
+  background: rgba(245, 158, 11, 0.3);
+  color: #fbbf24;
+}
+[data-theme='dark'] .verify-strip-body {
+  color: #f8fafc;
+}
+[data-theme='dark'] .verify-strip-ack {
+  color: #86efac;
+}
+[data-theme='dark'] .verify-strip-dismiss {
+  color: #94a3b8;
+}
+[data-theme='dark'] .verify-strip-dismiss:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+}
+
+[data-theme='dark'] .community-gate {
+  background: rgba(245, 158, 11, 0.14);
+  border-color: rgba(245, 158, 11, 0.36);
+  color: #fde68a;
+}
+[data-theme='dark'] .community-gate-icon {
+  background: rgba(245, 158, 11, 0.28);
+  color: #fbbf24;
+}
+[data-theme='dark'] .community-gate-body {
+  color: #fde68a;
+}
+[data-theme='dark'] .community-gate-link {
+  color: #93c5fd;
+}
+[data-theme='dark'] .community-gate-link:hover {
+  color: #bfdbfe;
 }
 
 /* Forgot-password link on the login form */
@@ -3934,18 +4267,21 @@ button {
   background: rgba(15, 23, 42, 0.03);
 }
 
+/* Onboarding empty state used an orange tint — off palette.
+   Retargeted to the brand Warning amber (#f59e0b) so it reads
+   as "attention needed" without leaking a non-brand hue. */
 .onboarding-empty {
   display: flex;
   align-items: flex-start;
   gap: 0.85rem;
   padding: 1rem 1.15rem;
   border-radius: 12px;
-  background: rgba(238, 127, 59, 0.08);
-  border: 1px solid rgba(238, 127, 59, 0.22);
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.28);
   margin: 0 0 1rem;
 }
 .onboarding-empty svg {
-  color: #c2410c;
+  color: #b45309;
   flex: none;
   margin-top: 0.15rem;
 }
@@ -4029,6 +4365,140 @@ button {
   transform: none;
 }
 
+/* Dark palette for the onboarding shell. Same Deep Navy elevation
+   ladder as auth + dashboard. Card sits one step above the shell
+   navy; lists and inputs sit another step up. Selected-option
+   tint uses Civic Blue at slightly higher alpha so selection
+   reads clearly against the navy list background. */
+[data-theme='dark'] .onboarding-shell {
+  background: linear-gradient(180deg, #0f2747 0%, #122c50 100%);
+}
+
+[data-theme='dark'] .onboarding-card {
+  background: rgba(18, 44, 80, 0.9);
+  border-color: rgba(148, 163, 184, 0.2);
+  box-shadow:
+    0 10px 40px -12px rgba(0, 0, 0, 0.5),
+    0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme='dark'] .onboarding-eyebrow {
+  color: #93c5fd;
+}
+
+[data-theme='dark'] .onboarding-title,
+[data-theme='dark'] .onboarding-question,
+[data-theme='dark'] .onboarding-empty-title {
+  color: #f8fafc;
+}
+
+[data-theme='dark'] .onboarding-description,
+[data-theme='dark'] .onboarding-hint,
+[data-theme='dark'] .onboarding-step-label,
+[data-theme='dark'] .onboarding-community-sub,
+[data-theme='dark'] .onboarding-community-meta,
+[data-theme='dark'] .onboarding-option-meta,
+[data-theme='dark'] .onboarding-empty-sub,
+[data-theme='dark'] .onboarding-loading {
+  color: #94a3b8;
+}
+
+[data-theme='dark'] .onboarding-step-dot {
+  background: rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+}
+
+[data-theme='dark'] .onboarding-step-dot.is-active {
+  background: var(--brand-blue);
+  color: #fff;
+}
+
+[data-theme='dark'] .onboarding-step-dot.is-done {
+  background: rgba(16, 185, 129, 0.22);
+  color: #86efac;
+}
+
+[data-theme='dark'] .onboarding-step-line {
+  background: rgba(148, 163, 184, 0.2);
+}
+
+[data-theme='dark'] .onboarding-search {
+  background: #1a3866;
+  border-color: rgba(148, 163, 184, 0.24);
+}
+
+[data-theme='dark'] .onboarding-search input {
+  color: #f8fafc;
+}
+
+[data-theme='dark'] .onboarding-search input::placeholder {
+  color: #94a3b8;
+}
+
+[data-theme='dark'] .onboarding-search:focus-within {
+  background: #1f4278;
+  border-color: var(--brand-blue);
+}
+
+[data-theme='dark'] .onboarding-search svg,
+[data-theme='dark'] .onboarding-option-icon {
+  color: #94a3b8;
+}
+
+[data-theme='dark'] .onboarding-list {
+  background: rgba(18, 44, 80, 0.7);
+  border-color: rgba(148, 163, 184, 0.18);
+}
+
+[data-theme='dark'] .onboarding-list li + li {
+  border-top-color: rgba(148, 163, 184, 0.14);
+}
+
+[data-theme='dark'] .onboarding-option,
+[data-theme='dark'] .onboarding-community {
+  color: #f8fafc;
+}
+
+[data-theme='dark'] .onboarding-option:hover,
+[data-theme='dark'] .onboarding-community:hover {
+  background: rgba(59, 130, 246, 0.14);
+}
+
+[data-theme='dark'] .onboarding-option.is-selected,
+[data-theme='dark'] .onboarding-community.is-selected {
+  background: rgba(59, 130, 246, 0.22);
+  color: #dbeafe;
+}
+
+[data-theme='dark'] .onboarding-option-check {
+  color: #93c5fd;
+}
+
+[data-theme='dark'] .onboarding-loading {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme='dark'] .onboarding-empty {
+  background: rgba(245, 158, 11, 0.14);
+  border-color: rgba(245, 158, 11, 0.36);
+}
+
+[data-theme='dark'] .onboarding-empty svg {
+  color: #fbbf24;
+}
+
+[data-theme='dark'] .onboarding-back,
+[data-theme='dark'] .onboarding-skip {
+  background: rgba(18, 44, 80, 0.7);
+  border-color: rgba(148, 163, 184, 0.24);
+  color: #cbd5e1;
+}
+
+[data-theme='dark'] .onboarding-back:hover,
+[data-theme='dark'] .onboarding-skip:hover {
+  border-color: rgba(148, 163, 184, 0.42);
+}
+
 /* Friendly inline hint (e.g. "email is already registered — sign in instead") */
 .auth-hint {
   margin: 0 0 0.75rem;
@@ -4048,6 +4518,19 @@ button {
   font-size: 0.82rem;
   line-height: 1.5;
   color: var(--ink-700, #334155);
+}
+
+[data-theme='dark'] .auth-hint {
+  background: rgba(59, 130, 246, 0.14);
+  border-color: rgba(59, 130, 246, 0.35);
+}
+
+[data-theme='dark'] .auth-hint-title {
+  color: #93c5fd;
+}
+
+[data-theme='dark'] .auth-hint-sub {
+  color: #94a3b8;
 }
 
 /* Rate-limit toast: pinned to the bottom-right so it never blocks form state */
@@ -4114,15 +4597,16 @@ button {
   overflow: hidden;
 }
 
-/* Thin accent rule at the top — brand blues warming into terracotta.
-   Makes the header instantly readable as "section masthead" without
-   requiring anything heavier than a 3px bar. */
+/* Thin accent rule at the top — Deep Navy to Civic Blue. Was a
+   navy-blue-terracotta gradient; terracotta (--accent-500) is off
+   the brand palette so it was retired in favour of the two-tone
+   brand primary. */
 .page-header::before {
   content: '';
   position: absolute;
   inset: 0 0 auto 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--brand-700), var(--brand-500) 55%, var(--accent-500));
+  background: linear-gradient(90deg, var(--brand-navy), var(--brand-blue));
 }
 
 .page-header-top {
@@ -4147,7 +4631,9 @@ button {
 }
 
 .page-header-marker {
-  color: var(--accent-500);
+  /* § marker was orange (--accent-500) — off palette. Now Civic
+     Blue, aligned with the header gradient. */
+  color: var(--brand-blue);
   font-family: 'Fraunces', Georgia, serif;
   font-size: 1.05rem;
   line-height: 1;
@@ -4208,6 +4694,34 @@ button {
   margin: 1.2rem 0 0;
   padding-top: 1rem;
   border-top: 1px dashed rgba(15, 23, 42, 0.08);
+}
+
+/* Dark palette for the page header. Card sits on Deep Navy shell,
+   so the surface lifts one step (rgba(18, 44, 80, X)) — same
+   elevation ladder the sidebar/topbar use. Text tokens mirror the
+   dashboard --dash-* palette so a page inherits chrome without
+   needing anything extra. */
+[data-theme='dark'] .page-header {
+  background: rgba(18, 44, 80, 0.55);
+  border-color: rgba(148, 163, 184, 0.18);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+[data-theme='dark'] .page-header-title {
+  color: #f8fafc;
+}
+
+[data-theme='dark'] .page-header-subtitle,
+[data-theme='dark'] .page-header-meta {
+  color: #94a3b8;
+}
+
+[data-theme='dark'] .page-header-eyebrow {
+  color: #93c5fd;
+}
+
+[data-theme='dark'] .page-header-notice {
+  border-top-color: rgba(148, 163, 184, 0.14);
 }
 
 /* Profile page uses the shared PageHeader with an inline avatar chip

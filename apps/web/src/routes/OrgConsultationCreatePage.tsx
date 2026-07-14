@@ -82,7 +82,10 @@ export function OrgConsultationCreatePage() {
 
   return (
     <section className="space-y-6">
-      <Link to={`/org/${orgId}`} className="text-sm font-semibold text-civic-700 hover:underline">
+      <Link
+        to={`/org/${orgId}`}
+        className="text-sm font-semibold text-civic-700 dark:text-civic-200 hover:underline"
+      >
         {t('orgConsultationCreate.back')}
       </Link>
 
@@ -94,7 +97,7 @@ export function OrgConsultationCreatePage() {
 
       <form onSubmit={onSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-semibold text-slate-700">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
             {t('orgConsultationCreate.fields.title')}
           </label>
           <Input
@@ -104,13 +107,13 @@ export function OrgConsultationCreatePage() {
             required
             minLength={5}
           />
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
             {t('orgConsultationCreate.fields.titleHelp')}
           </p>
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-700">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
             {t('orgConsultationCreate.fields.summary')}
           </label>
           <Input
@@ -120,13 +123,13 @@ export function OrgConsultationCreatePage() {
             required
             minLength={10}
           />
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
             {t('orgConsultationCreate.fields.summaryHelp')}
           </p>
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-700">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
             {t('orgConsultationCreate.fields.description')}
           </label>
           <textarea
@@ -135,19 +138,19 @@ export function OrgConsultationCreatePage() {
             required
             minLength={10}
             rows={6}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
+            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
           />
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
             {t('orgConsultationCreate.fields.descriptionHelp')}
           </p>
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-700">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
             {t('orgConsultationCreate.fields.cover')}
           </label>
           <div className="mt-1 flex items-start gap-4">
-            <div className="flex h-24 w-40 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-300 bg-slate-50">
+            <div className="flex h-24 w-40 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/40">
               {coverPreview ? (
                 <img
                   src={coverPreview}
@@ -161,7 +164,7 @@ export function OrgConsultationCreatePage() {
               )}
             </div>
             <div className="flex flex-col gap-2">
-              <label className="cursor-pointer text-sm font-semibold text-civic-700 hover:underline">
+              <label className="cursor-pointer text-sm font-semibold text-civic-700 dark:text-civic-200 hover:underline">
                 <input type="file" accept="image/*" className="hidden" onChange={onCoverChange} />
                 {coverFile
                   ? t('orgConsultationCreate.fields.coverChange')
@@ -171,12 +174,12 @@ export function OrgConsultationCreatePage() {
                 <button
                   type="button"
                   onClick={() => setCoverFile(null)}
-                  className="text-left text-xs text-slate-500 hover:text-slate-700 hover:underline"
+                  className="text-left text-xs text-slate-500 dark:text-slate-300 hover:text-slate-700 dark:hover:text-slate-300 hover:underline"
                 >
                   {t('orgConsultationCreate.fields.coverRemove')}
                 </button>
               )}
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-300">
                 {t('orgConsultationCreate.fields.coverHelp')}
               </p>
             </div>
@@ -184,13 +187,13 @@ export function OrgConsultationCreatePage() {
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-700">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
             {t('orgConsultationCreate.fields.community')}
           </label>
           <select
             value={communityId}
             onChange={(e) => setCommunityId(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
+            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
           >
             <option value="">{t('orgConsultationCreate.fields.communityAny')}</option>
             {(communitiesQuery.data ?? []).map((c) => (
@@ -199,28 +202,28 @@ export function OrgConsultationCreatePage() {
               </option>
             ))}
           </select>
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
             {t('orgConsultationCreate.fields.communityHelp')}
           </p>
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-700">
+          <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">
             {t('orgConsultationCreate.fields.closesAt')}
           </label>
           <input
             type="datetime-local"
             value={closesAt}
             onChange={(e) => setClosesAt(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
+            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2 text-sm shadow-sm focus:border-civic-500 focus:outline-none focus:ring-1 focus:ring-civic-500"
           />
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
             {t('orgConsultationCreate.fields.closesAtHelp')}
           </p>
         </div>
 
         {error && (
-          <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          <p className="rounded-lg border border-red-200 dark:border-red-500/40 bg-red-50 dark:bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300">
             {error}
           </p>
         )}

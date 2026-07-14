@@ -94,22 +94,30 @@ export function OrganizationDetailPage() {
   const projQuery = useProjects(id);
 
   if (orgQuery.isLoading || !org) {
-    return <p className="text-sm text-slate-600">{t('common.loading')}</p>;
+    return <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>;
   }
   if (orgQuery.isError) {
     return (
       <section className="space-y-4">
-        <Link to="/organizations" className="text-sm font-semibold text-civic-700 hover:underline">
+        <Link
+          to="/organizations"
+          className="text-sm font-semibold text-civic-700 dark:text-civic-200 hover:underline"
+        >
           {t('organizationDetail.backToList')}
         </Link>
-        <p className="text-sm text-red-600">{t('organizationDetail.loadError')}</p>
+        <p className="text-sm text-red-600 dark:text-red-400">
+          {t('organizationDetail.loadError')}
+        </p>
       </section>
     );
   }
 
   return (
     <section className="space-y-6">
-      <Link to="/organizations" className="text-sm font-semibold text-civic-700 hover:underline">
+      <Link
+        to="/organizations"
+        className="text-sm font-semibold text-civic-700 dark:text-civic-200 hover:underline"
+      >
         {t('organizationDetail.backToList')}
       </Link>
 
@@ -117,8 +125,11 @@ export function OrganizationDetailPage() {
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-900">
-            <Megaphone className="mr-2 inline h-4 w-4 text-civic-700" aria-hidden="true" />
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+            <Megaphone
+              className="mr-2 inline h-4 w-4 text-civic-700 dark:text-civic-200"
+              aria-hidden="true"
+            />
             {t('organizationDetail.sections.announcements')}
           </h2>
           {isMember && <NewAnnouncementButton orgId={id} />}
@@ -132,8 +143,11 @@ export function OrganizationDetailPage() {
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-900">
-            <Briefcase className="mr-2 inline h-4 w-4 text-civic-700" aria-hidden="true" />
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+            <Briefcase
+              className="mr-2 inline h-4 w-4 text-civic-700 dark:text-civic-200"
+              aria-hidden="true"
+            />
             {t('organizationDetail.sections.projects')}
           </h2>
           {isMember && <NewProjectButton orgId={id} />}
@@ -143,8 +157,11 @@ export function OrganizationDetailPage() {
 
       {isMember && (
         <section className="space-y-3">
-          <h2 className="text-lg font-semibold text-slate-900">
-            <Inbox className="mr-2 inline h-4 w-4 text-civic-700" aria-hidden="true" />
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+            <Inbox
+              className="mr-2 inline h-4 w-4 text-civic-700 dark:text-civic-200"
+              aria-hidden="true"
+            />
             {t('organizationDetail.sections.assignments')}
           </h2>
           <AssignmentList items={asgQuery.data ?? []} isLoading={asgQuery.isLoading} orgId={id} />
@@ -157,26 +174,30 @@ export function OrganizationDetailPage() {
 function OrgHeader({ org }: { org: Organization }) {
   const { t } = useTranslation();
   return (
-    <header className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+    <header className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
       <div className="flex flex-wrap items-start gap-4">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h1 className="text-3xl font-semibold text-slate-900">{org.name}</h1>
+            <h1 className="text-3xl font-semibold text-slate-900 dark:text-slate-100">
+              {org.name}
+            </h1>
             {org.verified && (
               <ShieldCheck
-                className="h-5 w-5 text-emerald-600"
+                className="h-5 w-5 text-emerald-600 dark:text-emerald-400"
                 aria-label={t('organizationsPage.card.verified')}
               />
             )}
           </div>
-          <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-civic-700">
+          <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-civic-700 dark:text-civic-200">
             {t(`organizationsPage.kinds.${org.kind}`)} ·{' '}
             {t(`organizationsPage.jurisdictions.${org.jurisdiction}`)}
             {org.state ? ` · ${org.state}` : ''}
             {org.lga ? ` / ${org.lga}` : ''}
           </p>
           {org.description && (
-            <p className="mt-3 whitespace-pre-wrap text-sm text-slate-700">{org.description}</p>
+            <p className="mt-3 whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
+              {org.description}
+            </p>
           )}
           <div className="mt-4 flex flex-wrap gap-2">
             {org.email && (
@@ -224,7 +245,7 @@ function ContactChip({
       href={href}
       target={external ? '_blank' : undefined}
       rel={external ? 'noopener noreferrer' : undefined}
-      className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm font-medium text-slate-700 hover:border-civic-300 hover:bg-civic-50 hover:text-civic-700"
+      className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 dark:bg-slate-800/40 px-3 py-1.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:border-civic-300 dark:hover:border-civic-500 hover:bg-civic-50 dark:hover:bg-civic-500/10 hover:text-civic-700 dark:hover:text-civic-200"
     >
       <span className="text-slate-400">{icon}</span>
       {label}
@@ -243,7 +264,8 @@ function AnnouncementList({
 }) {
   const { t } = useTranslation();
   const relative = useRelativeTime();
-  if (isLoading) return <p className="text-sm text-slate-600">{t('common.loading')}</p>;
+  if (isLoading)
+    return <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>;
   if (items.length === 0) {
     return (
       <EmptyState
@@ -259,24 +281,28 @@ function AnnouncementList({
           key={a.id}
           className={`rounded-xl border p-4 shadow-sm ${
             a.status === AnnouncementStatus.PUBLISHED
-              ? 'border-slate-200 bg-white'
-              : 'border-amber-300 bg-amber-50/60'
+              ? 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70'
+              : 'border-amber-300 dark:border-amber-500/50 bg-amber-50/60'
           }`}
         >
           <div className="flex items-baseline justify-between gap-2">
-            <h3 className="text-base font-semibold text-slate-900">{a.title}</h3>
-            <span className="text-xs text-slate-500">
+            <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
+              {a.title}
+            </h3>
+            <span className="text-xs text-slate-500 dark:text-slate-300">
               {a.publishedAt ? relative(a.publishedAt) : relative(a.createdAt)}
             </span>
           </div>
           {isMember && a.status !== AnnouncementStatus.PUBLISHED && (
-            <p className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-amber-700">
+            <p className="mt-1 text-[11px] font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-300">
               {t(`organizationDetail.announcementStatus.${a.status}`)}
             </p>
           )}
-          <p className="mt-2 whitespace-pre-wrap text-sm text-slate-700">{a.body}</p>
+          <p className="mt-2 whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
+            {a.body}
+          </p>
           <div className="mt-3 flex items-center justify-between gap-2">
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-300">
               {t('organizationDetail.byAuthor', { name: a.authorName })}
             </p>
             <ReportButton contentType="ANNOUNCEMENT" contentId={a.id} />
@@ -341,7 +367,10 @@ function NewAnnouncementModal({ orgId, onClose }: { orgId: string; onClose: () =
           minLength={2}
         />
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700" htmlFor="ann-body">
+          <label
+            className="text-sm font-medium text-gray-700 dark:text-gray-300"
+            htmlFor="ann-body"
+          >
             {t('organizationDetail.announcementModal.fields.body')}
           </label>
           <textarea
@@ -351,14 +380,14 @@ function NewAnnouncementModal({ orgId, onClose }: { orgId: string; onClose: () =
             onChange={(e) => setBody(e.target.value)}
             required
             minLength={10}
-            className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-civic-500"
+            className="w-full rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-civic-500"
           />
         </div>
-        <label className="flex items-center gap-2 text-sm text-slate-700">
+        <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
           <input type="checkbox" checked={publish} onChange={(e) => setPublish(e.target.checked)} />
           {t('organizationDetail.announcementModal.publishNow')}
         </label>
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
         <div className="flex justify-end gap-2 pt-2">
           <Button type="button" variant="secondary" onClick={onClose}>
             {t('common.cancel')}
@@ -374,7 +403,8 @@ function NewAnnouncementModal({ orgId, onClose }: { orgId: string; onClose: () =
 
 function ProjectList({ items, isLoading }: { items: Project[]; isLoading: boolean }) {
   const { t } = useTranslation();
-  if (isLoading) return <p className="text-sm text-slate-600">{t('common.loading')}</p>;
+  if (isLoading)
+    return <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>;
   if (items.length === 0) {
     return (
       <EmptyState
@@ -386,16 +416,23 @@ function ProjectList({ items, isLoading }: { items: Project[]; isLoading: boolea
   return (
     <div className="grid gap-3 md:grid-cols-2">
       {items.map((p) => (
-        <article key={p.id} className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <article
+          key={p.id}
+          className="rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 shadow-sm"
+        >
           <div className="flex items-baseline justify-between gap-2">
-            <h3 className="text-base font-semibold text-slate-900">{p.title}</h3>
-            <span className="rounded-full bg-civic-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-civic-700">
+            <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
+              {p.title}
+            </h3>
+            <span className="rounded-full bg-civic-100 dark:bg-civic-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-civic-700 dark:text-civic-200">
               {t(`organizationDetail.projectStatus.${p.status}`)}
             </span>
           </div>
-          <p className="mt-2 line-clamp-3 text-sm text-slate-600">{p.description}</p>
+          <p className="mt-2 line-clamp-3 text-sm text-slate-600 dark:text-slate-300">
+            {p.description}
+          </p>
           {typeof p.budgetKobo === 'number' && (
-            <p className="mt-2 text-xs text-slate-500">
+            <p className="mt-2 text-xs text-slate-500 dark:text-slate-300">
               {t('organizationDetail.projectBudget', {
                 amount: new Intl.NumberFormat('en-NG', {
                   style: 'currency',
@@ -466,7 +503,10 @@ function NewProjectModal({ orgId, onClose }: { orgId: string; onClose: () => voi
           minLength={2}
         />
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700" htmlFor="proj-desc">
+          <label
+            className="text-sm font-medium text-gray-700 dark:text-gray-300"
+            htmlFor="proj-desc"
+          >
             {t('organizationDetail.projectModal.fields.description')}
           </label>
           <textarea
@@ -476,7 +516,7 @@ function NewProjectModal({ orgId, onClose }: { orgId: string; onClose: () => voi
             onChange={(e) => setDescription(e.target.value)}
             required
             minLength={10}
-            className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-civic-500"
+            className="w-full rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-civic-500"
           />
         </div>
         <Input
@@ -487,7 +527,7 @@ function NewProjectModal({ orgId, onClose }: { orgId: string; onClose: () => voi
           value={budgetNGN}
           onChange={(e) => setBudgetNGN(e.target.value)}
         />
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
         <div className="flex justify-end gap-2 pt-2">
           <Button type="button" variant="secondary" onClick={onClose}>
             {t('common.cancel')}
@@ -512,7 +552,8 @@ function AssignmentList({
 }) {
   const { t } = useTranslation();
   const relative = useRelativeTime();
-  if (isLoading) return <p className="text-sm text-slate-600">{t('common.loading')}</p>;
+  if (isLoading)
+    return <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>;
   if (items.length === 0) {
     return (
       <EmptyState
@@ -569,21 +610,26 @@ function AssignmentRow({
   });
 
   return (
-    <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+    <article className="rounded-xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 shadow-sm">
       <div className="flex items-baseline justify-between gap-2">
-        <p className="text-sm font-semibold text-slate-900">
-          <Link to={`/issues/${assignment.issueId}`} className="text-civic-700 hover:underline">
+        <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+          <Link
+            to={`/issues/${assignment.issueId}`}
+            className="text-civic-700 dark:text-civic-200 hover:underline"
+          >
             {t('organizationDetail.assignmentIssueLink', {
               id: assignment.issueId.slice(0, 8),
             })}
           </Link>
         </p>
-        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-700">
+        <span className="rounded-full bg-slate-100 dark:bg-slate-800/60 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
           {t(`organizationDetail.assignmentStatus.${assignment.status}`)}
         </span>
       </div>
-      {assignment.note && <p className="mt-2 text-sm text-slate-600">{assignment.note}</p>}
-      <p className="mt-2 text-xs text-slate-500">
+      {assignment.note && (
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{assignment.note}</p>
+      )}
+      <p className="mt-2 text-xs text-slate-500 dark:text-slate-300">
         {t('organizationDetail.assignmentAssignedBy', {
           name: assignment.assignedByName,
           when: relative(assignment.createdAt),
@@ -628,7 +674,7 @@ function AssignmentRow({
             rows={3}
             value={responseBody}
             onChange={(e) => setResponseBody(e.target.value)}
-            className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-civic-500"
+            className="w-full rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-civic-500"
             placeholder={t('organizationDetail.responsePlaceholder')}
           />
           <div className="flex justify-end gap-2">

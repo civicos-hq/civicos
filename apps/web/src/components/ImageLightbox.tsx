@@ -15,7 +15,7 @@ export function ImageGallery({ filenames, alt }: { filenames: string[]; alt: str
             key={filename}
             type="button"
             onClick={() => setActive(i)}
-            className="block overflow-hidden rounded-xl ring-1 ring-slate-200 transition hover:ring-civic-400 focus:outline-none focus:ring-2 focus:ring-civic-500"
+            className="block overflow-hidden rounded-xl ring-1 ring-slate-200 dark:ring-slate-700 transition hover:ring-civic-400 focus:outline-none focus:ring-2 focus:ring-civic-500"
             aria-label={`Open photo ${i + 1}`}
           >
             <img src={uploadUrl(filename)} alt={alt} className="h-40 w-full object-cover" />
@@ -70,7 +70,7 @@ function Lightbox({
       <button
         type="button"
         onClick={onClose}
-        className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
+        className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white hover:bg-white dark:hover:bg-slate-900/70/20"
         aria-label="Close"
       >
         <X className="h-5 w-5" />
@@ -83,7 +83,7 @@ function Lightbox({
             e.stopPropagation();
             onIndex((index - 1 + filenames.length) % filenames.length);
           }}
-          className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20"
+          className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white dark:hover:bg-slate-900/70/20"
           aria-label="Previous photo"
         >
           <ChevronLeft className="h-5 w-5" />
@@ -105,7 +105,7 @@ function Lightbox({
               e.stopPropagation();
               onIndex((index + 1) % filenames.length);
             }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20"
+            className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white dark:hover:bg-slate-900/70/20"
             aria-label="Next photo"
           >
             <ChevronRight className="h-5 w-5" />

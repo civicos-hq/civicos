@@ -2,6 +2,12 @@ import type { Config } from 'tailwindcss';
 
 const config: Config = {
   content: ['./index.html', './src/**/*.{ts,tsx}', '../../packages/ui/src/**/*.{ts,tsx}'],
+  // Tailwind's `dark:` variants respond to the user's explicit theme
+  // choice (persisted in localStorage → written to <html data-theme="…">
+  // by the pre-paint script in index.html), not the OS's
+  // prefers-color-scheme media query. Keeps the two in sync when the
+  // user overrides their system preference.
+  darkMode: ['selector', "[data-theme='dark']"],
   theme: {
     extend: {
       colors: {
