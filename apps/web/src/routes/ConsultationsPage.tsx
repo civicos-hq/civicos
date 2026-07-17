@@ -99,6 +99,7 @@ export function ConsultationsPage() {
       {!listQuery.isLoading && items.length === 0 && (
         <EmptyState
           icon={<MessageSquare size={20} />}
+          illustration="/designs/07_consultation_lifecycle.png?v=6"
           title={t('consultationsPage.empty.title')}
           body={t('consultationsPage.empty.body')}
         />

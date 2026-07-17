@@ -86,7 +86,11 @@ export function NotificationsPage() {
           <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>
         ) : notifications.length === 0 ? (
           <div className="mt-4">
-            <EmptyState icon={<Bell className="h-5 w-5" />} title={t('notificationsPage.empty')} />
+            <EmptyState
+              icon={<Bell className="h-5 w-5" />}
+              illustration="/designs/14_future_together.png?v=6"
+              title={t('notificationsPage.empty')}
+            />
           </div>
         ) : (
           <div className="mt-4 grid gap-3">

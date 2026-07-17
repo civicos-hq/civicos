@@ -68,7 +68,11 @@ export function RepresentativesPage() {
       {repsQuery.isLoading ? (
         <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>
       ) : reps.length === 0 ? (
-        <EmptyState icon={<Users className="h-5 w-5" />} title={t('representativesPage.empty')} />
+        <EmptyState
+          icon={<Users className="h-5 w-5" />}
+          illustration="/designs/08_representatives_engage.png?v=6"
+          title={t('representativesPage.empty')}
+        />
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {reps.map((rep) => (

@@ -223,6 +223,7 @@ export function IssuesPage() {
           <div className="mt-6">
             <EmptyState
               icon={<Megaphone className="h-5 w-5" />}
+              illustration={hasFilters ? undefined : '/designs/06_issue_reporting.png?v=6'}
               title={
                 hasFilters
                   ? t('issuesPage.empty.noMatch')

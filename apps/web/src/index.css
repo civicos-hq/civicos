@@ -4756,3 +4756,152 @@ button {
   font-variant-numeric: tabular-nums;
   opacity: 0.85;
 }
+
+/* ─────────────── Homepage design illustrations ───────────────
+   PNG assets from /public/designs/. Bundled visual language:
+   3D-style civic characters + navy/blue palette. See
+   apps/web/public/designs/*.png. Sizes are declared on the
+   <img> to prevent layout shift. */
+
+/* Hero slideshow — stacked <img> frames cross-fade every ~4.5s.
+   Container reserves layout via aspect-ratio so surrounding content
+   never jumps between swaps. All frames render absolute inside;
+   only `.is-active` is visible. */
+.home-hero-visual {
+  position: relative;
+  /* Full-bleed — 100vw + negative margin escapes parent padding.
+     Source PNGs are pre-cropped to 2.5:1 with a top-heavy trim that
+     keeps character feet + ground and drops most of the sky.
+     Container matches at 2.5:1 so frames fill the width edge-to-edge
+     without cropping OR letterbox. Height scales with viewport. */
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  /* Negative top margin cancels .home-hero's clamp(2.5rem, 6vw, 5rem)
+     top padding so the slideshow butts flush against the nav bar
+     — no gap between the navbar and the top of the first frame. */
+  margin-top: calc(-1 * clamp(2.5rem, 6vw, 5rem));
+  margin-bottom: 2.5rem;
+  aspect-ratio: 2.5 / 1;
+  overflow: hidden;
+  animation: pr-rise 640ms 100ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.home-hero-visual-frame {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* Images are pre-cropped to match the container's 2.5:1 aspect,
+     so `cover` fills the container edge-to-edge with no cropping
+     and no letterbox — both dimensions align perfectly. */
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 900ms ease;
+}
+.home-hero-visual-frame.is-active {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-hero-visual-frame {
+    transition: none;
+  }
+}
+
+/* Actor list — was tight typography chips, now small illustrated
+   cards. Image on top, label below. */
+.home-manifesto-actors {
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+.home-manifesto-actor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  width: min(180px, 42vw);
+  padding: 0.55rem 0.55rem 0.75rem;
+  border: 1px solid var(--pr-border);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+}
+.home-manifesto-actor-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+}
+.home-manifesto-actor span {
+  font-family: var(--pr-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pr-ink-soft);
+}
+
+/* Stories — three illustrated cards showing flagship flows. */
+.home-stories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+.home-story-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1.25rem;
+  border: 1px solid var(--pr-border);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  transition:
+    transform 220ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    border-color 220ms;
+}
+.home-story-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(37, 99, 235, 0.4);
+}
+.home-story-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+}
+.home-story-title {
+  margin: 0;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.2rem;
+  line-height: 1.25;
+  color: var(--pr-ink);
+}
+.home-story-body {
+  margin: 0;
+  font-size: 0.94rem;
+  line-height: 1.55;
+  color: var(--pr-ink-soft);
+}
+
+/* CTA visual — decorative illustration in the dark CTA strip. */
+.home-cta-copy {
+  max-width: 40rem;
+}
+.home-cta-visual {
+  display: block;
+  width: min(520px, 90%);
+  height: auto;
+  border-radius: 1rem;
+  margin: 0 auto;
+  opacity: 0.94;
+}
+
+/* Optional illustration inside .empty-state. Sits above the icon
+   chip; width capped so the dashed card doesn't blow out to
+   full-page width when a large illustration is passed. */
+.empty-state-illustration {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  border-radius: 0.75rem;
+  margin-bottom: 0.5rem;
+}

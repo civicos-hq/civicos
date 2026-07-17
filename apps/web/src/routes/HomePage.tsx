@@ -33,6 +33,7 @@ export function HomePage() {
       <Manifesto />
       <Parties />
       <Articles />
+      <Stories />
       <Principles />
       <HowItWorks />
       <FAQ />
@@ -291,6 +292,58 @@ export function TopNav() {
   );
 }
 
+/**
+ * HeroSlideshow — cycles through every design in /public/designs/ as
+ * the hero cover. Cross-fades every ~4.5s. All frames render into the
+ * DOM stacked with opacity transitions so the browser can swap without
+ * layout thrash. Respects prefers-reduced-motion (holds on the first
+ * frame). Every image but the first is lazy-loaded to keep first-paint
+ * cheap; the first frame gets `fetchPriority="high"` so LCP still
+ * lands on the hero image.
+ */
+function HeroSlideshow() {
+  const frames = [
+    '/designs/01_hero_cover.png?v=6',
+    '/designs/02_government_listening.png?v=6',
+    '/designs/03_university_consultation.png?v=6',
+    '/designs/04_ngo_engagement.png?v=6',
+    '/designs/05_community_participation.png?v=6',
+    '/designs/06_issue_reporting.png?v=6',
+    '/designs/07_consultation_lifecycle.png?v=6',
+    '/designs/08_representatives_engage.png?v=6',
+    '/designs/09_trust_transparency.png?v=6',
+    '/designs/10_data_impact.png?v=6',
+    '/designs/14_future_together.png?v=6',
+  ];
+  const [idx, setIdx] = useState(0);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const id = window.setInterval(() => {
+      setIdx((prev) => (prev + 1) % frames.length);
+    }, 4500);
+    return () => window.clearInterval(id);
+  }, [frames.length]);
+
+  return (
+    <div className="home-hero-visual" aria-hidden="true">
+      {frames.map((src, i) => (
+        <img
+          key={src}
+          src={src}
+          alt=""
+          loading={i === 0 ? 'eager' : 'lazy'}
+          fetchPriority={i === 0 ? 'high' : 'low'}
+          width={1672}
+          height={668}
+          className={`home-hero-visual-frame${i === idx ? ' is-active' : ''}`}
+        />
+      ))}
+    </div>
+  );
+}
+
 function Hero() {
   const { t, i18n } = useTranslation();
   const spotlightRef = useHeroSpotlight();
@@ -307,6 +360,8 @@ function Hero() {
     <section className="home-hero" ref={spotlightRef}>
       <div className="home-hero-orb home-hero-orb--1" aria-hidden="true" />
       <div className="home-hero-orb home-hero-orb--2" aria-hidden="true" />
+
+      <HeroSlideshow />
 
       <div className="home-hero-body">
         <div className="home-hero-copy">
@@ -515,6 +570,12 @@ function Docket() {
 function Manifesto() {
   const { t } = useTranslation();
   const actorKeys = ['governments', 'universities', 'ngos', 'communities'] as const;
+  const actorImages: Record<(typeof actorKeys)[number], string> = {
+    governments: '/designs/02_government_listening.png?v=6',
+    universities: '/designs/03_university_consultation.png?v=6',
+    ngos: '/designs/04_ngo_engagement.png?v=6',
+    communities: '/designs/05_community_participation.png?v=6',
+  };
   const beliefKeys = ['one', 'two', 'three', 'four', 'five'] as const;
   return (
     <section className="home-section home-section-manifesto reveal">
@@ -527,7 +588,15 @@ function Manifesto() {
         <ul className="home-manifesto-actors" aria-label="Who CivicOS is for">
           {actorKeys.map((k) => (
             <li key={k} className="home-manifesto-actor">
-              {t(`manifesto.actors.${k}`)}
+              <img
+                className="home-manifesto-actor-img"
+                src={actorImages[k]}
+                alt=""
+                loading="lazy"
+                width={1672}
+                height={668}
+              />
+              <span>{t(`manifesto.actors.${k}`)}</span>
             </li>
           ))}
         </ul>
@@ -596,6 +665,59 @@ function Articles() {
             </div>
             <h3 className="home-article-title">{t(`articles.${a.key}.title`)}</h3>
             <p className="home-article-body">{t(`articles.${a.key}.body`)}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/**
+ * "Stories" — three big illustrated cards showing CivicOS's flagship
+ * flows (issue reporting, consultations, representative engagement).
+ * Inline English copy for now; wire into i18n when we're ready to
+ * translate the marketing block.
+ */
+function Stories() {
+  const stories = [
+    {
+      key: 'issues',
+      img: '/designs/06_issue_reporting.png?v=6',
+      title: 'Report an issue in your community',
+      body: 'Broken streetlight, uncollected refuse, potholes. Citizens file it once, everyone sees it, and the right office is on the hook.',
+    },
+    {
+      key: 'consultations',
+      img: '/designs/07_consultation_lifecycle.png?v=6',
+      title: 'Consultations that close the loop',
+      body: 'Public bodies open a window, gather structured input, then publish the outcome. No inbox black holes.',
+    },
+    {
+      key: 'reps',
+      img: '/designs/08_representatives_engage.png?v=6',
+      title: 'Representatives on the record',
+      body: 'Every response, every promise, every no-show — tracked in one place your constituency can read.',
+    },
+  ] as const;
+  return (
+    <section className="home-section reveal">
+      <TypedMarker text="STORIES — HOW CIVICOS SHOWS UP" />
+      <div className="home-section-head">
+        <h2 className="home-section-title">Everyday civic moments, on a shared record.</h2>
+      </div>
+      <div className="home-stories-grid">
+        {stories.map((s) => (
+          <article key={s.key} className="home-story-card">
+            <img
+              className="home-story-img"
+              src={s.img}
+              alt=""
+              loading="lazy"
+              width={1672}
+              height={668}
+            />
+            <h3 className="home-story-title">{s.title}</h3>
+            <p className="home-story-body">{s.body}</p>
           </article>
         ))}
       </div>
@@ -754,7 +876,7 @@ function CTA() {
   return (
     <section className="home-cta-strip reveal">
       <div className="home-cta-inner">
-        <div>
+        <div className="home-cta-copy">
           <span className="home-cta-eyebrow">
             <Mail className="inline h-3 w-3" aria-hidden="true" /> {t('cta.eyebrow')}
           </span>
@@ -763,6 +885,14 @@ function CTA() {
           </h2>
           <p className="home-cta-sub">{t('cta.sub')}</p>
         </div>
+        <img
+          className="home-cta-visual"
+          src="/designs/14_future_together.png?v=6"
+          alt=""
+          loading="lazy"
+          width={1672}
+          height={668}
+        />
         <div className="home-cta-buttons">
           <Link to="/register" className="home-btn home-btn-primary home-btn-lg">
             {t('cta.ctaPrimary')}
