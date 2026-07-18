@@ -1070,6 +1070,56 @@ button {
   }
 }
 
+/* Phone-only tightening for auth + onboarding shells. Tablet is
+   already handled by the max-width: 860px block above; this block
+   trims padding further so the cards don't feel oversized on a
+   375px viewport. */
+@media (max-width: 640px) {
+  .auth-shell {
+    padding: 1.25rem 0.85rem;
+  }
+  .auth-card {
+    padding: 1.1rem;
+    border-radius: 1rem;
+  }
+  .auth-card-head {
+    gap: 0.55rem;
+  }
+  .auth-lang {
+    top: 0.85rem;
+    right: 0.85rem;
+  }
+  .auth-home {
+    top: 0.85rem;
+    left: 0.85rem;
+  }
+  .auth-input {
+    padding: 0.7rem 0.8rem;
+    font-size: 1rem; /* 16px — avoids iOS "zoom on focus" behaviour */
+  }
+
+  .onboarding-shell {
+    padding: 1.75rem 0.85rem;
+  }
+  .onboarding-card {
+    padding: 1.25rem 1.15rem 1.25rem;
+    border-radius: 16px;
+  }
+  .onboarding-title {
+    font-size: 1.35rem;
+  }
+  .onboarding-question {
+    font-size: 1.15rem;
+  }
+  .onboarding-actions {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .onboarding-actions--split {
+    align-items: stretch;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -280,7 +280,7 @@ export function OrgProjectDetailPage() {
           </div>
         </form>
       ) : (
-        <article className="space-y-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
+        <article className="space-y-4 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-6 shadow-sm">
           <span
             className={
               'inline-block rounded-full px-2 py-0.5 text-xs font-semibold uppercase tracking-wide ' +
@@ -344,7 +344,7 @@ function ProgressUpdatesSection({
   const updates = updatesQuery.data ?? [];
 
   return (
-    <section className="space-y-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
+    <section className="space-y-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-6 shadow-sm">
       <h3 className="font-fraunces text-base font-semibold text-slate-900 dark:text-slate-100">
         {t('orgProjectDetail.progressHeading')}
       </h3>
