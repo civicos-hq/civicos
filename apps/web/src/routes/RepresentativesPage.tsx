@@ -70,7 +70,7 @@ export function RepresentativesPage() {
       ) : reps.length === 0 ? (
         <EmptyState
           icon={<Users className="h-5 w-5" />}
-          illustration="/designs/08_representatives_engage.png?v=6"
+          illustration="/designs/08_representatives_engage.png?v=7"
           title={t('representativesPage.empty')}
         />
       ) : (

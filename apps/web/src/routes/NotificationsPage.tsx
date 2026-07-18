@@ -88,7 +88,7 @@ export function NotificationsPage() {
           <div className="mt-4">
             <EmptyState
               icon={<Bell className="h-5 w-5" />}
-              illustration="/designs/14_future_together.png?v=6"
+              illustration="/designs/14_future_together.png?v=7"
               title={t('notificationsPage.empty')}
             />
           </div>
