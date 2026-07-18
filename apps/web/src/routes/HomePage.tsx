@@ -317,17 +317,17 @@ export function TopNav() {
  */
 function HeroSlideshow() {
   const frames = [
-    '/designs/01_hero_cover.png?v=6',
-    '/designs/02_government_listening.png?v=6',
-    '/designs/03_university_consultation.png?v=6',
-    '/designs/04_ngo_engagement.png?v=6',
-    '/designs/05_community_participation.png?v=6',
-    '/designs/06_issue_reporting.png?v=6',
-    '/designs/07_consultation_lifecycle.png?v=6',
-    '/designs/08_representatives_engage.png?v=6',
-    '/designs/09_trust_transparency.png?v=6',
-    '/designs/10_data_impact.png?v=6',
-    '/designs/14_future_together.png?v=6',
+    '/designs/01_hero_cover.png?v=7',
+    '/designs/02_government_listening.png?v=7',
+    '/designs/03_university_consultation.png?v=7',
+    '/designs/04_ngo_engagement.png?v=7',
+    '/designs/05_community_participation.png?v=7',
+    '/designs/06_issue_reporting.png?v=7',
+    '/designs/07_consultation_lifecycle.png?v=7',
+    '/designs/08_representatives_engage.png?v=7',
+    '/designs/09_trust_transparency.png?v=7',
+    '/designs/10_data_impact.png?v=7',
+    '/designs/14_future_together.png?v=7',
   ];
   const [idx, setIdx] = useState(0);
 
@@ -587,10 +587,10 @@ function Manifesto() {
   const { t } = useTranslation();
   const actorKeys = ['governments', 'universities', 'ngos', 'communities'] as const;
   const actorImages: Record<(typeof actorKeys)[number], string> = {
-    governments: '/designs/02_government_listening.png?v=6',
-    universities: '/designs/03_university_consultation.png?v=6',
-    ngos: '/designs/04_ngo_engagement.png?v=6',
-    communities: '/designs/05_community_participation.png?v=6',
+    governments: '/designs/02_government_listening.png?v=7',
+    universities: '/designs/03_university_consultation.png?v=7',
+    ngos: '/designs/04_ngo_engagement.png?v=7',
+    communities: '/designs/05_community_participation.png?v=7',
   };
   const beliefKeys = ['one', 'two', 'three', 'four', 'five'] as const;
   return (
@@ -698,19 +698,19 @@ function Stories() {
   const stories = [
     {
       key: 'issues',
-      img: '/designs/06_issue_reporting.png?v=6',
+      img: '/designs/06_issue_reporting.png?v=7',
       title: 'Report an issue in your community',
       body: 'Broken streetlight, uncollected refuse, potholes. Citizens file it once, everyone sees it, and the right office is on the hook.',
     },
     {
       key: 'consultations',
-      img: '/designs/07_consultation_lifecycle.png?v=6',
+      img: '/designs/07_consultation_lifecycle.png?v=7',
       title: 'Consultations that close the loop',
       body: 'Public bodies open a window, gather structured input, then publish the outcome. No inbox black holes.',
     },
     {
       key: 'reps',
-      img: '/designs/08_representatives_engage.png?v=6',
+      img: '/designs/08_representatives_engage.png?v=7',
       title: 'Representatives on the record',
       body: 'Every response, every promise, every no-show — tracked in one place your constituency can read.',
     },
@@ -903,7 +903,7 @@ function CTA() {
         </div>
         <img
           className="home-cta-visual"
-          src="/designs/14_future_together.png?v=6"
+          src="/designs/14_future_together.png?v=7"
           alt=""
           loading="lazy"
           width={1672}
