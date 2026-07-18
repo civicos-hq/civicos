@@ -105,7 +105,7 @@ export function ConsultationsPage() {
         />
       )}
 
-      <ul className="space-y-3">
+      <ul className="grid gap-3 md:grid-cols-2">
         {items.map((c) => {
           const responded = respondedQuery.data?.has(c.id) ?? false;
           return (

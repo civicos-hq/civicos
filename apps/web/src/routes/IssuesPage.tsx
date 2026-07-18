@@ -234,7 +234,7 @@ export function IssuesPage() {
             />
           </div>
         ) : (
-          <div className="mt-4 grid gap-3">
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
             {visible.map((issue) => {
               const thumb = issue.imageUrls?.[0];
               const extra = (issue.imageUrls?.length ?? 0) - 1;
