@@ -638,6 +638,20 @@ button {
   color: #93c5fd;
 }
 
+/* Auth-home corner button ("← Home"). Light-mode uses a dark ink at
+   60% opacity which is invisible on Deep Navy — bump to a readable
+   slate for dark mode, plus a subtle hover-bg that pops against the
+   navy sky. `.auth-shell` prefix keeps the override scoped to the
+   auth surface (dashboard sidebar doesn't have .auth-home). */
+[data-theme='dark'] .auth-shell .auth-home {
+  color: rgba(226, 232, 240, 0.75);
+}
+[data-theme='dark'] .auth-shell .auth-home:hover,
+[data-theme='dark'] .auth-shell .auth-home:focus-visible {
+  color: #f8fafc;
+  background-color: rgba(148, 163, 184, 0.16);
+}
+
 .dashboard-shell {
   display: flex;
   height: 100dvh;
@@ -2243,8 +2257,7 @@ button {
 .home-parties {
   display: grid;
   grid-template-columns: 1fr;
-  border: 1px solid var(--pr-border);
-  background: var(--pr-paper-soft);
+  gap: 1rem;
 }
 
 @media (min-width: 760px) {
@@ -2255,28 +2268,12 @@ button {
 
 .home-party {
   padding: 1.6rem 1.5rem 1.8rem;
-  border-top: 1px solid var(--pr-rule);
-  border-left: 1px solid var(--pr-rule);
+  border: 1px solid var(--pr-border);
+  border-radius: 10px;
+  background: var(--pr-paper-soft);
   display: grid;
   gap: 0.45rem;
   align-content: start;
-}
-
-.home-party:nth-child(1) {
-  border-top: none;
-  border-left: none;
-}
-.home-party:nth-child(2) {
-  border-top: none;
-}
-
-@media (max-width: 759px) {
-  .home-party {
-    border-left: none;
-  }
-  .home-party:nth-child(2) {
-    border-top: 1px solid var(--pr-rule);
-  }
 }
 
 .home-party-role {
@@ -2310,8 +2307,7 @@ button {
 .home-articles {
   display: grid;
   grid-template-columns: 1fr;
-  border-top: 1px solid var(--pr-rule);
-  border-left: 1px solid var(--pr-rule);
+  gap: 1rem;
 }
 
 @media (min-width: 760px) {
@@ -2328,8 +2324,9 @@ button {
 
 .home-article {
   padding: 1.7rem 1.5rem 1.8rem;
-  border-bottom: 1px solid var(--pr-rule);
-  border-right: 1px solid var(--pr-rule);
+  border: 1px solid var(--pr-border);
+  border-radius: 10px;
+  background: var(--pr-paper);
   display: grid;
   gap: 0.55rem;
   align-content: start;
@@ -2376,8 +2373,7 @@ button {
 .home-principles {
   display: grid;
   grid-template-columns: 1fr;
-  border-top: 1px solid var(--pr-rule);
-  border-left: 1px solid var(--pr-rule);
+  gap: 1rem;
 }
 
 @media (min-width: 760px) {
@@ -2388,8 +2384,8 @@ button {
 
 .home-principle {
   padding: 1.4rem 1.2rem;
-  border-bottom: 1px solid var(--pr-rule);
-  border-right: 1px solid var(--pr-rule);
+  border: 1px solid var(--pr-border);
+  border-radius: 10px;
   display: grid;
   gap: 0.55rem;
   align-content: start;
@@ -2435,8 +2431,7 @@ button {
   margin: 0;
   display: grid;
   grid-template-columns: 1fr;
-  border-top: 1px solid var(--pr-rule);
-  border-left: 1px solid var(--pr-rule);
+  gap: 1rem;
 }
 
 @media (min-width: 760px) {
@@ -2453,8 +2448,8 @@ button {
 
 .home-step {
   padding: 1.5rem 1.4rem 1.7rem;
-  border-bottom: 1px solid var(--pr-rule);
-  border-right: 1px solid var(--pr-rule);
+  border: 1px solid var(--pr-border);
+  border-radius: 10px;
   display: grid;
   gap: 0.4rem;
   align-content: start;
@@ -2499,12 +2494,14 @@ button {
 .home-faq {
   display: grid;
   grid-template-columns: 1fr;
-  border-top: 1px solid var(--pr-border);
+  gap: 0.75rem;
 }
 
 .home-faq-item {
-  border-bottom: 1px solid var(--pr-rule);
-  background: transparent;
+  border: 1px solid var(--pr-border);
+  border-radius: 10px;
+  background: var(--pr-paper);
+  padding: 0 1rem;
 }
 
 .home-faq-q {

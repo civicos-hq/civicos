@@ -113,7 +113,7 @@ const ProfilePage = lazy(() =>
   import('./routes/ProfilePage').then((m) => ({ default: m.ProfilePage })),
 );
 
-function hasAccessToken() {
+export function hasAccessToken() {
   return Boolean(localStorage.getItem('accessToken'));
 }
 
@@ -201,11 +201,12 @@ function AppRoutes() {
         </Route>
       </Route>
 
-      {/* Default — marketing homepage for logged-out visitors, dashboard for logged-in */}
-      <Route
-        path="/"
-        element={hasAccessToken() ? <Navigate to="/discover" replace /> : <HomePage />}
-      />
+      {/* Marketing homepage — visible to everyone, signed in or out.
+          Sidebar brand link on the dashboard points here, so signed-in
+          users need to be able to reach it. TopNav on the homepage is
+          auth-aware and shows a "Dashboard" CTA when the visitor has
+          an access token. */}
+      <Route path="/" element={<HomePage />} />
       <Route path="*" element={<Navigate to={hasAccessToken() ? '/discover' : '/'} replace />} />
     </Routes>
   );
