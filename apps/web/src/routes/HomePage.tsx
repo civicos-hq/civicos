@@ -106,10 +106,12 @@ function CyclingHeroEm({ children }: { children?: React.ReactNode }) {
     return () => window.clearTimeout(id);
   }, [idx, words.length]);
 
-  // Measure the active word's natural width AFTER paint so the container's
-  // explicit pixel width smoothly transitions from the old word's width to
-  // the new one on the next frame. useLayoutEffect would collapse the two
-  // paints and defeat the CSS width transition — we want the transition.
+  // Measure the active word's natural width after paint. The container
+  // fits each word tightly (no dead space on the right), and the CSS
+  // transition on `width` interpolates smoothly between cycles. The
+  // parent h1 gets a locked `min-height` (see .home-hero-title in
+  // index.css) so the paragraph + CTAs below don't shift vertically
+  // when a shorter word (Sun) follows a longer one (Wednesday).
   useEffect(() => {
     const activeEl = containerRef.current?.querySelector<HTMLSpanElement>(
       '.hero-daily-swap-word.is-active',

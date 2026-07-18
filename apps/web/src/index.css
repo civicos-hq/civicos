@@ -1538,6 +1538,13 @@ button {
   max-width: 14ch;
   color: var(--pr-ink);
   font-variation-settings: 'opsz' 72;
+  /* Reserve enough vertical space for the worst-case line wrap so
+     the paragraph + CTAs below don't shift when the cycling em word
+     (Wednesday → Sun → …) causes the h1 to re-flow. 4 lines × the
+     0.96 line-height gives the h1 a stable height even when the em
+     is currently a short word ("Sun") that would otherwise wrap into
+     fewer lines. */
+  min-height: calc(4 * 0.96em);
 }
 
 .home-hero-title em {

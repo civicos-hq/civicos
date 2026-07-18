@@ -93,7 +93,7 @@ export function NotificationsPage() {
             />
           </div>
         ) : (
-          <div className="mt-4 grid gap-3">
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
             {notifications.map((n) => (
               <NotificationRow
                 key={n.id}
