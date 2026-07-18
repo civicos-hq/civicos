@@ -60,7 +60,7 @@ export function ProjectDetailPage() {
         titleAs="h2"
       />
 
-      <article className="space-y-4 rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
+      <article className="space-y-4 rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-6 shadow-sm">
         <span
           className={
             'inline-block rounded-full px-2 py-0.5 text-xs font-semibold uppercase tracking-wide ' +
@@ -115,7 +115,7 @@ export function ProjectDetailPage() {
         </dl>
       </article>
 
-      <section className="space-y-3 rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
+      <section className="space-y-3 rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-6 shadow-sm">
         <h3 className="font-fraunces text-base font-semibold text-slate-900 dark:text-slate-100">
           {t('projectDetail.progressHeading')}
         </h3>

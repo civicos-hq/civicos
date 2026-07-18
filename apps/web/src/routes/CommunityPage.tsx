@@ -96,7 +96,7 @@ export function CommunityPage() {
         <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>
       ) : activeCommunity ? (
         <>
-          <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
+          <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
               {t('communityPage.activeCommunity')}
             </h2>
@@ -112,7 +112,7 @@ export function CommunityPage() {
             )}
           </article>
 
-          <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
+          <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
               {t('communityPage.joinedCommunities')}
             </h2>
@@ -155,7 +155,7 @@ export function CommunityPage() {
             </div>
           </section>
 
-          <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
+          <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
               {t('communityPage.availableCommunities')}
             </h2>
@@ -185,7 +185,7 @@ export function CommunityPage() {
           </section>
         </>
       ) : (
-        <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
+        <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
             {t('communityPage.availableCommunities')}
           </h2>

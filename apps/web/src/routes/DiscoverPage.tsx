@@ -385,7 +385,7 @@ function IssueCard({
   return (
     <Link
       to={`/issues/${issue.id}`}
-      className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
+      className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
     >
       <div className="flex items-start gap-2">
         <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-rose-500 dark:text-rose-400" />
@@ -424,7 +424,7 @@ function PetitionCard({
   return (
     <Link
       to={`/petitions/${petition.id}`}
-      className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
+      className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
     >
       <div className="flex items-start gap-2">
         <FileText className="mt-0.5 h-4 w-4 flex-shrink-0 text-civic-600 dark:text-civic-300" />
@@ -473,7 +473,7 @@ function AnnouncementCard({
   return (
     <Link
       to={`/announcements/${announcement.id}`}
-      className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
+      className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
     >
       <div className="flex items-start gap-2">
         <Megaphone className="mt-0.5 h-4 w-4 flex-shrink-0 text-indigo-600 dark:text-indigo-400" />
@@ -513,7 +513,7 @@ function ProjectCard({
   return (
     <Link
       to={`/projects/${project.id}`}
-      className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
+      className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
     >
       <div className="flex items-start gap-2">
         <Briefcase className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-600 dark:text-emerald-400" />
@@ -558,7 +558,7 @@ function ConsultationCard({
   return (
     <Link
       to={`/consultations/${consultation.id}`}
-      className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
+      className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
     >
       <div className="flex items-start gap-2">
         <MessageSquare className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-600 dark:text-amber-400" />

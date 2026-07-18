@@ -129,13 +129,13 @@ export function IssuesPage() {
         {lanes.map((lane) => (
           <article
             key={lane.status}
-            className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-5 shadow-sm"
+            className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-5 shadow-sm"
           >
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600 dark:text-slate-300">
               {enums.issueStatus(lane.status)}
             </p>
             <div className="mt-3 flex items-center justify-between">
-              <p className="text-3xl font-semibold text-slate-900 dark:text-slate-100">
+              <p className="text-2xl md:text-3xl font-semibold text-slate-900 dark:text-slate-100">
                 {lane.count}
               </p>
               <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${lane.tone}`}>
@@ -146,7 +146,7 @@ export function IssuesPage() {
         ))}
       </div>
 
-      <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
+      <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-6 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
             {hasFilters ? t('issuesPage.filteredHeading') : t('issuesPage.recentHeading')}
@@ -343,7 +343,7 @@ function Modal({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg rounded-2xl bg-white dark:bg-slate-900 p-6 shadow-xl"
+        className="w-full max-w-lg rounded-2xl bg-white dark:bg-slate-900 p-4 md:p-6 shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4">

@@ -32,7 +32,13 @@ const navItems = [
   { to: '/notifications', i18n: 'sidebar.notifications', icon: Bell },
 ];
 
-export function Sidebar() {
+/**
+ * `onNavigate` fires whenever the user activates a nav link inside
+ * the sidebar. DashboardLayout uses it to close the mobile drawer
+ * immediately on tap (the pathname-change effect also closes it as
+ * a safety, but this gives instant visual feedback).
+ */
+export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
   const { t } = useTranslation();
   const { data: unread = 0 } = useUnreadCount();
   const { data: myOrgs = [] } = useMyOrganizations();
@@ -53,7 +59,12 @@ export function Sidebar() {
       {/* Brand block doubles as a shortcut back to the public landing
           page — standard "click the logo to go home" pattern that
           users reach for reflexively. */}
-      <Link to="/" className="dashboard-brand" aria-label={t('common.backToHome')}>
+      <Link
+        to="/"
+        className="dashboard-brand"
+        aria-label={t('common.backToHome')}
+        onClick={onNavigate}
+      >
         <span className="brand-mark" aria-hidden="true">
           <img src="/civicos-mark.png" alt="" />
         </span>
@@ -67,6 +78,7 @@ export function Sidebar() {
         {canActAsOrg && (
           <NavLink
             to="/org"
+            onClick={onNavigate}
             className={({ isActive }) =>
               `dashboard-link ${isActive ? 'dashboard-link-active' : 'dashboard-link-idle'}`
             }
@@ -81,6 +93,7 @@ export function Sidebar() {
             <NavLink
               key={to}
               to={to}
+              onClick={onNavigate}
               className={({ isActive }) =>
                 `dashboard-link ${isActive ? 'dashboard-link-active' : 'dashboard-link-idle'}`
               }
@@ -98,7 +111,7 @@ export function Sidebar() {
       </nav>
 
       <div className="dashboard-footer-nav">
-        <NavLink to="/profile" className="dashboard-link dashboard-link-idle">
+        <NavLink to="/profile" onClick={onNavigate} className="dashboard-link dashboard-link-idle">
           <User className="h-4 w-4" />
           {t('sidebar.profile')}
         </NavLink>

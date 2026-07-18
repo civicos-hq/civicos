@@ -174,11 +174,11 @@ export function OrganizationDetailPage() {
 function OrgHeader({ org }: { org: Organization }) {
   const { t } = useTranslation();
   return (
-    <header className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
+    <header className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-6 shadow-sm">
       <div className="flex flex-wrap items-start gap-4">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <h1 className="text-3xl font-semibold text-slate-900 dark:text-slate-100">
+            <h1 className="text-2xl md:text-3xl font-semibold text-slate-900 dark:text-slate-100">
               {org.name}
             </h1>
             {org.verified && (

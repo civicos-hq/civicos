@@ -83,14 +83,14 @@ export function RepresentativeDetailPage() {
         {t('representativeDetail.backToRepresentatives')}
       </Link>
 
-      <header className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
+      <header className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-6 shadow-sm">
         <div className="flex flex-wrap items-center gap-5">
           <Avatar name={rep.name} src={rep.avatarUrl} size={96} />
           <div className="min-w-0 flex-1">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-civic-700 dark:text-civic-200">
               {t('representativeDetail.eyebrow')}
             </p>
-            <h1 className="mt-1 text-3xl font-semibold text-slate-900 dark:text-slate-100">
+            <h1 className="mt-1 text-2xl md:text-3xl font-semibold text-slate-900 dark:text-slate-100">
               {rep.title} {stripTitleFromName(rep.title, rep.name)}
             </h1>
             <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
@@ -116,22 +116,22 @@ export function RepresentativeDetailPage() {
       </header>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-5 shadow-sm">
+        <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-5 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600 dark:text-slate-300">
             {t('representativeDetail.stats.responseRate')}
           </p>
-          <p className="mt-2 text-3xl font-semibold text-slate-900 dark:text-slate-100">
+          <p className="mt-2 text-2xl md:text-3xl font-semibold text-slate-900 dark:text-slate-100">
             {rep.responseRate}%
           </p>
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
             {t('representativeDetail.stats.responseRateSub')}
           </p>
         </article>
-        <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-5 shadow-sm">
+        <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-5 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600 dark:text-slate-300">
             {t('representativeDetail.stats.followers')}
           </p>
-          <p className="mt-2 text-3xl font-semibold text-slate-900 dark:text-slate-100">
+          <p className="mt-2 text-2xl md:text-3xl font-semibold text-slate-900 dark:text-slate-100">
             {rep.followerCount.toLocaleString(i18n.language)}
           </p>
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
@@ -141,7 +141,7 @@ export function RepresentativeDetailPage() {
       </div>
 
       {rep.bio && (
-        <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
+        <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
             {t('representativeDetail.about')}
           </h2>
@@ -151,7 +151,7 @@ export function RepresentativeDetailPage() {
         </article>
       )}
 
-      <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
+      <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
           {t('representativeDetail.contact.heading')}
         </h2>
