@@ -361,17 +361,19 @@ function Hero() {
       <div className="home-hero-orb home-hero-orb--1" aria-hidden="true" />
       <div className="home-hero-orb home-hero-orb--2" aria-hidden="true" />
 
+      {/* Masthead (tagline + today's date) sits above the slideshow so
+          the very first thing a visitor sees is who this is for. */}
+      <div className="home-hero-masthead">
+        <span>
+          <span className="pr-cyan-dot" aria-hidden="true" /> {t('hero.masthead')}
+        </span>
+        <span>{today}</span>
+      </div>
+
       <HeroSlideshow />
 
       <div className="home-hero-body">
         <div className="home-hero-copy">
-          <div className="home-hero-masthead">
-            <span>
-              <span className="pr-cyan-dot" aria-hidden="true" /> {t('hero.masthead')}
-            </span>
-            <span>{today}</span>
-          </div>
-
           <h1 className="home-hero-title">
             <Trans i18nKey="hero.headline" components={{ em: <CyclingHeroEm /> }} />
           </h1>

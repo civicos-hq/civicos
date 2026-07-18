@@ -1388,6 +1388,11 @@ button {
   color: var(--pr-ink-soft);
   padding-bottom: 0.8rem;
   border-bottom: 1px solid var(--pr-rule);
+  /* Negative top margin cancels .home-hero's top padding
+     (clamp(2.5rem, 6vw, 5rem)) so the masthead sits flush against
+     the top nav — no dead space between them. */
+  margin-top: calc(-1 * clamp(2.5rem, 6vw, 5rem));
+  padding-top: 0.6rem;
 }
 
 .home-hero-title {
@@ -4776,10 +4781,10 @@ button {
      without cropping OR letterbox. Height scales with viewport. */
   width: 100vw;
   margin-left: calc(50% - 50vw);
-  /* Negative top margin cancels .home-hero's clamp(2.5rem, 6vw, 5rem)
-     top padding so the slideshow butts flush against the nav bar
-     — no gap between the navbar and the top of the first frame. */
-  margin-top: calc(-1 * clamp(2.5rem, 6vw, 5rem));
+  /* Small breathing room above the slideshow — the masthead line
+     (tagline + date) sits above it now, so we let a bit of space
+     separate them without butting flush. */
+  margin-top: 1rem;
   margin-bottom: 2.5rem;
   aspect-ratio: 2.5 / 1;
   overflow: hidden;
