@@ -204,7 +204,7 @@ export function OrgConsultationDetailPage() {
         />
       )}
 
-      <article className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
+      <article className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-6 shadow-sm">
         <p className="whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
           {c.description}
         </p>
@@ -229,7 +229,7 @@ export function OrgConsultationDetailPage() {
 
       {/* Analytics — visible from PUBLISHED onwards to org members. */}
       {!isDraft && analytics.data && (
-        <section className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
+        <section className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-6 shadow-sm">
           <h3 className="mb-3 font-fraunces text-base font-semibold text-slate-900 dark:text-slate-100">
             {t('orgConsultationDetail.analyticsHeading', { count: analytics.data.responseCount })}
           </h3>
@@ -293,7 +293,7 @@ export function OrgConsultationDetailPage() {
       {isClosed && !hasOutcome && orgAdmin && <OutcomeForm consultationId={id} />}
 
       {hasOutcome && outcome.data && (
-        <section className="space-y-3 rounded-2xl border border-emerald-200 bg-emerald-50/50 p-6 shadow-sm">
+        <section className="space-y-3 rounded-2xl border border-emerald-200 bg-emerald-50/50 p-4 md:p-6 shadow-sm">
           <h3 className="font-fraunces text-lg font-semibold text-emerald-900 dark:text-emerald-100">
             {t('consultationDetail.outcome.heading')}
           </h3>
@@ -680,7 +680,7 @@ function OutcomeForm({ consultationId }: { consultationId: string }) {
   }
 
   return (
-    <section className="space-y-3 rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-500/10 p-6 shadow-sm">
+    <section className="space-y-3 rounded-2xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-500/10 p-4 md:p-6 shadow-sm">
       <h3 className="font-fraunces text-base font-semibold text-emerald-900 dark:text-emerald-100">
         {t('orgConsultationDetail.outcomeHeading')}
       </h3>

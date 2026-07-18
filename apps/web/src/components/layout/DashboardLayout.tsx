@@ -1,6 +1,6 @@
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Topbar } from './Topbar';
 import { UnverifiedBanner } from '../UnverifiedBanner';
@@ -10,14 +10,48 @@ export function DashboardLayout() {
   const { t } = useTranslation();
   useNotificationStream();
 
+  // Mobile drawer state — sidebar is off-canvas below 860px and gets
+  // toggled by the hamburger in the Topbar. Close automatically on
+  // route change so tapping a nav link doesn't leave the drawer open
+  // over the destination content.
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const { pathname } = useLocation();
+  useEffect(() => {
+    setDrawerOpen(false);
+  }, [pathname]);
+
+  // Lock body scroll while the drawer is open so background content
+  // doesn't scroll under the overlay.
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [drawerOpen]);
+
   return (
-    <div className="dashboard-shell">
+    <div className={`dashboard-shell${drawerOpen ? ' dashboard-shell--drawer-open' : ''}`}>
       <div className="dashboard-glow dashboard-glow-a" aria-hidden="true" />
       <div className="dashboard-glow dashboard-glow-b" aria-hidden="true" />
 
-      <Sidebar />
+      <Sidebar onNavigate={() => setDrawerOpen(false)} />
+
+      {/* Backdrop — only visible on mobile when drawer is open. Tapping
+          it closes the drawer. aria-hidden because the sidebar itself
+          holds keyboard focus. */}
+      {drawerOpen && (
+        <button
+          type="button"
+          className="dashboard-drawer-backdrop"
+          aria-label={t('common.closeMenu', 'Close menu')}
+          onClick={() => setDrawerOpen(false)}
+        />
+      )}
+
       <div className="dashboard-main-pane">
-        <Topbar />
+        <Topbar onOpenDrawer={() => setDrawerOpen(true)} />
         {/* Chrome strip — sits between the topbar and content, not inside
             the scrollable content area, so page real estate isn't eaten. */}
         <UnverifiedBanner />

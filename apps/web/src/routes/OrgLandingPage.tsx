@@ -47,7 +47,7 @@ export function OrgLandingPage() {
             <li key={organization.id}>
               <Link
                 to={`/org/${organization.id}`}
-                className="block rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500 hover:shadow-md"
+                className="block rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500 hover:shadow-md"
               >
                 <h2 className="font-fraunces text-lg font-semibold text-slate-900 dark:text-slate-100">
                   {organization.name}

@@ -165,7 +165,7 @@ export function ConsultationDetailPage() {
       )}
 
       {consultation.description && (
-        <article className="prose prose-slate max-w-none rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 text-sm shadow-sm">
+        <article className="prose prose-slate max-w-none rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-6 text-sm shadow-sm">
           {/* Description is markdown per the API contract; rendering as
               plain text here is deliberate. When the citizen app gains a
               markdown renderer for issues/petitions, switch this too. */}
@@ -192,7 +192,7 @@ export function ConsultationDetailPage() {
       {outcome && (
         <section
           id="outcome"
-          className="space-y-4 rounded-2xl border border-emerald-200 bg-emerald-50/50 dark:bg-emerald-500/10 p-6 shadow-sm"
+          className="space-y-4 rounded-2xl border border-emerald-200 bg-emerald-50/50 dark:bg-emerald-500/10 p-4 md:p-6 shadow-sm"
         >
           <h3 className="font-fraunces text-lg font-semibold text-emerald-900">
             {t('consultationDetail.outcome.heading')}

@@ -1,4 +1,4 @@
-import { Bell } from 'lucide-react';
+import { Bell, Menu } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -10,7 +10,13 @@ import { SearchBar } from './SearchBar';
 import { LanguageSwitcher } from '../LanguageSwitcher';
 import { ThemeToggle } from '../ThemeToggle';
 
-export function Topbar() {
+/**
+ * `onOpenDrawer` is invoked when the hamburger button is tapped on
+ * mobile. DashboardLayout owns the drawer-open state and passes this
+ * setter down. The button itself only renders below the drawer
+ * breakpoint (see `.dashboard-drawer-toggle` in index.css).
+ */
+export function Topbar({ onOpenDrawer }: { onOpenDrawer?: () => void } = {}) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const meQuery = useMe();
@@ -36,6 +42,18 @@ export function Topbar() {
 
   return (
     <header className="dashboard-topbar" aria-label={t('common.topbar')}>
+      {/* Hamburger — mobile-only. Below 860px the sidebar collapses
+          into an off-canvas drawer; this button opens it. Hidden at
+          desktop widths via CSS. */}
+      <button
+        type="button"
+        className="dashboard-drawer-toggle"
+        onClick={onOpenDrawer}
+        aria-label={t('common.openMenu', 'Open menu')}
+      >
+        <Menu className="h-5 w-5" aria-hidden="true" />
+      </button>
+
       <SearchBar />
 
       <div className="ml-auto flex items-center gap-3">

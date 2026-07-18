@@ -899,6 +899,53 @@ button {
   color: var(--dash-active-ink);
 }
 
+/* Hamburger — mobile-only. Hidden by default at desktop widths; the
+   @media (max-width: 860px) rule at the bottom of this section shows
+   it and gives it the same visual weight as .dashboard-icon-btn. */
+.dashboard-drawer-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 999px;
+  border: 1px solid var(--dash-line);
+  background: var(--dash-surface);
+  color: var(--dash-muted);
+  flex: none;
+  cursor: pointer;
+  transition:
+    border-color 140ms ease,
+    color 140ms ease;
+}
+.dashboard-drawer-toggle:hover {
+  border-color: var(--dash-active-border);
+  color: var(--dash-active-ink);
+}
+
+/* Full-viewport overlay behind the drawer. Rendered by
+   DashboardLayout only while the drawer is open. Tapping it closes
+   the drawer. Uses a subtle dark tint that works on both themes. */
+.dashboard-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 35;
+  border: 0;
+  padding: 0;
+  background: rgba(15, 39, 71, 0.55);
+  backdrop-filter: blur(3px);
+  cursor: pointer;
+  animation: fade-in 180ms ease;
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .dashboard-avatar {
   height: 2.2rem;
   min-width: 2.2rem;
@@ -978,28 +1025,98 @@ button {
     grid-column: auto;
   }
 
+  /* Below 860px the sidebar becomes an off-canvas drawer. Full
+     width labels stay (users need them to navigate on mobile); the
+     panel slides in from the left when DashboardLayout's drawer
+     state is open. Backdrop overlay handles the tap-outside-to-close
+     affordance. Old "collapse to icon rail" behaviour is dropped —
+     an icon rail on mobile just steals width without helping. */
   .dashboard-sidebar {
-    width: 5.1rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 40;
+    width: min(300px, 84vw);
+    transform: translateX(-100%);
+    transition: transform 220ms cubic-bezier(0.2, 0.7, 0.2, 1);
+    box-shadow: 0 20px 60px -10px rgba(0, 0, 0, 0.35);
   }
-
-  .dashboard-brand div,
-  .dashboard-link-label,
-  .dashboard-footer-nav button,
-  .dashboard-footer-nav a {
-    font-size: 0;
+  .dashboard-shell--drawer-open .dashboard-sidebar {
+    transform: translateX(0);
   }
-
-  .dashboard-link-badge {
+  /* Reveal hamburger — sits before SearchBar so it reads as the
+     leading affordance in the topbar row. */
+  .dashboard-drawer-toggle {
+    display: inline-flex;
+  }
+  /* Tighter topbar spacing on mobile so hamburger + search + 3 icon
+     buttons don't fight each other. Language switcher hides at very
+     narrow widths (users can still change language from /profile
+     or the homepage). */
+  .dashboard-topbar {
+    gap: 0.55rem;
+    padding: 0 0.75rem;
+  }
+  .dashboard-topbar .lang {
     display: none;
   }
-
-  .dashboard-link {
-    justify-content: center;
-    padding: 0.62rem;
-  }
-
   .dashboard-content {
     padding: 1rem;
+    /* Respect iOS safe-area-inset at the bottom (home indicator on
+       notched devices). Falls back to zero on browsers that don't
+       support env(). */
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0));
+  }
+}
+
+/* Phone-only tightening for auth + onboarding shells. Tablet is
+   already handled by the max-width: 860px block above; this block
+   trims padding further so the cards don't feel oversized on a
+   375px viewport. */
+@media (max-width: 640px) {
+  .auth-shell {
+    padding: 1.25rem 0.85rem;
+  }
+  .auth-card {
+    padding: 1.1rem;
+    border-radius: 1rem;
+  }
+  .auth-card-head {
+    gap: 0.55rem;
+  }
+  .auth-lang {
+    top: 0.85rem;
+    right: 0.85rem;
+  }
+  .auth-home {
+    top: 0.85rem;
+    left: 0.85rem;
+  }
+  .auth-input {
+    padding: 0.7rem 0.8rem;
+    font-size: 1rem; /* 16px — avoids iOS "zoom on focus" behaviour */
+  }
+
+  .onboarding-shell {
+    padding: 1.75rem 0.85rem;
+  }
+  .onboarding-card {
+    padding: 1.25rem 1.15rem 1.25rem;
+    border-radius: 16px;
+  }
+  .onboarding-title {
+    font-size: 1.35rem;
+  }
+  .onboarding-question {
+    font-size: 1.15rem;
+  }
+  .onboarding-actions {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .onboarding-actions--split {
+    align-items: stretch;
   }
 }
 
@@ -1388,6 +1505,11 @@ button {
   color: var(--pr-ink-soft);
   padding-bottom: 0.8rem;
   border-bottom: 1px solid var(--pr-rule);
+  /* Negative top margin cancels .home-hero's top padding
+     (clamp(2.5rem, 6vw, 5rem)) so the masthead sits flush against
+     the top nav — no dead space between them. */
+  margin-top: calc(-1 * clamp(2.5rem, 6vw, 5rem));
+  padding-top: 0.6rem;
 }
 
 .home-hero-title {
@@ -4589,7 +4711,10 @@ button {
 
 .page-header {
   position: relative;
-  padding: 1.5rem 1.75rem 1.75rem;
+  /* clamp keeps padding cozy on mobile (~16px) and comfortable on
+     desktop (~28px), scaling smoothly with viewport width instead
+     of stepping via a media query. */
+  padding: clamp(1rem, 3.5vw, 1.5rem) clamp(1rem, 3.5vw, 1.75rem) clamp(1.15rem, 3.5vw, 1.75rem);
   background: #fff;
   border: 1px solid var(--line);
   border-radius: 1rem;
@@ -4776,10 +4901,10 @@ button {
      without cropping OR letterbox. Height scales with viewport. */
   width: 100vw;
   margin-left: calc(50% - 50vw);
-  /* Negative top margin cancels .home-hero's clamp(2.5rem, 6vw, 5rem)
-     top padding so the slideshow butts flush against the nav bar
-     — no gap between the navbar and the top of the first frame. */
-  margin-top: calc(-1 * clamp(2.5rem, 6vw, 5rem));
+  /* Small breathing room above the slideshow — the masthead line
+     (tagline + date) sits above it now, so we let a bit of space
+     separate them without butting flush. */
+  margin-top: 1rem;
   margin-bottom: 2.5rem;
   aspect-ratio: 2.5 / 1;
   overflow: hidden;
@@ -4810,16 +4935,34 @@ button {
 /* Actor list — was tight typography chips, now small illustrated
    cards. Image on top, label below. */
 .home-manifesto-actors {
-  gap: 1.25rem;
-  margin-top: 1.5rem;
+  /* Force a single horizontal row of 4 equal-width cards, no matter
+     how wide the container is. Cards shrink together on smaller
+     screens instead of wrapping to a second row. Below ~640px we
+     collapse to 2 columns so labels stay readable. */
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+  /* Break out of .home-manifesto's 62ch (~700px) text-width cap and
+     widen further so each of the four actor cards lands close to the
+     size of a Stories card (~350px wide at max container width). */
+  width: min(1400px, calc(100vw - 3rem));
+}
+@media (max-width: 640px) {
+  .home-manifesto-actors {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 .home-manifesto-actor {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.6rem;
-  width: min(180px, 42vw);
-  padding: 0.55rem 0.55rem 0.75rem;
+  gap: 0.85rem;
+  /* Width is now driven by the grid track — dropped the fixed
+     width so all four cards share available space equally. Padding
+     matches .home-story-card so the actor cards read at the same
+     visual weight as Stories cards. */
+  padding: 1.25rem;
   border: 1px solid var(--pr-border);
   border-radius: 1rem;
   background: rgba(255, 255, 255, 0.02);
@@ -4832,7 +4975,7 @@ button {
 }
 .home-manifesto-actor span {
   font-family: var(--pr-mono);
-  font-size: 0.72rem;
+  font-size: 0.82rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--pr-ink-soft);

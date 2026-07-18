@@ -178,13 +178,13 @@ export function IssueDetailPage() {
         {t('issueDetail.backToIssues')}
       </Link>
 
-      <header className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
+      <header className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-6 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-civic-700 dark:text-civic-200">
               {enums.issueCategory(issue.category)}
             </p>
-            <h1 className="mt-2 text-3xl font-semibold text-slate-900 dark:text-slate-100">
+            <h1 className="mt-2 text-2xl md:text-3xl font-semibold text-slate-900 dark:text-slate-100">
               {issue.title}
             </h1>
             <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
@@ -233,7 +233,7 @@ export function IssueDetailPage() {
         )}
       </header>
 
-      <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
+      <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
           {t('issueDetail.description')}
         </h2>
@@ -251,7 +251,7 @@ export function IssueDetailPage() {
       </article>
 
       {issue.imageUrls && issue.imageUrls.length > 0 && (
-        <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
+        <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
             {t('issueDetail.photos')}
           </h2>
@@ -259,12 +259,12 @@ export function IssueDetailPage() {
         </article>
       )}
 
-      <article className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-6 shadow-sm">
+      <article className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-6 shadow-sm">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600 dark:text-slate-300">
             {t('issueDetail.communitySupport')}
           </p>
-          <p className="mt-1 text-2xl font-semibold text-slate-900 dark:text-slate-100">
+          <p className="mt-1 text-xl md:text-2xl font-semibold text-slate-900 dark:text-slate-100">
             {issue.upvoteCount}{' '}
             <span className="text-sm font-normal text-slate-600 dark:text-slate-300">
               {t('issueDetail.upvotesCount', { count: issue.upvoteCount })}
@@ -328,7 +328,7 @@ function OfficialProgressSection({ issueId }: { issueId: string }) {
   }
 
   return (
-    <article className="rounded-2xl border border-civic-200 dark:border-civic-500/40 bg-civic-50/40 p-6 shadow-sm">
+    <article className="rounded-2xl border border-civic-200 dark:border-civic-500/40 bg-civic-50/40 p-4 md:p-6 shadow-sm">
       <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
         <Megaphone className="h-4 w-4 text-civic-700 dark:text-civic-200" aria-hidden="true" />
         {t('issueDetail.officialProgress.heading')}
