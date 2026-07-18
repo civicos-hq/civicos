@@ -17,6 +17,7 @@ import {
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { useSeo } from '../hooks/useSeo';
+import { hasAccessToken } from '../App';
 
 export function HomePage() {
   useScrollReveal();
@@ -248,6 +249,10 @@ function useScrollReveal() {
 export function TopNav() {
   const { t } = useTranslation();
   const scrolled = useScrolledPast(80);
+  // Auth-aware CTAs — signed-in visitors see a "Dashboard" shortcut
+  // instead of Sign in / Get started so they can jump back into the
+  // app after browsing the marketing homepage.
+  const signedIn = hasAccessToken();
   return (
     <header className={`home-nav${scrolled ? ' is-scrolled' : ''}`}>
       <Link to="/" className="home-brand" aria-label="CivicOS home">
@@ -280,13 +285,22 @@ export function TopNav() {
       <div className="home-nav-cta">
         <ThemeToggle />
         <LanguageSwitcher />
-        <Link to="/login" className="home-link">
-          {t('nav.signIn')}
-        </Link>
-        <Link to="/register" className="home-btn home-btn-primary">
-          {t('nav.register')}
-          <ArrowRight className="h-4 w-4" />
-        </Link>
+        {signedIn ? (
+          <Link to="/discover" className="home-btn home-btn-primary">
+            {t('nav.dashboard', 'Dashboard')}
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        ) : (
+          <>
+            <Link to="/login" className="home-link">
+              {t('nav.signIn')}
+            </Link>
+            <Link to="/register" className="home-btn home-btn-primary">
+              {t('nav.register')}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </>
+        )}
       </div>
     </header>
   );
