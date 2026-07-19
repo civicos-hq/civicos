@@ -11,24 +11,25 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Civic palette. `civic.500` is anchored on the brand's Civic
-        // Blue (`#2563EB`) — every `bg-civic-500`, `text-civic-500`,
-        // `border-civic-500` platform-wide picks up the exact brand
-        // value in one edit. The rest of the ladder keeps the
-        // original Tailwind-derived values so existing usages of
-        // `civic-600`/`700`/`900` don't drift visually. `civic.950`
-        // is a new addition for the brand's Deep Navy — for
-        // hierarchy elements (headings on light bg, backgrounds
-        // when we want warmer-than-slate-950).
+        // Civic palette — GREEN experiment. Anchored on #234F2C
+        // forest green while we trial the green-and-white palette
+        // across the citizen app (homepage, auth, dashboard chrome).
+        // Every `text-civic-700`, `bg-civic-50/40`, `border-civic-200`
+        // used across detail pages / list pages / shared components
+        // picks up the new tone in one edit. Ladder still spans
+        // light → dark so existing `dark:civic-200`, `civic-500/40`
+        // etc. compositions keep their contrast semantics. To revert
+        // to the original navy palette, restore the previous hex
+        // values (in git history).
         civic: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          500: '#2563EB', // Civic Blue — brand primary (was Tailwind blue-500 #3b82f6)
-          600: '#2563eb',
-          700: '#1d4ed8',
-          900: '#1e3a8a',
-          950: '#0F2747', // Deep Navy — brand primary hierarchy tone
+          50: '#f0f7ef', // near-white mint tint (was #eff6ff)
+          100: '#d7ecd6', // light mint (was #dbeafe)
+          200: '#b8d9b6', // light green — border tone (was #bfdbfe)
+          500: '#234F2C', // Forest Green — brand primary (was Civic Blue #2563EB)
+          600: '#1e4527', // slightly darker for hover (was #2563eb)
+          700: '#1b3d22', // deeper for text on light bg (was #1d4ed8)
+          900: '#142e1a', // deep (was #1e3a8a)
+          950: '#0a1f11', // deepest — hierarchy (was Deep Navy #0F2747)
         },
       },
       fontFamily: {
