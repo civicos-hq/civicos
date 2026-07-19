@@ -3617,6 +3617,646 @@ button {
   background-size: 240px 240px;
 }
 
+/* ─────────────── Homepage — Green experiment ─────────────────────
+   Trial palette: #234F2C deep forest green as the base with white
+   bands on alternating sections. Overrides the light/dark theme
+   tokens for the homepage only (scoped under .home-shell). Delete
+   this whole block to revert to the original navy/cream palette. */
+[data-theme='light'] .home-shell,
+[data-theme='dark'] .home-shell {
+  --pr-bg: #234f2c;
+  --pr-panel: #1b3d22;
+  --pr-card: #ffffff;
+  --pr-card-up: #f3f8f2;
+
+  /* Text tokens default to LIGHT — they apply on the green base
+     sections (hero, parties, stories, howitworks, footer). The
+     white sections re-declare them as dark ink below so headlines
+     stay legible on white. */
+  --pr-text: #ffffff;
+  --pr-muted: rgba(255, 255, 255, 0.78);
+  --pr-faint: rgba(255, 255, 255, 0.55);
+
+  --pr-primary: #ffffff;
+  --pr-cyan: #d7ecd6;
+  --pr-mint: #ffffff;
+  --pr-lavender: #ffffff;
+
+  --pr-border: rgba(255, 255, 255, 0.16);
+  --pr-border-cy: rgba(215, 236, 214, 0.35);
+  --pr-border-bl: rgba(255, 255, 255, 0.28);
+
+  --pr-ink: var(--pr-text);
+  --pr-ink-soft: var(--pr-muted);
+  --pr-ink-mute: var(--pr-faint);
+  --pr-paper: #ffffff;
+  --pr-paper-soft: #ffffff;
+  --pr-paper-deep: rgba(255, 255, 255, 0.85);
+  --pr-rule: var(--pr-border);
+  --pr-rule-soft: var(--pr-border);
+  --pr-rule-hair: rgba(255, 255, 255, 0.08);
+  --pr-stamp: #d7ecd6;
+  --pr-seal: #ffffff;
+
+  --pr-nav-bg: rgba(35, 79, 44, 0.85);
+  --pr-nav-bg-scrolled: rgba(35, 79, 44, 0.95);
+  --pr-nav-shadow: 0 10px 24px rgba(11, 32, 18, 0.35);
+  --pr-nav-border-scrolled: rgba(255, 255, 255, 0.14);
+
+  --pr-grid: rgba(255, 255, 255, 0.06);
+}
+
+/* Alternating white bands on the even-index <section> children of
+   .home-shell — reads as a rhythm of green ▸ white ▸ green rather
+   than a single green wash. box-shadow + clip-path lets the white
+   bleed horizontally to viewport edges while staying vertically
+   contained (so it doesn't paint over adjacent sections). The ink
+   tokens are re-declared here so text inside these sections flips
+   from light (used on the green base) back to dark for AA contrast
+   on white. */
+[data-theme='light'] .home-shell > section.home-section:nth-of-type(2n),
+[data-theme='dark'] .home-shell > section.home-section:nth-of-type(2n) {
+  background: #ffffff;
+  box-shadow: 0 0 0 100vmax #ffffff;
+  clip-path: inset(0 -100vmax);
+
+  --pr-text: #102818;
+  --pr-muted: #1f4231;
+  --pr-faint: #4d6b58;
+  --pr-ink: #102818;
+  --pr-ink-soft: #1f4231;
+  --pr-ink-mute: #4d6b58;
+  --pr-primary: #234f2c;
+  --pr-cyan: #234f2c;
+  --pr-mint: #1b3d22;
+  --pr-lavender: #102818;
+  --pr-border: rgba(16, 40, 24, 0.14);
+  --pr-border-cy: rgba(35, 79, 44, 0.35);
+  --pr-border-bl: rgba(35, 79, 44, 0.4);
+  --pr-rule: rgba(16, 40, 24, 0.14);
+  --pr-rule-hair: rgba(16, 40, 24, 0.08);
+  --pr-stamp: #234f2c;
+  --pr-seal: #102818;
+}
+
+/* Dark-ink flip for white surfaces that sit on green base sections.
+   The shell's default ink is LIGHT (readable on the green base
+   sections). These elements paint a white/near-white surface via
+   --pr-paper / --pr-paper-soft, so their contents would otherwise
+   be white-on-white. Redeclaring the ink tokens on each surface
+   cascades dark ink to their children. */
+[data-theme='light'] .home-shell .home-party,
+[data-theme='dark'] .home-shell .home-party,
+[data-theme='light'] .home-shell .home-step,
+[data-theme='dark'] .home-shell .home-step,
+[data-theme='light'] .home-shell .home-section-soft,
+[data-theme='dark'] .home-shell .home-section-soft,
+[data-theme='light'] .home-shell .home-footer,
+[data-theme='dark'] .home-shell .home-footer {
+  --pr-text: #102818;
+  --pr-muted: #1f4231;
+  --pr-faint: #4d6b58;
+  --pr-ink: #102818;
+  --pr-ink-soft: #1f4231;
+  --pr-ink-mute: #4d6b58;
+  --pr-primary: #234f2c;
+  --pr-cyan: #234f2c;
+  --pr-mint: #1b3d22;
+  --pr-lavender: #102818;
+  --pr-border: rgba(16, 40, 24, 0.14);
+  --pr-rule: rgba(16, 40, 24, 0.14);
+  --pr-rule-hair: rgba(16, 40, 24, 0.08);
+  --pr-stamp: #234f2c;
+  --pr-seal: #102818;
+}
+
+/* CTA strip — swap the navy gradient for a deeper-green pop so
+   the call-to-action still stands out against the base green. */
+[data-theme='light'] .home-shell .home-cta-strip,
+[data-theme='dark'] .home-shell .home-cta-strip {
+  background:
+    radial-gradient(circle at 90% 0%, rgba(255, 255, 255, 0.14), transparent 45%),
+    radial-gradient(circle at 0% 100%, rgba(255, 255, 255, 0.08), transparent 50%),
+    linear-gradient(135deg, #1b3d22 0%, #0a1f11 100%);
+}
+
+/* Bigger, more legible scroll-reveal for the green palette.
+   The original 14px lift + short fade + blue-only scan bar reads
+   as "barely moving" on the moss-green base. Punchier travel,
+   longer easing, a slight blur→sharp, and a green scan bar make
+   each section's arrival feel intentional. */
+[data-theme='light'] .home-shell .reveal,
+[data-theme='dark'] .home-shell .reveal {
+  opacity: 0;
+  transform: translate3d(0, 44px, 0);
+  filter: blur(6px);
+  transition:
+    opacity 900ms cubic-bezier(0.2, 0.7, 0.2, 1) 120ms,
+    transform 900ms cubic-bezier(0.2, 0.7, 0.2, 1) 120ms,
+    filter 900ms cubic-bezier(0.2, 0.7, 0.2, 1) 120ms;
+}
+[data-theme='light'] .home-shell .reveal.in-view,
+[data-theme='dark'] .home-shell .reveal.in-view {
+  opacity: 1;
+  transform: none;
+  filter: blur(0);
+}
+
+/* Recolour + thicken the "clerk scan" horizontal bar so it's
+   readable against both green (moss) bases and white bands. The
+   base rule paints a cyan-blue glow that disappears on green. */
+[data-theme='light'] .home-shell .reveal::before,
+[data-theme='dark'] .home-shell .reveal::before {
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(215, 236, 214, 0.18) 20%,
+    #d7ecd6 50%,
+    rgba(215, 236, 214, 0.18) 80%,
+    transparent 100%
+  );
+  box-shadow:
+    0 0 22px rgba(215, 236, 214, 0.9),
+    0 0 6px rgba(255, 255, 255, 0.85);
+  opacity: 0;
+}
+[data-theme='light'] .home-shell .reveal.in-view::before,
+[data-theme='dark'] .home-shell .reveal.in-view::before {
+  animation: pr-clerk-scan 1500ms cubic-bezier(0.4, 0, 0.6, 1) both;
+}
+/* Inside white sections, the pale-mint scan is too washed out —
+   swap to a deep-green line so the sweep is still readable. */
+[data-theme='light']
+  .home-shell
+  > section.home-section:nth-of-type(2n)
+  .reveal::before,
+[data-theme='dark']
+  .home-shell
+  > section.home-section:nth-of-type(2n)
+  .reveal::before,
+[data-theme='light'] .home-shell .home-section-soft .reveal::before,
+[data-theme='dark'] .home-shell .home-section-soft .reveal::before {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(35, 79, 44, 0.1) 20%,
+    #234f2c 50%,
+    rgba(35, 79, 44, 0.1) 80%,
+    transparent 100%
+  );
+  box-shadow:
+    0 0 18px rgba(35, 79, 44, 0.55),
+    0 0 5px rgba(35, 79, 44, 0.35);
+}
+
+/* Section markers — bump the type-in travel + duration so each
+   glyph is clearly seen typing in rather than fading in place. */
+[data-theme='light'] .home-shell .home-section-marker .marker-char,
+[data-theme='dark'] .home-shell .home-section-marker .marker-char {
+  transform: translateY(10px);
+  animation-duration: 520ms;
+}
+
+/* Article / FAQ numeral stamp — bigger swing so the ink-hit reads
+   as an actual stamp landing, not a gentle fade. */
+[data-theme='light'] .home-shell .reveal.in-view .home-article-num,
+[data-theme='dark'] .home-shell .reveal.in-view .home-article-num,
+[data-theme='light'] .home-shell .reveal.in-view .home-faq-num,
+[data-theme='dark'] .home-shell .reveal.in-view .home-faq-num {
+  animation: pr-stamp-strong 720ms cubic-bezier(0.34, 1.7, 0.55, 1) 380ms both;
+}
+@keyframes pr-stamp-strong {
+  0% {
+    opacity: 0;
+    transform: scale(2) rotate(-11deg);
+    filter: blur(2px);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(0.88) rotate(2.5deg);
+    filter: blur(0);
+  }
+  75% {
+    transform: scale(1.06) rotate(-1deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+    filter: blur(0);
+  }
+}
+
+/* Cards inside the "01 — Parties" and "04 — Articles" grids
+   stagger in one after another rather than all snapping together
+   with the section. Cheap, effective — makes the section feel
+   composed rather than dumped. */
+[data-theme='light'] .home-shell .reveal .home-party,
+[data-theme='dark'] .home-shell .reveal .home-party,
+[data-theme='light'] .home-shell .reveal .home-article,
+[data-theme='dark'] .home-shell .reveal .home-article {
+  opacity: 0;
+  transform: translate3d(0, 26px, 0);
+  transition:
+    opacity 620ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    transform 620ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+[data-theme='light'] .home-shell .reveal.in-view .home-party,
+[data-theme='dark'] .home-shell .reveal.in-view .home-party,
+[data-theme='light'] .home-shell .reveal.in-view .home-article,
+[data-theme='dark'] .home-shell .reveal.in-view .home-article {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── § 01 — Parties of record: richer choreography ──────────────
+   The generic card stagger above gets the cards on stage; this
+   block layers in the details that make the "Parties" moment
+   feel like documents being placed on a public register.
+   • Each card enters with a slight rotate + scale + blur → sharp,
+     landing with a soft settle (spring easing).
+   • A top hairline sweeps across each card left → right after it
+     settles (mirrors the section's clerk-scan bar at card scale).
+   • The role eyebrow (CITIZENS, REPRESENTATIVES, …) fades + slides
+     in AFTER the card lands, so it reads as being written on.
+   • The title lifts in with a small delay behind the eyebrow.
+   • Hover: card lifts, gains a green-tinted glow, and the role
+     eyebrow gets an animated underline sweep. */
+[data-theme='light'] .home-shell .reveal .home-party,
+[data-theme='dark'] .home-shell .reveal .home-party {
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: translate3d(0, 90px, 0) scale(0.82) rotate(-4deg);
+  filter: blur(10px);
+  transform-origin: 50% 100%;
+  transition:
+    opacity 1100ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    transform 1100ms cubic-bezier(0.34, 1.32, 0.55, 1),
+    filter 1100ms cubic-bezier(0.2, 0.9, 0.2, 1),
+    border-color 260ms ease,
+    box-shadow 260ms ease,
+    background 260ms ease;
+}
+/* Alternate the incoming tilt so cards don't march in identically —
+   odd cards enter tilted left, even cards enter tilted right, all
+   settling flat. Reads as a hand of documents being laid down. */
+[data-theme='light'] .home-shell .reveal .home-party:nth-child(2n),
+[data-theme='dark'] .home-shell .reveal .home-party:nth-child(2n) {
+  transform: translate3d(0, 90px, 0) scale(0.82) rotate(4deg);
+}
+[data-theme='light'] .home-shell .reveal.in-view .home-party,
+[data-theme='dark'] .home-shell .reveal.in-view .home-party {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+  filter: blur(0);
+}
+
+/* Hairline sweep across the top edge of each card, staggered so
+   it lands just after the card settles. */
+[data-theme='light'] .home-shell .home-party::before,
+[data-theme='dark'] .home-shell .home-party::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(35, 79, 44, 0.15) 20%,
+    #234f2c 50%,
+    rgba(35, 79, 44, 0.15) 80%,
+    transparent 100%
+  );
+  box-shadow:
+    0 0 14px rgba(35, 79, 44, 0.45),
+    0 0 4px rgba(35, 79, 44, 0.35);
+  transform: translateX(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+[data-theme='light'] .home-shell .reveal.in-view .home-party::before,
+[data-theme='dark'] .home-shell .reveal.in-view .home-party::before {
+  animation: pr-party-hairline 900ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+[data-theme='light']
+  .home-shell
+  .reveal.in-view
+  .home-party:nth-child(1)::before,
+[data-theme='dark']
+  .home-shell
+  .reveal.in-view
+  .home-party:nth-child(1)::before {
+  animation-delay: 640ms;
+}
+[data-theme='light']
+  .home-shell
+  .reveal.in-view
+  .home-party:nth-child(2)::before,
+[data-theme='dark']
+  .home-shell
+  .reveal.in-view
+  .home-party:nth-child(2)::before {
+  animation-delay: 760ms;
+}
+[data-theme='light']
+  .home-shell
+  .reveal.in-view
+  .home-party:nth-child(3)::before,
+[data-theme='dark']
+  .home-shell
+  .reveal.in-view
+  .home-party:nth-child(3)::before {
+  animation-delay: 880ms;
+}
+[data-theme='light']
+  .home-shell
+  .reveal.in-view
+  .home-party:nth-child(4)::before,
+[data-theme='dark']
+  .home-shell
+  .reveal.in-view
+  .home-party:nth-child(4)::before {
+  animation-delay: 1000ms;
+}
+@keyframes pr-party-hairline {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Role eyebrow — fade + slide in after the card lands, then hold
+   at its final tone. Uses translate3d so it doesn't fight the
+   card's own transform. */
+[data-theme='light'] .home-shell .reveal .home-party .home-party-role,
+[data-theme='dark'] .home-shell .reveal .home-party .home-party-role {
+  opacity: 0;
+  transform: translate3d(0, 6px, 0);
+  transition:
+    opacity 520ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    transform 520ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    color 180ms ease;
+}
+[data-theme='light']
+  .home-shell
+  .reveal.in-view
+  .home-party
+  .home-party-role,
+[data-theme='dark']
+  .home-shell
+  .reveal.in-view
+  .home-party
+  .home-party-role {
+  opacity: 1;
+  transform: none;
+}
+[data-theme='light']
+  .home-shell
+  .reveal.in-view
+  .home-party:nth-child(1)
+  .home-party-role,
+[data-theme='dark']
+  .home-shell
+  .reveal.in-view
+  .home-party:nth-child(1)
+  .home-party-role {
+  transition-delay: 780ms;
+}
+[data-theme='light']
+  .home-shell
+  .reveal.in-view
+  .home-party:nth-child(2)
+  .home-party-role,
+[data-theme='dark']
+  .home-shell
+  .reveal.in-view
+  .home-party:nth-child(2)
+  .home-party-role {
+  transition-delay: 900ms;
+}
+[data-theme='light']
+  .home-shell
+  .reveal.in-view
+  .home-party:nth-child(3)
+  .home-party-role,
+[data-theme='dark']
+  .home-shell
+  .reveal.in-view
+  .home-party:nth-child(3)
+  .home-party-role {
+  transition-delay: 1020ms;
+}
+[data-theme='light']
+  .home-shell
+  .reveal.in-view
+  .home-party:nth-child(4)
+  .home-party-role,
+[data-theme='dark']
+  .home-shell
+  .reveal.in-view
+  .home-party:nth-child(4)
+  .home-party-role {
+  transition-delay: 1140ms;
+}
+
+/* Title lifts in a beat behind the eyebrow — same easing, smaller
+   travel. Body text just fades in with the card so we don't
+   over-choreograph. */
+[data-theme='light'] .home-shell .reveal .home-party .home-party-title,
+[data-theme='dark'] .home-shell .reveal .home-party .home-party-title {
+  opacity: 0;
+  transform: translate3d(0, 10px, 0);
+  transition:
+    opacity 560ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    transform 560ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+[data-theme='light']
+  .home-shell
+  .reveal.in-view
+  .home-party
+  .home-party-title,
+[data-theme='dark']
+  .home-shell
+  .reveal.in-view
+  .home-party
+  .home-party-title {
+  opacity: 1;
+  transform: none;
+}
+[data-theme='light']
+  .home-shell
+  .reveal.in-view
+  .home-party:nth-child(1)
+  .home-party-title,
+[data-theme='dark']
+  .home-shell
+  .reveal.in-view
+  .home-party:nth-child(1)
+  .home-party-title {
+  transition-delay: 880ms;
+}
+[data-theme='light']
+  .home-shell
+  .reveal.in-view
+  .home-party:nth-child(2)
+  .home-party-title,
+[data-theme='dark']
+  .home-shell
+  .reveal.in-view
+  .home-party:nth-child(2)
+  .home-party-title {
+  transition-delay: 1000ms;
+}
+[data-theme='light']
+  .home-shell
+  .reveal.in-view
+  .home-party:nth-child(3)
+  .home-party-title,
+[data-theme='dark']
+  .home-shell
+  .reveal.in-view
+  .home-party:nth-child(3)
+  .home-party-title {
+  transition-delay: 1120ms;
+}
+[data-theme='light']
+  .home-shell
+  .reveal.in-view
+  .home-party:nth-child(4)
+  .home-party-title,
+[data-theme='dark']
+  .home-shell
+  .reveal.in-view
+  .home-party:nth-child(4)
+  .home-party-title {
+  transition-delay: 1240ms;
+}
+
+/* Hover state — cards lift with a green-glow shadow and the role
+   eyebrow gains an animated underline sweep. */
+[data-theme='light'] .home-shell .home-party:hover,
+[data-theme='dark'] .home-shell .home-party:hover {
+  transform: translate3d(0, -4px, 0);
+  border-color: rgba(35, 79, 44, 0.35);
+  box-shadow:
+    0 18px 40px rgba(11, 32, 18, 0.14),
+    0 4px 12px rgba(11, 32, 18, 0.08);
+}
+[data-theme='light'] .home-shell .home-party .home-party-role,
+[data-theme='dark'] .home-shell .home-party .home-party-role {
+  position: relative;
+  padding-bottom: 2px;
+  background-image: linear-gradient(90deg, #234f2c, #234f2c);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 1.5px;
+  transition:
+    color 180ms ease,
+    background-size 420ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+[data-theme='light'] .home-shell .home-party:hover .home-party-role,
+[data-theme='dark'] .home-shell .home-party:hover .home-party-role {
+  background-size: 100% 1.5px;
+}
+[data-theme='light'] .home-shell .reveal.in-view .home-party:nth-child(1),
+[data-theme='dark'] .home-shell .reveal.in-view .home-party:nth-child(1),
+[data-theme='light'] .home-shell .reveal.in-view .home-article:nth-child(1),
+[data-theme='dark'] .home-shell .reveal.in-view .home-article:nth-child(1) {
+  transition-delay: 260ms;
+}
+[data-theme='light'] .home-shell .reveal.in-view .home-party:nth-child(2),
+[data-theme='dark'] .home-shell .reveal.in-view .home-party:nth-child(2),
+[data-theme='light'] .home-shell .reveal.in-view .home-article:nth-child(2),
+[data-theme='dark'] .home-shell .reveal.in-view .home-article:nth-child(2) {
+  transition-delay: 380ms;
+}
+[data-theme='light'] .home-shell .reveal.in-view .home-party:nth-child(3),
+[data-theme='dark'] .home-shell .reveal.in-view .home-party:nth-child(3),
+[data-theme='light'] .home-shell .reveal.in-view .home-article:nth-child(3),
+[data-theme='dark'] .home-shell .reveal.in-view .home-article:nth-child(3) {
+  transition-delay: 500ms;
+}
+[data-theme='light'] .home-shell .reveal.in-view .home-party:nth-child(4),
+[data-theme='dark'] .home-shell .reveal.in-view .home-party:nth-child(4),
+[data-theme='light'] .home-shell .reveal.in-view .home-article:nth-child(4),
+[data-theme='dark'] .home-shell .reveal.in-view .home-article:nth-child(4) {
+  transition-delay: 620ms;
+}
+[data-theme='light'] .home-shell .reveal.in-view .home-article:nth-child(5),
+[data-theme='dark'] .home-shell .reveal.in-view .home-article:nth-child(5) {
+  transition-delay: 740ms;
+}
+[data-theme='light'] .home-shell .reveal.in-view .home-article:nth-child(6),
+[data-theme='dark'] .home-shell .reveal.in-view .home-article:nth-child(6) {
+  transition-delay: 860ms;
+}
+
+/* FAQ items open with a slide+fade cascade on section reveal. */
+[data-theme='light'] .home-shell .reveal .home-faq-item,
+[data-theme='dark'] .home-shell .reveal .home-faq-item {
+  opacity: 0;
+  transform: translate3d(0, 22px, 0);
+  transition:
+    opacity 560ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    transform 560ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+[data-theme='light'] .home-shell .reveal.in-view .home-faq-item,
+[data-theme='dark'] .home-shell .reveal.in-view .home-faq-item {
+  opacity: 1;
+  transform: none;
+}
+[data-theme='light'] .home-shell .reveal.in-view .home-faq-item:nth-child(1),
+[data-theme='dark'] .home-shell .reveal.in-view .home-faq-item:nth-child(1) {
+  transition-delay: 280ms;
+}
+[data-theme='light'] .home-shell .reveal.in-view .home-faq-item:nth-child(2),
+[data-theme='dark'] .home-shell .reveal.in-view .home-faq-item:nth-child(2) {
+  transition-delay: 380ms;
+}
+[data-theme='light'] .home-shell .reveal.in-view .home-faq-item:nth-child(3),
+[data-theme='dark'] .home-shell .reveal.in-view .home-faq-item:nth-child(3) {
+  transition-delay: 480ms;
+}
+[data-theme='light'] .home-shell .reveal.in-view .home-faq-item:nth-child(4),
+[data-theme='dark'] .home-shell .reveal.in-view .home-faq-item:nth-child(4) {
+  transition-delay: 580ms;
+}
+[data-theme='light'] .home-shell .reveal.in-view .home-faq-item:nth-child(5),
+[data-theme='dark'] .home-shell .reveal.in-view .home-faq-item:nth-child(5) {
+  transition-delay: 680ms;
+}
+[data-theme='light'] .home-shell .reveal.in-view .home-faq-item:nth-child(6),
+[data-theme='dark'] .home-shell .reveal.in-view .home-faq-item:nth-child(6) {
+  transition-delay: 780ms;
+}
+
+/* Retint the shimmer gradients (manifesto/CTA emphasised words)
+   from blue → green so they read as an accent inside the new
+   palette rather than a stray callback to the old navy scheme. */
+[data-theme='light'] .home-shell .home-manifesto-title em,
+[data-theme='dark'] .home-shell .home-manifesto-title em,
+[data-theme='light'] .home-shell .home-cta-title em,
+[data-theme='dark'] .home-shell .home-cta-title em {
+  background: linear-gradient(110deg, #234f2c, #7fb77e, #d7ecd6, #7fb77e, #234f2c);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 /* Reduced motion — kill all storytelling animation, keep hover transitions
    (small, useful, never disorienting). */
 @media (prefers-reduced-motion: reduce) {
