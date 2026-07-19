@@ -4257,6 +4257,235 @@ button {
   background-clip: text;
 }
 
+/* ─────────────── Auth pages — Green experiment ───────────────────
+   Applies the same #234F2C forest palette to /login and /register
+   (and the shared password/verify flows) so they don't clash with
+   the green homepage. The auth surface keeps its two-column layout;
+   the shell goes green with a subtle radial glow, the card stays
+   white with dark ink (Fraunces headline still reads well), and
+   every blue accent (buttons, focus rings, notes, links, choice
+   cards, progress steps) retints to the same green tokens the
+   homepage uses. Delete this whole block to revert. */
+[data-theme='light'] .auth-shell,
+[data-theme='dark'] .auth-shell {
+  background:
+    radial-gradient(circle at 8% 12%, rgba(215, 236, 214, 0.22), transparent 32%),
+    radial-gradient(circle at 90% 3%, rgba(255, 255, 255, 0.14), transparent 28%),
+    linear-gradient(180deg, #234f2c 0%, #1b3d22 100%);
+  color: #ffffff;
+}
+
+/* Left column ("Take civic action…") — headline + description sit
+   on the green shell, so flip them to white. */
+[data-theme='light'] .auth-shell .auth-eyebrow,
+[data-theme='dark'] .auth-shell .auth-eyebrow {
+  color: #d7ecd6;
+}
+[data-theme='light'] .auth-shell .auth-title,
+[data-theme='dark'] .auth-shell .auth-title {
+  color: #ffffff;
+}
+[data-theme='light'] .auth-shell .auth-description,
+[data-theme='dark'] .auth-shell .auth-description,
+[data-theme='light'] .auth-shell .auth-footer,
+[data-theme='dark'] .auth-shell .auth-footer {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* Ambient pulses — retint the two blurred blobs from blue/navy to
+   pale mint + white so they read as a green ambient glow. */
+[data-theme='light'] .auth-shell .auth-pulse-left,
+[data-theme='dark'] .auth-shell .auth-pulse-left {
+  background: radial-gradient(circle at 40% 40%, rgba(127, 183, 126, 0.55), transparent 70%);
+}
+[data-theme='light'] .auth-shell .auth-pulse-right,
+[data-theme='dark'] .auth-shell .auth-pulse-right {
+  background: radial-gradient(circle at 60% 60%, rgba(255, 255, 255, 0.28), transparent 70%);
+}
+
+/* Card + everything inside stays on a white paper surface with
+   dark ink. Blue focus rings, blue-tinted borders, and the blue
+   progress pills all retint to the forest green. */
+[data-theme='light'] .auth-shell .auth-card,
+[data-theme='dark'] .auth-shell .auth-card {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(16, 40, 24, 0.12);
+  box-shadow: 0 20px 48px rgba(11, 32, 18, 0.28);
+}
+[data-theme='light'] .auth-shell .auth-card-title,
+[data-theme='dark'] .auth-shell .auth-card-title,
+[data-theme='light'] .auth-shell .auth-section-title,
+[data-theme='dark'] .auth-shell .auth-section-title,
+[data-theme='light'] .auth-shell .auth-choice-copy strong,
+[data-theme='dark'] .auth-shell .auth-choice-copy strong {
+  color: #102818;
+}
+[data-theme='light'] .auth-shell .auth-card-subtitle,
+[data-theme='dark'] .auth-shell .auth-card-subtitle,
+[data-theme='light'] .auth-shell .auth-label,
+[data-theme='dark'] .auth-shell .auth-label,
+[data-theme='light'] .auth-shell .auth-section-sub,
+[data-theme='dark'] .auth-shell .auth-section-sub,
+[data-theme='light'] .auth-shell .auth-choice-copy span,
+[data-theme='dark'] .auth-shell .auth-choice-copy span {
+  color: #1f4231;
+}
+
+[data-theme='light'] .auth-shell .auth-account-badge,
+[data-theme='dark'] .auth-shell .auth-account-badge {
+  background: rgba(35, 79, 44, 0.12);
+  color: #234f2c;
+}
+
+[data-theme='light'] .auth-shell .auth-progress-step,
+[data-theme='dark'] .auth-shell .auth-progress-step {
+  background: rgba(16, 40, 24, 0.06);
+  color: #1f4231;
+}
+[data-theme='light'] .auth-shell .auth-progress-step--active,
+[data-theme='dark'] .auth-shell .auth-progress-step--active {
+  background: rgba(35, 79, 44, 0.14);
+  color: #234f2c;
+}
+[data-theme='light'] .auth-shell .auth-progress-dot,
+[data-theme='dark'] .auth-shell .auth-progress-dot {
+  background: #ffffff;
+  color: #234f2c;
+}
+
+/* Inputs — white paper with a green focus ring instead of blue. */
+[data-theme='light'] .auth-shell .auth-input,
+[data-theme='dark'] .auth-shell .auth-input,
+[data-theme='light'] .auth-shell .auth-textarea,
+[data-theme='dark'] .auth-shell .auth-textarea {
+  background: #ffffff;
+  border-color: rgba(16, 40, 24, 0.14);
+  color: #102818;
+}
+[data-theme='light'] .auth-shell .auth-input::placeholder,
+[data-theme='dark'] .auth-shell .auth-input::placeholder,
+[data-theme='light'] .auth-shell .auth-textarea::placeholder,
+[data-theme='dark'] .auth-shell .auth-textarea::placeholder {
+  color: #4d6b58;
+}
+[data-theme='light'] .auth-shell .auth-input:focus,
+[data-theme='dark'] .auth-shell .auth-input:focus,
+[data-theme='light'] .auth-shell .auth-textarea:focus,
+[data-theme='dark'] .auth-shell .auth-textarea:focus {
+  border-color: #234f2c;
+  box-shadow: 0 0 0 3px rgba(35, 79, 44, 0.2);
+}
+
+/* Radio "choice" cards (role selector on register). */
+[data-theme='light'] .auth-shell .auth-choice-card,
+[data-theme='dark'] .auth-shell .auth-choice-card {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(16, 40, 24, 0.12);
+}
+[data-theme='light'] .auth-shell .auth-choice-card:hover,
+[data-theme='dark'] .auth-shell .auth-choice-card:hover {
+  border-color: rgba(35, 79, 44, 0.4);
+  background: rgba(215, 236, 214, 0.28);
+}
+[data-theme='light'] .auth-shell .auth-choice-card:has(input:checked),
+[data-theme='dark'] .auth-shell .auth-choice-card:has(input:checked) {
+  border-color: #234f2c;
+  background: rgba(215, 236, 214, 0.35);
+  box-shadow: 0 0 0 3px rgba(35, 79, 44, 0.18);
+}
+[data-theme='light'] .auth-shell .auth-choice-card input[type='radio'],
+[data-theme='dark'] .auth-shell .auth-choice-card input[type='radio'] {
+  accent-color: #234f2c;
+}
+
+/* Info / success notes — retint blue → green while keeping success
+   variant a slightly warmer green so it still reads as "positive". */
+[data-theme='light'] .auth-shell .auth-note,
+[data-theme='dark'] .auth-shell .auth-note {
+  background: rgba(35, 79, 44, 0.08);
+  border-color: rgba(35, 79, 44, 0.24);
+}
+[data-theme='light'] .auth-shell .auth-note strong,
+[data-theme='dark'] .auth-shell .auth-note strong {
+  color: #1b3d22;
+}
+[data-theme='light'] .auth-shell .auth-note span,
+[data-theme='dark'] .auth-shell .auth-note span {
+  color: #1f4231;
+}
+[data-theme='light'] .auth-shell .auth-note--success,
+[data-theme='dark'] .auth-shell .auth-note--success {
+  background: rgba(45, 138, 76, 0.14);
+  border-color: rgba(45, 138, 76, 0.35);
+}
+[data-theme='light'] .auth-shell .auth-note--success strong,
+[data-theme='dark'] .auth-shell .auth-note--success strong {
+  color: #145a2b;
+}
+
+/* Disclosure ("What we'll do with this data") + legal rule tint. */
+[data-theme='light'] .auth-shell .auth-disclosure,
+[data-theme='dark'] .auth-shell .auth-disclosure {
+  background: rgba(215, 236, 214, 0.32);
+  border-color: rgba(16, 40, 24, 0.1);
+}
+[data-theme='light'] .auth-shell .auth-disclosure summary,
+[data-theme='dark'] .auth-shell .auth-disclosure summary {
+  color: #102818;
+}
+[data-theme='light'] .auth-shell .auth-disclosure summary::after,
+[data-theme='dark'] .auth-shell .auth-disclosure summary::after {
+  color: #234f2c;
+}
+[data-theme='light'] .auth-shell .auth-legal,
+[data-theme='dark'] .auth-shell .auth-legal {
+  border-top-color: rgba(16, 40, 24, 0.1);
+  color: rgba(255, 255, 255, 0.72);
+}
+
+/* Primary submit — swap the navy → blue gradient for a green one so
+   the CTA feels native to the new palette. */
+[data-theme='light'] .auth-shell .auth-submit,
+[data-theme='dark'] .auth-shell .auth-submit {
+  background: linear-gradient(120deg, #1b3d22, #234f2c);
+  box-shadow: 0 12px 28px rgba(11, 32, 18, 0.32);
+}
+[data-theme='light'] .auth-shell .auth-submit:hover:not(:disabled),
+[data-theme='dark'] .auth-shell .auth-submit:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+/* Link + auth-home ("← Home") tint. */
+[data-theme='light'] .auth-shell .auth-link,
+[data-theme='dark'] .auth-shell .auth-link {
+  color: #ffffff;
+  text-decoration-color: rgba(255, 255, 255, 0.5);
+}
+[data-theme='light'] .auth-shell .auth-card .auth-link,
+[data-theme='dark'] .auth-shell .auth-card .auth-link {
+  color: #234f2c;
+  text-decoration-color: rgba(35, 79, 44, 0.5);
+}
+[data-theme='light'] .auth-shell .auth-home,
+[data-theme='dark'] .auth-shell .auth-home {
+  color: rgba(255, 255, 255, 0.82);
+}
+[data-theme='light'] .auth-shell .auth-home:hover,
+[data-theme='dark'] .auth-shell .auth-home:hover,
+[data-theme='light'] .auth-shell .auth-home:focus-visible,
+[data-theme='dark'] .auth-shell .auth-home:focus-visible {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.14);
+}
+
+/* Auth mark (logo tile) — keep white but drop the navy-blue shadow
+   in favour of a deep-green ambient shadow. */
+[data-theme='light'] .auth-shell .auth-mark,
+[data-theme='dark'] .auth-shell .auth-mark {
+  background: #ffffff;
+  box-shadow: 0 10px 28px rgba(11, 32, 18, 0.35);
+}
+
 /* Reduced motion — kill all storytelling animation, keep hover transitions
    (small, useful, never disorienting). */
 @media (prefers-reduced-motion: reduce) {
