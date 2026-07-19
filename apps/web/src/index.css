@@ -4486,6 +4486,426 @@ button {
   box-shadow: 0 10px 28px rgba(11, 32, 18, 0.35);
 }
 
+/* ─────────────── Dashboard — Green experiment ─────────────────────
+   Applies the #234F2C forest palette to the authenticated dashboard
+   chrome so it matches the homepage + auth surfaces. Keeps the
+   content pane pure white (per taste — no tinted backgrounds behind
+   copy) and moves the green identity onto the sidebar rail. Every
+   blue accent (nav-active, focus rings, hover tints, avatar tile,
+   search focus) retints to the same green tokens. Delete this block
+   to revert to the navy palette. */
+[data-theme='light'] .dashboard-shell,
+[data-theme='dark'] .dashboard-shell {
+  /* Content pane sits on a deeper forest green so section headers
+     (pills + "12 items" text, "Recently added" labels, empty-state
+     copy) that live *between* cards are on a green surface too —
+     the chip + white-text styling below is readable there. Cards
+     use the slightly lighter #234f2c so they still lift off the
+     content pane via tone. */
+  --dash-bg-base: #1b3d22;
+  --dash-glow-a: transparent;
+  --dash-glow-b: transparent;
+  --dash-sidebar-top: #234f2c;
+  --dash-sidebar-bottom: #1b3d22;
+  --dash-topbar: rgba(27, 61, 34, 0.94);
+  --dash-surface: rgba(255, 255, 255, 0.08);
+  --dash-line: rgba(255, 255, 255, 0.16);
+  --dash-ink: #ffffff;
+  --dash-muted: rgba(255, 255, 255, 0.72);
+  --dash-hover-tint: rgba(255, 255, 255, 0.06);
+  --dash-hover-tint-strong: rgba(255, 255, 255, 0.1);
+  --dash-active-tint: rgba(255, 255, 255, 0.14);
+  --dash-active-border: rgba(255, 255, 255, 0.32);
+  --dash-active-ink: #ffffff;
+  --dash-avatar-halo: rgba(255, 255, 255, 0.32);
+  --dash-brand-mark-bg: #ffffff;
+  --dash-brand-mark-shadow: rgba(0, 0, 0, 0.35);
+}
+
+/* Sidebar sits on a solid forest-green rail — redeclare the tokens
+   the sidebar's children read from so text/borders/hover/active
+   states all flip to light-on-green without touching per-element
+   rules. Cascading via custom properties is the point of the
+   palette architecture. */
+[data-theme='light'] .dashboard-shell .dashboard-sidebar,
+[data-theme='dark'] .dashboard-shell .dashboard-sidebar {
+  --dash-ink: #ffffff;
+  --dash-muted: rgba(255, 255, 255, 0.75);
+  --dash-line: rgba(255, 255, 255, 0.14);
+  --dash-hover-tint: rgba(255, 255, 255, 0.08);
+  --dash-hover-tint-strong: rgba(255, 255, 255, 0.14);
+  --dash-active-tint: rgba(255, 255, 255, 0.18);
+  --dash-active-border: rgba(255, 255, 255, 0.32);
+  --dash-active-ink: #ffffff;
+  --dash-surface: rgba(255, 255, 255, 0.08);
+}
+
+/* Brand block inside the green sidebar — subtitle uses --dash-muted
+   which is now white-transparent, but the brand mark is a small
+   white tile floating on the green rail. Trade the navy shadow for
+   a darker green one so it separates from the rail. */
+[data-theme='light'] .dashboard-shell .dashboard-sidebar .brand-mark,
+[data-theme='dark'] .dashboard-shell .dashboard-sidebar .brand-mark {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
+}
+
+/* Search bar focus — hardcoded blue in the base rule; redirect to a
+   green ring so the topbar (white) has a green focus signal that
+   matches the sidebar identity. */
+[data-theme='light'] .dashboard-shell .dashboard-search:focus,
+[data-theme='dark'] .dashboard-shell .dashboard-search:focus {
+  border-color: #234f2c;
+  box-shadow: 0 0 0 3px rgba(35, 79, 44, 0.18);
+}
+
+/* Avatar tile — the little user chip in the topbar was a
+   navy → civic-blue diagonal. Swap for a green gradient so it
+   reads as native to the palette. */
+[data-theme='light'] .dashboard-shell .dashboard-avatar,
+[data-theme='dark'] .dashboard-shell .dashboard-avatar {
+  background: linear-gradient(125deg, #1b3d22, #234f2c);
+}
+
+/* Focus-visible outlines inside the dashboard — the global outline
+   is hardcoded blue; scope a green override to the dashboard so
+   keyboard nav within the app matches the rest of the palette. */
+[data-theme='light'] .dashboard-shell :focus-visible,
+[data-theme='dark'] .dashboard-shell :focus-visible {
+  outline-color: rgba(35, 79, 44, 0.5);
+}
+
+/* ── Detail-page + list-page cards: adopt the forest-green surface ──
+   Every card across Discover / Issues / Petitions / Consultations /
+   Announcements / Projects / Representatives / Organizations /
+   Notifications / Profile is a Tailwind stack that renders navy-
+   slate in dark theme (`dark:bg-slate-800/*`) and pure white in
+   light theme (`bg-white`). We flip both to forest green so the
+   cards actually adopt the palette instead of showing the leftover
+   slate look. Ink/borders inside cards switch to white / white-
+   transparent so titles, meta, and rules stay legible on the green.
+
+   Scoped to `.dashboard-content` so this only touches the
+   authenticated content pane — the sidebar, topbar, and the
+   auth/homepage surfaces already have their own green treatment
+   and aren't affected. */
+[data-theme='light'] .dashboard-content .bg-white,
+[data-theme='dark'] .dashboard-content .bg-white,
+[data-theme='dark'] .dashboard-content .dark\:bg-slate-800,
+[data-theme='dark'] .dashboard-content .dark\:bg-slate-800\/70,
+[data-theme='dark'] .dashboard-content .dark\:bg-slate-800\/60,
+[data-theme='dark'] .dashboard-content .dark\:bg-slate-800\/40,
+[data-theme='dark'] .dashboard-content .dark\:bg-slate-800\/30,
+[data-theme='dark'] .dashboard-content .dark\:bg-slate-900,
+[data-theme='dark'] .dashboard-content .dark\:bg-slate-700,
+[data-theme='dark'] .dashboard-content .dark\:bg-slate-600,
+[data-theme='dark'] .dashboard-content .dark\:bg-slate-500\/15 {
+  background-color: #234f2c !important;
+  color: #ffffff;
+}
+
+/* Card borders — replace the slate border tones with a subtle
+   white/mint rule so the card edges still separate from the
+   content pane without punching a hard slate line. */
+[data-theme='light'] .dashboard-content .border-slate-100,
+[data-theme='dark'] .dashboard-content .border-slate-100,
+[data-theme='light'] .dashboard-content .border-slate-200,
+[data-theme='dark'] .dashboard-content .border-slate-200,
+[data-theme='dark'] .dashboard-content .dark\:border-slate-600,
+[data-theme='dark'] .dashboard-content .dark\:border-slate-700,
+[data-theme='dark'] .dashboard-content .dark\:border-slate-800 {
+  border-color: rgba(255, 255, 255, 0.18) !important;
+}
+
+/* Divide rules ("border-t border-slate-100 dark:border-slate-800"
+   used to separate card sections). Same subtle white rule. */
+[data-theme='light'] .dashboard-content [class*='border-slate-100'],
+[data-theme='dark'] .dashboard-content [class*='border-slate-100'],
+[data-theme='dark'] .dashboard-content [class*='border-slate-800'] {
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+/* Text inside green cards — headings, body, meta labels all flip
+   to white / white-transparent so they remain readable on the
+   forest-green surface. Covers both the light-theme text-slate-*
+   tokens and the dark-theme dark:text-slate-* pair. */
+[data-theme='light'] .dashboard-content .text-slate-900,
+[data-theme='dark'] .dashboard-content .text-slate-900,
+[data-theme='dark'] .dashboard-content .dark\:text-slate-100,
+[data-theme='dark'] .dashboard-content .dark\:text-slate-200 {
+  color: #ffffff !important;
+}
+[data-theme='light'] .dashboard-content .text-slate-700,
+[data-theme='dark'] .dashboard-content .text-slate-700,
+[data-theme='light'] .dashboard-content .text-slate-800,
+[data-theme='dark'] .dashboard-content .text-slate-800,
+[data-theme='dark'] .dashboard-content .dark\:text-slate-300 {
+  color: rgba(255, 255, 255, 0.86) !important;
+}
+[data-theme='light'] .dashboard-content .text-slate-500,
+[data-theme='dark'] .dashboard-content .text-slate-500,
+[data-theme='light'] .dashboard-content .text-slate-600,
+[data-theme='dark'] .dashboard-content .text-slate-600,
+[data-theme='dark'] .dashboard-content .dark\:text-slate-500 {
+  color: rgba(255, 255, 255, 0.72) !important;
+}
+
+/* Civic-tone text on cards — bumped to pure white for contrast.
+   Was pale mint (#d7ecd6) which vanished on both green cards AND
+   on the light-mint pill backgrounds tone-pills use (bg-civic-100).
+   White reads on both surfaces. */
+[data-theme='light'] .dashboard-content .text-civic-700,
+[data-theme='dark'] .dashboard-content .text-civic-700,
+[data-theme='dark'] .dashboard-content .dark\:text-civic-200,
+[data-theme='dark'] .dashboard-content .dark\:text-civic-300 {
+  color: #ffffff !important;
+}
+
+/* Highlight callouts (bg-civic-50/40) that sit inside cards
+   already tinted mint by the civic-* retint — bump their bg to a
+   slightly deeper mint so they still read as a callout on the
+   green card instead of vanishing into it. */
+[data-theme='light'] .dashboard-content .bg-civic-50\/40,
+[data-theme='dark'] .dashboard-content .bg-civic-50\/40 {
+  background-color: rgba(255, 255, 255, 0.09) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+/* Tone-tint pills (Discover tier filters, status pills, dashboard
+   chips) — the source palette gives them light backgrounds designed
+   for a white card. On the green cards they either disappear
+   (dark:bg-civic-500/15 is 15% opacity green over green = nothing)
+   or clash with white text (bg-civic-100 light mint + white text).
+   Force every rounded-full element that carries a *-700 / *-200 /
+   *-300 text token to a translucent-white "chip" surface with a
+   crisp white border and white text so the pill boundary + label
+   are unmistakable on the forest-green cards. */
+[data-theme='light']
+  .dashboard-content
+  [class*='rounded-full'][class*='text-civic-700'],
+[data-theme='light']
+  .dashboard-content
+  [class*='rounded-full'][class*='text-emerald-700'],
+[data-theme='light']
+  .dashboard-content
+  [class*='rounded-full'][class*='text-sky-700'],
+[data-theme='light']
+  .dashboard-content
+  [class*='rounded-full'][class*='text-slate-700'],
+[data-theme='light']
+  .dashboard-content
+  [class*='rounded-full'][class*='text-slate-600'],
+[data-theme='light']
+  .dashboard-content
+  [class*='rounded-full'][class*='text-rose-600'],
+[data-theme='light']
+  .dashboard-content
+  [class*='rounded-full'][class*='text-amber-700'],
+[data-theme='dark']
+  .dashboard-content
+  [class*='rounded-full'][class*='text-civic-200'],
+[data-theme='dark']
+  .dashboard-content
+  [class*='rounded-full'][class*='text-emerald-300'],
+[data-theme='dark']
+  .dashboard-content
+  [class*='rounded-full'][class*='text-sky-300'],
+[data-theme='dark']
+  .dashboard-content
+  [class*='rounded-full'][class*='text-slate-300'],
+[data-theme='dark']
+  .dashboard-content
+  [class*='rounded-full'][class*='text-rose-400'],
+[data-theme='dark']
+  .dashboard-content
+  [class*='rounded-full'][class*='text-amber-300'] {
+  background-color: rgba(255, 255, 255, 0.16) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.32) !important;
+}
+
+/* Shared UI Button — the secondary + ghost variants use gray-* tokens
+   (border-gray-200, text-gray-700, text-gray-600, hover:bg-gray-50,
+   hover:bg-gray-100). Not slate — my earlier overrides missed them,
+   so buttons like <ShareButton> render dark-grey-on-green and read
+   as invisible. These force the neutral gray tokens to white / white-
+   transparent so any Button variant is readable on a green card. */
+[data-theme='light'] .dashboard-content .text-gray-700,
+[data-theme='dark'] .dashboard-content .text-gray-700,
+[data-theme='light'] .dashboard-content .text-gray-600,
+[data-theme='dark'] .dashboard-content .text-gray-600 {
+  color: #ffffff !important;
+}
+[data-theme='light'] .dashboard-content .border-gray-200,
+[data-theme='dark'] .dashboard-content .border-gray-200 {
+  border-color: rgba(255, 255, 255, 0.32) !important;
+}
+[data-theme='light'] .dashboard-content .hover\:bg-gray-50:hover,
+[data-theme='dark'] .dashboard-content .hover\:bg-gray-50:hover,
+[data-theme='light'] .dashboard-content .hover\:bg-gray-100:hover,
+[data-theme='dark'] .dashboard-content .hover\:bg-gray-100:hover {
+  background-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+/* Shared PageHeader ("top card" on every dashboard page — Discover,
+   Issues, Petitions, Consultations, etc.) — this is a bespoke
+   .page-header block, not a Tailwind card, so it needs its own
+   green treatment. Match the surface tone + white ink used by the
+   Tailwind cards above so the top card + the cards below read as
+   the same family. */
+[data-theme='light'] .dashboard-content .page-header,
+[data-theme='dark'] .dashboard-content .page-header {
+  background: #234f2c;
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 1px 2px rgba(11, 32, 18, 0.2);
+}
+[data-theme='light'] .dashboard-content .page-header::before,
+[data-theme='dark'] .dashboard-content .page-header::before {
+  background: linear-gradient(90deg, #d7ecd6, #ffffff);
+}
+[data-theme='light'] .dashboard-content .page-header-title,
+[data-theme='dark'] .dashboard-content .page-header-title {
+  color: #ffffff;
+}
+[data-theme='light'] .dashboard-content .page-header-subtitle,
+[data-theme='dark'] .dashboard-content .page-header-subtitle,
+[data-theme='light'] .dashboard-content .page-header-meta,
+[data-theme='dark'] .dashboard-content .page-header-meta {
+  color: rgba(255, 255, 255, 0.78);
+}
+[data-theme='light'] .dashboard-content .page-header-eyebrow,
+[data-theme='dark'] .dashboard-content .page-header-eyebrow {
+  color: #d7ecd6;
+}
+[data-theme='light'] .dashboard-content .page-header-marker,
+[data-theme='dark'] .dashboard-content .page-header-marker {
+  color: #ffffff;
+}
+[data-theme='light'] .dashboard-content .page-header-notice,
+[data-theme='dark'] .dashboard-content .page-header-notice {
+  border-top-color: rgba(255, 255, 255, 0.18);
+}
+
+/* ── Hover motion on every card / row in the dashboard ─────────
+   Small but decisive lift + enhanced shadow whenever the cursor is
+   on a card so the user can *see* which item they're on as they
+   move across a grid or list. Not just a static hover-tint — an
+   actual translate so the transition reads as motion.
+   • Cards (any element rendered green by the block above) get
+     translateY(-3px) + green ambient shadow + brighter border.
+   • The shared PageHeader gets a softer lift (2px) — it's not a
+     clickable target, just a subtle "you're here" pulse.
+   • Rows (<li>) inside dashboard grids/lists get a smaller 2px
+     shift so long lists animate without feeling floaty.
+   All animations run at 220ms with the standard soft cubic-bezier
+   used elsewhere on the page. `will-change` on the base rule keeps
+   the compositor primed so the first hover frame isn't jittery. */
+[data-theme='light'] .dashboard-content .bg-white,
+[data-theme='dark'] .dashboard-content .bg-white,
+[data-theme='dark'] .dashboard-content .dark\:bg-slate-800,
+[data-theme='dark'] .dashboard-content .dark\:bg-slate-800\/70,
+[data-theme='dark'] .dashboard-content .dark\:bg-slate-800\/60,
+[data-theme='dark'] .dashboard-content .dark\:bg-slate-800\/40,
+[data-theme='dark'] .dashboard-content .dark\:bg-slate-800\/30,
+[data-theme='dark'] .dashboard-content .dark\:bg-slate-900,
+[data-theme='dark'] .dashboard-content .dark\:bg-slate-700,
+[data-theme='dark'] .dashboard-content .dark\:bg-slate-600 {
+  transition:
+    transform 220ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 220ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    border-color 220ms ease,
+    background-color 220ms ease,
+    filter 220ms ease;
+  will-change: transform;
+}
+[data-theme='light'] .dashboard-content .bg-white:hover,
+[data-theme='dark'] .dashboard-content .bg-white:hover,
+[data-theme='dark'] .dashboard-content .dark\:bg-slate-800:hover,
+[data-theme='dark'] .dashboard-content .dark\:bg-slate-800\/70:hover,
+[data-theme='dark'] .dashboard-content .dark\:bg-slate-800\/60:hover,
+[data-theme='dark'] .dashboard-content .dark\:bg-slate-800\/40:hover,
+[data-theme='dark'] .dashboard-content .dark\:bg-slate-800\/30:hover,
+[data-theme='dark'] .dashboard-content .dark\:bg-slate-900:hover,
+[data-theme='dark'] .dashboard-content .dark\:bg-slate-700:hover,
+[data-theme='dark'] .dashboard-content .dark\:bg-slate-600:hover {
+  transform: translate3d(0, -3px, 0);
+  border-color: rgba(255, 255, 255, 0.32) !important;
+  box-shadow:
+    0 14px 32px rgba(11, 32, 18, 0.32),
+    0 4px 10px rgba(11, 32, 18, 0.16);
+  filter: brightness(1.04);
+}
+
+/* PageHeader (top card on every page) — subtler lift because it's
+   informational, not a click target. */
+[data-theme='light'] .dashboard-content .page-header,
+[data-theme='dark'] .dashboard-content .page-header {
+  transition:
+    transform 260ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 260ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    border-color 260ms ease;
+}
+[data-theme='light'] .dashboard-content .page-header:hover,
+[data-theme='dark'] .dashboard-content .page-header:hover {
+  transform: translate3d(0, -2px, 0);
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow:
+    0 12px 28px rgba(11, 32, 18, 0.3),
+    0 3px 8px rgba(11, 32, 18, 0.14);
+}
+
+/* Rows — <li> inside dashboard grids/lists and any element that
+   renders as a horizontal row of items (notifications, docket-like
+   panels). Small 2px shift + slight bg brightening so long lists
+   animate crisply without the whole list feeling floaty. */
+[data-theme='light'] .dashboard-content li,
+[data-theme='dark'] .dashboard-content li {
+  transition:
+    transform 200ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    background-color 200ms ease;
+}
+[data-theme='light'] .dashboard-content li:hover,
+[data-theme='dark'] .dashboard-content li:hover {
+  transform: translate3d(2px, 0, 0);
+}
+
+/* Reduce motion — kill the hover translate so cursor-followers
+   don't experience an unwanted per-element judder. Colour hover
+   states still apply. */
+@media (prefers-reduced-motion: reduce) {
+  [data-theme='light'] .dashboard-content .bg-white,
+  [data-theme='dark'] .dashboard-content .bg-white,
+  [data-theme='dark'] .dashboard-content .dark\:bg-slate-800,
+  [data-theme='dark'] .dashboard-content .dark\:bg-slate-800\/70,
+  [data-theme='dark'] .dashboard-content .dark\:bg-slate-800\/60,
+  [data-theme='dark'] .dashboard-content .dark\:bg-slate-800\/40,
+  [data-theme='dark'] .dashboard-content .dark\:bg-slate-800\/30,
+  [data-theme='dark'] .dashboard-content .dark\:bg-slate-900,
+  [data-theme='dark'] .dashboard-content .dark\:bg-slate-700,
+  [data-theme='dark'] .dashboard-content .dark\:bg-slate-600,
+  [data-theme='light'] .dashboard-content .page-header,
+  [data-theme='dark'] .dashboard-content .page-header,
+  [data-theme='light'] .dashboard-content li,
+  [data-theme='dark'] .dashboard-content li {
+    transition: none !important;
+  }
+  [data-theme='light'] .dashboard-content .bg-white:hover,
+  [data-theme='dark'] .dashboard-content .bg-white:hover,
+  [data-theme='dark'] .dashboard-content .dark\:bg-slate-800:hover,
+  [data-theme='dark'] .dashboard-content .dark\:bg-slate-800\/70:hover,
+  [data-theme='dark'] .dashboard-content .dark\:bg-slate-800\/60:hover,
+  [data-theme='dark'] .dashboard-content .dark\:bg-slate-800\/40:hover,
+  [data-theme='dark'] .dashboard-content .dark\:bg-slate-800\/30:hover,
+  [data-theme='dark'] .dashboard-content .dark\:bg-slate-900:hover,
+  [data-theme='dark'] .dashboard-content .dark\:bg-slate-700:hover,
+  [data-theme='dark'] .dashboard-content .dark\:bg-slate-600:hover,
+  [data-theme='light'] .dashboard-content .page-header:hover,
+  [data-theme='dark'] .dashboard-content .page-header:hover,
+  [data-theme='light'] .dashboard-content li:hover,
+  [data-theme='dark'] .dashboard-content li:hover {
+    transform: none !important;
+  }
+}
+
 /* Reduced motion — kill all storytelling animation, keep hover transitions
    (small, useful, never disorienting). */
 @media (prefers-reduced-motion: reduce) {
