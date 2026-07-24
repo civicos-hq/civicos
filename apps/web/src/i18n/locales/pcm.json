@@ -377,7 +377,11 @@
       "photosFull": "You don select {{max}} photos already",
       "removePhoto": "Remove {{name}}",
       "genericError": "We no fit create the issue. Check wetin you enter and try again.",
-      "submit": "Post issue"
+      "submit": "Post issue",
+      "aiPending": "CivicAI dey check your report…",
+      "aiSuggests": "CivicAI dey suggest:",
+      "aiApply": "use am",
+      "aiBadge": "AI-generated · review"
     }
   },
   "communityPage": {

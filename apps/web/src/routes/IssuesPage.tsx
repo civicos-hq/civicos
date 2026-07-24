@@ -5,12 +5,13 @@ import { useTranslation } from 'react-i18next';
 import { Button, Input } from '@civicos/ui';
 import { IssueCategory, IssueStatus, type ApiResponse, type Issue } from '@civicos/types';
 import { api, uploadImage, uploadUrl } from '../lib/api';
+import { classifyIssue, type IssueClassification } from '../lib/civicai';
 import { useMe } from '../hooks/useMe';
 import { useEnumLabels } from '../hooks/useEnumLabels';
 import { PageHeader, useTodayMeta } from '../components/PageHeader';
 import { EmptyState } from '../components/EmptyState';
 import { CommunityGate, CommunityGateLink } from '../components/CommunityGate';
-import { Megaphone } from 'lucide-react';
+import { Megaphone, Sparkles } from 'lucide-react';
 
 const MAX_IMAGES = 5;
 const MAX_IMAGE_MB = 5;
@@ -372,14 +373,52 @@ function ReportIssueModal({ communityId, onClose }: { communityId: string; onClo
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<IssueCategory>(IssueCategory.INFRASTRUCTURE);
+  // Tracks whether the reporter has touched the category dropdown themselves.
+  // Once they have, AI suggestions become a chip they can click to apply —
+  // we never silently overwrite an intentional choice.
+  const [categoryTouched, setCategoryTouched] = useState(false);
   const [location, setLocation] = useState('');
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState('');
+  const [aiSuggestion, setAiSuggestion] = useState<IssueClassification | null>(null);
+  const [aiPending, setAiPending] = useState(false);
 
   const previews = files.map((f) => ({ name: f.name, url: URL.createObjectURL(f) }));
   useEffect(() => {
     return () => previews.forEach((p) => URL.revokeObjectURL(p.url));
   }, [files]);
+
+  // Debounced CivicAI classification. Fires ~700ms after the reporter stops
+  // typing, once title + description are long enough for Gemini to have
+  // something to work with. The abort controller cancels the in-flight
+  // request when the user keeps typing so we don't render stale suggestions.
+  useEffect(() => {
+    if (title.trim().length < 5 || description.trim().length < 10) {
+      setAiSuggestion(null);
+      setAiPending(false);
+      return;
+    }
+    const controller = new AbortController();
+    const timer = window.setTimeout(async () => {
+      setAiPending(true);
+      try {
+        const suggestion = await classifyIssue(
+          { title, description, communityId },
+          controller.signal,
+        );
+        setAiSuggestion(suggestion);
+      } catch {
+        // Fail quiet — AI is additive. The reporter can still pick a
+        // category manually and submit.
+      } finally {
+        setAiPending(false);
+      }
+    }, 700);
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [title, description, communityId]);
 
   function onFilesChange(e: React.ChangeEvent<HTMLInputElement>) {
     const picked = Array.from(e.target.files ?? []);
@@ -467,7 +506,10 @@ function ReportIssueModal({ communityId, onClose }: { communityId: string; onClo
             id="category"
             className="rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-civic-500"
             value={category}
-            onChange={(e) => setCategory(e.target.value as IssueCategory)}
+            onChange={(e) => {
+              setCategory(e.target.value as IssueCategory);
+              setCategoryTouched(true);
+            }}
           >
             {(Object.values(IssueCategory) as IssueCategory[]).map((c) => (
               <option key={c} value={c}>
@@ -475,6 +517,16 @@ function ReportIssueModal({ communityId, onClose }: { communityId: string; onClo
               </option>
             ))}
           </select>
+          <AISuggestionChip
+            pending={aiPending}
+            suggestion={aiSuggestion}
+            selectedCategory={category}
+            categoryTouched={categoryTouched}
+            onApply={(next) => {
+              setCategory(next);
+              setCategoryTouched(true);
+            }}
+          />
         </div>
 
         <Input
@@ -539,5 +591,75 @@ function ReportIssueModal({ communityId, onClose }: { communityId: string; onClo
         </div>
       </form>
     </Modal>
+  );
+}
+
+// AISuggestionChip renders CivicAI's category suggestion beneath the
+// category dropdown. Three states:
+//   - pending: subtle "CivicAI is thinking..." while Gemini responds
+//   - suggestion matches current pick: silent (nothing to nudge)
+//   - suggestion differs: clickable chip that swaps the dropdown value
+//
+// All rendered content carries the "AI-generated · review" affordance —
+// the sparkle icon + the "CivicAI" label. Never auto-applies.
+function AISuggestionChip({
+  pending,
+  suggestion,
+  selectedCategory,
+  categoryTouched,
+  onApply,
+}: {
+  pending: boolean;
+  suggestion: IssueClassification | null;
+  selectedCategory: IssueCategory;
+  categoryTouched: boolean;
+  onApply: (next: IssueCategory) => void;
+}) {
+  const { t } = useTranslation();
+  const enums = useEnumLabels();
+
+  if (pending && !suggestion) {
+    return (
+      <p className="mt-1 flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+        <Sparkles className="h-3.5 w-3.5 animate-pulse text-civic-500" aria-hidden="true" />
+        {t('issuesPage.modal.aiPending')}
+      </p>
+    );
+  }
+
+  if (!suggestion) return null;
+
+  const suggestedCategory = suggestion.category as IssueCategory;
+  const alreadyMatches = suggestedCategory === selectedCategory;
+
+  // If the reporter already picked a category and the AI agrees, don't
+  // clutter the form with a chip. If they haven't touched it and the AI
+  // agrees, still show a small confirmation so they know AI is running.
+  if (alreadyMatches && categoryTouched) return null;
+
+  return (
+    <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs">
+      <Sparkles className="h-3.5 w-3.5 text-civic-500" aria-hidden="true" />
+      <span className="font-medium text-slate-600 dark:text-slate-300">
+        {t('issuesPage.modal.aiSuggests')}
+      </span>
+      {alreadyMatches ? (
+        <span className="rounded-full bg-emerald-50 dark:bg-emerald-500/15 px-2 py-0.5 font-semibold text-emerald-700 dark:text-emerald-300">
+          {enums.issueCategory(suggestedCategory)}
+        </span>
+      ) : (
+        <button
+          type="button"
+          onClick={() => onApply(suggestedCategory)}
+          className="rounded-full border border-civic-300 dark:border-civic-500/60 bg-civic-50 dark:bg-civic-500/15 px-2 py-0.5 font-semibold text-civic-700 dark:text-civic-200 hover:bg-civic-100 dark:hover:bg-civic-500/25"
+          title={suggestion.reasoning}
+        >
+          {enums.issueCategory(suggestedCategory)} · {t('issuesPage.modal.aiApply')}
+        </button>
+      )}
+      <span className="ml-auto text-[10px] uppercase tracking-wide text-slate-400 dark:text-slate-500">
+        {t('issuesPage.modal.aiBadge')}
+      </span>
+    </div>
   );
 }

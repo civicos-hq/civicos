@@ -86,6 +86,7 @@ func main() {
 	r.GET("/health/identity", proxy.NewHealthProxy(cfg.IdentityServiceURL))
 	r.GET("/health/community", proxy.NewHealthProxy(cfg.CommunityServiceURL))
 	r.GET("/health/organization", proxy.NewHealthProxy(cfg.OrganizationServiceURL))
+	r.GET("/health/civicai", proxy.NewHealthProxy(cfg.CivicAIServiceURL))
 
 	authMiddleware := middleware.JWTAuth(cfg)
 
@@ -287,6 +288,15 @@ func main() {
 	r.GET("/api/v1/consultations/:id/analytics", authMiddleware, orgProxy)
 	// Outcome (close-the-loop).
 	r.POST("/api/v1/consultations/:id/outcome", authMiddleware, limitStandard, orgProxy)
+
+	// --- CivicAI Service ---
+	// AI endpoints share the Standard rate-limit tier. Each Gemini call costs
+	// real money, so authoring-style traffic (org drafting an announcement,
+	// citizen classifying an issue as they type) sits inside the same budget
+	// as other authenticated authoring actions. A dedicated AI-only tier can
+	// come later once we have usage data.
+	civicaiProxy := proxy.NewReverseProxy(cfg.CivicAIServiceURL, "/api")
+	r.POST("/api/v1/ai/classify-issue", authMiddleware, limitStandard, civicaiProxy)
 
 	// Notifications
 	notificationsStream := proxy.NewStreamingProxy(cfg.CommunityServiceURL, "/api")
