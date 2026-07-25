@@ -1,0 +1,601 @@
+openapi: 3.0.3
+info:
+  title: CivicOS CivicAI Service
+  version: 1.0.0
+  description: |
+    CivicAI is the AI intelligence layer of CivicOS. It wraps Google Gemini
+    behind a small set of task-shaped endpoints — classification, discussion
+    summarization, announcement drafting, community-wide insights, and
+    plain-language narration of admin metrics.
+
+    All routes are proxied by the API gateway at `/api/v1/*`. The service
+    itself mounts them under `/v1/*`.
+
+    ## Design principles
+
+    - **Human oversight is mandatory.** Every AI output is a *suggestion* or
+      *draft* — nothing auto-publishes, auto-assigns, or auto-decides.
+    - **Provenance-tagged.** Every response includes `model` and
+      `generatedAt` so operators know what produced it and when.
+    - **Task-shaped.** Not one giant `/chat` — each endpoint does one thing
+      with a strict JSON response schema pinned by the model.
+    - **Fail open.** If Gemini is unreachable or over quota the API returns
+      `AI_UNAVAILABLE` and the caller degrades gracefully. Civic loops
+      (submit issue, publish announcement) never depend on CivicAI.
+    - **Cache aggressively.** Redis-cached where the underlying signal
+      changes slowly (summaries 30 min, insights 1 h, narration 15 min).
+    - **Rate-limit hard.** All routes ride the shared Standard authoring
+      budget at the gateway.
+
+    ## Authorization
+
+    - `classify-issue` — any authenticated user (citizens included).
+    - `summarize`, `draft-announcement`, `community-insights` — staff roles
+      only (`REPRESENTATIVE`, `GOVERNMENT_ADMIN`, `PLATFORM_ADMIN`, `NGO`,
+      `MODERATOR`). Enforced inside civicai-service.
+    - `narrate-metrics?scope=platform` — `PLATFORM_ADMIN` only.
+
+    Auth is not enforced by the service directly — the JWT is verified once
+    at the gateway. civicai-service reads `userRole` from the validated
+    claims and applies its own role gate for staff-only endpoints.
+
+    ## Response envelope
+
+    Every response is a JSON envelope:
+
+    ```json
+    { "success": true, "data": { ... } }
+    ```
+
+    On failure:
+
+    ```json
+    { "success": false, "code": "ERR_CODE", "message": "Human-readable text" }
+    ```
+
+    Common failure codes:
+
+    | Code                 | Meaning                                                                       |
+    | -------------------- | ----------------------------------------------------------------------------- |
+    | `VALIDATION_ERROR`   | Missing / malformed input.                                                    |
+    | `UNAUTHORIZED`       | JWT missing or invalid (enforced by the gateway).                             |
+    | `FORBIDDEN`          | Role gate rejected the caller.                                                |
+    | `RESOURCE_NOT_FOUND` | Summarize target (petition/issue/consultation) does not exist.                |
+    | `RESOURCE_FORBIDDEN` | Summarize target exists but the caller cannot read it upstream.               |
+    | `UPSTREAM_ERROR`     | community-service / organization-service / identity-service returned an error.|
+    | `AI_UNAVAILABLE`     | Gemini call failed or timed out. Callers should retry or fall back.           |
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Local (via API Gateway)
+  - url: http://localhost:3004/v1
+    description: Direct to civicai-service
+
+tags:
+  - name: Classification
+    description: Suggest structured metadata for a draft citizen issue.
+  - name: Summarization
+    description: Aggregate a single discussion thread (petition, issue, or consultation).
+  - name: Drafting
+    description: Turn a brief into an announcement draft with title, body, and key points.
+  - name: Insights
+    description: Community-wide aggregate — themes, sentiment, top asks, recommended actions.
+  - name: Narration
+    description: Plain-language digest of admin metrics.
+
+security:
+  - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    ErrorResponse:
+      type: object
+      required: [success, code, message]
+      properties:
+        success: { type: boolean, example: false }
+        code: { type: string, example: VALIDATION_ERROR }
+        message: { type: string }
+
+    IssueCategory:
+      type: string
+      description: Constrained by Gemini's response schema — never returns a value outside this enum.
+      enum:
+        - INFRASTRUCTURE
+        - HEALTH
+        - EDUCATION
+        - SECURITY
+        - ENVIRONMENT
+        - UTILITIES
+        - TRANSPORT
+        - OTHER
+
+    IssueSeverity:
+      type: string
+      description: |
+        CivicAI-only concept — community-service does not store severity on
+        the issue itself. Surfaced in the UI as a hint so the reporter can
+        escalate accordingly.
+      enum: [LOW, MEDIUM, HIGH, CRITICAL]
+
+    SentimentMix:
+      type: object
+      description: Fraction of positive/neutral/negative content. Sums to ~1.0 after server-side normalization.
+      required: [positive, neutral, negative]
+      properties:
+        positive: { type: number, format: float, minimum: 0, maximum: 1 }
+        neutral: { type: number, format: float, minimum: 0, maximum: 1 }
+        negative: { type: number, format: float, minimum: 0, maximum: 1 }
+
+    IssueClassification:
+      type: object
+      required: [category, severity, suggestedTags, reasoning, confidence, model, generatedAt]
+      properties:
+        category: { $ref: '#/components/schemas/IssueCategory' }
+        severity: { $ref: '#/components/schemas/IssueSeverity' }
+        suggestedTags:
+          type: array
+          description: 2 to 5 lowercase, hyphenated tags relevant to the issue.
+          items: { type: string, example: burst-pipe }
+        reasoning:
+          type: string
+          description: One sentence explaining why the category was chosen (≤25 words).
+        confidence: { type: number, format: float, minimum: 0, maximum: 1 }
+        model: { type: string, example: gemini-flash-latest }
+        generatedAt: { type: string, format: date-time }
+
+    DiscussionSummary:
+      type: object
+      required:
+        - resource
+        - resourceId
+        - title
+        - tldr
+        - themes
+        - sentiment
+        - topAsks
+        - recommendedActions
+        - commentsAnalyzed
+        - officialResponders
+        - model
+        - generatedAt
+        - cached
+      properties:
+        resource:
+          type: string
+          enum: [petition, issue, consultation]
+        resourceId: { type: string, format: uuid }
+        title: { type: string }
+        tldr:
+          type: string
+          description: 1–2 sentences (max 60 words) an admin can read in ten seconds.
+        themes:
+          type: array
+          description: 3–6 short noun phrases capturing what the thread is about.
+          items: { type: string, example: waste collection delays }
+        sentiment: { $ref: '#/components/schemas/SentimentMix' }
+        topAsks:
+          type: array
+          description: 3–5 concrete things the community is asking for, in citizens' own voice.
+          items: { type: string }
+        recommendedActions:
+          type: array
+          description: 2–4 imperative-mood actions ordered by impact.
+          items: { type: string, example: 'Publish a repair timeline.' }
+        commentsAnalyzed:
+          type: integer
+          description: Number of non-hidden comments actually sent to Gemini (capped at 200).
+        officialResponders:
+          type: array
+          items: { type: string }
+          description: Author names of comments flagged as `isOfficialResponse`.
+        model: { type: string, example: gemini-flash-latest }
+        generatedAt: { type: string, format: date-time }
+        cached:
+          type: boolean
+          description: True if this response came from Redis; false for a fresh Gemini call.
+
+    AnnouncementDraft:
+      type: object
+      required: [title, body, keyPoints, tone, audience, model, generatedAt]
+      properties:
+        title:
+          type: string
+          description: Max 80 characters, no emoji, no ALL CAPS.
+          example: Temporary update on waste collection in Surulere
+        body:
+          type: string
+          description: 2–5 short paragraphs, plain text (no markdown headings).
+        keyPoints:
+          type: array
+          description: 2–4 scannable one-liners.
+          items: { type: string }
+        tone: { type: string, enum: [formal, friendly, urgent, empathetic] }
+        audience: { type: string, enum: [all, members] }
+        model: { type: string, example: gemini-flash-latest }
+        generatedAt: { type: string, format: date-time }
+
+    CommunityInsights:
+      type: object
+      required:
+        - communityId
+        - tldr
+        - themes
+        - sentimentMix
+        - topAsks
+        - recommendedActions
+        - activity
+        - model
+        - generatedAt
+        - cached
+      properties:
+        communityId: { type: string, format: uuid }
+        tldr:
+          type: string
+          description: 2–3 sentences (max 90 words) framing the top story in this community right now.
+        themes:
+          type: array
+          description: 4–8 short noun phrases — recurring topics across the corpus.
+          items: { type: string }
+        sentimentMix: { $ref: '#/components/schemas/SentimentMix' }
+        topAsks:
+          type: array
+          description: 4–6 concrete asks across the corpus.
+          items: { type: string }
+        recommendedActions:
+          type: array
+          description: 3–5 actions ordered by impact.
+          items: { type: string }
+        activity:
+          type: object
+          description: Count of source material summarized (after capping).
+          required: [issueCount, petitionCount, commentCount]
+          properties:
+            issueCount: { type: integer, description: Cap 25. }
+            petitionCount: { type: integer, description: Cap 15. }
+            commentCount: { type: integer, description: Cap 12 per thread. }
+        model: { type: string, example: gemini-flash-latest }
+        generatedAt: { type: string, format: date-time }
+        cached: { type: boolean }
+
+    PlatformNarration:
+      type: object
+      required:
+        - scope
+        - headline
+        - narrative
+        - highlights
+        - trends
+        - recommendations
+        - metrics
+        - model
+        - generatedAt
+        - cached
+      properties:
+        scope: { type: string, enum: [platform] }
+        headline:
+          type: string
+          description: One sentence (max 15 words) capturing the top story in the numbers.
+        narrative:
+          type: string
+          description: 2–3 short paragraphs (max 120 words) weaving numbers into sentences.
+        highlights:
+          type: array
+          description: 3–5 standout numbers worth surfacing.
+          items: { type: string }
+        trends:
+          type: array
+          description: 2–4 sentences noting where things are improving, plateauing, or slipping.
+          items: { type: string }
+        recommendations:
+          type: array
+          description: 2–4 imperative-mood suggestions based on the numbers.
+          items: { type: string }
+        metrics:
+          type: object
+          description: |
+            The raw metrics snapshot echoed back so the client renders one
+            payload. Shape mirrors identity-service `GET /v1/admin/metrics`
+            — refer to that spec for details.
+          additionalProperties: true
+        model: { type: string, example: gemini-flash-latest }
+        generatedAt: { type: string, format: date-time }
+        cached: { type: boolean }
+
+paths:
+  /ai/classify-issue:
+    post:
+      tags: [Classification]
+      summary: Suggest category, severity, and tags for a draft issue.
+      description: |
+        Called from the "Report an Issue" modal in the citizen web app,
+        debounced ~700 ms after the reporter stops typing. The response
+        chip is a *suggestion* — the reporter can accept, ignore, or
+        override it. Never rewrites the user's category choice.
+      operationId: classifyIssue
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, description]
+              properties:
+                title: { type: string, minLength: 3 }
+                description: { type: string, minLength: 10 }
+                communityId:
+                  type: string
+                  format: uuid
+                  description: |
+                    Optional context; currently unused in the prompt but kept
+                    in the request shape so per-community priors can be added
+                    later without an FE change.
+      responses:
+        '200':
+          description: Successful classification.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success: { type: boolean, example: true }
+                  data:
+                    type: object
+                    required: [classification]
+                    properties:
+                      classification: { $ref: '#/components/schemas/IssueClassification' }
+        '400':
+          {
+            description: Validation error.,
+            content:
+              { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
+          }
+        '401':
+          {
+            description: Missing or invalid JWT.,
+            content:
+              { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
+          }
+        '502':
+          description: Gemini call failed. Returns `AI_UNAVAILABLE`.
+          content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+
+  /ai/summarize:
+    post:
+      tags: [Summarization]
+      summary: Summarize a petition, issue, or consultation thread.
+      description: |
+        Fetches the target resource + its discussion (comments for
+        petition/issue; structured responses for consultation) from the
+        upstream service using the caller's forwarded JWT, then asks
+        Gemini for a decision-support summary.
+
+        Redis-cached 30 min per `(resource, id)`. A cached response
+        returns in ~30 ms.
+      operationId: summarizeDiscussion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [resource, id]
+              properties:
+                resource:
+                  type: string
+                  enum: [petition, issue, consultation]
+                id: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Successful summary.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success: { type: boolean, example: true }
+                  data:
+                    type: object
+                    required: [summary]
+                    properties:
+                      summary: { $ref: '#/components/schemas/DiscussionSummary' }
+        '400':
+          {
+            description: Validation error.,
+            content:
+              { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
+          }
+        '403':
+          description: Role gate rejected the caller (staff only) or upstream forbade the read.
+          content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        '404':
+          {
+            description: Resource not found upstream.,
+            content:
+              { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
+          }
+        '502':
+          description: Gemini failure (`AI_UNAVAILABLE`) or upstream service failure (`UPSTREAM_ERROR`).
+          content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+
+  /ai/draft-announcement:
+    post:
+      tags: [Drafting]
+      summary: Draft an announcement from a brief.
+      description: |
+        Turns an admin brief + tone + audience into a structured draft.
+        The FE never auto-applies — the returned draft is inserted into
+        the announcement form only when the admin clicks *Apply to form*,
+        and the form fields are tagged with an "AI · edit to remove"
+        badge that clears the moment the human edits.
+
+        Not cached — a second call with the same brief is meant to give
+        the admin a fresh variation to compare.
+      operationId: draftAnnouncement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [brief, tone, audience]
+              properties:
+                brief:
+                  type: string
+                  minLength: 20
+                  maxLength: 1500
+                  description: |
+                    The admin's rough note about what to announce. 20-char
+                    minimum forces at least a sentence — Gemini's output
+                    from three-word briefs is generic and unusable.
+                tone:
+                  type: string
+                  enum: [formal, friendly, urgent, empathetic]
+                audience:
+                  type: string
+                  enum: [all, members]
+                  description: |
+                    `all` = general public who may not know the org.
+                    `members` = members and followers who already do.
+                orgName: { type: string, description: 'Optional — sharpens tone.' }
+                orgKind: { type: string, description: 'Optional — e.g. GOVERNMENT, NGO.' }
+      responses:
+        '200':
+          description: Successful draft.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success: { type: boolean, example: true }
+                  data:
+                    type: object
+                    required: [draft]
+                    properties:
+                      draft: { $ref: '#/components/schemas/AnnouncementDraft' }
+        '400':
+          {
+            description: Validation error.,
+            content:
+              { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
+          }
+        '403':
+          {
+            description: Role gate rejected the caller.,
+            content:
+              { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
+          }
+        '502':
+          {
+            description: Gemini failure.,
+            content:
+              { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
+          }
+
+  /ai/community-insights:
+    get:
+      tags: [Insights]
+      summary: Community-wide aggregate digest.
+      description: |
+        Fans out to community-service (issues + petitions + comments in
+        parallel), bounds the corpus (25 issues, 15 petitions, 12 comments
+        per thread), and asks Gemini for an aggregate view across the
+        whole community.
+
+        Redis-cached 1 h per community.
+      operationId: getCommunityInsights
+      parameters:
+        - in: query
+          name: communityId
+          required: true
+          schema: { type: string, format: uuid }
+          description: The community to analyze.
+      responses:
+        '200':
+          description: Successful insights.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success: { type: boolean, example: true }
+                  data:
+                    type: object
+                    required: [insights]
+                    properties:
+                      insights: { $ref: '#/components/schemas/CommunityInsights' }
+        '400':
+          {
+            description: Missing communityId.,
+            content:
+              { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
+          }
+        '403':
+          {
+            description: Role gate rejected the caller.,
+            content:
+              { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
+          }
+        '502':
+          {
+            description: Gemini or upstream failure.,
+            content:
+              { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
+          }
+
+  /ai/narrate-metrics:
+    get:
+      tags: [Narration]
+      summary: Plain-language digest of admin metrics.
+      description: |
+        Pulls the platform-wide snapshot from identity-service
+        (`GET /v1/admin/metrics`) with the caller's forwarded JWT, then
+        asks Gemini to *explain* the numbers rather than just re-print
+        them. Rendered as the CivicAI tile on the admin Overview page.
+
+        Redis-cached 15 min per scope.
+
+        `scope=platform` is the only value currently implemented.
+        Community-scoped narration is on the roadmap.
+      operationId: narrateMetrics
+      parameters:
+        - in: query
+          name: scope
+          required: false
+          schema: { type: string, enum: [platform], default: platform }
+      responses:
+        '200':
+          description: Successful narration.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, data]
+                properties:
+                  success: { type: boolean, example: true }
+                  data:
+                    type: object
+                    required: [narration]
+                    properties:
+                      narration: { $ref: '#/components/schemas/PlatformNarration' }
+        '400':
+          {
+            description: Unsupported scope.,
+            content:
+              { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } },
+          }
+        '403':
+          description: Caller is not `PLATFORM_ADMIN`.
+          content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        '502':
+          description: Gemini failure or identity-service unavailable.
+          content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } }

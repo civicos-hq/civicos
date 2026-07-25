@@ -17,7 +17,7 @@ import (
 //go:embed openapi/*.yaml
 var specs embed.FS
 
-// swaggerHTML renders Swagger UI with a picker for the three services.
+// swaggerHTML renders Swagger UI with a picker for each service spec.
 // The UI is loaded from a CDN so this handler stays a single self-contained
 // file — no npm dependency, no build step.
 const swaggerHTML = `<!DOCTYPE html>
@@ -53,6 +53,7 @@ const swaggerHTML = `<!DOCTYPE html>
     <option value="/docs/openapi/identity.yaml">identity-service</option>
     <option value="/docs/openapi/community.yaml">community-service</option>
     <option value="/docs/openapi/organization.yaml">organization-service</option>
+    <option value="/docs/openapi/civicai.yaml">civicai-service</option>
   </select>
 </header>
 <div id="swagger-ui"></div>
@@ -92,6 +93,7 @@ func RegisterRoutes(r *gin.Engine) {
 	r.GET("/docs/openapi/identity.yaml", serveSpec("openapi/openapi-identity.yaml"))
 	r.GET("/docs/openapi/community.yaml", serveSpec("openapi/openapi-community.yaml"))
 	r.GET("/docs/openapi/organization.yaml", serveSpec("openapi/openapi-organization.yaml"))
+	r.GET("/docs/openapi/civicai.yaml", serveSpec("openapi/openapi-civicai.yaml"))
 }
 
 func serveSpec(path string) gin.HandlerFunc {

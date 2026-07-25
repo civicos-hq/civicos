@@ -29,13 +29,18 @@ const sidebars: SidebarsConfig = {
         'citizens/voting',
         'citizens/notifications',
         'citizens/consultations',
+        'citizens/civicai',
       ],
     },
     {
       type: 'category',
       label: 'For Organizations',
       collapsed: false,
-      items: ['organizations/managing-organizations', 'organizations/running-consultations'],
+      items: [
+        'organizations/managing-organizations',
+        'organizations/running-consultations',
+        'organizations/civicai',
+      ],
     },
     {
       type: 'category',
@@ -76,6 +81,7 @@ const sidebars: SidebarsConfig = {
         'developer/services/identity-service',
         'developer/services/community-service',
         'developer/services/organization-service',
+        'developer/services/civicai-service',
       ],
     },
     {
