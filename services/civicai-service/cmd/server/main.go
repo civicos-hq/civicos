@@ -8,6 +8,7 @@ import (
 	"github.com/civicos/civicai-service/internal/classify"
 	"github.com/civicos/civicai-service/internal/draft"
 	"github.com/civicos/civicai-service/internal/gemini"
+	"github.com/civicos/civicai-service/internal/insights"
 	"github.com/civicos/civicai-service/internal/middleware"
 	"github.com/civicos/civicai-service/internal/summarize"
 	"github.com/civicos/civicai-service/pkg/config"
@@ -61,6 +62,14 @@ func main() {
 	draftSvc := draft.NewService(aiClient)
 	draftHandler := draft.NewHandler(draftSvc)
 
+	// Insights: community-scoped aggregate digest. Shares the same
+	// community-service source pattern as summarize, but fans out across
+	// many resources. Cached in Redis (1h TTL) — cache-miss cost is
+	// dominated by the fan-out reads, not just Gemini.
+	insightsSource := insights.NewSourceClient(cfg.CommunityServiceURL)
+	insightsSvc := insights.NewService(aiClient, insightsSource, rdb)
+	insightsHandler := insights.NewHandler(insightsSvc)
+
 	authMiddleware := middleware.JWTAuth(cfg)
 
 	r := gin.New()
@@ -81,6 +90,7 @@ func main() {
 	classifyHandler.RegisterRoutes(ai)
 	summarizeHandler.RegisterRoutes(ai)
 	draftHandler.RegisterRoutes(ai)
+	insightsHandler.RegisterRoutes(ai)
 
 	addr := ":" + cfg.Port
 	log.Printf("civicai-service listening on %s", addr)

@@ -302,6 +302,9 @@ func main() {
 	// authoring budget here.
 	r.POST("/api/v1/ai/summarize", authMiddleware, limitStandard, civicaiProxy)
 	r.POST("/api/v1/ai/draft-announcement", authMiddleware, limitStandard, civicaiProxy)
+	// Community insights fans out to community-service and hits Gemini —
+	// heavy work but Redis-cached 1h, so real-world load is low.
+	r.GET("/api/v1/ai/community-insights", authMiddleware, limitStandard, civicaiProxy)
 
 	// Notifications
 	notificationsStream := proxy.NewStreamingProxy(cfg.CommunityServiceURL, "/api")

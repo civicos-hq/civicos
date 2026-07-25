@@ -13,6 +13,9 @@ import {
 } from '@civicos/types';
 import { PageHeader, useTodayMeta } from '../components/PageHeader';
 import { EmptyState } from '../components/EmptyState';
+import { CommunityInsightsTile } from '../components/civic/CommunityInsightsTile';
+import { useMe } from '../hooks/useMe';
+import { useCommunities } from '../hooks/useCommunities';
 import { useConsultations, useMyOrganizations } from '../hooks/useConsultations';
 import { useOrgAnnouncements } from '../hooks/useAnnouncements';
 import { useOrgProjects, kobopToNaira } from '../hooks/useProjects';
@@ -91,6 +94,14 @@ export function OrgDashboardPage() {
   const { data: memberships = [] } = useMyOrganizations();
   const membership = memberships.find((m) => m.organization.id === orgId);
 
+  // Community Intelligence tile is community-scoped, not org-scoped —
+  // the user picks context via the community they're active in. Prefer
+  // active over primary because that's what they're viewing right now.
+  const meQuery = useMe();
+  const communitiesQuery = useCommunities();
+  const insightsCommunityId = meQuery.data?.activeCommunityId ?? meQuery.data?.primaryCommunityId;
+  const insightsCommunity = communitiesQuery.data?.find((c) => c.id === insightsCommunityId);
+
   if (!membership) {
     return (
       <section className="space-y-4">
@@ -120,6 +131,11 @@ export function OrgDashboardPage() {
         title={t('orgDashboard.title')}
         subtitle={t('orgDashboard.subtitle')}
         meta={meta}
+      />
+
+      <CommunityInsightsTile
+        communityId={insightsCommunityId}
+        communityLabel={insightsCommunity?.name}
       />
 
       <nav
