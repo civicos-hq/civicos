@@ -33,6 +33,7 @@ type Config struct {
 	IdentityServiceURL     string
 	CommunityServiceURL    string
 	OrganizationServiceURL string
+	CivicAIServiceURL      string
 	// RedisURL is used by the rate limiter. Empty means "no Redis" — the
 	// limiter fails open (every request allowed) so a dev with no local
 	// Redis can still run the gateway.
@@ -60,6 +61,11 @@ func Load() *Config {
 		organizationURL = "http://localhost:3003"
 	}
 
+	civicaiURL := os.Getenv("CIVICAI_SERVICE_URL")
+	if civicaiURL == "" {
+		civicaiURL = "http://localhost:3004"
+	}
+
 	// PORT wins if set — this is the env var PaaS providers like Render,
 	// Fly, and Heroku dictate. Falls back to the service-specific var for
 	// local dev, then to a hardcoded default.
@@ -77,6 +83,7 @@ func Load() *Config {
 		IdentityServiceURL:     ensureScheme(identityURL),
 		CommunityServiceURL:    ensureScheme(communityURL),
 		OrganizationServiceURL: ensureScheme(organizationURL),
+		CivicAIServiceURL:      ensureScheme(civicaiURL),
 		RedisURL:               os.Getenv("REDIS_URL"),
 	}
 }

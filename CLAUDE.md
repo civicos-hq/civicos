@@ -32,7 +32,8 @@ civicos/
 │   ├── api-gateway/          # Go — reverse proxy + JWT + Swagger UI at /docs (port 3000)
 │   ├── identity-service/     # Go — auth, users, applications, moderation (port 3001)
 │   ├── community-service/    # Go — communities, issues, petitions, reps (port 3002)
-│   └── organization-service/ # Go — orgs, announcements, projects, assignments (port 3003)
+│   ├── organization-service/ # Go — orgs, announcements, projects, assignments (port 3003)
+│   └── civicai-service/      # Go — Gemini-powered classification, summary, drafting (port 3004)
 ├── packages/
 │   ├── types/                # Shared TypeScript interfaces & enums (@civicos/types)
 │   ├── config/               # Env validation via zod (@civicos/config)
@@ -81,6 +82,7 @@ The Engineering Playbook PDF prescribes **NestJS + TypeScript + Prisma** for bac
 - `community-service` — **everything community-scoped**: communities, issues, petitions, representatives, comments, **notifications** (SSE), search, discover, image uploads
 - `organization-service` — orgs, membership, announcements, projects, issue assignments, progress updates
 - `api-gateway` — reverse proxy + JWT + per-action rate limiting + Swagger UI at `/docs`
+- `civicai-service` — CivicAI intelligence layer. Wraps Google Gemini (`gemini-2.5-flash` by default) behind task-shaped endpoints: issue classification, thread summarization, announcement drafting. Every response is a _suggestion_ — nothing auto-publishes. See `docs/product/civicai-plan.md`.
 
 Notifications and search were spec'd by the playbook as future standalone services. For the MVP they live inside `community-service` so cross-entity event emission (e.g., a petition signature → notification) stays in-process and doesn't need NATS. Extract when scale demands it, not before.
 
@@ -154,6 +156,7 @@ set -a && source .env && set +a
 cd services/identity-service     && air
 cd services/community-service    && air
 cd services/organization-service && air
+cd services/civicai-service      && air   # needs GEMINI_API_KEY in .env
 cd services/api-gateway          && air
 
 # 6. Start frontends + docs (runs web :5173, admin :5174, docs :5175)
