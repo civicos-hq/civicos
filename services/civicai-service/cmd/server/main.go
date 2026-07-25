@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/civicos/civicai-service/internal/classify"
+	"github.com/civicos/civicai-service/internal/draft"
 	"github.com/civicos/civicai-service/internal/gemini"
 	"github.com/civicos/civicai-service/internal/middleware"
 	"github.com/civicos/civicai-service/internal/summarize"
@@ -54,6 +55,12 @@ func main() {
 	summarizeSvc := summarize.NewService(aiClient, summarizeSource, summarizeCache)
 	summarizeHandler := summarize.NewHandler(summarizeSvc)
 
+	// Draft: creative one-shot, no external data pulls, no cache
+	// (announcement drafts are personal to a brief — a second call with
+	// the same brief should give the admin a fresh variation to compare).
+	draftSvc := draft.NewService(aiClient)
+	draftHandler := draft.NewHandler(draftSvc)
+
 	authMiddleware := middleware.JWTAuth(cfg)
 
 	r := gin.New()
@@ -73,6 +80,7 @@ func main() {
 	ai := v1.Group("/ai", authMiddleware)
 	classifyHandler.RegisterRoutes(ai)
 	summarizeHandler.RegisterRoutes(ai)
+	draftHandler.RegisterRoutes(ai)
 
 	addr := ":" + cfg.Port
 	log.Printf("civicai-service listening on %s", addr)

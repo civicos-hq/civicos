@@ -83,3 +83,38 @@ export async function summarizeDiscussion(
   );
   return res.data.data.summary;
 }
+
+// ─── Announcement drafting ────────────────────────────────────────────────
+
+export type DraftTone = 'formal' | 'friendly' | 'urgent' | 'empathetic';
+export type DraftAudience = 'all' | 'members';
+
+export interface AnnouncementDraft {
+  title: string;
+  body: string;
+  keyPoints: string[];
+  tone: DraftTone;
+  audience: DraftAudience;
+  model: string;
+  generatedAt: string;
+}
+
+export interface DraftAnnouncementInput {
+  brief: string;
+  tone: DraftTone;
+  audience: DraftAudience;
+  orgName?: string;
+  orgKind?: string;
+}
+
+export async function draftAnnouncement(
+  input: DraftAnnouncementInput,
+  signal?: AbortSignal,
+): Promise<AnnouncementDraft> {
+  const res = await api.post<ApiResponse<{ draft: AnnouncementDraft }>>(
+    '/api/v1/ai/draft-announcement',
+    input,
+    { signal },
+  );
+  return res.data.data.draft;
+}

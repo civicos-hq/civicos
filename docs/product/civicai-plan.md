@@ -1,8 +1,8 @@
 # CivicAI — Gemini Integration Plan
 
 **Owner:** Gino
-**Status:** In progress (Day 1 shipped)
-**Last updated:** 2026-07-24
+**Status:** In progress (Tier 1 complete — classify, summarize, draft)
+**Last updated:** 2026-07-25
 
 CivicAI is the AI intelligence layer for CivicOS. It uses Google Gemini to turn
 raw civic input (issue reports, petition comments, consultation responses) into
@@ -174,8 +174,8 @@ CIVICAI_SERVICE_URL="http://localhost:3004"
 - [x] Gateway routes `/api/v1/ai/*`
 - [x] `.env.example` + CLAUDE.md updated
 - [x] FE classification chip on issue modal
-- [ ] `POST /v1/ai/summarize` + FE button
-- [ ] `POST /v1/ai/draft-announcement` + FE panel
+- [x] `POST /v1/ai/summarize` + FE button (Redis-cached, 30min TTL)
+- [x] `POST /v1/ai/draft-announcement` + FE panel
 - [ ] `GET /v1/ai/community-insights` + dashboard tile
 - [ ] Persistence table `ai_generations` (Day 2)
 - [ ] OpenAPI spec `openapi-civicai.yaml` (Day 2)
