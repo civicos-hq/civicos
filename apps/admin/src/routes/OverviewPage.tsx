@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { API_BASE, apiGet } from '../lib/api';
+import { AnalyticsNarratorTile } from '../components/AnalyticsNarratorTile';
 
 // All probes go through the gateway — it checks the internal services
 // server-side (/health/<name>), since the browser can't reach them.
@@ -99,6 +100,8 @@ export function OverviewPage() {
           ))
         )}
       </section>
+
+      <AnalyticsNarratorTile />
 
       <h2
         className="text-xs font-semibold text-slate-500 mono mb-2"

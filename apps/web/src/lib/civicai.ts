@@ -53,7 +53,7 @@ export async function classifyIssue(
 
 // ─── Summarize ────────────────────────────────────────────────────────────
 
-export type SummarizableResource = 'petition' | 'issue';
+export type SummarizableResource = 'petition' | 'issue' | 'consultation';
 
 export interface DiscussionSummary {
   resource: SummarizableResource;

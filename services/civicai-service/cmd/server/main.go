@@ -10,6 +10,7 @@ import (
 	"github.com/civicos/civicai-service/internal/gemini"
 	"github.com/civicos/civicai-service/internal/insights"
 	"github.com/civicos/civicai-service/internal/middleware"
+	"github.com/civicos/civicai-service/internal/narrate"
 	"github.com/civicos/civicai-service/internal/summarize"
 	"github.com/civicos/civicai-service/pkg/config"
 	"github.com/gin-contrib/cors"
@@ -51,7 +52,7 @@ func main() {
 			cancel()
 		}
 	}
-	summarizeSource := summarize.NewSourceClient(cfg.CommunityServiceURL)
+	summarizeSource := summarize.NewSourceClient(cfg.CommunityServiceURL, cfg.OrganizationServiceURL)
 	summarizeCache := summarize.NewCache(rdb, 30*time.Minute)
 	summarizeSvc := summarize.NewService(aiClient, summarizeSource, summarizeCache)
 	summarizeHandler := summarize.NewHandler(summarizeSvc)
@@ -69,6 +70,13 @@ func main() {
 	insightsSource := insights.NewSourceClient(cfg.CommunityServiceURL)
 	insightsSvc := insights.NewService(aiClient, insightsSource, rdb)
 	insightsHandler := insights.NewHandler(insightsSvc)
+
+	// Analytics Narrator: platform-scoped digest of admin metrics. Uses the
+	// same Redis handle for a short (15min) cache — the numbers change
+	// slowly enough that operators re-clicking within that window get an
+	// instant response.
+	narrateSvc := narrate.NewService(aiClient, cfg.IdentityServiceURL, rdb)
+	narrateHandler := narrate.NewHandler(narrateSvc)
 
 	authMiddleware := middleware.JWTAuth(cfg)
 
@@ -91,6 +99,7 @@ func main() {
 	summarizeHandler.RegisterRoutes(ai)
 	draftHandler.RegisterRoutes(ai)
 	insightsHandler.RegisterRoutes(ai)
+	narrateHandler.RegisterRoutes(ai)
 
 	addr := ":" + cfg.Port
 	log.Printf("civicai-service listening on %s", addr)

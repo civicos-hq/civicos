@@ -329,6 +329,178 @@
   font-size: 0.85rem;
 }
 
+/* ─── CivicAI narrator tile ───────────────────────────────────────────── */
+.admin-narrator-tile {
+  background: linear-gradient(135deg, rgba(31, 110, 212, 0.06), white);
+  border: 1px solid rgba(31, 110, 212, 0.25);
+  border-radius: 0.9rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+.admin-narrator-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.admin-narrator-title-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+}
+.admin-narrator-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: rgba(31, 110, 212, 0.15);
+  color: #1f6ed4;
+}
+.admin-narrator-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+}
+.admin-narrator-sub {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: 0.15rem 0 0;
+}
+.admin-narrator-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.admin-narrator-cache-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  color: #64748b;
+}
+.admin-narrator-button {
+  padding: 0.4rem 0.85rem;
+  border-radius: 0.5rem;
+  border: 1px solid #1f6ed4;
+  background: #1f6ed4;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.admin-narrator-button:hover:not(:disabled) { background: #1a5cb0; }
+.admin-narrator-button:disabled { opacity: 0.6; cursor: not-allowed; }
+.admin-narrator-button-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.admin-narrator-error {
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  background: rgba(244, 63, 94, 0.08);
+  color: #b91c1c;
+  font-size: 0.75rem;
+}
+.admin-narrator-body {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+.admin-narrator-headline {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+}
+.admin-narrator-narrative {
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: #334155;
+  margin: 0;
+  white-space: pre-wrap;
+}
+.admin-narrator-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+.admin-narrator-list-label,
+.admin-narrator-recs-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #64748b;
+  margin: 0 0 0.4rem;
+}
+.admin-narrator-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: #1e293b;
+}
+.admin-narrator-list li {
+  position: relative;
+  padding-left: 0.9rem;
+}
+.admin-narrator-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55rem;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 999px;
+}
+.admin-narrator-list-civic li::before { background: #1f6ed4; }
+.admin-narrator-list-slate li::before { background: #94a3b8; }
+.admin-narrator-recs-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: #1e293b;
+}
+.admin-narrator-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  font-size: 0.7rem;
+  color: #64748b;
+  padding-top: 0.6rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
+}
+.admin-narrator-review-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  background: white;
+  border: 1px solid #e2e8f0;
+}
+
 /* ─── Overview cards ──────────────────────────────────────────────────── */
 .admin-stat-grid {
   display: grid;
