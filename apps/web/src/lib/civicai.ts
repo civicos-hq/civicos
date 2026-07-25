@@ -118,3 +118,29 @@ export async function draftAnnouncement(
   );
   return res.data.data.draft;
 }
+
+// ─── Community insights ───────────────────────────────────────────────────
+
+export interface CommunityInsights {
+  communityId: string;
+  tldr: string;
+  themes: string[];
+  sentimentMix: { positive: number; neutral: number; negative: number };
+  topAsks: string[];
+  recommendedActions: string[];
+  activity: { issueCount: number; petitionCount: number; commentCount: number };
+  model: string;
+  generatedAt: string;
+  cached: boolean;
+}
+
+export async function getCommunityInsights(
+  communityId: string,
+  signal?: AbortSignal,
+): Promise<CommunityInsights> {
+  const res = await api.get<ApiResponse<{ insights: CommunityInsights }>>(
+    '/api/v1/ai/community-insights',
+    { params: { communityId }, signal },
+  );
+  return res.data.data.insights;
+}
