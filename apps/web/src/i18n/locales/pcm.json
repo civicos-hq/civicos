@@ -940,5 +940,24 @@
       "ngos": "NGOs",
       "communities": "Communities"
     }
+  },
+  "civicai": {
+    "summary": {
+      "title": "CivicAI summary",
+      "subtitle": "Quick digest of the discussion, to help you decide.",
+      "generate": "Summarize discussion",
+      "regenerate": "Do am again",
+      "cachedBadge": "Cached",
+      "freshBadge": "Fresh",
+      "reviewBadge": "AI-generated · review",
+      "themes": "Themes",
+      "topAsks": "Top asks",
+      "recommendedActions": "Recommended actions",
+      "sentiment": "Sentiment mix (pos · neu · neg)",
+      "sentimentAria": "Sentiment mix: {{positive}}% positive, {{neutral}}% neutral, {{negative}}% negative",
+      "meta": "Based on {{count}} comments · {{model}}",
+      "needMoreComments": "You need at least {{min}} comments to summarize.",
+      "genericError": "CivicAI no fit summarize the thread. Try again small time."
+    }
   }
 }

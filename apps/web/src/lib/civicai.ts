@@ -50,3 +50,36 @@ export async function classifyIssue(
   );
   return res.data.data.classification;
 }
+
+// ─── Summarize ────────────────────────────────────────────────────────────
+
+export type SummarizableResource = 'petition' | 'issue';
+
+export interface DiscussionSummary {
+  resource: SummarizableResource;
+  resourceId: string;
+  title: string;
+  tldr: string;
+  themes: string[];
+  sentiment: { positive: number; neutral: number; negative: number };
+  topAsks: string[];
+  recommendedActions: string[];
+  commentsAnalyzed: number;
+  officialResponders: string[];
+  model: string;
+  generatedAt: string;
+  cached: boolean;
+}
+
+export async function summarizeDiscussion(
+  resource: SummarizableResource,
+  id: string,
+  signal?: AbortSignal,
+): Promise<DiscussionSummary> {
+  const res = await api.post<ApiResponse<{ summary: DiscussionSummary }>>(
+    '/api/v1/ai/summarize',
+    { resource, id },
+    { signal },
+  );
+  return res.data.data.summary;
+}

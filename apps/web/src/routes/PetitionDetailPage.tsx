@@ -3,12 +3,32 @@ import { Link, useLocation, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@civicos/ui';
-import { PetitionStatus, type ApiResponse, type Community, type Petition } from '@civicos/types';
+import {
+  PetitionStatus,
+  UserRole,
+  type ApiResponse,
+  type Community,
+  type Petition,
+} from '@civicos/types';
 import { api, getApiError } from '../lib/api';
 import { CommentsSection } from '../components/civic/CommentsSection';
+import { DiscussionSummaryPanel } from '../components/civic/DiscussionSummaryPanel';
 import { ImageGallery } from '../components/ImageLightbox';
 import { ShareButton } from '../components/ShareButton';
 import { useEnumLabels } from '../hooks/useEnumLabels';
+import { useMe } from '../hooks/useMe';
+
+// STAFF_ROLES gate the CivicAI summary affordance — only representatives
+// and organization staff should burn a Gemini call on a thread, and only
+// they act on the recommendations. Kept in sync with the same set on
+// IssueDetailPage and the civicai-service handler.
+const STAFF_ROLES = new Set<UserRole>([
+  UserRole.REPRESENTATIVE,
+  UserRole.GOVERNMENT_ADMIN,
+  UserRole.PLATFORM_ADMIN,
+  UserRole.NGO,
+  UserRole.MODERATOR,
+]);
 
 const STATUS_TONE: Record<PetitionStatus, string> = {
   [PetitionStatus.DRAFT]: 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300',
@@ -50,6 +70,8 @@ export function PetitionDetailPage() {
   const queryClient = useQueryClient();
   const petitionQuery = usePetition(id);
   const communitiesQuery = useCommunities();
+  const meQuery = useMe();
+  const isStaff = meQuery.data ? STAFF_ROLES.has(meQuery.data.role) : false;
   const location = useLocation();
   const commentsRef = useRef<HTMLDivElement | null>(null);
   const [signError, setSignError] = useState('');
@@ -224,6 +246,14 @@ export function PetitionDetailPage() {
         </div>
         {signError && <p className="mt-3 text-sm text-red-600 dark:text-red-400">{signError}</p>}
       </article>
+
+      {isStaff && (
+        <DiscussionSummaryPanel
+          resource="petition"
+          resourceId={petition.id}
+          commentCount={petition.commentCount ?? 0}
+        />
+      )}
 
       <div id="comments" ref={commentsRef}>
         <CommentsSection entityType="petitions" entityId={petition.id} />

@@ -15,6 +15,13 @@ type Config struct {
 	// Falls back to the last-known-good model so a missing env var doesn't
 	// wedge the service.
 	GeminiModel string
+	// CommunityServiceURL is the base URL civicai-service calls to pull
+	// petition / issue detail + comments for summarization. Defaults to the
+	// local dev port; in staging/prod the deploy sets the private URL.
+	CommunityServiceURL string
+	// RedisURL powers the summary cache. Empty disables caching (dev-only
+	// fallback) — every summarize hit becomes a fresh Gemini call.
+	RedisURL string
 }
 
 func Load() *Config {
@@ -22,10 +29,12 @@ func Load() *Config {
 	cfg := &Config{
 		// PORT wins when set — PaaS providers dictate it. Falls back to
 		// CIVICAI_SERVICE_PORT for local dev, then a hardcoded default.
-		Port:         getStr("PORT", getStr("CIVICAI_SERVICE_PORT", "3004")),
-		JWTSecret:    require("JWT_SECRET"),
-		GeminiAPIKey: require("GEMINI_API_KEY"),
-		GeminiModel:  getStr("GEMINI_MODEL", "gemini-2.5-flash"),
+		Port:                getStr("PORT", getStr("CIVICAI_SERVICE_PORT", "3004")),
+		JWTSecret:           require("JWT_SECRET"),
+		GeminiAPIKey:        require("GEMINI_API_KEY"),
+		GeminiModel:         getStr("GEMINI_MODEL", "gemini-flash-latest"),
+		CommunityServiceURL: getStr("COMMUNITY_SERVICE_URL", "http://localhost:3002"),
+		RedisURL:            os.Getenv("REDIS_URL"),
 	}
 	if len(cfg.JWTSecret) < 32 {
 		fatalf("JWT_SECRET must be at least 32 characters")

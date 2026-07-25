@@ -14,6 +14,7 @@ import {
 } from '@civicos/types';
 import { api, getApiError } from '../lib/api';
 import { CommentsSection } from '../components/civic/CommentsSection';
+import { DiscussionSummaryPanel } from '../components/civic/DiscussionSummaryPanel';
 import { IssueClaimSection } from '../components/civic/IssueClaimSection';
 import { ImageGallery } from '../components/ImageLightbox';
 import { ShareButton } from '../components/ShareButton';
@@ -287,6 +288,14 @@ export function IssueDetailPage() {
       <IssueClaimSection issueId={issue.id} />
 
       <OfficialProgressSection issueId={issue.id} />
+
+      {isStaff && (
+        <DiscussionSummaryPanel
+          resource="issue"
+          resourceId={issue.id}
+          commentCount={issue.commentCount ?? 0}
+        />
+      )}
 
       <div id="comments" ref={commentsRef}>
         <CommentsSection entityType="issues" entityId={issue.id} />

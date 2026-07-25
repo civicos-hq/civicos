@@ -1618,5 +1618,24 @@
       "five": "The future of civic technology should be open.",
       "closer": "And we're building it together."
     }
+  },
+  "civicai": {
+    "summary": {
+      "title": "CivicAI summary",
+      "subtitle": "A decision-support digest of the discussion so far.",
+      "generate": "Summarize discussion",
+      "regenerate": "Regenerate",
+      "cachedBadge": "Cached",
+      "freshBadge": "Fresh",
+      "reviewBadge": "AI-generated · review",
+      "themes": "Themes",
+      "topAsks": "Top asks",
+      "recommendedActions": "Recommended actions",
+      "sentiment": "Sentiment mix (pos · neu · neg)",
+      "sentimentAria": "Sentiment mix: {{positive}}% positive, {{neutral}}% neutral, {{negative}}% negative",
+      "meta": "Based on {{count}} comments · {{model}}",
+      "needMoreComments": "Needs at least {{min}} comments to summarize.",
+      "genericError": "CivicAI could not summarize this thread. Try again shortly."
+    }
   }
 }

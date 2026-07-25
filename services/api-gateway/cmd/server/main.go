@@ -297,6 +297,9 @@ func main() {
 	// come later once we have usage data.
 	civicaiProxy := proxy.NewReverseProxy(cfg.CivicAIServiceURL, "/api")
 	r.POST("/api/v1/ai/classify-issue", authMiddleware, limitStandard, civicaiProxy)
+	// Summarize is role-gated inside civicai-service (staff only) — the
+	// gateway only needs to enforce auth + shared authoring budget here.
+	r.POST("/api/v1/ai/summarize", authMiddleware, limitStandard, civicaiProxy)
 
 	// Notifications
 	notificationsStream := proxy.NewStreamingProxy(cfg.CommunityServiceURL, "/api")
