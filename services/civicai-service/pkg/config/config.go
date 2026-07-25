@@ -19,6 +19,13 @@ type Config struct {
 	// petition / issue detail + comments for summarization. Defaults to the
 	// local dev port; in staging/prod the deploy sets the private URL.
 	CommunityServiceURL string
+	// OrganizationServiceURL is used to pull consultation detail + responses
+	// when summarizing a consultation. Same default pattern as community.
+	OrganizationServiceURL string
+	// IdentityServiceURL powers the Analytics Narrator — civicai-service
+	// pulls /v1/admin/metrics with the caller's forwarded JWT and hands the
+	// numbers to Gemini.
+	IdentityServiceURL string
 	// RedisURL powers the summary cache. Empty disables caching (dev-only
 	// fallback) — every summarize hit becomes a fresh Gemini call.
 	RedisURL string
@@ -29,12 +36,14 @@ func Load() *Config {
 	cfg := &Config{
 		// PORT wins when set — PaaS providers dictate it. Falls back to
 		// CIVICAI_SERVICE_PORT for local dev, then a hardcoded default.
-		Port:                getStr("PORT", getStr("CIVICAI_SERVICE_PORT", "3004")),
-		JWTSecret:           require("JWT_SECRET"),
-		GeminiAPIKey:        require("GEMINI_API_KEY"),
-		GeminiModel:         getStr("GEMINI_MODEL", "gemini-flash-latest"),
-		CommunityServiceURL: getStr("COMMUNITY_SERVICE_URL", "http://localhost:3002"),
-		RedisURL:            os.Getenv("REDIS_URL"),
+		Port:                   getStr("PORT", getStr("CIVICAI_SERVICE_PORT", "3004")),
+		JWTSecret:              require("JWT_SECRET"),
+		GeminiAPIKey:           require("GEMINI_API_KEY"),
+		GeminiModel:            getStr("GEMINI_MODEL", "gemini-flash-latest"),
+		CommunityServiceURL:    getStr("COMMUNITY_SERVICE_URL", "http://localhost:3002"),
+		OrganizationServiceURL: getStr("ORGANIZATION_SERVICE_URL", "http://localhost:3003"),
+		IdentityServiceURL:     getStr("IDENTITY_SERVICE_URL", "http://localhost:3001"),
+		RedisURL:               os.Getenv("REDIS_URL"),
 	}
 	if len(cfg.JWTSecret) < 32 {
 		fatalf("JWT_SECRET must be at least 32 characters")

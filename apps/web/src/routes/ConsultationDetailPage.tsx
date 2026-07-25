@@ -5,13 +5,26 @@ import { Button } from '@civicos/ui';
 import {
   ConsultationQuestionType,
   ConsultationStatus,
+  UserRole,
   type ConsultationAnswerInput,
   type ConsultationQuestion,
 } from '@civicos/types';
 import { PageHeader } from '../components/PageHeader';
 import { UnverifiedBanner } from '../components/UnverifiedBanner';
+import { DiscussionSummaryPanel } from '../components/civic/DiscussionSummaryPanel';
 import { getApiError, uploadUrl } from '../lib/api';
 import { useMe } from '../hooks/useMe';
+
+// Kept in sync with the same set in IssueDetailPage / PetitionDetailPage
+// and the civicai-service summarize handler. Only staff burn Gemini calls
+// and act on the recommendations.
+const STAFF_ROLES = new Set<UserRole>([
+  UserRole.REPRESENTATIVE,
+  UserRole.GOVERNMENT_ADMIN,
+  UserRole.PLATFORM_ADMIN,
+  UserRole.NGO,
+  UserRole.MODERATOR,
+]);
 import {
   useConsultation,
   useConsultationOutcome,
@@ -138,6 +151,7 @@ export function ConsultationDetailPage() {
 
   const isClosed = consultation.status === ConsultationStatus.CLOSED;
   const isDraft = consultation.status === ConsultationStatus.DRAFT;
+  const isStaff = me.data ? STAFF_ROLES.has(me.data.role) : false;
   const serverError = submitMutation.isError ? getApiError(submitMutation.error) : null;
 
   return (
@@ -155,6 +169,14 @@ export function ConsultationDetailPage() {
         subtitle={consultation.summary}
         titleAs="h2"
       />
+
+      {isStaff && (
+        <DiscussionSummaryPanel
+          resource="consultation"
+          resourceId={consultation.id}
+          commentCount={consultation.responseCount ?? 0}
+        />
+      )}
 
       {consultation.coverImageUrl && (
         <img

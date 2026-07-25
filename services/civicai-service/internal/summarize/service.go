@@ -23,7 +23,7 @@ const (
 )
 
 type SummarizeInput struct {
-	Resource string `json:"resource" binding:"required,oneof=petition issue"`
+	Resource string `json:"resource" binding:"required,oneof=petition issue consultation"`
 	ID       string `json:"id" binding:"required"`
 }
 
