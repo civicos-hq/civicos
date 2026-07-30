@@ -13,6 +13,8 @@ import { DirectHidePage } from './routes/DirectHidePage';
 import { AuditPage } from './routes/AuditPage';
 import { OrganizationDetailPage } from './routes/OrganizationDetailPage';
 import { ApplicationsPage } from './routes/ApplicationsPage';
+import { CampaignsPage } from './routes/CampaignsPage';
+import { CampaignDetailPage } from './routes/CampaignDetailPage';
 import { ApplicationDetailPage } from './routes/ApplicationDetailPage';
 import { AdminShell } from './components/AdminShell';
 import { RequireAdmin } from './components/RequireAdmin';
@@ -34,6 +36,8 @@ export function App() {
           <Route path="/representatives" element={<RepresentativesPage />} />
           <Route path="/applications" element={<ApplicationsPage />} />
           <Route path="/applications/:kind/:id" element={<ApplicationDetailPage />} />
+          <Route path="/campaigns" element={<CampaignsPage />} />
+          <Route path="/campaigns/:id" element={<CampaignDetailPage />} />
           <Route path="/moderation/direct-hide" element={<DirectHidePage />} />
           <Route path="/flags" element={<FlagsPage />} />
           <Route path="/audit" element={<AuditPage />} />

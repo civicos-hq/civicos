@@ -146,6 +146,22 @@ components:
     MilestoneStatus:
       type: string
       enum: [PLANNED, IN_PROGRESS, COMPLETED]
+    PauseReason:
+      type: string
+      description: |
+        The five Governance triggers from the product spec, plus OTHER. A
+        code rather than free text so pauses are countable and filterable —
+        these are the grounds on which a live fundraiser is stopped. A
+        free-text note is required alongside.
+      enum:
+        [
+          FRAUD_DETECTED,
+          VERIFICATION_EXPIRED,
+          MISUSE_REPORTED,
+          ORGANIZATION_SUSPENDED,
+          FALSE_INFORMATION,
+          OTHER,
+        ]
     CampaignCurrency:
       type: string
       description: |
@@ -1808,7 +1824,10 @@ paths:
         "Trust First" principle lives behind, so all three checks are
         server-side:
 
-        1. the owning organization must be **verified**
+        1. the owning organization must be **funding eligible** — verified,
+           plus registration number, country, official email, a named
+           representative and bank-account verification (see
+           `GET /organizations/{id}/funding-eligibility`)
         2. there must be **at least one milestone** (a spend plan)
         3. milestone targets must **not exceed the goal**
 
@@ -1844,13 +1863,13 @@ paths:
           content:
             application/json:
               examples:
-                notVerified:
+                notEligible:
                   {
                     value:
                       {
                         success: false,
-                        code: ORG_NOT_VERIFIED,
-                        message: Your organization must be verified before submitting a campaign for review,
+                        code: ORG_NOT_FUNDING_ELIGIBLE,
+                        message: 'Your organization cannot raise funds yet — still needed: registration number, bank account verification',
                       },
                   }
                 badTransition:
@@ -2005,12 +2024,43 @@ paths:
           application/json:
             schema:
               type: object
-              required: [reason]
+              required: [reasonCode, note]
               properties:
-                reason: { type: string }
+                reasonCode: { $ref: '#/components/schemas/PauseReason' }
+                note:
+                  type: string
+                  description: What specifically prompted the pause. Shown to the organization and written to the audit log.
+            examples:
+              default:
+                value:
+                  reasonCode: MISUSE_REPORTED
+                  note: Two residents report the listed borehole site does not exist.
       responses:
         '200': { description: Campaign is now PAUSED. }
-        '400': { description: Reason missing. }
+        '400':
+          description: Unknown reason code, or missing note.
+          content:
+            application/json:
+              examples:
+                badCode:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: INVALID_PAUSE_REASON,
+                        message: Pause reason must be one of FRAUD_DETECTED,
+                        ...,
+                      },
+                  }
+                noNote:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: PAUSE_NOTE_REQUIRED,
+                        message: Record what specifically prompted this pause,
+                      },
+                  }
         '403': { description: Platform admins only. }
 
   /campaigns/{campaignId}/resume:
@@ -2144,3 +2194,140 @@ paths:
       responses:
         '200': { description: Deleted. }
         '409': { description: Campaign is no longer editable. }
+
+  # ─────────────────────── PUBLIC CAMPAIGNS (Phase 2) ───────────────────────
+  # Unauthenticated. Returns a projection (not the domain model) that omits
+  # the review trail — approvalStatus, reviewNote, reviewedById, submittedAt
+  # and the free-text pause note are all withheld. See public.go.
+
+  /campaigns:
+    get:
+      tags: [Campaigns]
+      security: []
+      summary: Browse published campaigns (public)
+      description: |
+        Only campaigns in a citizen-visible status are returned: PUBLISHED,
+        FUNDED, COMPLETED, REPORTED. The allow-list lives in the repository so
+        a status added later defaults to hidden.
+      parameters:
+        - in: query
+          name: category
+          schema: { $ref: '#/components/schemas/CampaignCategory' }
+        - in: query
+          name: organizationId
+          schema: { type: string, format: uuid }
+        - in: query
+          name: communityId
+          schema: { type: string, format: uuid }
+        - in: query
+          name: state
+          schema: { type: string }
+        - in: query
+          name: lga
+          schema: { type: string }
+        - in: query
+          name: emergency
+          schema: { type: boolean }
+      responses:
+        '200': { description: Public campaign summaries. }
+
+  /campaigns/slug/{slug}:
+    parameters:
+      - in: path
+        name: slug
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Campaigns]
+      security: []
+      summary: Read a published campaign by slug (public)
+      description: |
+        Returns the campaign plus its milestone spend plan — the Phase 2
+        transparency surface: a citizen can see the goal and exactly how the
+        money is meant to be spent, before the campaign can accept anything.
+
+        A campaign in a non-public status returns **404, not 403**. A 403
+        would confirm that a campaign with that slug exists and is merely
+        hidden, turning the slug into an oracle for drafts and rejected
+        applications.
+      responses:
+        '200': { description: Public campaign detail with milestones. }
+        '404':
+          description: No published campaign with that slug.
+          content:
+            application/json:
+              examples:
+                default:
+                  {
+                    value:
+                      { success: false, code: CAMPAIGN_NOT_FOUND, message: Campaign not found },
+                  }
+
+  # ─────────────────────── ORG FUNDING VERIFICATION (Phase 2) ───────────────────────
+
+  /organizations/{id}/funding-verification:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      tags: [Organizations]
+      summary: Record bank-account verification (platform admin)
+      description: |
+        The platform's attestation that the organization's settlement account
+        has been checked out-of-band.
+
+        Deliberately **not** a field on `PATCH /organizations/{id}`: the
+        paperwork fields (registration number, country, official email,
+        representative, supporting document) are the org's own and org admins
+        may edit them, but an organization that could self-certify its bank
+        account would make the funding-eligibility gate decorative.
+
+        Setting it to `false` also clears the reviewer stamp, so a revoked
+        attestation cannot be mistaken for a current one.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [bankAccountVerified]
+              properties:
+                bankAccountVerified: { type: boolean }
+      responses:
+        '200': { description: Updated organization. }
+        '403': { description: Platform admins only. }
+
+  /organizations/{id}/funding-eligibility:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Organizations]
+      summary: What is still outstanding before this org can raise funds (members + platform admin)
+      description: |
+        Returns the same verdict the campaign submit gate uses, so the admin
+        console and the API can never disagree about what "eligible" means.
+        `missing` names each gap in human-readable terms.
+      responses:
+        '200':
+          description: Eligibility verdict.
+          content:
+            application/json:
+              examples:
+                notEligible:
+                  {
+                    value:
+                      {
+                        success: true,
+                        data:
+                          {
+                            eligible: false,
+                            missing: [registration number, bank account verification],
+                          },
+                      },
+                  }
+        '403': { description: Members of this organization or platform admins only. }

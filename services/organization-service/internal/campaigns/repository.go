@@ -97,16 +97,47 @@ func (r *Repository) SlugExists(slug string) (bool, error) {
 	return n > 0, err
 }
 
-// OrgIsVerified reads the owning organization's verified flag. Campaigns
-// may be drafted by any org, but only a verified one can be submitted for
-// review — the spec's "Trust First" principle, enforced server-side rather
-// than assumed from the UI.
-func (r *Repository) OrgIsVerified(orgID string) (bool, error) {
+// Org loads the owning organization. Campaigns may be drafted by any org,
+// but only a funding-eligible one can be submitted for review — the spec's
+// "Trust First" principle, enforced server-side rather than assumed from
+// the UI. The service calls Organization.FundingEligible() on the result so
+// the eligibility rule lives in one place.
+func (r *Repository) Org(orgID string) (*domain.Organization, error) {
 	var org domain.Organization
-	if err := r.db.Select("verified").Where("id = ?", orgID).First(&org).Error; err != nil {
-		return false, err
+	if err := r.db.Where("id = ?", orgID).First(&org).Error; err != nil {
+		return nil, err
 	}
-	return org.Verified, nil
+	return &org, nil
+}
+
+// OrgNames resolves organization display names in one query, so the public
+// list doesn't issue a lookup per row.
+func (r *Repository) OrgNames(ids []string) (map[string]string, error) {
+	out := map[string]string{}
+	if len(ids) == 0 {
+		return out, nil
+	}
+	var rows []struct {
+		ID   string
+		Name string
+	}
+	if err := r.db.Model(&domain.Organization{}).
+		Select("id, name").Where("id IN ?", ids).Scan(&rows).Error; err != nil {
+		return nil, err
+	}
+	for _, row := range rows {
+		out[row.ID] = row.Name
+	}
+	return out, nil
+}
+
+// MilestonesFor loads a campaign's spend plan for the public detail page.
+// Lives here rather than crossing into the milestones package so the public
+// read is a single dependency-free path.
+func (r *Repository) MilestonesFor(campaignID string) ([]domain.Milestone, error) {
+	var list []domain.Milestone
+	return list, r.db.Where("campaign_id = ?", campaignID).
+		Order("position asc").Find(&list).Error
 }
 
 // CountMilestones and SumMilestoneTargets back the submit-for-review

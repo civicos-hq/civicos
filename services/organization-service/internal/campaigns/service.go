@@ -21,7 +21,9 @@ type Store interface {
 	Update(id string, updates map[string]any) error
 	Delete(id string) error
 	SlugExists(slug string) (bool, error)
-	OrgIsVerified(orgID string) (bool, error)
+	Org(orgID string) (*domain.Organization, error)
+	OrgNames(ids []string) (map[string]string, error)
+	MilestonesFor(campaignID string) ([]domain.Milestone, error)
 	CountMilestones(campaignID string) (int64, error)
 	SumMilestoneTargets(campaignID string) (int64, error)
 }
@@ -438,14 +440,16 @@ func (s *Service) Submit(id string) (*domain.Campaign, error) {
 		return nil, err
 	}
 
-	verified, err := s.repo.OrgIsVerified(c.OrganizationID)
+	org, err := s.repo.Org(c.OrganizationID)
 	if err != nil {
 		return nil, err
 	}
-	if !verified {
+	// The error names exactly what is missing. "Your organization is not
+	// eligible" with no detail leaves an org with no way to fix it.
+	if ok, missing := org.FundingEligible(); !ok {
 		return nil, &AppError{
-			Code:    "ORG_NOT_VERIFIED",
-			Message: "Your organization must be verified before submitting a campaign for review",
+			Code:    "ORG_NOT_FUNDING_ELIGIBLE",
+			Message: "Your organization cannot raise funds yet — still needed: " + strings.Join(missing, ", "),
 			Status:  http.StatusConflict,
 		}
 	}
@@ -563,10 +567,14 @@ func (s *Service) Publish(id string) (*domain.Campaign, error) {
 	return s.Get(id)
 }
 
-// Pause suspends a live campaign. Reason is required and maps to the
-// spec's Governance triggers (fraud detected, verification expired, misuse
-// reported, organization suspended, false information).
-func (s *Service) Pause(id, reason string) (*domain.Campaign, error) {
+// Pause suspends a live campaign. The reason code is one of the spec's five
+// Governance triggers (or OTHER); the note is required and carries the
+// specifics.
+//
+// A code AND a note, not one or the other: the code makes pauses countable
+// and filterable ("how often do we pause for fraud?"), while the note is
+// what the organization is actually owed as an explanation.
+func (s *Service) Pause(id, reasonCode, note string) (*domain.Campaign, error) {
 	c, err := s.Get(id)
 	if err != nil {
 		return nil, err
@@ -574,16 +582,25 @@ func (s *Service) Pause(id, reason string) (*domain.Campaign, error) {
 	if err := CanTransition(c.Status, domain.CampaignPaused, ActorPlatform); err != nil {
 		return nil, err
 	}
-	if strings.TrimSpace(reason) == "" {
+	code := strings.ToUpper(strings.TrimSpace(reasonCode))
+	if !domain.ValidPauseReason(code) {
 		return nil, &AppError{
-			Code:    "PAUSE_REASON_REQUIRED",
-			Message: "Record why this campaign is being paused",
+			Code:    "INVALID_PAUSE_REASON",
+			Message: "Pause reason must be one of FRAUD_DETECTED, VERIFICATION_EXPIRED, MISUSE_REPORTED, ORGANIZATION_SUSPENDED, FALSE_INFORMATION, OTHER",
+			Status:  http.StatusBadRequest,
+		}
+	}
+	if strings.TrimSpace(note) == "" {
+		return nil, &AppError{
+			Code:    "PAUSE_NOTE_REQUIRED",
+			Message: "Record what specifically prompted this pause",
 			Status:  http.StatusBadRequest,
 		}
 	}
 	if err := s.repo.Update(id, map[string]any{
-		"status":        domain.CampaignPaused,
-		"paused_reason": strings.TrimSpace(reason),
+		"status":            domain.CampaignPaused,
+		"pause_reason_code": domain.PauseReason(code),
+		"pause_note":        strings.TrimSpace(note),
 	}); err != nil {
 		return nil, err
 	}
@@ -602,8 +619,9 @@ func (s *Service) Resume(id string) (*domain.Campaign, error) {
 		return nil, err
 	}
 	if err := s.repo.Update(id, map[string]any{
-		"status":        domain.CampaignPublished,
-		"paused_reason": nil,
+		"status":            domain.CampaignPublished,
+		"pause_reason_code": nil,
+		"pause_note":        nil,
 	}); err != nil {
 		return nil, err
 	}

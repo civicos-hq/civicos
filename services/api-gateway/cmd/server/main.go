@@ -302,6 +302,18 @@ func main() {
 	// composing, and the tight citizen Create budget made that brittle.
 	// When donations arrive in Phase 3 they get their own tighter bucket —
 	// a payment intent is not an authoring action.
+	// Public campaign reads (Phase 2). Unauthenticated on purpose — this is
+	// the transparency surface, and it ships before any money can move
+	// through it. The service returns a DTO that omits the review trail.
+	r.GET("/api/v1/campaigns", orgProxy)
+	r.GET("/api/v1/campaigns/slug/:slug", orgProxy)
+
+	// Org funding verification: the paperwork the org supplies rides on the
+	// existing org PATCH; the bank-account attestation is platform-admin
+	// only and has its own route so an org cannot self-certify.
+	r.PATCH("/api/v1/organizations/:id/funding-verification", authMiddleware, limitStandard, orgProxy)
+	r.GET("/api/v1/organizations/:id/funding-eligibility", authMiddleware, orgProxy)
+
 	r.GET("/api/v1/organizations/:id/campaigns", authMiddleware, orgProxy)
 	r.POST("/api/v1/organizations/:id/campaigns", authMiddleware, limitStandard, orgProxy)
 	r.GET("/api/v1/campaigns/:campaignId", authMiddleware, orgProxy)

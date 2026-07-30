@@ -1,6 +1,9 @@
 package domain
 
-import "time"
+import (
+	"strings"
+	"time"
+)
 
 type OrgKind string
 type OrgJurisdiction string
@@ -13,6 +16,7 @@ type QuestionType string
 type CampaignStatus string
 type CampaignCategory string
 type MilestoneStatus string
+type PauseReason string
 
 const (
 	OrgKindGovernment OrgKind = "GOVERNMENT"
@@ -99,7 +103,30 @@ const (
 	MilestonePlanned    MilestoneStatus = "PLANNED"
 	MilestoneInProgress MilestoneStatus = "IN_PROGRESS"
 	MilestoneCompleted  MilestoneStatus = "COMPLETED"
+
+	// Pause reasons — the five Governance triggers from the spec, plus
+	// OTHER. A code rather than free text because these are the grounds on
+	// which a live fundraiser is stopped: they need to be countable
+	// (how often do we pause for fraud?), filterable in the admin queue,
+	// and consistent across reviewers. The free-text note is retained
+	// alongside for the specifics.
+	PauseFraudDetected         PauseReason = "FRAUD_DETECTED"
+	PauseVerificationExpired   PauseReason = "VERIFICATION_EXPIRED"
+	PauseMisuseReported        PauseReason = "MISUSE_REPORTED"
+	PauseOrganizationSuspended PauseReason = "ORGANIZATION_SUSPENDED"
+	PauseFalseInformation      PauseReason = "FALSE_INFORMATION"
+	PauseOther                 PauseReason = "OTHER"
 )
+
+// ValidPauseReason reports whether v is a known pause reason code.
+func ValidPauseReason(v string) bool {
+	switch PauseReason(v) {
+	case PauseFraudDetected, PauseVerificationExpired, PauseMisuseReported,
+		PauseOrganizationSuspended, PauseFalseInformation, PauseOther:
+		return true
+	}
+	return false
+}
 
 type Organization struct {
 	ID                string          `gorm:"type:uuid;primaryKey" json:"id"`
@@ -119,9 +146,71 @@ type Organization struct {
 	AnnouncementCount int             `gorm:"default:0" json:"announcementCount"`
 	ProjectCount      int             `gorm:"default:0" json:"projectCount"`
 	AssignmentCount   int             `gorm:"default:0" json:"assignmentCount"`
-	CreatedByID       string          `gorm:"type:uuid;not null" json:"createdById"`
-	CreatedAt         time.Time       `json:"createdAt"`
-	UpdatedAt         time.Time       `json:"updatedAt"`
+
+	// ─── Funding verification (Community Funding, Phase 2) ───
+	//
+	// The product spec requires an organization to provide registration
+	// number, country, official email, a named representative, identity
+	// verification, supporting documents and bank-account verification
+	// before it may raise money.
+	//
+	// These are deliberately SEPARATE from the existing `Verified` flag.
+	// `Verified` is the general "this org is who it says it is" badge that
+	// predates funding and is already set on live orgs; tightening its
+	// meaning would retroactively unverify every existing organization.
+	// Instead, raising money requires `Verified` AND the funding fields —
+	// see FundingEligible below.
+	RegistrationNumber *string `json:"registrationNumber,omitempty"`
+	Country            *string `json:"country,omitempty"`
+	OfficialEmail      *string `json:"officialEmail,omitempty"`
+	// RepresentativeName is the human accountable for the org's campaigns.
+	// The spec calls this "Representative"; named explicitly here so it is
+	// not confused with the platform's REPRESENTATIVE user role.
+	RepresentativeName *string `json:"representativeName,omitempty"`
+	// BankAccountVerified is set by a platform admin after checking the
+	// settlement account out-of-band. Phase 5 pays out to it. It is a bool,
+	// not account details: CivicOS should not hold bank numbers it has no
+	// use for until the payout integration exists.
+	BankAccountVerified   bool       `gorm:"default:false" json:"bankAccountVerified"`
+	SupportingDocumentURL *string    `json:"supportingDocumentUrl,omitempty"`
+	FundingVerifiedAt     *time.Time `json:"fundingVerifiedAt,omitempty"`
+	FundingVerifiedByID   *string    `gorm:"type:uuid" json:"fundingVerifiedById,omitempty"`
+
+	CreatedByID string    `gorm:"type:uuid;not null" json:"createdById"`
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
+}
+
+// FundingEligible reports whether this organization may raise money.
+//
+// Checked at campaign-submit time rather than at campaign-create time, so an
+// org can draft while its paperwork is still being processed. Returns the
+// list of missing requirements alongside the verdict so the API can tell the
+// org exactly what to supply — "your organization is not eligible" with no
+// further detail is not an actionable error.
+func (o *Organization) FundingEligible() (bool, []string) {
+	var missing []string
+	blank := func(p *string) bool { return p == nil || strings.TrimSpace(*p) == "" }
+
+	if !o.Verified {
+		missing = append(missing, "organization verification")
+	}
+	if blank(o.RegistrationNumber) {
+		missing = append(missing, "registration number")
+	}
+	if blank(o.Country) {
+		missing = append(missing, "country")
+	}
+	if blank(o.OfficialEmail) {
+		missing = append(missing, "official email")
+	}
+	if blank(o.RepresentativeName) {
+		missing = append(missing, "named representative")
+	}
+	if !o.BankAccountVerified {
+		missing = append(missing, "bank account verification")
+	}
+	return len(missing) == 0, missing
 }
 
 type OrgMember struct {
@@ -358,8 +447,11 @@ type Campaign struct {
 	ReviewedAt     *time.Time `json:"reviewedAt,omitempty"`
 	ReviewNote     *string    `json:"reviewNote,omitempty"`
 
-	// PausedReason carries the Governance trigger when Status is PAUSED.
-	PausedReason *string `json:"pausedReason,omitempty"`
+	// Pause detail, set when Status is PAUSED. The code is one of the
+	// spec's Governance triggers (see PauseReason); the note carries the
+	// specifics for the organization and the audit trail.
+	PauseReasonCode *PauseReason `gorm:"type:varchar(30)" json:"pauseReasonCode,omitempty"`
+	PauseNote       *string      `json:"pauseNote,omitempty"`
 
 	SubmittedAt *time.Time `json:"submittedAt,omitempty"`
 	PublishedAt *time.Time `json:"publishedAt,omitempty"`

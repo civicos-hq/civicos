@@ -26,12 +26,20 @@ func NewHandler(svc *Service, orgs *organizations.Service, auditor *audit.Audito
 // (organization-scoped creation, campaign-scoped everything else) — same
 // reason projects and announcements mount here.
 //
-// Phase 1 has NO unauthenticated route. Every read requires membership of
-// the owning org or platform admin. The public campaign surface arrives in
-// Phase 4 together with the transparency dashboard, so that a campaign
-// cannot become publicly visible before there is anywhere to show where its
-// money went.
+// Phase 2 adds the first PUBLIC routes: a citizen can browse published
+// campaigns and read one by slug, seeing the goal and the spend plan with
+// ₦0 raised. That ordering is deliberate — the transparency surface exists
+// before any money can move through it. Phase 4 extends the same pages with
+// the full funds-flow dashboard (received / withdrawn / remaining, reports).
+//
+// Public reads go through a DTO (see public.go), never the domain model, so
+// the review trail cannot leak. Everything else still requires membership of
+// the owning org or platform admin.
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth gin.HandlerFunc) {
+	// Public, unauthenticated.
+	rg.GET("/campaigns", h.listPublic)
+	rg.GET("/campaigns/slug/:slug", h.getPublic)
+
 	rg.GET("/organizations/:id/campaigns", auth, h.listByOrg)
 	rg.POST("/organizations/:id/campaigns", auth, h.create)
 
@@ -53,7 +61,33 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth gin.HandlerFunc) {
 	rg.POST("/campaigns/:campaignId/archive", auth, h.archive)
 }
 
-// ─── Reads ──────────────────────────────────────────────────────────────
+// ─── Public reads ───────────────────────────────────────────────────────
+
+func (h *Handler) listPublic(c *gin.Context) {
+	items, err := h.svc.ListPublic(ListFilters{
+		Category:      strings.ToUpper(c.Query("category")),
+		CommunityID:   c.Query("communityId"),
+		State:         c.Query("state"),
+		LGA:           c.Query("lga"),
+		OrgID:         c.Query("organizationId"),
+		EmergencyOnly: c.Query("emergency") == "true",
+	})
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to list campaigns")
+		return
+	}
+	response.Success(c, http.StatusOK, gin.H{"campaigns": items})
+}
+
+func (h *Handler) getPublic(c *gin.Context) {
+	item, err := h.svc.GetPublicBySlug(c.Param("slug"))
+	if handleAppErr(c, err) {
+		return
+	}
+	response.Success(c, http.StatusOK, gin.H{"campaign": item})
+}
+
+// ─── Member reads ───────────────────────────────────────────────────────
 
 func (h *Handler) listByOrg(c *gin.Context) {
 	orgID := c.Param("id")
@@ -251,7 +285,8 @@ func (h *Handler) review(c *gin.Context) {
 }
 
 type pauseInput struct {
-	Reason string `json:"reason" binding:"required"`
+	ReasonCode string `json:"reasonCode" binding:"required"`
+	Note       string `json:"note" binding:"required"`
 }
 
 func (h *Handler) pause(c *gin.Context) {
@@ -263,11 +298,16 @@ func (h *Handler) pause(c *gin.Context) {
 		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", err.Error())
 		return
 	}
-	updated, err := h.svc.Pause(c.Param("campaignId"), input.Reason)
+	updated, err := h.svc.Pause(c.Param("campaignId"), input.ReasonCode, input.Note)
 	if handleAppErr(c, err) {
 		return
 	}
-	h.record(c, "campaign.paused", updated.ID, map[string]any{"reason": input.Reason})
+	// The code goes in the audit metadata so pauses are countable by
+	// reason without parsing free text.
+	h.record(c, "campaign.paused", updated.ID, map[string]any{
+		"reasonCode": strings.ToUpper(input.ReasonCode),
+		"note":       input.Note,
+	})
 	response.Success(c, http.StatusOK, gin.H{"campaign": updated})
 }
 

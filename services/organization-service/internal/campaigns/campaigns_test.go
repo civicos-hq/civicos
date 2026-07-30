@@ -1,6 +1,8 @@
 package campaigns
 
 import (
+	"encoding/json"
+	"strings"
 	"testing"
 	"time"
 
@@ -127,7 +129,7 @@ func TestSubmit_RequiresVerifiedOrgMilestonesAndBudget(t *testing.T) {
 	c := mustCreate(t, svc, orgID)
 	store.milestoneCount[c.ID] = 1
 	store.milestoneTotal[c.ID] = 100
-	if _, err := svc.Submit(c.ID); !isCode(err, "ORG_NOT_VERIFIED") {
+	if _, err := svc.Submit(c.ID); !isCode(err, "ORG_NOT_FUNDING_ELIGIBLE") {
 		t.Fatalf("expected ORG_NOT_VERIFIED, got %v", err)
 	}
 
@@ -358,6 +360,7 @@ type fakeStore struct {
 	items          map[string]*domain.Campaign
 	slugs          map[string]bool
 	verified       map[string]bool
+	milestones     map[string][]domain.Milestone
 	milestoneCount map[string]int64
 	milestoneTotal map[string]int64
 }
@@ -367,6 +370,7 @@ func newFakeStore() *fakeStore {
 		items:          map[string]*domain.Campaign{},
 		slugs:          map[string]bool{},
 		verified:       map[string]bool{},
+		milestones:     map[string][]domain.Milestone{},
 		milestoneCount: map[string]int64{},
 		milestoneTotal: map[string]int64{},
 	}
@@ -431,12 +435,19 @@ func (f *fakeStore) Update(id string, updates map[string]any) error {
 			c.GoalMinor = v.(int64)
 		case "is_emergency":
 			c.IsEmergency = v.(bool)
-		case "paused_reason":
+		case "pause_reason_code":
 			if v == nil {
-				c.PausedReason = nil
+				c.PauseReasonCode = nil
+			} else {
+				pr := v.(domain.PauseReason)
+				c.PauseReasonCode = &pr
+			}
+		case "pause_note":
+			if v == nil {
+				c.PauseNote = nil
 			} else {
 				s := v.(string)
-				c.PausedReason = &s
+				c.PauseNote = &s
 			}
 		case "review_note":
 			if v == nil {
@@ -471,7 +482,34 @@ func (f *fakeStore) Delete(id string) error {
 
 func (f *fakeStore) SlugExists(slug string) (bool, error) { return f.slugs[slug], nil }
 
-func (f *fakeStore) OrgIsVerified(orgID string) (bool, error) { return f.verified[orgID], nil }
+// Org returns an organization whose funding-eligibility mirrors the flag the
+// test set. `fundingReady` fills in every field FundingEligible checks, so a
+// test that only cares about lifecycle doesn't have to populate paperwork.
+func (f *fakeStore) Org(orgID string) (*domain.Organization, error) {
+	org := &domain.Organization{ID: orgID}
+	if f.verified[orgID] {
+		s := "set"
+		org.Verified = true
+		org.RegistrationNumber = &s
+		org.Country = &s
+		org.OfficialEmail = &s
+		org.RepresentativeName = &s
+		org.BankAccountVerified = true
+	}
+	return org, nil
+}
+
+func (f *fakeStore) OrgNames(ids []string) (map[string]string, error) {
+	out := map[string]string{}
+	for _, id := range ids {
+		out[id] = "Test Org"
+	}
+	return out, nil
+}
+
+func (f *fakeStore) MilestonesFor(campaignID string) ([]domain.Milestone, error) {
+	return f.milestones[campaignID], nil
+}
 
 func (f *fakeStore) CountMilestones(campaignID string) (int64, error) {
 	return f.milestoneCount[campaignID], nil
@@ -504,3 +542,188 @@ func setStamp(c *domain.Campaign, column string, v any) {
 }
 
 func gormNotFound() error { return gorm.ErrRecordNotFound }
+
+// ─── Phase 2: funding eligibility, pause codes, public projection ───────
+
+// Verification is not one bool. An org can be Verified (the general
+// "who it says it is" badge) and still be unable to raise money because the
+// funding paperwork is missing. The error must name what is missing.
+func TestSubmit_RequiresFullFundingEligibility(t *testing.T) {
+	store := newFakeStore()
+	orgID := uuid.NewString()
+	svc := NewService(store)
+	c := mustCreate(t, svc, orgID)
+	store.milestoneCount[c.ID] = 1
+	store.milestoneTotal[c.ID] = 100
+
+	// Nothing set at all.
+	_, err := svc.Submit(c.ID)
+	if !isCode(err, "ORG_NOT_FUNDING_ELIGIBLE") {
+		t.Fatalf("expected ORG_NOT_FUNDING_ELIGIBLE, got %v", err)
+	}
+	appErr := err.(*AppError)
+	for _, want := range []string{
+		"organization verification", "registration number", "country",
+		"official email", "named representative", "bank account verification",
+	} {
+		if !strings.Contains(appErr.Message, want) {
+			t.Errorf("error should name the missing %q; got %q", want, appErr.Message)
+		}
+	}
+
+	// Verified alone is still not enough.
+	store.verified[orgID] = true
+	if _, err := svc.Submit(c.ID); err != nil {
+		t.Fatalf("fully eligible org should submit: %v", err)
+	}
+}
+
+func TestFundingEligible_PartialPaperwork(t *testing.T) {
+	set := "x"
+	org := &domain.Organization{
+		Verified:            true,
+		RegistrationNumber:  &set,
+		Country:             &set,
+		OfficialEmail:       &set,
+		RepresentativeName:  &set,
+		BankAccountVerified: false, // the one gap
+	}
+	ok, missing := org.FundingEligible()
+	if ok {
+		t.Fatalf("should not be eligible without bank verification")
+	}
+	if len(missing) != 1 || missing[0] != "bank account verification" {
+		t.Fatalf("expected exactly the bank gap, got %v", missing)
+	}
+
+	org.BankAccountVerified = true
+	if ok, missing := org.FundingEligible(); !ok {
+		t.Fatalf("should be eligible now, missing %v", missing)
+	}
+
+	// Whitespace is not a value.
+	blank := "   "
+	org.Country = &blank
+	if ok, _ := org.FundingEligible(); ok {
+		t.Fatalf("a whitespace-only country must not count as supplied")
+	}
+}
+
+func TestPause_RequiresValidCodeAndNote(t *testing.T) {
+	store := newFakeStore()
+	orgID := uuid.NewString()
+	store.verified[orgID] = true
+	svc := NewService(store)
+	c := mustCreate(t, svc, orgID)
+	store.milestoneCount[c.ID] = 1
+	store.milestoneTotal[c.ID] = 100
+	mustSubmitApprovePublish(t, svc, c.ID)
+
+	if _, err := svc.Pause(c.ID, "BECAUSE_I_SAID_SO", "note"); !isCode(err, "INVALID_PAUSE_REASON") {
+		t.Fatalf("expected INVALID_PAUSE_REASON, got %v", err)
+	}
+	if _, err := svc.Pause(c.ID, string(domain.PauseFraudDetected), "  "); !isCode(err, "PAUSE_NOTE_REQUIRED") {
+		t.Fatalf("expected PAUSE_NOTE_REQUIRED, got %v", err)
+	}
+
+	got, err := svc.Pause(c.ID, "fraud_detected", "Duplicate of an existing campaign.")
+	if err != nil {
+		t.Fatalf("pause: %v", err)
+	}
+	if got.Status != domain.CampaignPaused {
+		t.Fatalf("expected PAUSED, got %s", got.Status)
+	}
+	if got.PauseReasonCode == nil || *got.PauseReasonCode != domain.PauseFraudDetected {
+		t.Fatalf("expected FRAUD_DETECTED (case-insensitive input), got %v", got.PauseReasonCode)
+	}
+	if got.PauseNote == nil || *got.PauseNote != "Duplicate of an existing campaign." {
+		t.Fatalf("note not stored: %v", got.PauseNote)
+	}
+
+	resumed, err := svc.Resume(c.ID)
+	if err != nil {
+		t.Fatalf("resume: %v", err)
+	}
+	if resumed.PauseReasonCode != nil || resumed.PauseNote != nil {
+		t.Fatalf("resume must clear both code and note")
+	}
+}
+
+// The public projection is the thing standing between an in-progress review
+// and the open internet.
+func TestPublicProjection_OmitsReviewTrail(t *testing.T) {
+	note := "Inflated quote, ask for the works department invoice."
+	reviewer := uuid.NewString()
+	code := domain.PauseMisuseReported
+	c := &domain.Campaign{
+		ID: uuid.NewString(), Slug: "flood-relief", Title: "Flood relief",
+		Status: domain.CampaignPublished, GoalMinor: 500, Currency: "NGN",
+		ApprovalStatus: "APPROVED", ReviewNote: &note, ReviewedByID: &reviewer,
+		PauseReasonCode: &code, PauseNote: &note,
+	}
+	pub := toPublic(c, "Otukpo Trust")
+
+	blob, err := json.Marshal(pub)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	s := string(blob)
+	for _, leaked := range []string{
+		"reviewNote", "reviewedById", "approvalStatus", "submittedAt",
+		"pauseNote", "riskScore", "createdById",
+		note, reviewer,
+	} {
+		if strings.Contains(s, leaked) {
+			t.Errorf("public payload leaks %q: %s", leaked, s)
+		}
+	}
+	// But the things a donor is owed ARE there.
+	for _, want := range []string{"goalMinor", "raisedMinor", "organizationName", "pauseReasonCode"} {
+		if !strings.Contains(s, want) {
+			t.Errorf("public payload should expose %q", want)
+		}
+	}
+}
+
+// A non-public campaign must be indistinguishable from one that never
+// existed — 404, not 403, or the slug becomes an oracle for drafts.
+func TestGetPublicBySlug_HidesNonPublicAsNotFound(t *testing.T) {
+	store := newFakeStore()
+	svc := NewService(store)
+	c := mustCreate(t, svc, uuid.NewString())
+
+	for _, st := range []domain.CampaignStatus{
+		domain.CampaignDraft, domain.CampaignPendingReview,
+		domain.CampaignNeedsChanges, domain.CampaignApproved,
+		domain.CampaignRejected, domain.CampaignPaused, domain.CampaignArchived,
+	} {
+		store.items[c.ID].Status = st
+		_, err := svc.GetPublicBySlug(c.Slug)
+		if !isCode(err, "CAMPAIGN_NOT_FOUND") {
+			t.Errorf("%s should be hidden as NOT_FOUND, got %v", st, err)
+		}
+	}
+
+	for _, st := range []domain.CampaignStatus{
+		domain.CampaignPublished, domain.CampaignFunded,
+		domain.CampaignCompleted, domain.CampaignReported,
+	} {
+		store.items[c.ID].Status = st
+		if _, err := svc.GetPublicBySlug(c.Slug); err != nil {
+			t.Errorf("%s should be publicly visible, got %v", st, err)
+		}
+	}
+}
+
+func mustSubmitApprovePublish(t *testing.T, svc *Service, id string) {
+	t.Helper()
+	if _, err := svc.Submit(id); err != nil {
+		t.Fatalf("submit: %v", err)
+	}
+	if _, err := svc.Review(id, "APPROVED", nil, uuid.NewString()); err != nil {
+		t.Fatalf("approve: %v", err)
+	}
+	if _, err := svc.Publish(id); err != nil {
+		t.Fatalf("publish: %v", err)
+	}
+}
