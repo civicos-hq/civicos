@@ -11,6 +11,8 @@ import { RateLimitToast } from './components/RateLimitToast';
 // most (marketing → sign-up conversion).
 import { HomePage } from './routes/HomePage';
 import { PrivacyPage } from './routes/PrivacyPage';
+import { CampaignsPage } from './routes/CampaignsPage';
+import { CampaignDetailPage } from './routes/CampaignDetailPage';
 import { TermsPage } from './routes/TermsPage';
 import { LoginPage } from './routes/LoginPage';
 import { RegisterPage } from './routes/RegisterPage';
@@ -164,6 +166,13 @@ function AppRoutes() {
       {/* Privacy policy — always reachable regardless of auth state. */}
       <Route path="/privacy" element={<PrivacyPage />} />
       <Route path="/terms" element={<TermsPage />} />
+
+      {/* Community Funding — public campaign pages. Outside RequireAuth on
+          purpose: a citizen following a shared campaign link has no session
+          and must not be bounced to /login. The API behind these is
+          unauthenticated too. */}
+      <Route path="/campaigns" element={<CampaignsPage />} />
+      <Route path="/campaigns/:slug" element={<CampaignDetailPage />} />
 
       {/* Authenticated */}
       <Route element={<RequireAuth />}>
