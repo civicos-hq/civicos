@@ -46,6 +46,25 @@ type UpdateInput struct {
 	// separate from other org edits — an audit-loggable action in its
 	// own right (see admin/organizations page).
 	Verified *bool `json:"verified"`
+
+	// ─── Funding paperwork the ORG supplies ───
+	//
+	// These are the organization's own documents, so org admins may edit
+	// them. What they cannot do is attest to them: BankAccountVerified is
+	// NOT here — it lives on SetFundingVerification, platform-admin only.
+	// An org that could self-certify its bank account would make the whole
+	// funding-eligibility gate decorative.
+	RegistrationNumber    *string `json:"registrationNumber"`
+	Country               *string `json:"country"`
+	OfficialEmail         *string `json:"officialEmail"`
+	RepresentativeName    *string `json:"representativeName"`
+	SupportingDocumentURL *string `json:"supportingDocumentUrl"`
+}
+
+// FundingVerificationInput is the platform admin's attestation that the
+// organization's settlement account has been checked out-of-band.
+type FundingVerificationInput struct {
+	BankAccountVerified bool `json:"bankAccountVerified"`
 }
 
 type AddMemberInput struct {
@@ -112,12 +131,64 @@ func (s *Service) Update(id string, input UpdateInput) (*domain.Organization, er
 	if input.Verified != nil {
 		updates["verified"] = *input.Verified
 	}
+	if input.RegistrationNumber != nil {
+		updates["registration_number"] = *input.RegistrationNumber
+	}
+	if input.Country != nil {
+		updates["country"] = *input.Country
+	}
+	if input.OfficialEmail != nil {
+		updates["official_email"] = *input.OfficialEmail
+	}
+	if input.RepresentativeName != nil {
+		updates["representative_name"] = *input.RepresentativeName
+	}
+	if input.SupportingDocumentURL != nil {
+		updates["supporting_document_url"] = *input.SupportingDocumentURL
+	}
 	if len(updates) > 0 {
 		if err := s.repo.Update(id, updates); err != nil {
 			return nil, err
 		}
 	}
 	return s.Get(id)
+}
+
+// SetFundingVerification records a platform admin's attestation about the
+// organization's settlement account. Separate from Update because it is a
+// different kind of claim: Update edits what the org says about itself,
+// this records what the platform has checked.
+//
+// Clearing it (false) also clears the reviewer stamp, so a revoked
+// attestation cannot be mistaken for a current one.
+func (s *Service) SetFundingVerification(id string, input FundingVerificationInput, reviewerID string) (*domain.Organization, error) {
+	if _, err := s.Get(id); err != nil {
+		return nil, err
+	}
+	updates := map[string]any{"bank_account_verified": input.BankAccountVerified}
+	if input.BankAccountVerified {
+		now := time.Now().UTC()
+		updates["funding_verified_at"] = now
+		updates["funding_verified_by_id"] = reviewerID
+	} else {
+		updates["funding_verified_at"] = nil
+		updates["funding_verified_by_id"] = nil
+	}
+	if err := s.repo.Update(id, updates); err != nil {
+		return nil, err
+	}
+	return s.Get(id)
+}
+
+// FundingEligibility exposes the gate's verdict so the admin console can show
+// an organization exactly what is outstanding, without duplicating the rule.
+func (s *Service) FundingEligibility(id string) (bool, []string, error) {
+	org, err := s.Get(id)
+	if err != nil {
+		return false, nil, err
+	}
+	ok, missing := org.FundingEligible()
+	return ok, missing, nil
 }
 
 func (s *Service) ListMembers(orgID string) ([]domain.OrgMember, error) {

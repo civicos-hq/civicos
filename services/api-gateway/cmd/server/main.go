@@ -289,6 +289,54 @@ func main() {
 	// Outcome (close-the-loop).
 	r.POST("/api/v1/consultations/:id/outcome", authMiddleware, limitStandard, orgProxy)
 
+	// Community Funding — Phase 1: campaigns + milestone spend plan.
+	// Every route is authenticated. There is deliberately no public read
+	// here: the public campaign surface lands in Phase 4 alongside the
+	// transparency dashboard, so a campaign cannot become publicly visible
+	// before there is anywhere to show where its money went. See
+	// docs/product/community-funding-plan.md.
+	//
+	// limitStandard throughout, matching the sibling org authoring routes
+	// (announcements, projects, consultations) for the same reason: org
+	// owners iterate on drafts and hit server-side validation while
+	// composing, and the tight citizen Create budget made that brittle.
+	// When donations arrive in Phase 3 they get their own tighter bucket —
+	// a payment intent is not an authoring action.
+	// Public campaign reads (Phase 2). Unauthenticated on purpose — this is
+	// the transparency surface, and it ships before any money can move
+	// through it. The service returns a DTO that omits the review trail.
+	r.GET("/api/v1/campaigns", orgProxy)
+	r.GET("/api/v1/campaigns/slug/:slug", orgProxy)
+
+	// Org funding verification: the paperwork the org supplies rides on the
+	// existing org PATCH; the bank-account attestation is platform-admin
+	// only and has its own route so an org cannot self-certify.
+	r.PATCH("/api/v1/organizations/:id/funding-verification", authMiddleware, limitStandard, orgProxy)
+	r.GET("/api/v1/organizations/:id/funding-eligibility", authMiddleware, orgProxy)
+
+	r.GET("/api/v1/organizations/:id/campaigns", authMiddleware, orgProxy)
+	r.POST("/api/v1/organizations/:id/campaigns", authMiddleware, limitStandard, orgProxy)
+	r.GET("/api/v1/campaigns/:campaignId", authMiddleware, orgProxy)
+	r.PATCH("/api/v1/campaigns/:campaignId", authMiddleware, limitStandard, orgProxy)
+	r.DELETE("/api/v1/campaigns/:campaignId", authMiddleware, limitStandard, orgProxy)
+	// Org-driven lifecycle.
+	r.POST("/api/v1/campaigns/:campaignId/submit", authMiddleware, limitStandard, orgProxy)
+	r.POST("/api/v1/campaigns/:campaignId/publish", authMiddleware, limitStandard, orgProxy)
+	r.POST("/api/v1/campaigns/:campaignId/complete", authMiddleware, limitStandard, orgProxy)
+	r.POST("/api/v1/campaigns/:campaignId/report", authMiddleware, limitStandard, orgProxy)
+	// Platform-admin review queue + governance. Role is enforced inside
+	// organization-service; the gateway only guarantees authentication.
+	r.GET("/api/v1/admin/campaigns", authMiddleware, orgProxy)
+	r.POST("/api/v1/campaigns/:campaignId/review", authMiddleware, limitStandard, orgProxy)
+	r.POST("/api/v1/campaigns/:campaignId/pause", authMiddleware, limitStandard, orgProxy)
+	r.POST("/api/v1/campaigns/:campaignId/resume", authMiddleware, limitStandard, orgProxy)
+	r.POST("/api/v1/campaigns/:campaignId/archive", authMiddleware, limitStandard, orgProxy)
+	// Milestones (the spend plan).
+	r.GET("/api/v1/campaigns/:campaignId/milestones", authMiddleware, orgProxy)
+	r.POST("/api/v1/campaigns/:campaignId/milestones", authMiddleware, limitStandard, orgProxy)
+	r.PATCH("/api/v1/milestones/:milestoneId", authMiddleware, limitStandard, orgProxy)
+	r.DELETE("/api/v1/milestones/:milestoneId", authMiddleware, limitStandard, orgProxy)
+
 	// --- CivicAI Service ---
 	// AI endpoints share the Standard rate-limit tier. Each Gemini call costs
 	// real money, so authoring-style traffic (org drafting an announcement,

@@ -834,5 +834,42 @@
       "ngos": "NGO",
       "communities": "Àdúgbò"
     }
+  },
+  "campaigns": {
+    "seoTitle": "Ìnáwó àdúgbò — CivicOS",
+    "seoDescription": "Àwọn àjọ tí a ti rí gbà tí wọ́n ń kó owó jọ fún iṣẹ́ àdúgbò. Gbogbo ìpolongo ń fi àfojúsùn rẹ̀ hàn àti bí a ṣe máa ná owó náà.",
+    "detailSeoFallback": "Ìpolongo — CivicOS",
+    "title": "Ìnáwó àdúgbò",
+    "lede": "Àwọn àjọ tí a ti rí gbà tí wọ́n ń kó owó jọ fún iṣẹ́ àdúgbò. Gbogbo ìpolongo gbọ́dọ̀ tẹ àfojúsùn àti ètò ìnáwó rẹ̀ jáde kí ó tó lè gba náírà kan.",
+    "filterLabel": "Ṣàyẹ̀wò ìpolongo",
+    "emergency": "Pàjáwìrì",
+    "emergencyOnly": "Pàjáwìrì nìkan",
+    "empty": "A kò tí ì tẹ ìpolongo kankan jáde. Nígbà tí àjọ tí a ti rí gbà bá tẹ ọ̀kan jáde, yóò hàn níbí.",
+    "notFound": "Ìpolongo yìí kò sí. Ó lè jẹ́ pé a kò tí ì tẹ̀ ẹ́ jáde, tàbí ọ̀nà náà kò tọ́.",
+    "backToAll": "← Gbogbo ìpolongo",
+    "ofGoal": "nínú àfojúsùn {{goal}}",
+    "progressLabel": "{{percent}}% nínú àfojúsùn owó ni a ti rí",
+    "runBy": "{{org}} ni ó ń darí rẹ̀",
+    "spendPlan": "Bí a ṣe máa ná owó náà",
+    "spendPlanLede": "A pín {{allocated}} nínú àfojúsùn {{goal}} sí àwọn ìgbésẹ̀ wọ̀nyí.",
+    "donorCount_one": "Olùrànlọ́wọ́ {{count}}",
+    "donorCount_other": "Àwọn olùrànlọ́wọ́ {{count}}",
+    "donationsSoon": "Ìrànlọ́wọ́ yóò ṣí láìpẹ́. A tẹ ìpolongo yìí jáde kí o lè rí ètò náà kí ó tó bẹ̀rẹ̀ sí kó owó jọ.",
+    "trustNote": "Àwọn àjọ tí a ti rí gbà nìkan ló lè tẹ ìpolongo jáde.",
+    "categories": {
+      "all": "Gbogbo rẹ̀",
+      "emergencyRelief": "Ìrànlọ́wọ́ pàjáwìrì",
+      "communityDevelopment": "Ìdàgbàsókè àdúgbò",
+      "education": "Ẹ̀kọ́",
+      "healthcare": "Ìlera",
+      "environment": "Àyíká",
+      "agriculture": "Àgbẹ̀",
+      "other": "Mìíràn"
+    },
+    "milestoneStatus": {
+      "planned": "A ti ṣètò",
+      "in_progress": "Ó ń lọ lọ́wọ́",
+      "completed": "Ó ti parí"
+    }
   }
 }

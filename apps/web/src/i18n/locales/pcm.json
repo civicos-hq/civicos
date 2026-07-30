@@ -1063,5 +1063,42 @@
         "comments": "Comments"
       }
     }
+  },
+  "campaigns": {
+    "seoTitle": "Community funding — CivicOS",
+    "seoDescription": "Verified organizations wey dey raise money for local project. Every campaign dey show im goal and how dem go spend the money.",
+    "detailSeoFallback": "Campaign — CivicOS",
+    "title": "Community funding",
+    "lede": "Verified organizations wey dey raise money for local project. Every campaign must publish im goal and spend plan before e fit collect one naira.",
+    "filterLabel": "Filter campaigns",
+    "emergency": "Emergency",
+    "emergencyOnly": "Emergency only",
+    "empty": "No campaign don publish yet. When verified organization publish one, e go show here.",
+    "notFound": "This campaign no dey available. E fit be say dem never publish am, or the link no correct.",
+    "backToAll": "← All campaigns",
+    "ofGoal": "out of {{goal}} goal",
+    "progressLabel": "{{percent}}% of the funding goal don enter",
+    "runBy": "{{org}} dey run am",
+    "spendPlan": "How dem go spend the money",
+    "spendPlanLede": "{{allocated}} out of the {{goal}} goal don share across these milestones.",
+    "donorCount_one": "{{count}} donor",
+    "donorCount_other": "{{count}} donors",
+    "donationsSoon": "Donation go soon open. Dem publish this campaign so you fit see the plan before e start to raise money.",
+    "trustNote": "Na only verified organization fit publish campaign.",
+    "categories": {
+      "all": "All",
+      "emergencyRelief": "Emergency relief",
+      "communityDevelopment": "Community development",
+      "education": "Education",
+      "healthcare": "Healthcare",
+      "environment": "Environment",
+      "agriculture": "Agriculture",
+      "other": "Other"
+    },
+    "milestoneStatus": {
+      "planned": "Planned",
+      "in_progress": "Dey go on",
+      "completed": "Don finish"
+    }
   }
 }

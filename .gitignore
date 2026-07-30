@@ -104,7 +104,7 @@ Screen Shot*.png
 # Scoped to these exact paths rather than a blanket *.pdf, because the five
 # source documents in docs/product/ (Blueprint, Roadmap, Technical
 # Architecture, Experience Architecture, Engineering Playbook) ARE tracked.
-/CivicOS Community Funding Feature.pdf
+/docs/product/CivicOS Community Funding Feature.pdf
 /docs/product/How People Detect AI-Generated Websites.pdf
 
 # ─── Misc ────────────────────────────────────────────────────────────────────

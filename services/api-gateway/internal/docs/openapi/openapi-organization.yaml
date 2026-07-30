@@ -60,6 +60,15 @@ tags:
     description: Verified-user response submission and admin-only response reads.
   - name: Consultation Outcomes
     description: Post-close outcome publishing — the "close the loop" primitive.
+  - name: Campaigns
+    description: |
+      Community Funding campaigns. Phase 1 of the funding module: campaign
+      authoring, the milestone spend plan, and the verification lifecycle.
+      There are **no public routes and no payment endpoints yet** — see
+      docs/product/community-funding-plan.md for the phase order and why
+      transparency ships before money.
+  - name: Milestones
+    description: A campaign's spend plan. Editable only while the campaign is DRAFT or NEEDS_CHANGES.
 
 security:
   - bearerAuth: []
@@ -98,6 +107,69 @@ components:
     AssignmentStatus:
       type: string
       enum: [RECEIVED, IN_PROGRESS, COMPLETED, REJECTED]
+    CampaignStatus:
+      type: string
+      description: |
+        Campaign lifecycle. Adds NEEDS_CHANGES / REJECTED / PAUSED to the
+        product spec's diagram, which had no failure states despite its own
+        Governance section requiring a pause. FUNDED is set by the platform
+        from settled donations (Phase 3) and cannot be asserted by a user.
+      enum:
+        [
+          DRAFT,
+          PENDING_REVIEW,
+          NEEDS_CHANGES,
+          APPROVED,
+          PUBLISHED,
+          FUNDED,
+          PAUSED,
+          REJECTED,
+          COMPLETED,
+          REPORTED,
+          ARCHIVED,
+        ]
+    CampaignCategory:
+      type: string
+      description: |
+        The spec's seven groups. Stored at group level — the spec's leaf
+        examples ("Flood", "Fire") are description detail, not taxonomy.
+      enum:
+        [
+          EMERGENCY_RELIEF,
+          COMMUNITY_DEVELOPMENT,
+          EDUCATION,
+          HEALTHCARE,
+          ENVIRONMENT,
+          AGRICULTURE,
+          OTHER,
+        ]
+    MilestoneStatus:
+      type: string
+      enum: [PLANNED, IN_PROGRESS, COMPLETED]
+    PauseReason:
+      type: string
+      description: |
+        The five Governance triggers from the product spec, plus OTHER. A
+        code rather than free text so pauses are countable and filterable —
+        these are the grounds on which a live fundraiser is stopped. A
+        free-text note is required alongside.
+      enum:
+        [
+          FRAUD_DETECTED,
+          VERIFICATION_EXPIRED,
+          MISUSE_REPORTED,
+          ORGANIZATION_SUSPENDED,
+          FALSE_INFORMATION,
+          OTHER,
+        ]
+    CampaignCurrency:
+      type: string
+      description: |
+        ISO-4217. Allow-listed rather than free-form so Phase 3 cannot
+        inherit campaigns denominated in a currency no payment provider can
+        settle. Immutable after creation.
+      enum: [NGN, GBP, USD, EUR]
+      default: NGN
 
     Organization:
       type: object
@@ -1525,3 +1597,737 @@ paths:
                         message: Close the consultation before publishing an outcome,
                       },
                   }
+
+  # ─────────────────────── CAMPAIGNS (Community Funding, Phase 1) ───────────────────────
+  # Every route below requires auth. Reads need membership of the owning org
+  # (any role, incl. STAFF) or PLATFORM_ADMIN; writes need OWNER/ADMIN.
+  # The public campaign surface arrives in Phase 4 with the transparency
+  # dashboard, so a campaign cannot become publicly visible before there is
+  # somewhere to show where its money went.
+
+  /organizations/{id}/campaigns:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Campaigns]
+      summary: List an organization's campaigns (members only)
+      description: |
+        Members-only, including drafts and rejected campaigns. Uses the
+        member-read check rather than the admin check so STAFF can see the
+        org's campaigns without being able to change them.
+      parameters:
+        - in: query
+          name: status
+          schema: { $ref: '#/components/schemas/CampaignStatus' }
+        - in: query
+          name: category
+          schema: { $ref: '#/components/schemas/CampaignCategory' }
+      responses:
+        '200': { description: Campaigns. }
+        '403': { description: Not a member of this organization. }
+    post:
+      tags: [Campaigns]
+      summary: Create a campaign draft (org admin)
+      description: |
+        Always created as DRAFT. The organization does **not** need to be
+        verified to draft — verification is checked at submit time, so an org
+        can prepare a campaign while its verification is still pending.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, summary, description, category, goalMinor]
+              properties:
+                title: { type: string, minLength: 4, maxLength: 160 }
+                summary: { type: string, minLength: 10, maxLength: 300 }
+                description: { type: string, minLength: 40 }
+                category: { $ref: '#/components/schemas/CampaignCategory' }
+                currency: { $ref: '#/components/schemas/CampaignCurrency' }
+                goalMinor:
+                  type: integer
+                  format: int64
+                  minimum: 1
+                  description: |
+                    Funding goal in the currency's **minor units** (kobo for
+                    NGN, pence for GBP). Integer, never a decimal — binary
+                    floats cannot represent 0.01 exactly and rounding drift
+                    on money is a defect.
+                coverImageUrl: { type: string, nullable: true }
+                communityId: { type: string, format: uuid, nullable: true }
+                projectId:
+                  type: string
+                  format: uuid
+                  nullable: true
+                  description: Links an existing Project so it becomes a fundable initiative.
+                state: { type: string, nullable: true }
+                lga: { type: string, nullable: true }
+                startDate: { type: string, format: date-time, nullable: true }
+                endDate: { type: string, format: date-time, nullable: true }
+                isEmergency:
+                  type: boolean
+                  default: false
+                  description: |
+                    Marks the campaign for the platform's fast review queue.
+                    Does not relax any verification requirement.
+            examples:
+              default:
+                value:
+                  title: Solar streetlights for Otukpo market road
+                  summary: Replace the failed lighting along the market approach road.
+                  description: The market road has had no working streetlights since March. Traders leaving after dark have been robbed on the unlit stretch between the motor park and the main gate.
+                  category: COMMUNITY_DEVELOPMENT
+                  currency: NGN
+                  goalMinor: 15000000
+                  state: Benue
+                  lga: Otukpo
+      responses:
+        '201': { description: Campaign created as DRAFT. }
+        '400':
+          description: Validation failed.
+          content:
+            application/json:
+              examples:
+                invalidGoal:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: INVALID_GOAL,
+                        message: Funding goal must be greater than zero,
+                      },
+                  }
+                unsupportedCurrency:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: UNSUPPORTED_CURRENCY,
+                        message: Campaign currency is not supported,
+                      },
+                  }
+                invalidCategory:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: INVALID_CATEGORY,
+                        message: Unknown campaign category,
+                      },
+                  }
+        '403': { description: Not an owner/admin of this organization. }
+
+  /campaigns/{campaignId}:
+    parameters:
+      - in: path
+        name: campaignId
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Campaigns]
+      summary: Get a campaign (members only)
+      responses:
+        '200': { description: Campaign detail. }
+        '404':
+          description: Not found.
+          content:
+            application/json:
+              examples:
+                default:
+                  {
+                    value:
+                      { success: false, code: CAMPAIGN_NOT_FOUND, message: Campaign not found },
+                  }
+    patch:
+      tags: [Campaigns]
+      summary: Update a campaign (org admin, DRAFT or NEEDS_CHANGES only)
+      description: |
+        Content is frozen once the campaign enters review: a donor who reads
+        a campaign and gives money must be giving to the thing they read.
+
+        `currency` and `status` are deliberately not editable here — currency
+        is immutable after creation, and status moves only through the
+        guarded lifecycle endpoints so no PATCH body can skip review.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                summary: { type: string }
+                description: { type: string }
+                category: { $ref: '#/components/schemas/CampaignCategory' }
+                goalMinor: { type: integer, format: int64 }
+                coverImageUrl: { type: string, nullable: true }
+                communityId: { type: string, format: uuid, nullable: true }
+                projectId: { type: string, format: uuid, nullable: true }
+                state: { type: string, nullable: true }
+                lga: { type: string, nullable: true }
+                startDate: { type: string, format: date-time, nullable: true }
+                endDate: { type: string, format: date-time, nullable: true }
+                isEmergency: { type: boolean }
+      responses:
+        '200': { description: Updated campaign. }
+        '409':
+          description: Campaign is no longer editable.
+          content:
+            application/json:
+              examples:
+                default:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: CAMPAIGN_NOT_EDITABLE,
+                        message: Only draft campaigns or ones sent back for changes can be edited,
+                      },
+                  }
+    delete:
+      tags: [Campaigns]
+      summary: Delete a campaign (org admin, DRAFT only)
+      description: |
+        Anything that has been through review is part of the public record of
+        what this organization asked for, and is archived rather than deleted.
+      responses:
+        '200': { description: Deleted. }
+        '409':
+          description: Only drafts can be deleted.
+          content:
+            application/json:
+              examples:
+                default:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: CAMPAIGN_NOT_DELETABLE,
+                        message: Only draft campaigns can be deleted; submitted campaigns are archived instead,
+                      },
+                  }
+
+  /campaigns/{campaignId}/submit:
+    parameters:
+      - in: path
+        name: campaignId
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [Campaigns]
+      summary: Submit for verification review (org admin)
+      description: |
+        DRAFT | NEEDS_CHANGES → PENDING_REVIEW. This is the gate the spec's
+        "Trust First" principle lives behind, so all three checks are
+        server-side:
+
+        1. the owning organization must be **funding eligible** — verified,
+           plus registration number, country, official email, a named
+           representative and bank-account verification (see
+           `GET /organizations/{id}/funding-eligibility`)
+        2. there must be **at least one milestone** (a spend plan)
+        3. milestone targets must **not exceed the goal**
+
+        Also clears any previous reviewer verdict so the queue shows a fresh
+        decision rather than a stale "needs changes" note.
+      responses:
+        '200': { description: Campaign is now PENDING_REVIEW. }
+        '400':
+          description: Not ready for review.
+          content:
+            application/json:
+              examples:
+                noMilestones:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: NO_MILESTONES,
+                        message: Add at least one milestone describing how the funds will be spent,
+                      },
+                  }
+                exceedsGoal:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: MILESTONES_EXCEED_GOAL,
+                        message: Milestone targets add up to more than the funding goal,
+                      },
+                  }
+        '409':
+          description: Organization not verified, or campaign is not in a submittable state.
+          content:
+            application/json:
+              examples:
+                notEligible:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: ORG_NOT_FUNDING_ELIGIBLE,
+                        message: 'Your organization cannot raise funds yet — still needed: registration number, bank account verification',
+                      },
+                  }
+                badTransition:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: CAMPAIGN_INVALID_TRANSITION,
+                        message: Cannot move a campaign from PUBLISHED to PENDING_REVIEW,
+                      },
+                  }
+
+  /campaigns/{campaignId}/publish:
+    parameters:
+      - in: path
+        name: campaignId
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [Campaigns]
+      summary: Publish an approved campaign (org admin)
+      description: |
+        APPROVED → PUBLISHED. Approval is permission to publish, not
+        publication — the org chooses the moment, which matters for an
+        emergency campaign launching alongside an announcement.
+      responses:
+        '200': { description: Campaign is now PUBLISHED. }
+        '409': { description: Campaign is not APPROVED. }
+
+  /campaigns/{campaignId}/complete:
+    parameters:
+      - in: path
+        name: campaignId
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [Campaigns]
+      summary: Mark the work complete (org admin)
+      description: PUBLISHED | FUNDED → COMPLETED.
+      responses:
+        '200': { description: Campaign is now COMPLETED. }
+        '409': { description: Invalid transition. }
+
+  /campaigns/{campaignId}/report:
+    parameters:
+      - in: path
+        name: campaignId
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [Campaigns]
+      summary: Publish the final report (org admin)
+      description: |
+        COMPLETED → REPORTED. Publishing the final report is the gate for
+        archiving, so a campaign cannot be quietly retired without accounting
+        for what it did.
+      responses:
+        '200': { description: Campaign is now REPORTED. }
+        '409': { description: Invalid transition. }
+
+  # ─────────────────────── CAMPAIGN GOVERNANCE (platform admin) ───────────────────────
+
+  /admin/campaigns:
+    get:
+      tags: [Campaigns]
+      summary: Platform review queue (platform admin)
+      description: Defaults to PENDING_REVIEW. `emergency=true` surfaces the fast path.
+      parameters:
+        - in: query
+          name: status
+          schema: { $ref: '#/components/schemas/CampaignStatus' }
+        - in: query
+          name: category
+          schema: { $ref: '#/components/schemas/CampaignCategory' }
+        - in: query
+          name: emergency
+          schema: { type: boolean }
+      responses:
+        '200': { description: Campaigns awaiting review. }
+        '403': { description: Platform admins only. }
+
+  /campaigns/{campaignId}/review:
+    parameters:
+      - in: path
+        name: campaignId
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [Campaigns]
+      summary: Approve, request changes, or reject (platform admin)
+      description: |
+        PENDING_REVIEW → APPROVED | NEEDS_CHANGES | REJECTED. An organization
+        cannot review its own campaign — "Trust First" is meaningless if the
+        applicant can approve itself.
+
+        A `note` is **required** for anything other than approval: telling an
+        organization its flood-relief campaign is rejected without saying why
+        is not a usable product.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [decision]
+              properties:
+                decision: { type: string, enum: [APPROVED, NEEDS_CHANGES, REJECTED] }
+                note: { type: string, nullable: true }
+            examples:
+              needsChanges:
+                value:
+                  decision: NEEDS_CHANGES
+                  note: Please attach the LGA works department quote for the transformer.
+      responses:
+        '200': { description: Reviewed campaign. }
+        '400':
+          description: Invalid decision, or missing note.
+          content:
+            application/json:
+              examples:
+                noteRequired:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: REVIEW_NOTE_REQUIRED,
+                        message: Explain what needs to change or why the campaign was rejected,
+                      },
+                  }
+        '403': { description: Platform admins only. }
+
+  /campaigns/{campaignId}/pause:
+    parameters:
+      - in: path
+        name: campaignId
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [Campaigns]
+      summary: Pause a live campaign (platform admin)
+      description: |
+        PUBLISHED | FUNDED → PAUSED. Covers the spec's Governance triggers:
+        fraud detected, verification expired, misuse reported, organization
+        suspended, false information identified. A reason is required and is
+        written to the audit log.
+
+        An org cannot pause its own campaign — that lever exists for
+        oversight, not for dodging scrutiny.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reasonCode, note]
+              properties:
+                reasonCode: { $ref: '#/components/schemas/PauseReason' }
+                note:
+                  type: string
+                  description: What specifically prompted the pause. Shown to the organization and written to the audit log.
+            examples:
+              default:
+                value:
+                  reasonCode: MISUSE_REPORTED
+                  note: Two residents report the listed borehole site does not exist.
+      responses:
+        '200': { description: Campaign is now PAUSED. }
+        '400':
+          description: Unknown reason code, or missing note.
+          content:
+            application/json:
+              examples:
+                badCode:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: INVALID_PAUSE_REASON,
+                        message: Pause reason must be one of FRAUD_DETECTED,
+                        ...,
+                      },
+                  }
+                noNote:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: PAUSE_NOTE_REQUIRED,
+                        message: Record what specifically prompted this pause,
+                      },
+                  }
+        '403': { description: Platform admins only. }
+
+  /campaigns/{campaignId}/resume:
+    parameters:
+      - in: path
+        name: campaignId
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [Campaigns]
+      summary: Resume a paused campaign (platform admin)
+      description: |
+        PAUSED → PUBLISHED. Returns to PUBLISHED even if the goal was already
+        met; the platform re-derives FUNDED from the donation ledger.
+      responses:
+        '200': { description: Campaign is live again. }
+        '409': { description: Campaign is not PAUSED. }
+
+  /campaigns/{campaignId}/archive:
+    parameters:
+      - in: path
+        name: campaignId
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [Campaigns]
+      summary: Archive a reported campaign (platform admin)
+      description: REPORTED → ARCHIVED. Terminal.
+      responses:
+        '200': { description: Campaign is now ARCHIVED. }
+        '409': { description: Final report not published yet. }
+
+  # ─────────────────────── MILESTONES ───────────────────────
+
+  /campaigns/{campaignId}/milestones:
+    parameters:
+      - in: path
+        name: campaignId
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Milestones]
+      summary: List a campaign's spend plan (members only)
+      description: Ordered by `position`.
+      responses:
+        '200': { description: Milestones. }
+    post:
+      tags: [Milestones]
+      summary: Add a milestone (org admin, DRAFT or NEEDS_CHANGES only)
+      description: |
+        Milestone targets may not add up to more than the campaign goal.
+        Checked here as well as at submit time so the org sees the error
+        while building the plan, not minutes later at the review gate.
+
+        `position` defaults to the end of the list.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, targetMinor]
+              properties:
+                title: { type: string, minLength: 3, maxLength: 160 }
+                description: { type: string, nullable: true }
+                targetMinor: { type: integer, format: int64, minimum: 1 }
+                position: { type: integer, nullable: true }
+            examples:
+              default:
+                value:
+                  title: Purchase and deliver 40 solar units
+                  description: Includes poles, fittings and installation labour.
+                  targetMinor: 9000000
+      responses:
+        '201': { description: Milestone created. }
+        '400':
+          description: Invalid target, or the plan would exceed the goal.
+          content:
+            application/json:
+              examples:
+                exceedsGoal:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: MILESTONES_EXCEED_GOAL,
+                        message: Milestone targets would add up to more than the funding goal,
+                      },
+                  }
+        '409':
+          description: Campaign is no longer editable.
+
+  /milestones/{milestoneId}:
+    parameters:
+      - in: path
+        name: milestoneId
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      tags: [Milestones]
+      summary: Update a milestone (org admin)
+      description: |
+        Two different permissions in one endpoint, deliberately:
+
+        - **Plan edits** (`title`, `description`, `targetMinor`, `position`)
+          require the campaign to be DRAFT or NEEDS_CHANGES.
+        - **`status`** is progress reporting and is allowed on a live
+          campaign, because an org must be able to report a milestone done
+          while the campaign is running.
+
+        Setting status to COMPLETED stamps `completedAt`; moving it back
+        clears the stamp rather than leaving a stale completion date.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                description: { type: string, nullable: true }
+                targetMinor: { type: integer, format: int64 }
+                position: { type: integer }
+                status: { $ref: '#/components/schemas/MilestoneStatus' }
+      responses:
+        '200': { description: Updated milestone. }
+        '400': { description: Invalid target or status. }
+        '409': { description: Plan is frozen for this campaign status. }
+    delete:
+      tags: [Milestones]
+      summary: Delete a milestone (org admin, DRAFT or NEEDS_CHANGES only)
+      responses:
+        '200': { description: Deleted. }
+        '409': { description: Campaign is no longer editable. }
+
+  # ─────────────────────── PUBLIC CAMPAIGNS (Phase 2) ───────────────────────
+  # Unauthenticated. Returns a projection (not the domain model) that omits
+  # the review trail — approvalStatus, reviewNote, reviewedById, submittedAt
+  # and the free-text pause note are all withheld. See public.go.
+
+  /campaigns:
+    get:
+      tags: [Campaigns]
+      security: []
+      summary: Browse published campaigns (public)
+      description: |
+        Only campaigns in a citizen-visible status are returned: PUBLISHED,
+        FUNDED, COMPLETED, REPORTED. The allow-list lives in the repository so
+        a status added later defaults to hidden.
+      parameters:
+        - in: query
+          name: category
+          schema: { $ref: '#/components/schemas/CampaignCategory' }
+        - in: query
+          name: organizationId
+          schema: { type: string, format: uuid }
+        - in: query
+          name: communityId
+          schema: { type: string, format: uuid }
+        - in: query
+          name: state
+          schema: { type: string }
+        - in: query
+          name: lga
+          schema: { type: string }
+        - in: query
+          name: emergency
+          schema: { type: boolean }
+      responses:
+        '200': { description: Public campaign summaries. }
+
+  /campaigns/slug/{slug}:
+    parameters:
+      - in: path
+        name: slug
+        required: true
+        schema: { type: string }
+    get:
+      tags: [Campaigns]
+      security: []
+      summary: Read a published campaign by slug (public)
+      description: |
+        Returns the campaign plus its milestone spend plan — the Phase 2
+        transparency surface: a citizen can see the goal and exactly how the
+        money is meant to be spent, before the campaign can accept anything.
+
+        A campaign in a non-public status returns **404, not 403**. A 403
+        would confirm that a campaign with that slug exists and is merely
+        hidden, turning the slug into an oracle for drafts and rejected
+        applications.
+      responses:
+        '200': { description: Public campaign detail with milestones. }
+        '404':
+          description: No published campaign with that slug.
+          content:
+            application/json:
+              examples:
+                default:
+                  {
+                    value:
+                      { success: false, code: CAMPAIGN_NOT_FOUND, message: Campaign not found },
+                  }
+
+  # ─────────────────────── ORG FUNDING VERIFICATION (Phase 2) ───────────────────────
+
+  /organizations/{id}/funding-verification:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    patch:
+      tags: [Organizations]
+      summary: Record bank-account verification (platform admin)
+      description: |
+        The platform's attestation that the organization's settlement account
+        has been checked out-of-band.
+
+        Deliberately **not** a field on `PATCH /organizations/{id}`: the
+        paperwork fields (registration number, country, official email,
+        representative, supporting document) are the org's own and org admins
+        may edit them, but an organization that could self-certify its bank
+        account would make the funding-eligibility gate decorative.
+
+        Setting it to `false` also clears the reviewer stamp, so a revoked
+        attestation cannot be mistaken for a current one.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [bankAccountVerified]
+              properties:
+                bankAccountVerified: { type: boolean }
+      responses:
+        '200': { description: Updated organization. }
+        '403': { description: Platform admins only. }
+
+  /organizations/{id}/funding-eligibility:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Organizations]
+      summary: What is still outstanding before this org can raise funds (members + platform admin)
+      description: |
+        Returns the same verdict the campaign submit gate uses, so the admin
+        console and the API can never disagree about what "eligible" means.
+        `missing` names each gap in human-readable terms.
+      responses:
+        '200':
+          description: Eligibility verdict.
+          content:
+            application/json:
+              examples:
+                notEligible:
+                  {
+                    value:
+                      {
+                        success: true,
+                        data:
+                          {
+                            eligible: false,
+                            missing: [registration number, bank account verification],
+                          },
+                      },
+                  }
+        '403': { description: Members of this organization or platform admins only. }

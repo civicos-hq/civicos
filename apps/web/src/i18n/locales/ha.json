@@ -834,5 +834,42 @@
       "ngos": "NGOs",
       "communities": "Al'ummomi"
     }
+  },
+  "campaigns": {
+    "seoTitle": "Tallafin al'umma — CivicOS",
+    "seoDescription": "Ƙungiyoyin da aka tabbatar suna tara kuɗi don ayyukan gida. Kowane kamfen yana nuna burinsa da yadda za a kashe kuɗin.",
+    "detailSeoFallback": "Kamfen — CivicOS",
+    "title": "Tallafin al'umma",
+    "lede": "Ƙungiyoyin da aka tabbatar suna tara kuɗi don ayyukan gida. Kowane kamfen dole ya buga burinsa da tsarin kashe kuɗi kafin ya karɓi ko naira ɗaya.",
+    "filterLabel": "Tace kamfen",
+    "emergency": "Gaggawa",
+    "emergencyOnly": "Gaggawa kaɗai",
+    "empty": "Ba a buga wani kamfen ba tukuna. Idan ƙungiya da aka tabbatar ta buga ɗaya, zai bayyana a nan.",
+    "notFound": "Wannan kamfen ba ya samuwa. Wataƙila ba a buga shi ba tukuna, ko kuma hanyar ba daidai ba ce.",
+    "backToAll": "← Duk kamfen",
+    "ofGoal": "daga cikin burin {{goal}}",
+    "progressLabel": "Kashi {{percent}}% na burin tara kuɗi an cimma",
+    "runBy": "{{org}} ne ke gudanar da shi",
+    "spendPlan": "Yadda za a kashe kuɗin",
+    "spendPlanLede": "An raba {{allocated}} daga cikin burin {{goal}} a kan waɗannan matakai.",
+    "donorCount_one": "Mai bayarwa {{count}}",
+    "donorCount_other": "Masu bayarwa {{count}}",
+    "donationsSoon": "Bayarwa za ta buɗe nan ba da jimawa ba. An buga wannan kamfen ne domin ka ga tsarin kafin ya fara tara kuɗi.",
+    "trustNote": "Ƙungiyoyin da aka tabbatar kaɗai ne za su iya buga kamfen.",
+    "categories": {
+      "all": "Duka",
+      "emergencyRelief": "Agajin gaggawa",
+      "communityDevelopment": "Ci gaban al'umma",
+      "education": "Ilimi",
+      "healthcare": "Lafiya",
+      "environment": "Muhalli",
+      "agriculture": "Noma",
+      "other": "Sauran"
+    },
+    "milestoneStatus": {
+      "planned": "An shirya",
+      "in_progress": "Ana kan aiki",
+      "completed": "An kammala"
+    }
   }
 }

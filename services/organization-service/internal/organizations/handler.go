@@ -30,6 +30,12 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth gin.HandlerFunc) {
 	rg.GET("/:id", h.get)
 	rg.PATCH("/:id", auth, h.update)
 
+	// Funding verification is the platform's attestation about the org's
+	// settlement account, not something the org asserts about itself, so it
+	// gets its own PLATFORM_ADMIN-gated route rather than a field on PATCH.
+	rg.PATCH("/:id/funding-verification", auth, h.setFundingVerification)
+	rg.GET("/:id/funding-eligibility", auth, h.fundingEligibility)
+
 	rg.GET("/:id/members", h.listMembers)
 	rg.POST("/:id/members", auth, h.addMember)
 	rg.PATCH("/:id/members/:userId", auth, h.updateMember)
@@ -132,6 +138,66 @@ func (h *Handler) update(c *gin.Context) {
 	response.Success(c, http.StatusOK, gin.H{"organization": item})
 }
 
+// setFundingVerification records the platform's attestation that an
+// organization's settlement account has been checked out-of-band.
+//
+// PLATFORM_ADMIN only, and deliberately not reachable through the org PATCH:
+// an organization that could self-certify its own bank account would make
+// the funding-eligibility gate decorative.
+func (h *Handler) setFundingVerification(c *gin.Context) {
+	userID, _ := c.Get("userID")
+	userRole, _ := c.Get("userRole")
+	if asString(userRole) != "PLATFORM_ADMIN" {
+		response.Error(c, http.StatusForbidden, "FORBIDDEN", "Platform admins only")
+		return
+	}
+	orgID := c.Param("id")
+	var input FundingVerificationInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", err.Error())
+		return
+	}
+	item, err := h.svc.SetFundingVerification(orgID, input, asString(userID))
+	if handleAppErr(c, err) {
+		return
+	}
+	action := "org.funding_verified"
+	if !input.BankAccountVerified {
+		action = "org.funding_unverified"
+	}
+	h.auditor.Log(audit.Entry{
+		Actor:      audit.FromContext(c),
+		Action:     action,
+		TargetType: "ORGANIZATION",
+		TargetID:   orgID,
+		Metadata:   map[string]any{"name": item.Name},
+		Request:    c.Request,
+	})
+	response.Success(c, http.StatusOK, gin.H{"organization": item})
+}
+
+// fundingEligibility tells the admin console (and the org itself) exactly
+// what is still outstanding before this org can raise money. Members and
+// platform admins only — the checklist names gaps in an org's paperwork and
+// is nobody else's business.
+func (h *Handler) fundingEligibility(c *gin.Context) {
+	orgID := c.Param("id")
+	userID, _ := c.Get("userID")
+	userRole, _ := c.Get("userRole")
+	if err := h.svc.CanReadInternal(orgID, asString(userID), asString(userRole)); err != nil {
+		handleAppErr(c, err)
+		return
+	}
+	eligible, missing, err := h.svc.FundingEligibility(orgID)
+	if handleAppErr(c, err) {
+		return
+	}
+	if missing == nil {
+		missing = []string{}
+	}
+	response.Success(c, http.StatusOK, gin.H{"eligible": eligible, "missing": missing})
+}
+
 // listChangedFields returns the names of the UpdateInput fields the
 // caller supplied — a lightweight summary of "what was actually
 // touched" so the audit log doesn't dump the full request body.
@@ -169,6 +235,21 @@ func listChangedFields(in UpdateInput) []string {
 	}
 	if in.Verified != nil {
 		fields = append(fields, "verified")
+	}
+	if in.RegistrationNumber != nil {
+		fields = append(fields, "registrationNumber")
+	}
+	if in.Country != nil {
+		fields = append(fields, "country")
+	}
+	if in.OfficialEmail != nil {
+		fields = append(fields, "officialEmail")
+	}
+	if in.RepresentativeName != nil {
+		fields = append(fields, "representativeName")
+	}
+	if in.SupportingDocumentURL != nil {
+		fields = append(fields, "supportingDocumentUrl")
 	}
 	return fields
 }

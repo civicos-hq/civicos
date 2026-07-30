@@ -834,5 +834,42 @@
       "ngos": "NGO",
       "communities": "Obodo"
     }
+  },
+  "campaigns": {
+    "seoTitle": "Ego obodo — CivicOS",
+    "seoDescription": "Ndị nzukọ akwadoro na-akpakọta ego maka ọrụ obodo. Mkpọsa ọ bụla na-egosi ebumnuche ya na otu a ga-esi mefuo ego ahụ.",
+    "detailSeoFallback": "Mkpọsa — CivicOS",
+    "title": "Ego obodo",
+    "lede": "Ndị nzukọ akwadoro na-akpakọta ego maka ọrụ obodo. Mkpọsa ọ bụla ga-ebipụta ebumnuche ya na atụmatụ mmefu tupu ọ nweta otu naira.",
+    "filterLabel": "Nyochaa mkpọsa",
+    "emergency": "Ihe mberede",
+    "emergencyOnly": "Naanị ihe mberede",
+    "empty": "E bipụtabeghị mkpọsa ọ bụla. Mgbe nzukọ akwadoro bipụtara otu, ọ ga-apụta ebe a.",
+    "notFound": "Mkpọsa a adịghị. O nwere ike na e bipụtabeghị ya, ma ọ bụ na njikọ ahụ ezighi ezi.",
+    "backToAll": "← Mkpọsa niile",
+    "ofGoal": "site na ebumnuche {{goal}}",
+    "progressLabel": "{{percent}}% nke ebumnuche ego enwetala",
+    "runBy": "{{org}} na-eduzi ya",
+    "spendPlan": "Otu a ga-esi mefuo ego ahụ",
+    "spendPlanLede": "E kesara {{allocated}} site na ebumnuche {{goal}} n'ofe nzọụkwụ ndị a.",
+    "donorCount_one": "Onye nyere onyinye {{count}}",
+    "donorCount_other": "Ndị nyere onyinye {{count}}",
+    "donationsSoon": "Onyinye ga-emeghe n'oge na-adịghị anya. E bipụtara mkpọsa a ka ị wee hụ atụmatụ ya tupu ọ malite ịkpakọta ego.",
+    "trustNote": "Naanị nzukọ akwadoro nwere ike ibipụta mkpọsa.",
+    "categories": {
+      "all": "Niile",
+      "emergencyRelief": "Enyemaka mberede",
+      "communityDevelopment": "Mmepe obodo",
+      "education": "Agụmakwụkwọ",
+      "healthcare": "Ahụike",
+      "environment": "Gburugburu",
+      "agriculture": "Ọrụ ugbo",
+      "other": "Ndị ọzọ"
+    },
+    "milestoneStatus": {
+      "planned": "A haziri",
+      "in_progress": "Na-aga n'ihu",
+      "completed": "Emechara"
+    }
   }
 }
