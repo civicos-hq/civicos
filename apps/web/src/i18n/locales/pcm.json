@@ -509,11 +509,11 @@
   },
   "hero": {
     "masthead": "Building better communities, together.",
-    "headline": "Democracy na <em>everyday</em> tin, no be only election day.",
-    "sub": "CivicOS dey keep public record of wetin citizens dey do for between elections — issues wey people don report, petitions wey dem sign, replies wey rep don give — for your street, inside your community, today.",
-    "ctaPrimary": "Join CivicOS — e free",
-    "ctaSecondary": "I get account already",
-    "trust": "Open source · Verified accounts · Audit trail for UTC",
+    "headline": "Where citizen report dey really reach <em>local government</em>",
+    "sub": "CivicOS dey give your ward, your LGA, and your state one public record for everyday civic issue — from transformer wey spoil and road wey dem no tar, to community petition. Report problem, follow official response, and see wetin dem fix.",
+    "ctaPrimary": "Join your community",
+    "ctaSecondary": "Sign in",
+    "trust": "Free for all citizens · Verified local profiles · Open infrastructure",
     "signatureCaption": "The people don sign am"
   },
   "docket": {
@@ -533,145 +533,196 @@
     "reportedAt": "Reported for {{time}}",
     "pill": {
       "issue": "Dey review am",
-      "petition": "Open",
-      "response": "Dem don respond",
+      "petition": "Petition open",
+      "response": "Official response",
       "resolved": "Don resolve"
     }
   },
   "parties": {
-    "marker": "§ 01 — People for record",
-    "title": "We build am for everybody for public life",
+    "marker": "Who CivicOS be for",
+    "title": "We build am for every partner for public life",
     "citizens": {
-      "role": "For citizens",
-      "title": "Make your voice count, everyday",
-      "body": "Report issue for your street, sign petition for wetin matter to you, follow your reps, and see wetin dem do — for days, no be for election season."
+      "role": "For citizens and residents",
+      "title": "Report issue wey dem go really track",
+      "body": "Log local problem inside less than two minutes, sign verified community petition, and follow official progress from the first report until dem resolve am."
     },
     "reps": {
-      "role": "For representatives",
-      "title": "Show your work for public",
-      "body": "Reply your constituents for one place. Your reply rate go dey for your public profile — accountability na part of the design, no be feature wey we add."
+      "role": "For reps and councilors",
+      "title": "Show your constituency wetin you dey deliver",
+      "body": "Reply public petition directly, publish progress update, and build verified track record of how you dey respond for your ward or LGA."
     },
     "government": {
-      "role": "For government",
-      "title": "Trusted channel to the public",
-      "body": "Send citizen reports to the right office, publish your work, and show progress with record wey get timestamp wey people fit verify."
+      "role": "For local government and agencies",
+      "title": "Turn scattered complaint into clear field data",
+      "body": "Route report wey enter go the right department, send maintenance crew, and give residents proof of work wey dem fit verify."
     },
     "ngos": {
-      "role": "For NGOs",
-      "title": "Mobilise people with real evidence",
-      "body": "Gather community signals, organise petitions, and measure impact with structured civic data, no be only story story."
+      "role": "For civil society and NGOs",
+      "title": "Base your advocacy on real community data",
+      "body": "Spot infrastructure trend across LGAs, back resident-led petition with structured proof, and measure policy impact over time."
     }
   },
   "articles": {
-    "marker": "§ 02 — Articles",
-    "title": "Continuous participation, no be election time alone",
+    "marker": "Wetin you fit do here",
+    "title": "Everything you need to hold local government accountable",
     "issues": {
-      "title": "Report and follow issue",
-      "body": "Pothole, broken streetlight, dangerous road — file am inside three minutes with picture and follow am from open to under review to resolved."
+      "title": "File report wey no go lost inside inbox",
+      "body": "Snap picture, attach location, and log issue like burst water main, open drainage, or refuse wey dem no pack. Your report go enter public log wey local office fit monitor and resolve."
     },
     "petitions": {
-      "title": "Start and sign petition",
-      "body": "Petition wey get goal with auto milestone for 25%, 50%, and 100%. One citizen, one signature, no inflated numbers."
+      "title": "Mobilise your area with verified petition",
+      "body": "Start community petition with clear signature target for your ward or LGA. One verified citizen na one signature — no bot spam, no duplicate — so your numbers carry real weight."
     },
     "reps": {
-      "title": "Follow your representatives",
-      "body": "See who dey represent you, wetin dem don talk, and how fast dem dey reply — everytin for public profile wey dey update itself."
+      "title": "Put rep response on the record",
+      "body": "Follow your ward councilor, LGA chairman, or house rep. When dem respond to community issue or petition, we record their statement publicly for their profile so everybody go see."
     },
     "discover": {
-      "title": "Discover wetin dey happen near you",
-      "body": "Feed wey we rank by proximity: your community first, then your LGA, then your state — so local tin go dey on top."
+      "title": "Local feed wey we tailor to your ward",
+      "body": "Focus on wetin affect your daily life. Your feed go put report and update from your street, your ward, and your LGA first before e show state-wide activity."
     },
     "notifications": {
-      "title": "Stay for loop in real time",
-      "body": "Notification dey stream live the moment issue update, petition cross threshold, or your rep reply."
+      "title": "Know the moment something move",
+      "body": "Get alert when rep reply, when petition hit im signature milestone, or when issue wey you follow change status to resolved."
     },
     "transparency": {
-      "title": "Transparency by default",
-      "body": "Every interaction get timestamp and we fit trace am. Public information dey public; personal data dey private."
+      "title": "Nothing dey disappear quietly",
+      "body": "Every report, signature, and official response get timestamp and e stay for the public log. Your contact details and house address dey private."
     }
   },
   "principles": {
-    "marker": "§ 03 — Founding principles",
-    "title": "Five principles, we write before the code",
+    "marker": "Wetin we hold ourself to",
+    "title": "We write am before the code, and e still bind us",
     "list": {
-      "transparency": "Transparency",
-      "participation": "Participation",
-      "accountability": "Accountability",
-      "trust": "Trust",
-      "accessibility": "Accessibility"
+      "transparency": {
+        "label": "Transparency",
+        "body": "Every report, signature, and official response dey stay for the public log."
+      },
+      "participation": {
+        "label": "Participation",
+        "body": "Any resident fit file, sign, and follow up — free, for any of five languages."
+      },
+      "accountability": {
+        "label": "Accountability",
+        "body": "Response rate dey public, so when office keep quiet, that one dey on record too."
+      },
+      "trust": {
+        "label": "Verified identity",
+        "body": "One verified citizen, one signature. No bulk account, no inflated total."
+      },
+      "accessibility": {
+        "label": "E work for your phone",
+        "body": "We build am to load for cheap Android phone on network wey no strong."
+      }
     },
     "note": "Just as digital banking change how we dey move money, <em>CivicOS dey change how we dey take part for democracy</em> — transparent, accessible, and built to last."
   },
   "steps": {
-    "marker": "§ 04 — Procedure",
-    "title": "From sign-up to civic action under five minutes",
+    "marker": "How to start",
+    "title": "From sign-up to civic action inside 3 minutes",
     "join": {
-      "meta": "File am for 90 seconds",
-      "title": "Join the register",
-      "body": "Sign up with your name and email. Identity verified, no paperwork, no fee."
+      "meta": "About 90 seconds",
+      "title": "Create your verified account",
+      "body": "Sign up with your name and basic details. Verification na wetin make sure say every signature and report come from real resident."
     },
     "pick": {
-      "meta": "Pick your community",
-      "title": "Choose your area",
-      "body": "Pick your state and LGA so we go know wetin be \"near you\" for your feed."
+      "meta": "Pick state, LGA and ward",
+      "title": "Select your ward and LGA",
+      "body": "Pick your state, your LGA, and your ward so your feed go bring the streetlight, road, and issue wey dey right outside your door."
     },
     "act": {
-      "meta": "On the record",
-      "title": "Take action",
-      "body": "Report issue, sign petition, follow your reps — your name, your record."
+      "meta": "Picture, location, submit",
+      "title": "Log issue or back petition",
+      "body": "Snap picture of community issue or sign resident petition. We go timestamp wetin you submit and log am on the public record."
     },
     "follow": {
-      "meta": "Follow outcome",
-      "title": "See wetin dem do",
-      "body": "Real-time updates as status dey change, response dey come, and milestones dey land."
+      "meta": "Alert as e dey move",
+      "title": "Follow the response in real time",
+      "body": "We go notify you the moment rep respond, petition hit im milestone, or issue wey you log change status to resolved."
     },
-    "stepLabel": "Step {{n}}"
+    "stepLabel": "Step {{n}}",
+    "listLabel": "Onboarding steps",
+    "panelLabel": "Step detail"
   },
   "faq": {
-    "marker": "§ 05 — Questions",
-    "title": "Questions, on the record",
-    "qLabel": "Q.{{n}}",
+    "marker": "Common questions",
+    "title": "Clear answer for citizens and public officials",
     "cost": {
-      "q": "Abeg, CivicOS free to use?",
-      "a": "Yes. CivicOS free for citizens — forever. Reporting issues, signing petitions, following your reps, and receiving updates no go cost anything. Public institutions and NGOs fit get paid plan for advanced tools, but citizen experience dey free."
+      "q": "CivicOS free completely for citizens?",
+      "a": "Yes, always. Reporting issue, signing local petition, following reps, and receiving live status alert no go cost residents anything. Public institutions and NGOs fit pay for advanced tools, but the citizen experience dey free."
     },
     "privacy": {
-      "q": "My personal information dey private?",
-      "a": "Your email, phone number, and address dey private, and we no go ever show am for public. Na only your display name, your role, and the public action wey you take (issues you raise, petitions you sign, comments you drop) other users go see. You dey control wetin you wan share."
-    },
-    "reps": {
-      "q": "Reps dey really use the platform?",
-      "a": "We dey onboard reps community by community. Their reply rate dey for their public profile — accountability dey inside the design, so silence too na signal."
+      "q": "How CivicOS dey protect my private personal information?",
+      "a": "Your email, phone number, and house address dey private and we no dey share dem publicly. Na only your display name and the public action wey you take — issue you log, petition you sign, comment you drop — dey show for the platform."
     },
     "coverage": {
-      "q": "Wetin if nobody dey represent my area yet?",
-      "a": "You fit still join, pick your community, and file. Once rep for your area join, your past activity go link with am automatically."
+      "q": "Wetin happen if my LGA chairman or ward rep no dey CivicOS yet?",
+      "a": "You fit still log issue and start petition. When official for your constituency join, the report wey already dey for their ward go show for their dashboard automatically — nothing wey you file go lost."
     },
-    "ownership": {
-      "q": "Who build CivicOS — and who own am?",
-      "a": "CivicOS na open civic infrastructure, we build am for public and independent team dey run am. The codebase open, the architecture dey documented, and we dey welcome contributions. No political party, single funder, or business interest dey control the platform."
+    "reps": {
+      "q": "Reps and council officials dey really respond?",
+      "a": "We dey onboard officials ward by ward, and their response rate dey for their public profile. E cut both ways: when office answer, residents go see am, and when e keep quiet, that one dey on record too."
     },
     "abuse": {
-      "q": "How una dey prevent abuse, spam, or fake news?",
-      "a": "Every account na identity verified for sign-up. Comments and submissions get rate limit, we dey moderate dem against community guidelines, and dem dey traceable to real account. Petitions need unique signature — one citizen, one signature."
+      "q": "How una dey stop fake account, spam, and bot signature?",
+      "a": "Every account dey pass identity verification. Petition dey enforce strict one citizen, one signature rule, and report wey enter get rate limit and we dey moderate dem against community standards."
+    },
+    "ownership": {
+      "q": "Who dey run CivicOS, and e get any political party behind am?",
+      "a": "CivicOS na independent, non-partisan civic technology wey we build on open-source code. No political party or business interest own am, fund am, or control am, and the codebase dey public for anybody to audit."
     }
   },
+  "stories": {
+    "marker": "How CivicOS dey show up",
+    "title": "Three things wey change when the record na public",
+    "issues": {
+      "title": "Streetlight wey spoil dey get owner",
+      "body": "Resident for Dankande Street file am once, with picture and location. Neighbours fit see am, LGA office fit see am, and so any person wey dey ask why e take three weeks."
+    },
+    "consultations": {
+      "title": "Consultation wey publish outcome",
+      "body": "Council open window on market relocation, collect structured input from traders and residents, then post the decision and the reason back for the same thread."
+    },
+    "reps": {
+      "title": "Councilor answer stop to be hearsay",
+      "body": "When rep promise repair date, we write am down with timestamp for their profile — so the follow-up question go get something to point at."
+    }
+  },
+  "stewardship": {
+    "marker": "Who dey behind this",
+    "title": "Independent, non-partisan, and built for the open",
+    "body": "Small independent team dey steward CivicOS, no be party and no be contractor. The full codebase, database schema, and API dey public — anybody fit read how we store report, who fit see am, and wetin happen after you file am.",
+    "openSource": {
+      "title": "Anybody fit audit am",
+      "body": "Every service, migration, and API route dey inside public repository under open licence. If you wan check how we handle your data, read the source."
+    },
+    "invite": {
+      "title": "We dey open ward by ward",
+      "body": "CivicOS dey roll out community by community instead of claiming national coverage wey e no get. If you lead community association or you work for LGA office, you fit bring your ward on early."
+    },
+    "contribute": {
+      "title": "Contributions welcome",
+      "body": "Developers, translators, and civic researchers fit open issue or pull request. The docs cover the architecture, local setup, and how to contribute."
+    },
+    "ctaRepo": "Read the source for GitHub",
+    "ctaPartner": "Bring your LGA on board"
+  },
   "newsletter": {
-    "marker": "§ 06 — Public dispatch",
-    "title": "Subscribe to The Dispatch — be the first to know when CivicOS reach your area",
-    "sub": "One short email every month with product updates, community milestones, and rollout news. No marketing wahala. Unsubscribe anytime.",
-    "placeholder": "you@example.com",
+    "marker": "Stay for loop",
+    "title": "Stay updated on CivicOS for your state",
+    "sub": "One email every month about new LGA rollout, big community win, and platform update. No spam, unsubscribe anytime.",
+    "placeholder": "Enter your email address",
     "submit": "Subscribe",
     "submitting": "Subscribing…",
     "doneTitle": "You don dey list.",
-    "doneSub": "We go reach you as we dey expand coverage."
+    "doneSub": "We go write you when CivicOS reach your LGA."
   },
   "cta": {
-    "eyebrow": "Register your voice",
-    "title": "Ready to take <em>part</em>?",
-    "sub": "Join citizens, reps, and organisations wey dey build accountable civic life — together, on the record.",
-    "ctaPrimary": "Create your account",
-    "ctaSecondary": "Sign in"
+    "eyebrow": "Join your community",
+    "title": "Ready to make your community <em>count</em> on the record?",
+    "sub": "Join residents, community leaders, and public officials wey dey build local government wey dey respond and dey accountable, together.",
+    "ctaPrimary": "Create your citizen account",
+    "ctaSecondary": "Partner as LGA or rep"
   },
   "footer": {
     "mission": "Dey strengthen democratic participation through secure, transparent, accessible digital infrastructure.",
@@ -682,8 +733,8 @@
       "terms": "Terms"
     },
     "checks": {
-      "privacy": "E respect privacy",
-      "audit": "E friendly to audit",
+      "privacy": "Your address dey private",
+      "audit": "Non-partisan",
       "open": "Built for the open"
     }
   },
@@ -931,9 +982,9 @@
     "ha": "Hausa"
   },
   "manifesto": {
-    "marker": "§ 00 — Manifesto",
-    "headline": "One operating system for <em>civic participation</em>.",
-    "body": "CivicOS na shared digital infrastructure wey dey allow governments, universities, NGOs, and communities build trusted civic experiences — organized around the places wey people dey really live.",
+    "marker": "Why we build this",
+    "headline": "Built for the realities of <em>local government</em>.",
+    "body": "Resident report burst water main and hear nothing for months. Councilor fix road and nobody outside the ward know. CivicOS na the shared record wey close that gap — governments, universities, NGOs, and communities dey use am, organised around the places wey people dey really live.",
     "actors": {
       "governments": "Governments",
       "universities": "Universities",

@@ -584,7 +584,7 @@
   "nav": {
     "brandSubtitle": "The Open Civic Operating System",
     "links": {
-      "docket": "Docket",
+      "docket": "Live activity",
       "whatItDoes": "What it does",
       "howItWorks": "How it works",
       "faq": "FAQ",
@@ -596,11 +596,11 @@
   },
   "hero": {
     "masthead": "Building better communities, together.",
-    "headline": "Democracy is <em>daily</em>, not just on election day.",
-    "sub": "CivicOS keeps the public record of citizen action between elections — issues reported, petitions signed, responses received — on your street, in your community, today.",
-    "ctaPrimary": "Join CivicOS — it's free",
-    "ctaSecondary": "I have an account",
-    "trust": "Open source · Verified accounts · Audit-trailed in UTC",
+    "headline": "Where citizen reports actually reach <em>local government</em>",
+    "sub": "CivicOS gives your ward, LGA, and state a single public record for everyday civic issues — from broken transformers and unpaved roads to community petitions. Report problems, track official responses, and see what gets fixed.",
+    "ctaPrimary": "Join your community",
+    "ctaSecondary": "Sign in",
+    "trust": "Free for all citizens · Verified local profiles · Open infrastructure",
     "signatureCaption": "Signed — the public",
     "art": {
       "header": "CITIZENS' REGISTER · KY-04",
@@ -627,145 +627,196 @@
     "reportedAt": "Reported at {{time}}",
     "pill": {
       "issue": "Under review",
-      "petition": "Open",
-      "response": "Responded",
+      "petition": "Petition open",
+      "response": "Official response",
       "resolved": "Resolved"
     }
   },
   "parties": {
-    "marker": "§ 01 — Parties of record",
-    "title": "Built for everyone in public life",
+    "marker": "Who CivicOS is for",
+    "title": "Built for every partner in public life",
     "citizens": {
-      "role": "For citizens",
-      "title": "Make your voice count, every day",
-      "body": "Report issues on your street, sign petitions for what you care about, follow your representatives, and see what gets done — in days, not election cycles."
+      "role": "For citizens and residents",
+      "title": "Report issues that actually get tracked",
+      "body": "Log local problems in under two minutes, sign verified community petitions, and follow official progress from first report through to resolution."
     },
     "reps": {
-      "role": "For representatives",
-      "title": "Show your work in public",
-      "body": "Respond to your constituents in one place. Your response rate sits on your public profile — accountability is the design, not a feature."
+      "role": "For representatives and councilors",
+      "title": "Show your constituency what you're delivering",
+      "body": "Respond directly to public petitions, publish progress updates, and build a verified track record of responsiveness in your ward or LGA."
     },
     "government": {
-      "role": "For government",
-      "title": "A trusted channel to the public",
-      "body": "Route citizen reports to the right office, publish initiatives, and demonstrate progress with a verifiable, timestamped record."
+      "role": "For local government and agencies",
+      "title": "Turn unstructured complaints into clear field data",
+      "body": "Route incoming reports to the right department, dispatch maintenance crews, and give residents verifiable proof of work done."
     },
     "ngos": {
-      "role": "For NGOs",
-      "title": "Mobilise around real evidence",
-      "body": "Aggregate community signals, organise petitions, and measure impact with structured civic data instead of anecdote."
+      "role": "For civil society and NGOs",
+      "title": "Base your advocacy on real community data",
+      "body": "Identify infrastructure trends across LGAs, support resident-led petitions with structured proof, and measure policy impact over time."
     }
   },
   "articles": {
-    "marker": "§ 02 — Articles",
-    "title": "Continuous participation, not just at election time",
+    "marker": "What you can do here",
+    "title": "Everything you need to hold local governance accountable",
     "issues": {
-      "title": "Report and track issues",
-      "body": "Pothole, streetlight, unsafe road — file it in three minutes with photos and follow the status from open to under review to resolved."
+      "title": "File reports that don't get lost in an inbox",
+      "body": "Take a photo, attach a location, and log issues like broken water mains, open drainage, or missed refuse collection. Your report goes into a public log that local offices can monitor and resolve."
     },
     "petitions": {
-      "title": "Start and sign petitions",
-      "body": "Goal-based petitions with automatic milestones at 25%, 50%, and 100%. One citizen, one signature, no inflated numbers."
+      "title": "Mobilise your neighbourhood with verified petitions",
+      "body": "Start community petitions with clear signature targets for your ward or LGA. One verified citizen equals one signature — no bot spam, no duplicates — so your numbers carry real leverage."
     },
     "reps": {
-      "title": "Follow your representatives",
-      "body": "See who represents you, what they have said, and how quickly they respond — all on a public profile that updates itself."
+      "title": "Put representative responses on the record",
+      "body": "Follow your ward councilor, LGA chairman, or house representative. When they respond to a community issue or petition, their statement is recorded publicly on their profile for everyone to see."
     },
     "discover": {
-      "title": "Discover what matters nearby",
-      "body": "A feed ranked by proximity: your community first, then your LGA, then your state — so local always reads first."
+      "title": "A local feed tailored to your ward",
+      "body": "Stay focused on what affects your daily life. Your feed prioritises reports and updates from your immediate street, ward, and LGA before showing state-wide activity."
     },
     "notifications": {
-      "title": "Stay in the loop in real time",
-      "body": "Notifications stream live the moment an issue updates, a petition crosses a threshold, or your representative replies."
+      "title": "Know the moment something moves",
+      "body": "Get an alert when a representative replies, a petition hits its signature milestone, or an issue you followed changes status to resolved."
     },
     "transparency": {
-      "title": "Transparency by default",
-      "body": "Every interaction is timestamped and traceable. Public information stays public; personal data stays private."
+      "title": "Nothing quietly disappears",
+      "body": "Every report, signature, and official response is timestamped and kept on the public log. Your contact details and home address stay private."
     }
   },
   "principles": {
-    "marker": "§ 03 — Founding principles",
-    "title": "Five principles, written before the code",
+    "marker": "What we hold ourselves to",
+    "title": "Written before the code, and still binding",
     "list": {
-      "transparency": "Transparency",
-      "participation": "Participation",
-      "accountability": "Accountability",
-      "trust": "Trust",
-      "accessibility": "Accessibility"
+      "transparency": {
+        "label": "Transparency",
+        "body": "Every report, signature, and official response stays on the public log."
+      },
+      "participation": {
+        "label": "Participation",
+        "body": "Any resident can file, sign, and follow up — at no cost, in any of five languages."
+      },
+      "accountability": {
+        "label": "Accountability",
+        "body": "Response rates are public, so silence from an office is on the record too."
+      },
+      "trust": {
+        "label": "Verified identity",
+        "body": "One verified citizen, one signature. No bulk accounts, no inflated totals."
+      },
+      "accessibility": {
+        "label": "Works on your phone",
+        "body": "Built to load on a low-end Android over a patchy mobile connection."
+      }
     },
     "note": "Just as digital banking modernised how we move money, <em>CivicOS modernises how we participate in democracy</em> — transparent, accessible, and built to last."
   },
   "steps": {
-    "marker": "§ 04 — Procedure",
-    "title": "From sign-up to civic action in under five minutes",
+    "marker": "Getting started",
+    "title": "From sign-up to civic action in 3 minutes",
     "join": {
-      "meta": "Filed in 90 seconds",
-      "title": "Join the register",
-      "body": "Sign up with your name and email. Identity-verified, no paperwork, no fees."
+      "meta": "About 90 seconds",
+      "title": "Create your verified account",
+      "body": "Sign up with your name and basic details. Verification is what makes sure every petition signature and report comes from a real resident."
     },
     "pick": {
-      "meta": "Choose your community",
-      "title": "Pick your patch",
-      "body": "Select your state and LGA so we know what counts as \"near you\" in your feed."
+      "meta": "Pick your state, LGA and ward",
+      "title": "Select your ward and LGA",
+      "body": "Choose your state, LGA, and ward so your feed automatically surfaces the street lights, roads, and issues right outside your door."
     },
     "act": {
-      "meta": "On the record",
-      "title": "Take action",
-      "body": "Report an issue, sign a petition, follow your representatives — your name, your record."
+      "meta": "Photo, location, submit",
+      "title": "Log an issue or back a petition",
+      "body": "Snap a photo of a community issue or sign a resident petition. Your submission is timestamped and logged onto the public record."
     },
     "follow": {
-      "meta": "Follow the outcome",
-      "title": "See what gets done",
-      "body": "Real-time updates as status changes, responses arrive, and milestones land."
+      "meta": "Alerts as it moves",
+      "title": "Follow the response in real time",
+      "body": "Get notified the moment a representative responds, a petition hits its milestone, or a logged issue changes status to resolved."
     },
-    "stepLabel": "Step {{n}}"
+    "stepLabel": "Step {{n}}",
+    "listLabel": "Onboarding steps",
+    "panelLabel": "Step detail"
   },
   "faq": {
-    "marker": "§ 05 — Queries",
-    "title": "Questions, on the record",
-    "qLabel": "Q.{{n}}",
+    "marker": "Common questions",
+    "title": "Clear answers for citizens and public officials",
     "cost": {
-      "q": "Is CivicOS free to use?",
-      "a": "Yes. CivicOS is free for citizens — forever. Reporting issues, signing petitions, following your representatives, and receiving updates cost nothing. Public institutions and NGOs may have paid tiers for advanced tooling, but the citizen experience is free."
+      "q": "Is CivicOS completely free for citizens?",
+      "a": "Yes, always. Reporting issues, signing local petitions, following representatives, and receiving live status alerts cost nothing for residents. Public institutions and NGOs may pay for advanced tooling, but the citizen experience is free."
     },
     "privacy": {
-      "q": "Is my personal information private?",
-      "a": "Your email, phone number, and address are private and never shown publicly. Only your display name, role, and the public actions you take (issues you raise, petitions you sign, comments you post) are visible to other users. You control what you share."
+      "q": "How does CivicOS protect my private personal information?",
+      "a": "Your email, phone number, and home address are private and never shared publicly. Only your display name and the public actions you take — issues logged, petitions signed, comments posted — appear on the platform."
     },
     "reps": {
-      "q": "Do representatives actually use the platform?",
-      "a": "Representatives are onboarded community by community. Their response rate is visible on their public profile — accountability is built into the design, so silence is also a signal."
+      "q": "Do representatives and council officials actually respond?",
+      "a": "Officials are onboarded ward by ward, and their response rate sits on their public profile. That cuts both ways: when an office answers, residents see it, and when it stays quiet, that is on the record too."
     },
     "coverage": {
-      "q": "What if no one represents my area yet?",
-      "a": "You can still join, pick your community, and file. Once a representative for your constituency joins, your existing activity links to them automatically."
-    },
-    "ownership": {
-      "q": "Who built CivicOS — and who owns it?",
-      "a": "CivicOS is open civic infrastructure, built in the open and stewarded by an independent team. The codebase is public, the architecture is documented, and contributions are welcome. No political party, single funder, or commercial interest controls the platform."
+      "q": "What happens if my LGA chairman or ward representative isn't on CivicOS yet?",
+      "a": "You can still log issues and start petitions. When an official for your constituency joins, the existing reports for their ward automatically populate on their dashboard — nothing you filed in the meantime is lost."
     },
     "abuse": {
-      "q": "How do you prevent abuse, spam, or misinformation?",
-      "a": "Every account is identity-verified at sign-up. Comments and submissions are rate-limited, moderated against community guidelines, and traceable to a real account. Petitions require unique signatures — one citizen, one signature."
+      "q": "How do you stop fake accounts, spam, and bot signatures?",
+      "a": "Every account goes through identity verification. Petitions enforce a strict one citizen, one signature rule, and incoming reports are rate-limited and moderated against community standards."
+    },
+    "ownership": {
+      "q": "Who operates CivicOS, and is it affiliated with any political party?",
+      "a": "CivicOS is independent, non-partisan civic technology built on open-source code. It is not owned, funded, or controlled by any political party or commercial interest, and the codebase is public for anyone to audit."
     }
   },
+  "stories": {
+    "marker": "How CivicOS shows up",
+    "title": "Three things that change when the record is public",
+    "issues": {
+      "title": "A broken streetlight gets an owner",
+      "body": "A resident on Dankande Street files it once, with a photo and a location. Neighbours can see it, the LGA office can see it, and so can anyone asking why it took three weeks."
+    },
+    "consultations": {
+      "title": "Consultations that publish an outcome",
+      "body": "A council opens a window on a market relocation, collects structured input from traders and residents, then posts the decision and the reasoning back to the same thread."
+    },
+    "reps": {
+      "title": "A councilor's answer stops being hearsay",
+      "body": "When a representative commits to a repair date, it is written down with a timestamp on their profile — so the follow-up question has something to point at."
+    }
+  },
+  "stewardship": {
+    "marker": "Who is behind this",
+    "title": "Independent, non-partisan, and built in the open",
+    "body": "CivicOS is stewarded by a small independent team, not a party or a contractor. The full codebase, database schema, and API are public — anyone can read how a report is stored, who can see it, and what happens after it is filed.",
+    "openSource": {
+      "title": "Auditable by anyone",
+      "body": "Every service, migration, and API route lives in a public repository under an open licence. If you want to check how your data is handled, read the source."
+    },
+    "invite": {
+      "title": "We are opening ward by ward",
+      "body": "CivicOS is rolling out community by community rather than claiming national coverage it does not have. If you lead a community association or work in an LGA office, you can bring your ward on early."
+    },
+    "contribute": {
+      "title": "Contributions welcome",
+      "body": "Developers, translators, and civic researchers can open an issue or a pull request. The docs cover the architecture, local setup, and contribution process."
+    },
+    "ctaRepo": "Read the source on GitHub",
+    "ctaPartner": "Bring your LGA on board"
+  },
   "newsletter": {
-    "marker": "§ 06 — Public dispatch",
-    "title": "Subscribe to The Dispatch — be first to know when CivicOS lands in your area",
-    "sub": "One short email per month with product updates, community milestones, and rollout news. No marketing fluff. Unsubscribe anytime.",
-    "placeholder": "you@example.com",
+    "marker": "Stay in the loop",
+    "title": "Stay updated on CivicOS in your state",
+    "sub": "One email a month covering new LGA rollouts, major community wins, and platform updates. No spam, unsubscribe anytime.",
+    "placeholder": "Enter your email address",
     "submit": "Subscribe",
     "submitting": "Subscribing…",
     "doneTitle": "You're on the list.",
-    "doneSub": "We'll be in touch as we expand coverage."
+    "doneSub": "We'll write when CivicOS reaches your LGA."
   },
   "cta": {
-    "eyebrow": "Register your voice",
-    "title": "Ready to take <em>part</em>?",
-    "sub": "Join citizens, representatives, and organisations building a more accountable civic life — together, on the record.",
-    "ctaPrimary": "Create your account",
-    "ctaSecondary": "Sign in"
+    "eyebrow": "Join your community",
+    "title": "Ready to make your community <em>count</em> on the record?",
+    "sub": "Join residents, community leaders, and public officials building a more responsive, accountable local government together.",
+    "ctaPrimary": "Create your citizen account",
+    "ctaSecondary": "Partner as an LGA or representative"
   },
   "footer": {
     "mission": "Strengthening democratic participation through secure, transparent, accessible digital infrastructure.",
@@ -783,8 +834,8 @@
       "api": "API Reference"
     },
     "checks": {
-      "privacy": "Privacy-respecting",
-      "audit": "Audit-friendly",
+      "privacy": "Your address stays private",
+      "audit": "Non-partisan",
       "open": "Built in the open"
     }
   },
@@ -1600,9 +1651,9 @@
     "dark": "Dark"
   },
   "manifesto": {
-    "marker": "§ 00 — Manifesto",
-    "headline": "An operating system for <em>civic participation</em>.",
-    "body": "CivicOS is shared digital infrastructure that lets governments, universities, NGOs and communities build trusted civic experiences — organized around the places people actually live.",
+    "marker": "Why we built this",
+    "headline": "Built for the realities of <em>local government</em>.",
+    "body": "A resident reports a burst water main and hears nothing for months. A councilor fixes a road and no one outside the ward knows. CivicOS is the shared record that closes that gap — used by governments, universities, NGOs and communities, organised around the places people actually live.",
     "actors": {
       "governments": "Governments",
       "universities": "Universities",

@@ -1,5 +1,5 @@
 import { useMemo, useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { RequestedAccountType, type ApiResponse, type Community } from '@civicos/types';
@@ -30,6 +30,15 @@ function toSlug(input: string): string {
     .replace(/-+/g, '-');
 }
 
+// `/register?type=REPRESENTATIVE` pre-selects that account type, so the
+// landing page's "Partner as an LGA or representative" CTA lands on the
+// right form instead of dropping officials onto the citizen path. Anything
+// unrecognised falls back to CITIZEN.
+function accountTypeFromParam(raw: string | null): AccountType {
+  const match = ACCOUNT_TYPE_OPTIONS.find((option) => option === raw?.toUpperCase());
+  return match ?? RequestedAccountType.CITIZEN;
+}
+
 function parseProofUrls(input: string): string[] {
   return input
     .split(',')
@@ -48,7 +57,10 @@ export function RegisterPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [accountType, setAccountType] = useState<AccountType>(RequestedAccountType.CITIZEN);
+  const [searchParams] = useSearchParams();
+  const [accountType, setAccountType] = useState<AccountType>(() =>
+    accountTypeFromParam(searchParams.get('type')),
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<RegisterError>(null);
 
