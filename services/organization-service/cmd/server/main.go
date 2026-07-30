@@ -6,10 +6,12 @@ import (
 	"github.com/civicos/organization-service/internal/announcements"
 	"github.com/civicos/organization-service/internal/assignments"
 	"github.com/civicos/organization-service/internal/audit"
+	"github.com/civicos/organization-service/internal/campaigns"
 	"github.com/civicos/organization-service/internal/communities"
 	"github.com/civicos/organization-service/internal/consultations"
 	"github.com/civicos/organization-service/internal/domain"
 	"github.com/civicos/organization-service/internal/middleware"
+	"github.com/civicos/organization-service/internal/milestones"
 	"github.com/civicos/organization-service/internal/notifications"
 	"github.com/civicos/organization-service/internal/organizations"
 	"github.com/civicos/organization-service/internal/progress"
@@ -36,6 +38,8 @@ func main() {
 		&domain.ConsultationResponse{},
 		&domain.ConsultationAnswer{},
 		&domain.ConsultationOutcome{},
+		&domain.Campaign{},
+		&domain.Milestone{},
 	); err != nil {
 		log.Fatalf("migration failed: %v", err)
 	}
@@ -87,6 +91,18 @@ func main() {
 	consultSvc := consultations.NewService(consultRepo)
 	consultHandler := consultations.NewHandler(consultSvc, orgSvc, auditor, notifier, communityReader)
 
+	// Community Funding — Phase 1: campaigns + their spend plan (milestones).
+	// No donations, withdrawals or payment provider yet; see
+	// docs/product/community-funding-plan.md for the phase order and why
+	// transparency lands before money.
+	campRepo := campaigns.NewRepository(db)
+	campSvc := campaigns.NewService(campRepo)
+	campHandler := campaigns.NewHandler(campSvc, orgSvc, auditor)
+
+	msRepo := milestones.NewRepository(db)
+	msSvc := milestones.NewService(msRepo)
+	msHandler := milestones.NewHandler(msSvc, orgSvc)
+
 	authMiddleware := middleware.JWTAuth(cfg, db)
 	requireVerified := middleware.RequireVerified()
 
@@ -114,6 +130,8 @@ func main() {
 	asgHandler.RegisterRoutes(v1, authMiddleware)
 	progHandler.RegisterRoutes(v1, authMiddleware)
 	consultHandler.RegisterRoutes(v1, authMiddleware, requireVerified)
+	campHandler.RegisterRoutes(v1, authMiddleware)
+	msHandler.RegisterRoutes(v1, authMiddleware)
 
 	addr := ":" + cfg.Port
 	log.Printf("organization-service listening on %s", addr)
