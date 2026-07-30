@@ -30,10 +30,20 @@ type Store interface {
 
 type Service struct {
 	repo Store
+	// platformFeeBps is carried here purely so the public projection can
+	// disclose the rate. The donations package owns the actual arithmetic.
+	platformFeeBps int64
 }
 
 func NewService(repo Store) *Service {
 	return &Service{repo: repo}
+}
+
+// WithPlatformFee sets the rate disclosed on public campaign pages. A donor
+// is entitled to know what reaches the organization before giving.
+func (s *Service) WithPlatformFee(bps int64) *Service {
+	s.platformFeeBps = bps
+	return s
 }
 
 // ─── Transition guard ───────────────────────────────────────────────────

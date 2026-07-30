@@ -308,6 +308,30 @@ func main() {
 	r.GET("/api/v1/campaigns", orgProxy)
 	r.GET("/api/v1/campaigns/slug/:slug", orgProxy)
 
+	// ── Donations (Phase 3) ──
+	//
+	// Giving is deliberately open to guests: a donor should not need an
+	// account to help. limitCreate rather than limitStandard, because an
+	// unauthenticated endpoint that opens payment transactions is exactly
+	// where a tighter budget belongs.
+	r.POST("/api/v1/campaigns/:campaignId/donation-intents", limitCreate, orgProxy)
+	r.GET("/api/v1/campaigns/:campaignId/donations", orgProxy)
+
+	// PAYSTACK WEBHOOK — intentionally NOT behind authMiddleware.
+	//
+	// Paystack does not carry our JWTs; the request authenticates by HMAC
+	// signature over the raw body, verified inside organization-service.
+	// Adding auth here would break settlement entirely.
+	//
+	// Also deliberately NOT rate-limited: throttling a payment provider's
+	// callbacks means dropping settlement events during exactly the traffic
+	// spike where they matter most. The signature check is the gate, and an
+	// unsigned request is rejected before it touches the ledger.
+	r.POST("/api/v1/webhooks/paystack", orgProxy)
+
+	// Org connects its payout destination (org admin).
+	r.POST("/api/v1/organizations/:id/psp-account", authMiddleware, limitStandard, orgProxy)
+
 	// Org funding verification: the paperwork the org supplies rides on the
 	// existing org PATCH; the bank-account attestation is platform-admin
 	// only and has its own route so an org cannot self-certify.

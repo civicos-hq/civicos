@@ -54,6 +54,11 @@ type PublicCampaign struct {
 	// broadly why. The free-text pause note is NOT included: it may name
 	// individuals or describe an open investigation.
 	PauseReasonCode *domain.PauseReason `json:"pauseReasonCode,omitempty"`
+
+	// PlatformFeeBps is CivicOS's cut in basis points, disclosed publicly.
+	// A donor is entitled to know what actually reaches the organization
+	// BEFORE giving, not in a footnote afterwards.
+	PlatformFeeBps int64 `json:"platformFeeBps"`
 }
 
 // PublicDetail adds the spend plan to the summary. Milestones are the heart
@@ -73,6 +78,12 @@ type PublicMilestone struct {
 	Status      domain.MilestoneStatus `json:"status"`
 	Position    int                    `json:"position"`
 	CompletedAt *time.Time             `json:"completedAt,omitempty"`
+}
+
+func (s *Service) toPublic(c *domain.Campaign, orgName string) PublicCampaign {
+	p := toPublic(c, orgName)
+	p.PlatformFeeBps = s.platformFeeBps
+	return p
 }
 
 func toPublic(c *domain.Campaign, orgName string) PublicCampaign {
@@ -135,7 +146,7 @@ func (s *Service) ListPublic(f ListFilters) ([]PublicCampaign, error) {
 	}
 	out := make([]PublicCampaign, 0, len(items))
 	for i := range items {
-		out = append(out, toPublic(&items[i], names[items[i].OrganizationID]))
+		out = append(out, s.toPublic(&items[i], names[items[i].OrganizationID]))
 	}
 	return out, nil
 }
@@ -164,7 +175,7 @@ func (s *Service) GetPublicBySlug(slug string) (*PublicDetail, error) {
 		return nil, err
 	}
 	return &PublicDetail{
-		PublicCampaign: toPublic(c, names[c.OrganizationID]),
+		PublicCampaign: s.toPublic(c, names[c.OrganizationID]),
 		Description:    c.Description,
 		Milestones:     toPublicMilestones(ms),
 	}, nil

@@ -596,10 +596,17 @@ type Donation struct {
 // that fact is worth keeping. It is also the audit trail for "we were told
 // this, at this time, and it verified" during reconciliation.
 type WebhookEvent struct {
-	ID          string `gorm:"type:uuid;primaryKey" json:"id"`
-	Provider    string `gorm:"type:varchar(20);not null" json:"provider"`
-	EventType   string `gorm:"type:varchar(60);not null;index" json:"eventType"`
-	ProviderRef string `gorm:"type:varchar(100);index" json:"providerRef"`
+	// ID is OUR row identifier. Deliberately distinct from the provider's
+	// event id: conflating the two put a value like "charge.success:77001"
+	// into a uuid column and every delivery failed with a 500.
+	ID       string `gorm:"type:uuid;primaryKey" json:"id"`
+	Provider string `gorm:"type:varchar(20);not null" json:"provider"`
+	// ProviderEventID is the PROVIDER's identifier for this occurrence, and
+	// carries the unique index that makes replays cheap to detect. Free-form
+	// text because every provider formats theirs differently.
+	ProviderEventID *string `gorm:"type:varchar(120);uniqueIndex" json:"providerEventId,omitempty"`
+	EventType       string  `gorm:"type:varchar(60);not null;index" json:"eventType"`
+	ProviderRef     string  `gorm:"type:varchar(100);index" json:"providerRef"`
 	// Signature verification result. A failed verification is still stored —
 	// repeated failures are the signal that someone is probing the endpoint.
 	Verified bool `gorm:"not null;default:false;index" json:"verified"`

@@ -214,13 +214,16 @@ func (s *Service) HandleWebhook(ctx context.Context, rawBody []byte, signature s
 	}
 
 	// First dedupe layer, on the provider's own event id.
+	rowID := uuid.New().String()
+	providerEventID := ev.ID
 	fresh, err := s.repo.RecordWebhook(&domain.WebhookEvent{
-		ID:          ev.ID,
-		Provider:    s.provider.Name(),
-		EventType:   ev.Type,
-		ProviderRef: ev.Reference,
-		Verified:    true,
-		Payload:     string(truncate(ev.Raw)),
+		ID:              rowID,
+		Provider:        s.provider.Name(),
+		ProviderEventID: &providerEventID,
+		EventType:       ev.Type,
+		ProviderRef:     ev.Reference,
+		Verified:        true,
+		Payload:         string(truncate(ev.Raw)),
 	})
 	if err != nil {
 		return err
@@ -235,7 +238,7 @@ func (s *Service) HandleWebhook(ctx context.Context, rawBody []byte, signature s
 		// returning non-2xx would make Paystack retry forever — but it is
 		// left unhandled so reconciliation surfaces it.
 		note := "no matching donation for reference"
-		_ = s.repo.MarkWebhookHandled(ev.ID, &note)
+		_ = s.repo.MarkWebhookHandled(rowID, &note)
 		return nil
 	} else if err != nil {
 		return err
@@ -243,12 +246,12 @@ func (s *Service) HandleWebhook(ctx context.Context, rawBody []byte, signature s
 
 	if ev.Status.Failed {
 		_ = s.repo.MarkFailed(d.ID, domain.DonationFailed)
-		_ = s.repo.MarkWebhookHandled(ev.ID, nil)
+		_ = s.repo.MarkWebhookHandled(rowID, nil)
 		return nil
 	}
 	if !ev.Status.Succeeded {
 		note := "event carried no terminal status"
-		_ = s.repo.MarkWebhookHandled(ev.ID, &note)
+		_ = s.repo.MarkWebhookHandled(rowID, &note)
 		return nil
 	}
 
@@ -257,7 +260,7 @@ func (s *Service) HandleWebhook(ctx context.Context, rawBody []byte, signature s
 	// Paystack, not proof it describes the transaction we opened.
 	if err := s.reconcileAgainstIntent(d, ev.Status); err != nil {
 		note := err.Error()
-		_ = s.repo.MarkWebhookHandled(ev.ID, &note)
+		_ = s.repo.MarkWebhookHandled(rowID, &note)
 		// Deliberately NOT settled. A mismatch is for a human to look at.
 		return nil
 	}
@@ -273,7 +276,7 @@ func (s *Service) HandleWebhook(ctx context.Context, rawBody []byte, signature s
 			_ = s.repo.SetCampaignFunded(res.Campaign.ID)
 		}
 	}
-	_ = s.repo.MarkWebhookHandled(ev.ID, nil)
+	_ = s.repo.MarkWebhookHandled(rowID, nil)
 	return nil
 }
 

@@ -26,6 +26,12 @@ type Config struct {
 	// PlatformFeeBps is CivicOS's cut in integer basis points (250 = 2.5%).
 	// Basis points, never a float — see internal/donations/money.go for why.
 	PlatformFeeBps int64
+
+	// DonationCallbackURL is where Paystack returns the donor after payment.
+	// The redirect is only a UX hint — settlement is decided by the webhook,
+	// never by the browser coming back, because a donor can close the tab or
+	// craft the return URL themselves.
+	DonationCallbackURL string
 }
 
 // PaystackEnabled reports whether donation endpoints can operate. Checked at
@@ -48,9 +54,10 @@ func Load() *Config {
 		DatabaseURL: require("DATABASE_URL"),
 		JWTSecret:   require("JWT_SECRET"),
 
-		PaystackSecretKey: os.Getenv("PAYSTACK_SECRET_KEY"),
-		PaystackPublicKey: os.Getenv("PAYSTACK_PUBLIC_KEY"),
-		PlatformFeeBps:    getInt64("PLATFORM_FEE_BPS", 0),
+		PaystackSecretKey:   os.Getenv("PAYSTACK_SECRET_KEY"),
+		PaystackPublicKey:   os.Getenv("PAYSTACK_PUBLIC_KEY"),
+		PlatformFeeBps:      getInt64("PLATFORM_FEE_BPS", 0),
+		DonationCallbackURL: getStr("DONATION_CALLBACK_URL", "http://localhost:5173/campaigns"),
 	}
 	if len(cfg.JWTSecret) < 32 {
 		fatalf("JWT_SECRET must be at least 32 characters")

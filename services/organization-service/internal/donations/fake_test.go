@@ -185,10 +185,15 @@ func (f *fakeStore) RecordWebhook(e *domain.WebhookEvent) (bool, error) {
 	if e.ID == "" {
 		e.ID = uuid.NewString()
 	}
-	if f.seenEvents[e.ID] {
-		return false, nil
+	// Dedupe on the PROVIDER's event id, mirroring the unique index in
+	// Postgres. The fake previously keyed on e.ID and so never noticed that
+	// a non-UUID was being written into a uuid column.
+	if e.ProviderEventID != nil {
+		if f.seenEvents[*e.ProviderEventID] {
+			return false, nil
+		}
+		f.seenEvents[*e.ProviderEventID] = true
 	}
-	f.seenEvents[e.ID] = true
 	copied := *e
 	f.webhooks = append(f.webhooks, &copied)
 	return true, nil
