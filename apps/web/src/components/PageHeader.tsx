@@ -6,7 +6,10 @@ import { useTranslation } from 'react-i18next';
  * homepage's "public record" typography:
  *
  *   - A short accent rule on top (brand → accent gradient)
- *   - `§` marker + all-caps eyebrow — reads as a section register
+ *   - A small brand dot + all-caps eyebrow. This used to be a `§` glyph;
+ *     the legalistic section marks were dropped across the product along
+ *     with the homepage's "§ 01 —" section numbering, which read as
+ *     template scaffolding rather than as anything a reader needed.
  *   - Optional meta line on the right ("Fri · 3 Jul 2026 · Public") —
  *     masthead-style dateline that gives the app its civic-register feel
  *   - Fraunces headline in the middle row
@@ -21,7 +24,7 @@ import { useTranslation } from 'react-i18next';
  * locale-aware date formatter.
  */
 export interface PageHeaderProps {
-  /** Small-caps section label; a § marker is added automatically. */
+  /** Small-caps section label; a brand dot is added automatically. */
   eyebrow?: string;
   /** The main headline — set in Fraunces at the component level. */
   title: ReactNode;
@@ -57,9 +60,7 @@ export function PageHeader({
         <div className="page-header-top">
           {eyebrow ? (
             <p className="page-header-eyebrow">
-              <span className="page-header-marker" aria-hidden="true">
-                §
-              </span>
+              <span className="page-header-marker" aria-hidden="true" />
               {eyebrow}
             </p>
           ) : (

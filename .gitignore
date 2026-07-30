@@ -17,9 +17,22 @@ apps/docs/build
 # ─── Testing ──────────────────────────────────────────────────────────────────
 **/coverage
 **/.jest-cache
-# Playwright's default output directory — traces, screenshots, .last-run.json
+# Playwright generated output. NOTE: the suites themselves are committed —
+# apps/{web,admin}/playwright.config.ts and apps/{web,admin}/e2e/** are
+# tracked on purpose and must stay that way. Only run artefacts and any
+# locally-installed browser payload are ignored.
+# Default output directory — traces, screenshots, videos, .last-run.json
 **/test-results
 **/playwright-report
+# Blob reporter output (used when sharding runs)
+**/blob-report
+# Browser binaries when installed into the project rather than the OS cache
+**/playwright/.cache
+**/.playwright
+# Throwaway configs used to run a subset of specs locally (e.g. to skip the
+# backend preflight in global-setup) — never meant to be committed.
+**/playwright.*.config.ts
+!**/playwright.config.ts
 
 # ─── Environment — never commit secrets ───────────────────────────────────────
 .env
@@ -85,6 +98,14 @@ Screen Shot*.png
 *.ntvs*
 *.njsproj
 *.sln
+
+# ─── Local working documents ─────────────────────────────────────────────────
+# Reference PDFs kept locally for context but deliberately NOT committed.
+# Scoped to these exact paths rather than a blanket *.pdf, because the five
+# source documents in docs/product/ (Blueprint, Roadmap, Technical
+# Architecture, Experience Architecture, Engineering Playbook) ARE tracked.
+/CivicOS Community Funding Feature.pdf
+/docs/product/How People Detect AI-Generated Websites.pdf
 
 # ─── Misc ────────────────────────────────────────────────────────────────────
 *.local

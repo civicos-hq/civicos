@@ -448,7 +448,7 @@
   "nav": {
     "brandSubtitle": "Bayanin Jama'a · An kafa 2026",
     "links": {
-      "docket": "Jadawali",
+      "docket": "Ayyuka kai tsaye",
       "whatItDoes": "Abin da yake yi",
       "howItWorks": "Yadda yake aiki",
       "faq": "Tambayoyi"
@@ -457,12 +457,12 @@
     "register": "Yi rajista"
   },
   "hero": {
-    "masthead": "Mujallar 01 · Lamba 001 · Tsarin Jama'a a Bayyane",
-    "headline": "Dimokuradiyya tana <em>kowace rana</em>, ba ranar zaɓe kaɗai ba.",
-    "sub": "CivicOS yana adana bayanan jama'a na ayyukan 'yan ƙasa tsakanin zaɓe — matsalolin da aka shaida, takardun koƙe-koƙen da aka sa hannu, amsoshin da aka samu — a tituna, a cikin al'ummarka, yau.",
-    "ctaPrimary": "Shiga CivicOS — kyauta ne",
-    "ctaSecondary": "Ina da asusu",
-    "trust": "Lambar buɗewa · Asusu da aka tabbatar · Bayanai a lokacin UTC",
+    "masthead": "Gina al'ummomi mafi kyau, tare.",
+    "headline": "Inda rahotannin 'yan ƙasa ke isa ga <em>ƙaramar hukuma</em>",
+    "sub": "CivicOS yana ba unguwarka, ƙaramar hukumarka, da jiharka rikodin jama'a guda ɗaya don matsalolin yau da kullum — daga transfoma da suka lalace da hanyoyin da ba a yi ba zuwa koƙe-koƙen al'umma. Bayar da rahoton matsaloli, biyo amsoshin hukuma, kuma ka ga abin da aka gyara.",
+    "ctaPrimary": "Shiga al'ummarka",
+    "ctaSecondary": "Shiga",
+    "trust": "Kyauta ga kowane ɗan ƙasa · Bayanan gida da aka tabbatar · Tsarin buɗaɗɗe",
     "signatureCaption": "An sanya hannu — jama'a"
   },
   "docket": {
@@ -482,145 +482,196 @@
     "reportedAt": "An bayar da rahoto {{time}}",
     "pill": {
       "issue": "Ana bincike",
-      "petition": "A buɗe",
-      "response": "An amsa",
+      "petition": "Koƙe a buɗe",
+      "response": "Amsar hukuma",
       "resolved": "An warware"
     }
   },
   "parties": {
-    "marker": "§ 01 — Masu ruwa da tsaki",
-    "title": "An gina shi don kowa a rayuwar jama'a",
+    "marker": "Waɗanda CivicOS ke hidima",
+    "title": "An gina shi don kowane abokin tarayya a rayuwar jama'a",
     "citizens": {
-      "role": "Ga 'yan ƙasa",
-      "title": "Ka sa muryarka ta ji, kowace rana",
-      "body": "Bayar da rahoton matsaloli a kan titinka, sa hannu kan koƙe-koƙen abubuwan da ke damunka, biyo wakilanka, kuma ka ga abin da aka yi — cikin kwanaki, ba zagayowar zaɓe ba."
+      "role": "Ga 'yan ƙasa da mazauna",
+      "title": "Bayar da rahoton matsalolin da ake bin diddiginsu",
+      "body": "Shaida matsalolin gida cikin ƙasa da minti biyu, sa hannu kan koƙe-koƙen al'umma da aka tabbatar, kuma ka biyo ci gaban hukuma daga rahoto na farko har zuwa warwarewa."
     },
     "reps": {
-      "role": "Ga wakilai",
-      "title": "Nuna aikinka a bayyane",
-      "body": "Amsa wa masu zaɓenka a wuri ɗaya. Yawan amsoshinka yana kan bayanin jama'arka — alhakin shi ne ƙirar, ba abin haɗawa ba."
+      "role": "Ga wakilai da kansiloli",
+      "title": "Nuna wa masu zaɓenka abin da kake kawowa",
+      "body": "Amsa kai tsaye ga koƙe-koƙen jama'a, fitar da sabuntawar ci gaba, kuma ka gina tarihin amsawa da aka tabbatar a unguwarka ko ƙaramar hukumarka."
     },
     "government": {
-      "role": "Ga gwamnati",
-      "title": "Hanyar amintacciya zuwa ga jama'a",
-      "body": "Tura rahotannin 'yan ƙasa zuwa ofishin da ya dace, fitar da shirye-shirye, kuma ka nuna ci gaba ta hanyar tarihin da za a iya tabbatar da shi."
+      "role": "Ga ƙananan hukumomi da hukumomi",
+      "title": "Mayar da ƙorafe-ƙorafe marasa tsari zuwa bayanan filin da suka bayyana",
+      "body": "Tura rahotannin da suke shigowa zuwa sashen da ya dace, aika ma'aikatan gyara, kuma ka ba mazauna hujjar aikin da aka yi."
     },
     "ngos": {
-      "role": "Ga NGOs",
-      "title": "Tara mutane kewaye da hujja ta gaske",
-      "body": "Tara siginar al'umma, shirya koƙe-koƙe, kuma auna tasiri da bayanan jama'a masu tsari maimakon labari kaɗai."
+      "role": "Ga ƙungiyoyin jama'a da NGOs",
+      "title": "Ka gina shawarwarinka a kan bayanan al'umma na gaske",
+      "body": "Gano yanayin ababen more rayuwa a faɗin ƙananan hukumomi, tallafa wa koƙe-koƙen mazauna da hujja mai tsari, kuma auna tasirin manufofi cikin lokaci."
     }
   },
   "articles": {
-    "marker": "§ 02 — Labarai",
-    "title": "Shiga ci gaba, ba lokacin zaɓe kaɗai ba",
+    "marker": "Abin da za ka iya yi a nan",
+    "title": "Duk abin da kake buƙata don ka riƙe shugabancin gida da alhaki",
     "issues": {
-      "title": "Bayar da rahoto da biyo matsaloli",
-      "body": "Rami a kan hanya, fitilun titi, hanyar haɗari — shaida shi cikin mintuna uku tare da hotuna, kuma biyo matsayinsa daga buɗe zuwa ƙarƙashin nazari zuwa warware."
+      "title": "Shigar da rahotanni da ba za su ɓace a cikin akwatin saƙo ba",
+      "body": "Ɗauki hoto, haɗa wuri, kuma ka shaida matsaloli kamar bututun ruwa da ya fashe, magudanar ruwa a buɗe, ko rashin ɗaukar shara. Rahotonka yana shiga rikodin jama'a wanda ofisoshin gida za su iya sa ido kuma su warware."
     },
     "petitions": {
-      "title": "Fara da sa hannu kan koƙe-koƙe",
-      "body": "Koƙe-koƙen tushen burin tare da matakai ta atomatik a 25%, 50%, da 100%. Ɗan ƙasa ɗaya, sa hannu ɗaya, babu lambobin da aka ƙara."
+      "title": "Tara unguwarka da koƙe-koƙen da aka tabbatar",
+      "body": "Fara koƙe-koƙen al'umma da burin sa hannu bayyananne don unguwarka ko ƙaramar hukumarka. Ɗan ƙasa ɗaya da aka tabbatar yana daidai da sa hannu ɗaya — babu spam na bot, babu maimaitawa — don lambobinka su kasance da nauyi na gaske."
     },
     "reps": {
-      "title": "Biyo wakilanka",
-      "body": "Duba wanda yake wakiltarka, abin da suka faɗa, da yadda suke amsawa cikin sauri — duka a kan bayanin jama'a wanda ke sabunta kansa."
+      "title": "Sanya amsoshin wakilai a kan rikodin",
+      "body": "Biyo kansilan unguwarka, shugaban ƙaramar hukuma, ko wakilin majalisarka. Idan sun amsa matsalar al'umma ko koƙe, ana adana maganarsu a bayyane a bayanin martabarsu don kowa ya gani."
     },
     "discover": {
-      "title": "Gano abin da ke da muhimmanci kusa",
-      "body": "Jeri da aka tsara ta hanyar kusanci: al'ummarka da farko, sannan ƙananan hukumarka, sannan jiharka — don abubuwan gida su zo da farko."
+      "title": "Jerin gida da aka tsara don unguwarka",
+      "body": "Ka mai da hankali kan abin da ke shafar rayuwarka ta yau da kullum. Jerinka yana ba fifiko ga rahotanni da sabuntawa daga titinka, unguwarka, da ƙaramar hukumarka kafin ya nuna ayyukan jihar."
     },
     "notifications": {
-      "title": "Ka kasance cikin tsari a ainihin lokaci",
-      "body": "Sanarwa tana zuwa nan da nan idan matsala ta sabunta, idan koƙe ya wuce ƙofa, ko kuma idan wakilinka ya amsa."
+      "title": "Ka san lokacin da wani abu ya motsa",
+      "body": "Ka samu sanarwa idan wakili ya amsa, koƙe ya cimma burin sa hannu, ko matsalar da kake bi ta canza matsayi zuwa an warware."
     },
     "transparency": {
-      "title": "Bayyane ta hanyar tsoho",
-      "body": "Kowane mu'amala yana da alamar lokaci kuma ana iya bin diddiginsa. Bayanan jama'a sun rage na jama'a; bayanan sirri sun rage na sirri."
+      "title": "Babu abin da ke ɓacewa a shiru",
+      "body": "Kowane rahoto, sa hannu, da amsar hukuma yana da alamar lokaci kuma ana ajiye shi a rikodin jama'a. Bayanan tuntuɓarka da adireshin gidanka sun rage na sirri."
     }
   },
   "principles": {
-    "marker": "§ 03 — Ƙa'idodin tushe",
-    "title": "Ƙa'idodi biyar, an rubuta su kafin lambar",
+    "marker": "Abin da muke riƙe kanmu da shi",
+    "title": "An rubuta kafin lambar, kuma har yanzu yana ɗaure mu",
     "list": {
-      "transparency": "Bayyane",
-      "participation": "Shiga",
-      "accountability": "Alhaki",
-      "trust": "Amana",
-      "accessibility": "Samuwa"
+      "transparency": {
+        "label": "Bayyane",
+        "body": "Kowane rahoto, sa hannu, da amsar hukuma yana zama a rikodin jama'a."
+      },
+      "participation": {
+        "label": "Shiga",
+        "body": "Kowane mazauni zai iya shigarwa, sa hannu, kuma ya biyo baya — kyauta, a kowace daga cikin harsuna biyar."
+      },
+      "accountability": {
+        "label": "Alhaki",
+        "body": "Yawan amsoshi yana bayyane, don haka shiru daga ofis shi ma yana kan rikodin."
+      },
+      "trust": {
+        "label": "Shaidar da aka tabbatar",
+        "body": "Ɗan ƙasa ɗaya da aka tabbatar, sa hannu ɗaya. Babu asusun yawa, babu jimlar da aka ƙara."
+      },
+      "accessibility": {
+        "label": "Yana aiki a wayarka",
+        "body": "An gina shi don ya loda a wayar Android mai rahusa a kan hanyar sadarwa mai rauni."
+      }
     },
     "note": "Kamar yadda bankin dijital ya sabunta yadda muke motsa kuɗi, <em>CivicOS yana sabunta yadda muke shiga cikin dimokuradiyya</em> — bayyane, mai samuwa, kuma an gina shi don ya dawwama."
   },
   "steps": {
-    "marker": "§ 04 — Tsari",
-    "title": "Daga rajista zuwa aikin jama'a cikin minti biyar",
+    "marker": "Yadda za ka fara",
+    "title": "Daga rajista zuwa aikin jama'a cikin minti 3",
     "join": {
-      "meta": "An shigar cikin daƙiƙa 90",
-      "title": "Shiga rajista",
-      "body": "Yi rajista da sunanka da imel. An tabbatar da shaida, babu takardu, babu kuɗi."
+      "meta": "Kusan daƙiƙa 90",
+      "title": "Ƙirƙiri asusunka da aka tabbatar",
+      "body": "Yi rajista da sunanka da bayanan asali. Tabbatarwa shi ne abin da ke tabbatar da cewa kowane sa hannu da rahoto na gaskiyar mazauni ne."
     },
     "pick": {
-      "meta": "Zaɓi al'ummarka",
-      "title": "Zaɓi yankinka",
-      "body": "Zaɓi jiharka da ƙaramar hukumarka don mu san abin da ake nufi da \"kusa da kai\" a jerinka."
+      "meta": "Zaɓi jiha, ƙaramar hukuma, da unguwa",
+      "title": "Zaɓi unguwarka da ƙaramar hukumarka",
+      "body": "Zaɓi jiharka, ƙaramar hukumarka, da unguwarka don jerinka ya kawo fitilun titi, hanyoyi, da matsalolin da suke gaban ƙofarka."
     },
     "act": {
-      "meta": "A kan rikodin",
-      "title": "Ɗauki mataki",
-      "body": "Bayar da rahoton matsala, sa hannu kan koƙe, biyo wakilanka — sunanka, bayananka."
+      "meta": "Hoto, wuri, aika",
+      "title": "Shigar da matsala ko goyi bayan koƙe",
+      "body": "Ɗauki hoton matsalar al'umma ko sa hannu kan koƙen mazauna. Ana sanya alamar lokaci a kan abin da ka aika kuma ana adana shi a rikodin jama'a."
     },
     "follow": {
-      "meta": "Biyo sakamako",
-      "title": "Ka ga abin da aka yi",
-      "body": "Sabuntawa a ainihin lokaci yayin da matsayi ke canzawa, amsoshi suna zuwa, kuma matakai suna saukowa."
+      "meta": "Sanarwa yayin da yake motsi",
+      "title": "Biyo amsa a ainihin lokaci",
+      "body": "Ka samu sanarwa nan da nan idan wakili ya amsa, koƙe ya cimma burinsa, ko matsalar da aka shigar ta canza matsayi zuwa an warware."
     },
-    "stepLabel": "Mataki na {{n}}"
+    "stepLabel": "Mataki na {{n}}",
+    "listLabel": "Matakan farawa",
+    "panelLabel": "Bayanin mataki"
   },
   "faq": {
-    "marker": "§ 05 — Tambayoyi",
-    "title": "Tambayoyi, a kan rikodin",
-    "qLabel": "T.{{n}}",
+    "marker": "Tambayoyin da ake yawan yi",
+    "title": "Amsoshi bayyanannu ga 'yan ƙasa da ma'aikatan gwamnati",
     "cost": {
-      "q": "Shin CivicOS kyauta ne don amfani?",
-      "a": "I. CivicOS kyauta ne ga 'yan ƙasa — har abada. Bayar da rahoton matsaloli, sa hannu kan koƙe-koƙe, biyo wakilanka, da karɓar sabuntawa duka kyauta ne. Cibiyoyin gwamnati da NGOs na iya samun matakan biya don kayan aiki na ci gaba, amma kwarewar 'yan ƙasa kyauta ne."
+      "q": "Shin CivicOS kyauta ne gaba ɗaya ga 'yan ƙasa?",
+      "a": "I, kullum. Bayar da rahoton matsaloli, sa hannu kan koƙe-koƙen gida, biyo wakilai, da karɓar sanarwar matsayi kai tsaye — duka babu kuɗi ga mazauna. Cibiyoyin gwamnati da NGOs na iya biya don kayan aiki na ci gaba, amma kwarewar ɗan ƙasa kyauta ce."
     },
     "privacy": {
-      "q": "Shin bayanan sirri na suna a kebe?",
-      "a": "Imel ɗinka, lambar wayarka, da adireshinka suna a kebe kuma ba a taɓa nuna su a bainar jama'a ba. Sunanka kawai, matsayinka, da ayyukan jama'a da kuke yi (matsalolin da kuka tayar, koƙe-koƙen da kuka sa hannu, sharhin da kuka aika) ana iya gani ga sauran masu amfani. Ku ke iko da abin da kuke rabawa."
-    },
-    "reps": {
-      "q": "Shin wakilai suna amfani da dandalin a zahiri?",
-      "a": "Ana ɗaukar wakilai al'umma da al'umma. Yawan amsoshinsu yana bayyane a kan bayanin jama'arsu — alhakin yana cikin ƙirar, don haka shiru shi ma sigina ce."
+      "q": "Yaya CivicOS ke kare bayanan sirri na?",
+      "a": "Imel ɗinka, lambar wayarka, da adireshin gidanka suna a kebe kuma ba a taɓa raba su a bainar jama'a ba. Sunanka kawai da ayyukan jama'a da kake yi — matsalolin da ka shigar, koƙe-koƙen da ka sa hannu, sharhin da ka aika — suna bayyana a dandalin."
     },
     "coverage": {
-      "q": "Yaya idan babu wanda ke wakiltar yankina tukuna?",
-      "a": "Har yanzu kuna iya shiga, zaɓi al'ummarku, kuma ku shigar. Da zaran wakili na ƙasarku ya shiga, ayyukan ku da suka gabata za su haɗu da su ta atomatik."
+      "q": "Me zai faru idan shugaban ƙaramar hukumarka ko wakilin unguwarka bai kasance a CivicOS ba tukuna?",
+      "a": "Har yanzu kana iya shigar da matsaloli da fara koƙe-koƙe. Idan wani jami'in mazaɓarka ya shiga, rahotannin unguwarsu da suke akwai za su bayyana a dashboard ɗinsu ta atomatik — babu abin da ka shigar da zai ɓace."
     },
-    "ownership": {
-      "q": "Wa ya gina CivicOS — kuma wa ya mallake shi?",
-      "a": "CivicOS tsarin jama'a ne na bayyane, an gina shi a bayyane kuma ƙungiyar 'yanci tana sa ido. Lambar tana bayyane, an rubuta tsarin, kuma ana maraba da gudummawa. Babu jam'iyyar siyasa, mai bayar da kuɗi, ko sha'awar kasuwanci da ke sarrafa dandalin."
+    "reps": {
+      "q": "Shin wakilai da jami'an kansil suna amsawa a zahiri?",
+      "a": "Ana ɗaukar jami'ai unguwa-unguwa, kuma yawan amsoshinsu yana kan bayanin martabarsu na jama'a. Yana aiki ta hanyoyi biyu: idan ofis ya amsa, mazauna suna ganin sa, kuma idan ya yi shiru, shi ma yana kan rikodin."
     },
     "abuse": {
-      "q": "Yaya kuke hana zagi, spam, ko bayanan ƙarya?",
-      "a": "Ana tabbatar da kowane asusu da shaida a yayin rajista. Sharhi da gabatarwa suna da iyaka, ana sarrafa su a kan ƙa'idodin al'umma, kuma ana iya bin diddiginsu zuwa ainihin asusu. Koƙe-koƙe suna buƙatar sa hannu na musamman — ɗan ƙasa ɗaya, sa hannu ɗaya."
+      "q": "Yaya kuke dakatar da asusun ƙarya, spam, da sa hannun bot?",
+      "a": "Kowane asusu yana wucewa ta tabbatar da shaida. Koƙe-koƙe suna tilasta ƙa'idar ɗan ƙasa ɗaya, sa hannu ɗaya, kuma rahotannin da suke shigowa suna da iyaka kuma ana sarrafa su a kan ƙa'idodin al'umma."
+    },
+    "ownership": {
+      "q": "Wa ke gudanar da CivicOS, kuma shin yana da alaƙa da wata jam'iyyar siyasa?",
+      "a": "CivicOS fasahar jama'a ce mai zaman kanta, ba ta jam'iyya ba, an gina ta a kan lambar buɗaɗɗe. Babu jam'iyyar siyasa ko sha'awar kasuwanci da ke mallaka, tallafa, ko sarrafa ta, kuma lambar tana bayyane ga kowa ya bincika."
     }
   },
+  "stories": {
+    "marker": "Yadda CivicOS ke bayyana",
+    "title": "Abubuwa uku da suke canzawa idan rikodin ya zama na jama'a",
+    "issues": {
+      "title": "Fitilar titi da ta lalace tana samun mai kula",
+      "body": "Mazaunin titin Dankande ya shigar da shi sau ɗaya, da hoto da wuri. Maƙwabta za su gan shi, ofishin ƙaramar hukuma zai gan shi, haka ma duk wanda ke tambaya me ya sa ya ɗauki makonni uku."
+    },
+    "consultations": {
+      "title": "Shawarwarin da suke fitar da sakamako",
+      "body": "Kansil yana buɗe taga kan ƙaura kasuwa, yana tara ra'ayoyi masu tsari daga 'yan kasuwa da mazauna, sannan yana sanya shawarar da dalilinta a wuri ɗaya."
+    },
+    "reps": {
+      "title": "Amsar kansila ta daina zama jita-jita",
+      "body": "Idan wakili ya yi alkawarin ranar gyara, ana rubuta shi da alamar lokaci a bayanin martabarsa — don tambayar biyo baya ta samu abin da za ta nuna."
+    }
+  },
+  "stewardship": {
+    "marker": "Wanda ke bayan wannan",
+    "title": "Mai zaman kansa, ba na jam'iyya ba, kuma an gina shi a bayyane",
+    "body": "Ƙungiya ƙarama mai zaman kanta ce ke kula da CivicOS, ba jam'iyya ko ɗan kwangila ba. Duk lambar, tsarin bayanai, da API suna bayyane — kowa zai iya karanta yadda ake adana rahoto, wa zai iya gani, da abin da ke faruwa bayan an shigar da shi.",
+    "openSource": {
+      "title": "Kowa zai iya bincika",
+      "body": "Kowane sabis, ƙaura, da hanyar API tana zama a wurin ajiya na jama'a ƙarƙashin lasisin buɗaɗɗe. Idan kana son duba yadda ake sarrafa bayananka, karanta lambar."
+    },
+    "invite": {
+      "title": "Muna buɗewa unguwa-unguwa",
+      "body": "CivicOS tana fitowa al'umma-al'umma maimakon yin da'awar kula da ƙasa gaba ɗaya wanda ba ta da shi. Idan kai shugaban ƙungiyar al'umma ne ko kuma kana aiki a ofishin ƙaramar hukuma, za ka iya kawo unguwarka da wuri."
+    },
+    "contribute": {
+      "title": "Ana maraba da gudummawa",
+      "body": "Masu haɓaka software, masu fassara, da masu binciken jama'a za su iya buɗe batu ko neman haɗawa. Takardun sun rufe tsarin gine-gine, saitin gida, da tsarin bayar da gudummawa."
+    },
+    "ctaRepo": "Karanta lambar a GitHub",
+    "ctaPartner": "Kawo ƙaramar hukumarka"
+  },
   "newsletter": {
-    "marker": "§ 06 — Sanarwar jama'a",
-    "title": "Yi rajista zuwa The Dispatch — ka zama na farko da ka sani lokacin da CivicOS ta zo yankinka",
-    "sub": "Imel ɗaya gajere a kowane wata tare da sabuntawar samfur, matakan al'umma, da labaran fitarwa. Babu maganganun talla. Yi rashin rajista a kowane lokaci.",
-    "placeholder": "kai@misali.com",
+    "marker": "Kasance da labari",
+    "title": "Ka kasance da labarin CivicOS a jiharka",
+    "sub": "Imel ɗaya a kowane wata game da sabbin ƙananan hukumomin da muka isa, manyan nasarorin al'umma, da sabuntawar dandali. Babu spam, ka fita a kowane lokaci.",
+    "placeholder": "Shigar da adireshin imel ɗinka",
     "submit": "Yi rajista",
     "submitting": "Ana yin rajista…",
     "doneTitle": "Kana cikin jerin.",
-    "doneSub": "Za mu tuntube ka yayin da muke faɗaɗawa."
+    "doneSub": "Za mu rubuta idan CivicOS ta isa ƙaramar hukumarka."
   },
   "cta": {
-    "eyebrow": "Yi rajistar muryarka",
-    "title": "Shin a shirye kake ka <em>shiga</em>?",
-    "sub": "Shiga 'yan ƙasa, wakilai, da ƙungiyoyi waɗanda ke gina rayuwar jama'a mai alhakin — tare, a kan rikodin.",
-    "ctaPrimary": "Ƙirƙira asusunka",
-    "ctaSecondary": "Shiga"
+    "eyebrow": "Shiga al'ummarka",
+    "title": "A shirye kake ka sa al'ummarka ta <em>ƙidaya</em> a rikodin?",
+    "sub": "Shiga mazauna, shugabannin al'umma, da jami'an gwamnati waɗanda ke gina ƙaramar hukuma mai saurin amsawa da alhaki, tare.",
+    "ctaPrimary": "Ƙirƙiri asusun ɗan ƙasa",
+    "ctaSecondary": "Yi haɗin gwiwa a matsayin ƙaramar hukuma ko wakili"
   },
   "footer": {
     "mission": "Ƙarfafa shiga dimokuradiyya ta hanyar tsarin dijital mai aminci, bayyane, kuma mai samuwa.",
@@ -631,8 +682,8 @@
       "terms": "Sharuɗa"
     },
     "checks": {
-      "privacy": "Mai mutunta sirri",
-      "audit": "Mai sauƙin bincike",
+      "privacy": "Adireshinka yana a kebe",
+      "audit": "Ba na jam'iyya ba",
       "open": "An gina shi a bayyane"
     }
   },
@@ -774,9 +825,9 @@
     "ha": "Hausa"
   },
   "manifesto": {
-    "marker": "§ 00 — Sanarwa",
-    "headline": "Tsarin aiki don <em>shiga cikin al'umma</em>.",
-    "body": "CivicOS shine kayan aikin dijital da aka raba wanda ke ba da damar gwamnatoci, jami'o'i, NGOs, da al'ummomi su gina abubuwan al'umma masu aminci — waɗanda aka tsara a kusa da wuraren da mutane suke zaune da gaske.",
+    "marker": "Me ya sa muka gina wannan",
+    "headline": "An gina shi don gaskiyar <em>ƙaramar hukuma</em>.",
+    "body": "Mazauni ya bayar da rahoton bututun ruwa da ya fashe, sannan bai ji wani abu ba har watanni. Kansila ya gyara hanya, kuma babu wanda ke wajen unguwar ya sani. CivicOS shi ne rikodin da aka raba wanda ke rufe wannan gibin — gwamnatoci, jami'o'i, NGOs, da al'ummomi suna amfani da shi, an tsara shi kusa da wuraren da mutane suke zaune da gaske.",
     "actors": {
       "governments": "Gwamnatoci",
       "universities": "Jami'o'i",

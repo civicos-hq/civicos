@@ -8,6 +8,7 @@ import {
   ChevronDown,
   Eye,
   FileText,
+  Github,
   Mail,
   Megaphone,
   MapPin,
@@ -23,9 +24,9 @@ export function HomePage() {
   useScrollReveal();
   useScrollToHash();
   useSeo({
-    title: 'CivicOS — Open civic infrastructure for citizens and governments',
+    title: 'CivicOS — Where citizen reports reach local government',
     description:
-      'Open civic infrastructure for continuous participation between elections. Citizens, governments, universities, and NGOs on one public record.',
+      'Report local issues, sign verified community petitions, and track official responses across your ward, LGA, and state on one public record.',
   });
   return (
     <div className="home-shell">
@@ -37,6 +38,7 @@ export function HomePage() {
       <Stories />
       <Principles />
       <HowItWorks />
+      <Stewardship />
       <FAQ />
       <Newsletter />
       <CTA />
@@ -72,33 +74,51 @@ function TypedMarker({
   );
 }
 
-// The emphasized word in the hero headline ("daily" in English) cycles
-// through Monday → Sunday and lands back on the resting word — a visual
-// literalization of the copy "democracy is daily, not just on election
-// day". Day names are pulled per-locale via Intl.DateTimeFormat so
-// Yoruba/Igbo/Hausa/Pidgin visitors see their own week. Rendered as an
-// inline-grid so the container is sized to the widest day; individual
-// words crossfade with a small upward slide. Screen readers only hear
-// the resting word via aria-label — the visible cycle is aria-hidden.
+// The emphasized phrase in the hero headline ("local government" in
+// English) cycles through real Nigerian LGA names before landing back on
+// the resting phrase. The point is specificity: the headline claims
+// reports reach local government, and the cycle names the actual councils
+// a visitor might live under instead of gesturing at "democracy" in the
+// abstract. LGAs are sampled from the same NIGERIAN_STATES table the
+// onboarding wizard uses, so nothing here is invented. Rendered as an
+// inline-grid so the container is sized to the widest entry; individual
+// phrases crossfade with a small upward slide. Screen readers only hear
+// the resting phrase via aria-label — the visible cycle is aria-hidden.
+const CYCLED_LGAS = [
+  'Ikeja LGA',
+  'Otukpo LGA',
+  'Kaduna North',
+  'Alimosho LGA',
+  'Sabon Gari',
+  'Umuahia North',
+  'Gwagwalada',
+] as const;
+
 function CyclingHeroEm({ children }: { children?: React.ReactNode }) {
-  const { i18n } = useTranslation();
-  const restingWord = typeof children === 'string' ? children : 'daily';
+  // <Trans> hands the <em> body over as an ARRAY of text nodes, not a bare
+  // string, so a `typeof children === 'string'` check silently fell through
+  // to the English fallback in every locale — Hausa read "…ke isa ga local
+  // government". Flatten instead, and keep the literal only as a real
+  // last resort.
+  const restingWord = useMemo(() => {
+    const flatten = (node: React.ReactNode): string => {
+      if (typeof node === 'string') return node;
+      if (typeof node === 'number') return String(node);
+      if (Array.isArray(node)) return node.map(flatten).join('');
+      return '';
+    };
+    return flatten(children).trim() || 'local government';
+  }, [children]);
 
-  const dayNames = useMemo(() => {
-    const fmt = new Intl.DateTimeFormat(i18n.language || 'en-GB', { weekday: 'long' });
-    // Jan 1 2024 fell on a Monday — anchor and walk forward 7 days.
-    return Array.from({ length: 7 }, (_, i) => fmt.format(new Date(2024, 0, 1 + i)));
-  }, [i18n.language]);
-
-  const words = useMemo(() => [restingWord, ...dayNames], [restingWord, dayNames]);
+  const words = useMemo(() => [restingWord, ...CYCLED_LGAS], [restingWord]);
   const [idx, setIdx] = useState(0);
   const [width, setWidth] = useState<number | null>(null);
   const containerRef = useRef<HTMLElement>(null);
 
-  // Cycle the word.
+  // Cycle the phrase.
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    // The resting word lingers 2.4s (the copy's punchline). Each day gets 1.4s.
+    // The resting phrase lingers 2.4s (the claim itself). Each LGA gets 1.4s.
     const delay = idx === 0 ? 2400 : 1400;
     const id = window.setTimeout(() => {
       setIdx((prev) => (prev + 1) % words.length);
@@ -106,20 +126,33 @@ function CyclingHeroEm({ children }: { children?: React.ReactNode }) {
     return () => window.clearTimeout(id);
   }, [idx, words.length]);
 
-  // Measure the active word's natural width after paint. The container
-  // fits each word tightly (no dead space on the right), and the CSS
-  // transition on `width` interpolates smoothly between cycles. The
-  // parent h1 gets a locked `min-height` (see .home-hero-title in
-  // index.css) so the paragraph + CTAs below don't shift vertically
-  // when a shorter word (Sun) follows a longer one (Wednesday).
+  // Lock the container to the WIDEST phrase, measured once per layout —
+  // not to the active one.
+  //
+  // The emphasized phrase sits at the end of the headline, so any change to
+  // its width reflows the wrap of the text before it. Sizing the container
+  // per-phrase therefore made the h1 flip between 4 and 5 lines and shoved
+  // the paragraph + CTAs down by up to 90px mid-animation (measured at
+  // 1024/1440/1920px). A single locked width means the wrap can never
+  // change; the crossfade + upward slide still carry the effect.
+  //
+  // Re-measured on resize and after fonts settle, since the h1 font-size is
+  // a vw-based clamp and Fraunces metrics differ from the fallback serif.
   useEffect(() => {
-    const activeEl = containerRef.current?.querySelector<HTMLSpanElement>(
-      '.hero-daily-swap-word.is-active',
-    );
-    if (activeEl) {
-      setWidth(activeEl.getBoundingClientRect().width);
-    }
-  }, [idx, words]);
+    const el = containerRef.current;
+    if (!el) return;
+
+    const measure = () => {
+      const spans = el.querySelectorAll<HTMLSpanElement>('.hero-daily-swap-word');
+      const widest = [...spans].reduce((max, s) => Math.max(max, s.scrollWidth), 0);
+      if (widest > 0) setWidth(widest);
+    };
+
+    measure();
+    document.fonts?.ready.then(measure).catch(() => {});
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [words]);
 
   return (
     <em
@@ -424,64 +457,91 @@ type DocketType = 'issue' | 'petition' | 'response' | 'resolved';
 type DocketEntry = {
   key: number;
   time: string;
-  code: string;
+  /** Human-readable ward + LGA, e.g. "Sabon Gari, Zaria LGA". */
+  location: string;
   type: DocketType;
   title: string;
 };
 
+// Sample records for the live-activity panel. Deliberately written as
+// things a resident would actually recognise — a named street, a real
+// ward, an LGA that exists in data/nigeria.ts — rather than reference
+// codes. Opaque identifiers (IKY-W4, ABJ-CTR) read as placeholder
+// fixture data and undercut the panel's whole job, which is to show a
+// visitor what their own feed will look like.
 const DOCKET_SEED: Omit<DocketEntry, 'key' | 'time'>[] = [
-  { code: 'IKY-W4', type: 'issue', title: 'Broken streetlight reported on Avenue Road' },
-  { code: 'OTK-LGA', type: 'petition', title: 'Repair Otukpo Primary — 1,284 of 2,000 signatures' },
   {
-    code: 'IKY-W2',
-    type: 'response',
-    title: 'Hon. Amina Yusuf: “Funding allocated through Q3 review.”',
+    location: 'Sabon Gari, Zaria LGA',
+    type: 'issue',
+    title: 'Transformer repair requested on Commercial Avenue',
   },
   {
-    code: 'ABJ-CTR',
+    location: 'Otukpo LGA, Benue',
+    type: 'petition',
+    title: 'Solar streetlights for Otukpo market road — 840 of 1,500 signatures',
+  },
+  {
+    location: 'Ikeja Ward 2, Lagos',
+    type: 'response',
+    title: 'Hon. Amina Yusuf: “Contractor mobilised for the Q3 road grading.”',
+  },
+  {
+    location: 'Municipal Area Council, Abuja',
     type: 'resolved',
-    title: 'Stormdrain cleared on 12th Avenue, 6 days after filing',
+    title: 'Drainage cleared along 12th Avenue after 4 days',
   },
 ];
 
 const DOCKET_POOL: Omit<DocketEntry, 'key' | 'time'>[] = [
-  { code: 'LAG-IKE', type: 'issue', title: 'Drainage blockage flooding Marina–Idumota junction' },
   {
-    code: 'KAD-W3',
+    location: 'Lagos Island LGA, Lagos',
+    type: 'issue',
+    title: 'Blocked drainage flooding the Marina–Idumota junction',
+  },
+  {
+    location: 'Kaduna North LGA, Kaduna',
     type: 'petition',
     title: 'Free bus passes for seniors — 2,104 of 3,000 signatures',
   },
   {
-    code: 'PHC-CTR',
+    location: 'Port Harcourt LGA, Rivers',
     type: 'response',
-    title: 'Mr. Adamu: “Repair tender awarded; works begin Monday.”',
+    title: 'Works department: “Repair tender awarded, crews start Monday.”',
   },
   {
-    code: 'KAN-LGA',
+    location: 'Fagge LGA, Kano',
     type: 'resolved',
-    title: 'Power restored to Sabon Gari market after 11-day outage',
+    title: 'Power restored to Sabon Gari market after an 11-day outage',
   },
-  { code: 'ENU-W5', type: 'issue', title: 'Bus shelter collapse on Old Park Road' },
   {
-    code: 'IBA-W2',
+    location: 'Enugu North LGA, Enugu',
+    type: 'issue',
+    title: 'Collapsed bus shelter on Old Park Road',
+  },
+  {
+    location: 'Ibadan North LGA, Oyo',
     type: 'petition',
-    title: 'Reopen public library on Adeoyo Street — 412 of 1,000',
+    title: 'Reopen the public library on Adeoyo Street — 412 of 1,000 signatures',
   },
   {
-    code: 'CAL-W1',
+    location: 'Calabar Municipal, Cross River',
     type: 'response',
-    title: 'Hon. Ekanem: “Walkway repairs scheduled for July 8.”',
+    title: 'Hon. Ekanem: “Walkway repairs scheduled to start on the 8th.”',
   },
   {
-    code: 'JOS-W6',
+    location: 'Jos North LGA, Plateau',
     type: 'resolved',
-    title: 'Pothole on Tafawa Balewa Road filled after 4-day filing',
+    title: 'Pothole on Tafawa Balewa Road filled 4 days after filing',
   },
-  { code: 'BEN-W2', type: 'issue', title: 'Water main leak outside Ekiosa market' },
   {
-    code: 'ABJ-W7',
+    location: 'Oredo LGA, Edo',
+    type: 'issue',
+    title: 'Water main leaking outside Ekiosa market',
+  },
+  {
+    location: 'Bwari LGA, Abuja',
     type: 'response',
-    title: 'Min. of Works: “Bridge inspection report posted publicly.”',
+    title: 'Ministry of Works: “Bridge inspection report published in full.”',
   },
 ];
 
@@ -570,7 +630,10 @@ function Docket() {
               )}
               <p className="docket-record-meta">
                 <span>{t('docket.reportedAt', { time: e.time })}</span>
-                <span className="docket-record-code">{e.code}</span>
+                <span className="docket-record-place">
+                  <MapPin className="h-3 w-3" aria-hidden="true" />
+                  {e.location}
+                </span>
               </p>
             </article>
           ))}
@@ -675,11 +738,10 @@ function Articles() {
         <h2 className="home-section-title">{t('articles.title')}</h2>
       </div>
       <div className="home-articles">
-        {articles.map((a, i) => (
+        {articles.map((a) => (
           <article key={a.key} className="home-article">
             <div className="home-article-meta">
-              <span className="home-article-num">Art. {String(i + 1).padStart(2, '0')}</span>
-              <a.icon className="h-3.5 w-3.5 home-article-icon" aria-hidden="true" />
+              <a.icon className="h-4 w-4 home-article-icon" aria-hidden="true" />
             </div>
             <h3 className="home-article-title">{t(`articles.${a.key}.title`)}</h3>
             <p className="home-article-body">{t(`articles.${a.key}.body`)}</p>
@@ -692,36 +754,21 @@ function Articles() {
 
 /**
  * "Stories" — three big illustrated cards showing CivicOS's flagship
- * flows (issue reporting, consultations, representative engagement).
- * Inline English copy for now; wire into i18n when we're ready to
- * translate the marketing block.
+ * flows (issue reporting, consultations, representative engagement),
+ * each written as a concrete situation rather than a capability claim.
  */
 function Stories() {
+  const { t } = useTranslation();
   const stories = [
-    {
-      key: 'issues',
-      img: '/designs/06_issue_reporting.png?v=7',
-      title: 'Report an issue in your community',
-      body: 'Broken streetlight, uncollected refuse, potholes. Citizens file it once, everyone sees it, and the right office is on the hook.',
-    },
-    {
-      key: 'consultations',
-      img: '/designs/07_consultation_lifecycle.png?v=7',
-      title: 'Consultations that close the loop',
-      body: 'Public bodies open a window, gather structured input, then publish the outcome. No inbox black holes.',
-    },
-    {
-      key: 'reps',
-      img: '/designs/08_representatives_engage.png?v=7',
-      title: 'Representatives on the record',
-      body: 'Every response, every promise, every no-show — tracked in one place your constituency can read.',
-    },
+    { key: 'issues', img: '/designs/06_issue_reporting.png?v=7' },
+    { key: 'consultations', img: '/designs/07_consultation_lifecycle.png?v=7' },
+    { key: 'reps', img: '/designs/08_representatives_engage.png?v=7' },
   ] as const;
   return (
     <section className="home-section reveal">
-      <TypedMarker text="STORIES — HOW CIVICOS SHOWS UP" />
+      <TypedMarker text={t('stories.marker')} />
       <div className="home-section-head">
-        <h2 className="home-section-title">Everyday civic moments, on a shared record.</h2>
+        <h2 className="home-section-title">{t('stories.title')}</h2>
       </div>
       <div className="home-stories-grid">
         {stories.map((s) => (
@@ -734,8 +781,8 @@ function Stories() {
               width={1672}
               height={668}
             />
-            <h3 className="home-story-title">{s.title}</h3>
-            <p className="home-story-body">{s.body}</p>
+            <h3 className="home-story-title">{t(`stories.${s.key}.title`)}</h3>
+            <p className="home-story-body">{t(`stories.${s.key}.body`)}</p>
           </article>
         ))}
       </div>
@@ -760,10 +807,10 @@ function Principles() {
           <h2 className="home-section-title">{t('principles.title')}</h2>
         </div>
         <div className="home-principles">
-          {keys.map((k, i) => (
+          {keys.map((k) => (
             <div key={k} className="home-principle">
-              <span className="home-principle-num">{String(i + 1).padStart(2, '0')}</span>
-              <span className="home-principle-label">{t(`principles.list.${k}`)}</span>
+              <span className="home-principle-label">{t(`principles.list.${k}.label`)}</span>
+              <p className="home-principle-body">{t(`principles.list.${k}.body`)}</p>
             </div>
           ))}
         </div>
@@ -775,34 +822,182 @@ function Principles() {
   );
 }
 
+const STEP_KEYS = ['join', 'pick', 'act', 'follow'] as const;
+
+const STEP_IMAGES: Record<(typeof STEP_KEYS)[number], string> = {
+  join: '/designs/05_community_participation.png?v=7',
+  pick: '/designs/09_trust_transparency.png?v=7',
+  act: '/designs/06_issue_reporting.png?v=7',
+  follow: '/designs/07_consultation_lifecycle.png?v=7',
+};
+
+/**
+ * HowItWorks — a step-through rather than four uniform cards. The rail on
+ * the left lists the four stages; selecting one swaps the detail panel
+ * beside it. Implemented as a real ARIA tablist with roving tabindex, so
+ * ←/→ (and ↑/↓ on the vertical rail) move between steps and Home/End jump
+ * to the ends. Advancing past the last step wraps to the first.
+ *
+ * The section is the one place on the page where the visitor is being told
+ * a sequence, so it earns a different interaction model from the sibling
+ * card grids above and below it.
+ */
 function HowItWorks() {
   const { t } = useTranslation();
-  const keys = ['join', 'pick', 'act', 'follow'] as const;
+  const [active, setActive] = useState(0);
+  const tabsRef = useRef<(HTMLButtonElement | null)[]>([]);
+
+  function focusStep(next: number) {
+    const wrapped = (next + STEP_KEYS.length) % STEP_KEYS.length;
+    setActive(wrapped);
+    tabsRef.current[wrapped]?.focus();
+  }
+
+  function onKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    switch (e.key) {
+      case 'ArrowDown':
+      case 'ArrowRight':
+        e.preventDefault();
+        focusStep(active + 1);
+        break;
+      case 'ArrowUp':
+      case 'ArrowLeft':
+        e.preventDefault();
+        focusStep(active - 1);
+        break;
+      case 'Home':
+        e.preventDefault();
+        focusStep(0);
+        break;
+      case 'End':
+        e.preventDefault();
+        focusStep(STEP_KEYS.length - 1);
+        break;
+    }
+  }
+
+  const activeKey = STEP_KEYS[active];
+
   return (
     <section id="how" className="home-section reveal">
       <TypedMarker text={t('steps.marker')} />
       <div className="home-section-head">
         <h2 className="home-section-title">{t('steps.title')}</h2>
       </div>
-      <ol className="home-steps">
-        {keys.map((k, i) => (
-          <li key={k} className="home-step">
-            <span className="home-step-num">
-              {t('steps.stepLabel', { n: String(i + 1).padStart(2, '0') })}
-            </span>
-            <span className="home-step-meta">{t(`steps.${k}.meta`)}</span>
-            <h3 className="home-step-title">{t(`steps.${k}.title`)}</h3>
-            <p className="home-step-body">{t(`steps.${k}.body`)}</p>
-          </li>
+
+      <div className="home-stepper">
+        <div
+          className="home-stepper-rail"
+          role="tablist"
+          aria-orientation="vertical"
+          aria-label={t('steps.listLabel')}
+          onKeyDown={onKeyDown}
+        >
+          {STEP_KEYS.map((k, i) => (
+            <button
+              key={k}
+              type="button"
+              role="tab"
+              id={`step-tab-${k}`}
+              aria-selected={i === active}
+              aria-controls={`step-panel-${k}`}
+              tabIndex={i === active ? 0 : -1}
+              ref={(el) => {
+                tabsRef.current[i] = el;
+              }}
+              className={`home-stepper-tab${i === active ? ' is-active' : ''}`}
+              onClick={() => setActive(i)}
+            >
+              <span className="home-stepper-tab-num" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <span className="home-stepper-tab-label">
+                <span className="home-stepper-tab-title">{t(`steps.${k}.title`)}</span>
+                <span className="home-stepper-tab-meta">{t(`steps.${k}.meta`)}</span>
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {/* Keyed on the active step so React remounts the panel and the
+            fade-up animation replays on every selection. */}
+        <div
+          key={activeKey}
+          className="home-stepper-panel"
+          role="tabpanel"
+          id={`step-panel-${activeKey}`}
+          aria-labelledby={`step-tab-${activeKey}`}
+          tabIndex={0}
+        >
+          <img
+            className="home-stepper-panel-img"
+            src={STEP_IMAGES[activeKey]}
+            alt=""
+            loading="lazy"
+            width={1672}
+            height={668}
+          />
+          <p className="home-stepper-panel-step">
+            {t('steps.stepLabel', { n: String(active + 1).padStart(2, '0') })}
+          </p>
+          <h3 className="home-stepper-panel-title">{t(`steps.${activeKey}.title`)}</h3>
+          <p className="home-stepper-panel-body">{t(`steps.${activeKey}.body`)}</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Stewardship — the "who is actually behind this" block. A civic platform
+ * asking residents to file their street address under their real name has
+ * to answer that question somewhere on the landing page, and answering it
+ * honestly means saying what we have not built yet: coverage is per-ward
+ * and opt-in, not national. No pilot counts are quoted here until there
+ * are real ones to quote.
+ */
+function Stewardship() {
+  const { t } = useTranslation();
+  const cards = ['openSource', 'invite', 'contribute'] as const;
+  return (
+    <section id="stewardship" className="home-section reveal">
+      <TypedMarker text={t('stewardship.marker')} />
+      <div className="home-section-head">
+        <h2 className="home-section-title">{t('stewardship.title')}</h2>
+        <p className="home-stewardship-lede">{t('stewardship.body')}</p>
+      </div>
+
+      <div className="home-stewardship">
+        {cards.map((c) => (
+          <article key={c} className="home-stewardship-card">
+            <h3 className="home-stewardship-card-title">{t(`stewardship.${c}.title`)}</h3>
+            <p className="home-stewardship-card-body">{t(`stewardship.${c}.body`)}</p>
+          </article>
         ))}
-      </ol>
+      </div>
+
+      <div className="home-stewardship-cta">
+        <a
+          className="home-btn home-btn-ghost"
+          href="https://github.com/civicos-hq/civicos"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Github className="h-4 w-4" aria-hidden="true" />
+          {t('stewardship.ctaRepo')}
+        </a>
+        <Link to="/register" className="home-btn home-btn-ghost">
+          {t('stewardship.ctaPartner')}
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+      </div>
     </section>
   );
 }
 
 function FAQ() {
   const { t } = useTranslation();
-  const keys = ['cost', 'privacy', 'reps', 'coverage', 'ownership', 'abuse'] as const;
+  const keys = ['cost', 'privacy', 'coverage', 'reps', 'abuse', 'ownership'] as const;
   return (
     <section id="faq" className="home-section reveal">
       <TypedMarker text={t('faq.marker')} />
@@ -810,12 +1005,9 @@ function FAQ() {
         <h2 className="home-section-title">{t('faq.title')}</h2>
       </div>
       <div className="home-faq">
-        {keys.map((k, i) => (
+        {keys.map((k) => (
           <details key={k} className="home-faq-item">
             <summary className="home-faq-q">
-              <span className="home-faq-num">
-                {t('faq.qLabel', { n: String(i + 1).padStart(2, '0') })}
-              </span>
               <span>{t(`faq.${k}.q`)}</span>
               <ChevronDown className="home-faq-chevron h-4 w-4" aria-hidden="true" />
             </summary>
@@ -916,7 +1108,13 @@ function CTA() {
             {t('cta.ctaPrimary')}
             <ArrowRight className="h-4 w-4" />
           </Link>
-          <Link to="/login" className="home-btn home-btn-on-dark home-btn-lg">
+          {/* Officials and LGA staff get sent to the same form with their
+              account type pre-selected — see accountTypeFromParam in
+              RegisterPage. */}
+          <Link
+            to="/register?type=REPRESENTATIVE"
+            className="home-btn home-btn-on-dark home-btn-lg"
+          >
             {t('cta.ctaSecondary')}
           </Link>
         </div>

@@ -457,12 +457,12 @@
     "register": "Debanye aha"
   },
   "hero": {
-    "masthead": "Mpịakọta 01 · Nke 001 · Akụrụngwa Ọha Mepere Emepe",
-    "headline": "Ọchịchị onye kwuo uche ya bụ ihe <em>kwa ụbọchị</em>, ọ bụghị naanị n'oge ntuli aka.",
-    "sub": "CivicOS na-edebe akwụkwọ ọha banyere ihe ndị ụmụ amaala na-eme n'etiti oge ntuli aka — okwu akọwapụtara, akwụkwọ akwụsịrị aka, azịza enwetara — n'okporo ụzọ gị, n'obodo gị, taa.",
-    "ctaPrimary": "Soro CivicOS — efu ka ọ bụ",
-    "ctaSecondary": "Enwere m akaụntụ",
-    "trust": "Mmepe mepere emepe · Akaụntụ ndị akwadoro · Ndekọ ego nke UTC",
+    "masthead": "Iwulite obodo ka mma, ọnụ.",
+    "headline": "Ebe ozi ụmụ amaala na-eru <em>gọọmenti ime obodo</em>",
+    "sub": "CivicOS na-enye ward gị, LGA gị, na steeti gị otu ndekọ ọha maka nsogbu obodo nke ụbọchị niile — site na transformer mebiri na okporo ụzọ a na-arụghị ruo akwụkwọ arịrịọ obodo. Kọọ nsogbu, soro azịza ndị ọchịchị, ma hụ ihe a dozirila.",
+    "ctaPrimary": "Sonye n'obodo gị",
+    "ctaSecondary": "Banye",
+    "trust": "Efu maka ụmụ amaala niile · Profaịlụ ime obodo akwadoro · Akụrụngwa mepere emepe",
     "signatureCaption": "Ndị mmadụ bịanyere aka"
   },
   "docket": {
@@ -482,145 +482,196 @@
     "reportedAt": "Kọrọ na {{time}}",
     "pill": {
       "issue": "Na-enyocha",
-      "petition": "Emepere",
-      "response": "Azaghachiri",
+      "petition": "Akwụkwọ arịrịọ emepere",
+      "response": "Azịza ọchịchị",
       "resolved": "Dozieziri"
     }
   },
   "parties": {
-    "marker": "§ 01 — Ndị metụtara",
-    "title": "Arụrụ maka onye ọ bụla nọ n'ọhà",
+    "marker": "Ndị CivicOS bụ maka ha",
+    "title": "Arụrụ maka onye mmekọ ọ bụla nọ n'ọhà",
     "citizens": {
-      "role": "Maka ụmụ amaala",
-      "title": "Mee ka olu gị daa ụda, kwa ụbọchị",
-      "body": "Kọọ okwu nke nọ n'okporo ụzọ gị, bịnye aka n'akwụkwọ arịrịọ ihe gbasara gị, soro ndị nnọchi anya gị, ma hụ ihe a rụzuru — n'ime ụbọchị, ọ bụghị naanị mgbe ntuli aka."
+      "role": "Maka ụmụ amaala na ndị bi ebe ahụ",
+      "title": "Kọọ nsogbu ndị a ga-eso n'ezie",
+      "body": "Debe nsogbu ime obodo n'ime ihe na-erughị nkeji abụọ, bịnye aka n'akwụkwọ arịrịọ obodo akwadoro, ma soro ọganihu ndị ọchịchị site na ozi mbụ ruo mgbe edozirila ya."
     },
     "reps": {
-      "role": "Maka ndị nnọchi anya",
-      "title": "Gosi ọrụ gị n'ihu ọha",
-      "body": "Zaa ndị mmadụ na-ekwu n'ofu ebe. Ọnụ ọgụgụ azịza gị nọ na profaịlụ ọha gị — ịza ajụjụ bụ ihe arụrụ maka ya, ọ bụghị atụmatụ."
+      "role": "Maka ndị nnọchi anya na ndị kansụl",
+      "title": "Gosi mpaghara gị ihe ị na-eweta",
+      "body": "Zaa akwụkwọ arịrịọ ọha ozugbo, bipụta mmelite ọganihu, ma wulite ndekọ nzaghachi akwadoro na ward ma ọ bụ LGA gị."
     },
     "government": {
-      "role": "Maka gọọmenti",
-      "title": "Ụzọ a tụkwasịrị obi maka ọha",
-      "body": "Ziga ozi ụmụ amaala n'aka ndị kwesịrị, bipụta atụmatụ, ma gosi ọganihu site na ndekọ enwere ike ịchọpụta na nke nwere oge."
+      "role": "Maka gọọmenti ime obodo na ụlọ ọrụ",
+      "title": "Mee ka mkpesa na-enweghị usoro ghọọ data ubi doro anya",
+      "body": "Ziga ozi na-abata n'aka ngalaba kwesịrị ekwesị, zipụ ndị ọrụ nrụzi, ma nye ndị bi ebe ahụ akaebe ọrụ e rụrụ."
     },
     "ngos": {
-      "role": "Maka NGO",
-      "title": "Kpalite mmadụ site na ihe akaebe",
-      "body": "Chịkọta okwu ndị obodo, hazie akwụkwọ arịrịọ, ma tụọ mmetụta site na data ọhà ahaziri n'ọnọdụ akụkọ naanị."
+      "role": "Maka ọha mmadụ na NGO",
+      "title": "Were ezigbo data obodo mee ntụzịaka gị",
+      "body": "Chọpụta usoro akụrụngwa n'ofe LGA dị iche iche, kwado akwụkwọ arịrịọ ndị bi ebe ahụ site na akaebe ahaziri, ma tụọ mmetụta amụma n'oge."
     }
   },
   "articles": {
-    "marker": "§ 02 — Edemede",
-    "title": "Itinye aka mgbe niile, ọ bụghị naanị n'oge ntuli aka",
+    "marker": "Ihe ị nwere ike ime ebe a",
+    "title": "Ihe niile ị chọrọ iji jide ọchịchị ime obodo aka",
     "issues": {
-      "title": "Kọọ ma soro okwu",
-      "body": "Olulu, ọkụ okporo ụzọ, ụzọ na-adịghị mma — debe ya n'ime nkeji atọ jiri foto ma soro ọnọdụ ya site na mepere ruo edoziri."
+      "title": "Debe ozi nke na-agaghị efunahụ n'ime inbox",
+      "body": "Sere foto, tinye ebe ọ dị, ma debe nsogbu dị ka pipes mmiri gbawara, iyi mmiri mepere emepe, ma ọ bụ ahịhịa a na-ebughị. Ozi gị na-abanye n'ime ndekọ ọha nke ụlọ ọrụ ime obodo nwere ike lekọta ma dozie."
     },
     "petitions": {
-      "title": "Bido ma bịnye aka n'akwụkwọ arịrịọ",
-      "body": "Akwụkwọ arịrịọ nwere ebumnobi nke nwere mkpebi ndị akpaghị aka na 25%, 50%, na 100%. Otu nwa amaala, otu mbinye aka, ọ dịghị ọnụ ọgụgụ ụgha."
+      "title": "Kpalite mpaghara gị site n'akwụkwọ arịrịọ akwadoro",
+      "body": "Bido akwụkwọ arịrịọ obodo nwere ebumnobi mbinye aka doro anya maka ward ma ọ bụ LGA gị. Otu nwa amaala akwadoro hà otu mbinye aka — ọ dịghị spam bot, ọ dịghị nkọwa abụọ — ka ọnụ ọgụgụ gị nwee ike n'ezie."
     },
     "reps": {
-      "title": "Soro ndị nnọchi anya gị",
-      "body": "Hụ onye na-anọchite gị, ihe ha kwuru, na otu ha ji ngwa azaa — niile na profaịlụ ọha nke na-emelite onwe ya."
+      "title": "Tinye azịza ndị nnọchi anya n'ime ndekọ",
+      "body": "Soro kansụl ward gị, onyeisi LGA, ma ọ bụ onye nnọchi anya ụlọ omebe iwu gị. Mgbe ha zara nsogbu obodo ma ọ bụ akwụkwọ arịrịọ, a na-edekọ okwu ha n'ihu ọha na profaịlụ ha ka onye ọ bụla hụ."
     },
     "discover": {
-      "title": "Chọpụta ihe dị mkpa n'akụkụ gị",
-      "body": "Ndepụta ahaziri site na nso: obodo gị mbụ, mgbe ahụ LGA gị, mgbe ahụ steeti gị — ka ihe ụlọ gị bụrụ nke mbụ."
+      "title": "Ndepụta ime obodo ahaziri maka ward gị",
+      "body": "Lekwasị anya n'ihe na-emetụta ndụ gị kwa ụbọchị. Ndepụta gị na-ebute ozi na mmelite si n'okporo ụzọ gị, ward gị, na LGA gị ụzọ tupu o gosi ihe na-eme na steeti niile."
     },
     "notifications": {
-      "title": "Nọrọ na mkparịta ụka n'oge dị ndụ",
-      "body": "Ọkwa na-eru gị ozugbo okwu emelitere, akwụkwọ arịrịọ rute nzọụkwụ, ma ọ bụ onye nnọchi anya gị zaa."
+      "title": "Mara mgbe ihe na-agagharị",
+      "body": "Nweta ọkwa mgbe onye nnọchi anya zara, mgbe akwụkwọ arịrịọ ruru ebumnobi mbinye aka ya, ma ọ bụ mgbe nsogbu ị na-eso gbanwere ọnọdụ ruo edozirila."
     },
     "transparency": {
-      "title": "Ihe doro anya site na mmalite",
-      "body": "Mmekọrịta ọ bụla nwere oge edenyere ma nwee ike ịchọpụta. Ozi ọha na-anọgide bụrụ nke ọha; data nkeonwe na-anọgide bụrụ nzuzo."
+      "title": "Ọ dịghị ihe na-efunahụ na nkịtị",
+      "body": "Ozi ọ bụla, mbinye aka, na azịza ọchịchị nwere oge edenyere ma a na-edebe ya na ndekọ ọha. Ozi kọntaktị gị na adreesị ụlọ gị na-anọgide bụrụ nzuzo."
     }
   },
   "principles": {
-    "marker": "§ 03 — Ụkpụrụ ntọala",
-    "title": "Ụkpụrụ ise, ndị edere tupu koodu",
+    "marker": "Ihe anyị ji jide onwe anyị aka",
+    "title": "Edere ya tupu koodu, ọ ka na-ekekwa anyị",
     "list": {
-      "transparency": "Ihe Doro Anya",
-      "participation": "Ntinye Aka",
-      "accountability": "Ịza Ajụjụ",
-      "trust": "Ntụkwasị Obi",
-      "accessibility": "Ohere Nnweta"
+      "transparency": {
+        "label": "Ihe doro anya",
+        "body": "Ozi ọ bụla, mbinye aka, na azịza ọchịchị na-anọgide na ndekọ ọha."
+      },
+      "participation": {
+        "label": "Ntinye aka",
+        "body": "Onye bi ebe ahụ ọ bụla nwere ike debe, bịnye aka, ma soro — n'efu, n'asụsụ ise ọ bụla."
+      },
+      "accountability": {
+        "label": "Ịza ajụjụ",
+        "body": "Ọnụ ọgụgụ azịza bụ ihe ọha, ya mere ịgbachi nkịtị nke ụlọ ọrụ dịkwa na ndekọ."
+      },
+      "trust": {
+        "label": "Njirimara akwadoro",
+        "body": "Otu nwa amaala akwadoro, otu mbinye aka. Ọ dịghị akaụntụ ọtụtụ, ọ dịghị ọnụ ọgụgụ ụgha."
+      },
+      "accessibility": {
+        "label": "Ọ na-arụ ọrụ na ekwentị gị",
+        "body": "Arụrụ ya ka o bulite na ekwentị Android dị ọnụ ala na netwọk na-adịghị ike."
+      }
     },
     "note": "Dịka ụlọ akụ dijitalụ si megharịa otu anyị si akwaga ego, <em>CivicOS na-emegharị otu anyị si etinye aka n'ọchịchị onye kwuo uche ya</em> — ihe doro anya, nwere ohere, edobere ka ọ dị ogologo oge."
   },
   "steps": {
-    "marker": "§ 04 — Usoro",
-    "title": "Site na ịdebanye aha ruo na ọrụ ọha n'okpuru nkeji ise",
+    "marker": "Otu ị ga-esi bido",
+    "title": "Site na ịdebanye aha ruo na ọrụ ọha n'ime nkeji 3",
     "join": {
-      "meta": "Edebere n'ime sekọnd 90",
-      "title": "Sonyere ndepụta",
-      "body": "Debanye aha gị na email gị. Akwadoro njirimara, enweghị akwụkwọ, enweghị ọnụ ahịa."
+      "meta": "Ihe dị ka sekọnd 90",
+      "title": "Mepee akaụntụ gị akwadoro",
+      "body": "Debanye aha gị na nkọwa ntọala. Nkwado njirimara bụ ihe na-eme ka mbinye aka na ozi ọ bụla si n'aka ezigbo onye bi ebe ahụ."
     },
     "pick": {
-      "meta": "Họrọ obodo gị",
-      "title": "Họrọ ebe gị",
-      "body": "Họrọ steeti gị na LGA gị ka anyị mara ihe a na-agụ \"nso gị\" n'ndepụta gị."
+      "meta": "Họrọ steeti, LGA na ward",
+      "title": "Họrọ ward na LGA gị",
+      "body": "Họrọ steeti gị, LGA gị, na ward gị ka ndepụta gị bulite ọkụ okporo ụzọ, okporo ụzọ, na nsogbu ndị dị n'ọnụ ụzọ gị."
     },
     "act": {
-      "meta": "Na ndekọ",
-      "title": "Mee ihe",
-      "body": "Kọọ okwu, bịnye aka n'akwụkwọ arịrịọ, soro ndị nnọchi anya gị — aha gị, ndekọ gị."
+      "meta": "Foto, ebe, zipụ",
+      "title": "Debe nsogbu ma ọ bụ kwado akwụkwọ arịrịọ",
+      "body": "Sere foto nsogbu obodo ma ọ bụ bịnye aka n'akwụkwọ arịrịọ ndị bi ebe ahụ. A na-etinye oge n'ihe ị zipụrụ ma dekọọ ya na ndekọ ọha."
     },
     "follow": {
-      "meta": "Soro nsonaazụ ya",
-      "title": "Hụ ihe a rụzuru",
-      "body": "Mmelite n'oge dị ndụ mgbe ọnọdụ gbanwere, azịza rutere, na nzọụkwụ daara."
+      "meta": "Ọkwa ka ọ na-agagharị",
+      "title": "Soro azịza n'oge dị ndụ",
+      "body": "A ga-agwa gị ozugbo onye nnọchi anya zara, akwụkwọ arịrịọ ruru ebumnobi ya, ma ọ bụ nsogbu edebere gbanwere ọnọdụ ruo edozirila."
     },
-    "stepLabel": "Nzọụkwụ {{n}}"
+    "stepLabel": "Nzọụkwụ {{n}}",
+    "listLabel": "Nzọụkwụ mmalite",
+    "panelLabel": "Nkọwa nzọụkwụ"
   },
   "faq": {
-    "marker": "§ 05 — Ajụjụ",
-    "title": "Ajụjụ, na ndekọ",
-    "qLabel": "A.{{n}}",
+    "marker": "Ajụjụ ndị a na-ajụkarị",
+    "title": "Azịza doro anya maka ụmụ amaala na ndị ọrụ gọọmenti",
     "cost": {
-      "q": "CivicOS ọ bụ efu iji?",
-      "a": "Ee. CivicOS bụ efu maka ụmụ amaala — ruo mgbe ebighị ebi. Ịkọ okwu, ịbịnye aka n'akwụkwọ arịrịọ, iso ndị nnọchi anya gị, na ịnata mmelite agaghị efu ihe ọ bụla. Ngalaba gọọmenti na NGO nwere ike ịnwe ọkwa a kwụrụ ụgwọ maka ngwa ọrụ kachasị, mana ahụmịhe ụmụ amaala bụ efu."
+      "q": "CivicOS ọ bụ efu kpamkpam maka ụmụ amaala?",
+      "a": "Ee, mgbe niile. Ịkọ nsogbu, ịbịnye aka n'akwụkwọ arịrịọ ime obodo, iso ndị nnọchi anya, na ịnata ọkwa ọnọdụ dị ndụ agaghị efu ndị bi ebe ahụ ihe ọ bụla. Ngalaba gọọmenti na NGO nwere ike kwụọ ụgwọ maka ngwa ọrụ kachasị, mana ahụmịhe nwa amaala bụ efu."
     },
     "privacy": {
-      "q": "Ozi nkeonwe m ọ bụ nzuzo?",
-      "a": "Email gị, nọmba ekwentị, na adreesị bụ nzuzo, anaghịkwa egosi ọha mgbe ọ bụla. Naanị aha ngosi gị, ọrụ gị, na omume ọha ị na-eme (okwu ị kọrọ, akwụkwọ arịrịọ ị bịnyere aka, okwu ndị ị dere) ka ndị ọzọ na-ahụ. Ị na-achịkwa ihe ị na-ekekọrịta."
-    },
-    "reps": {
-      "q": "Ndị nnọchi anya, ha nwere n'ezie iji ikpo okwu a?",
-      "a": "A na-ewebata ndị nnọchi anya site n'obodo n'obodo. Ọnụ ọgụgụ azịza ha pụtara n'ihu profaịlụ ọha — ịza ajụjụ bụ ihe arụrụ maka ya, ya mere na ịgbachi nkịtị bụkwa ihe ngosi."
+      "q": "Kedu ka CivicOS si echebe ozi nkeonwe m?",
+      "a": "Email gị, nọmba ekwentị gị, na adreesị ụlọ gị bụ nzuzo, anaghịkwa ekekọrịta ha n'ihu ọha mgbe ọ bụla. Naanị aha ngosi gị na omume ọha ị na-eme — nsogbu ị debere, akwụkwọ arịrịọ ị bịnyere aka, okwu ị dere — na-apụta na ikpo okwu ahụ."
     },
     "coverage": {
-      "q": "Gịnị ma ọ bụrụ na onye ọ bụla anọchighị anya ebe m ka ugbu a?",
-      "a": "Ị ka nwere ike isonye, họrọ obodo gị, ma kọọ. Ozugbo onye nnọchi anya maka mpaghara gị sonyere, ọrụ gị niile ga-ejikọta ya na ya n'akpaghị aka."
+      "q": "Gịnị ga-eme ma ọ bụrụ na onyeisi LGA m ma ọ bụ onye nnọchi anya ward m anọghị na CivicOS ka ugbu a?",
+      "a": "Ị ka nwere ike debe nsogbu ma bido akwụkwọ arịrịọ. Mgbe onye ọchịchị maka mpaghara gị sonyere, ozi ward ha ndị dị ugbu a ga-apụta na dashboard ha n'akpaghị aka — ọ dịghị ihe ị debere ga-efunahụ."
     },
-    "ownership": {
-      "q": "Ònye wuru CivicOS — ma ònye nwe ya?",
-      "ana": "CivicOS bụ akụrụngwa ọha mepere emepe, e wuru ya na nche nke ndị otu nọọrọ onwe ha. Koodu ya bụ nke ọha, e dekọrọ ụdị ahụ, a na-anabata onyinye ọ bụla. Ọ dịghị otu pati ndọrọ ndọrọ ọchịchị, otu onye na-akwado ego, ma ọ bụ atụmatụ azụmahịa na-achịkwa ikpo okwu a."
+    "reps": {
+      "q": "Ndị nnọchi anya na ndị ọrụ kansụl, ha na-azaghachi n'ezie?",
+      "a": "A na-ewebata ndị ọchịchị ward na ward, ọnụ ọgụgụ azịza ha nọkwa na profaịlụ ọha ha. Ọ na-arụ ọrụ n'ụzọ abụọ: mgbe ụlọ ọrụ zara, ndị bi ebe ahụ na-ahụ ya, mgbe ọ gbachiri nkịtị, nke ahụ dịkwa na ndekọ."
     },
     "abuse": {
-      "q": "Kedu otu i si egbochi mmebi iwu, spam, ma ọ bụ ozi ụgha?",
-      "a": "A na-akwado njirimara akaụntụ ọ bụla n'oge ndebanye aha. A na-akpachapụ anya na okwu na ihe e nyere, gbasoo ụkpụrụ obodo, ma nwee ike ịchọpụta ya n'akaụntụ. Akwụkwọ arịrịọ chọrọ mbinye aka pụrụ iche — otu nwa amaala, otu mbinye aka."
+      "q": "Kedu ka unu si egbochi akaụntụ ụgha, spam, na mbinye aka bot?",
+      "a": "Akaụntụ ọ bụla na-agafe nkwado njirimara. Akwụkwọ arịrịọ na-emanye iwu otu nwa amaala, otu mbinye aka, a na-akpachapụkwa anya n'ozi na-abata ma lekọta ha site n'ụkpụrụ obodo."
+    },
+    "ownership": {
+      "q": "Ònye na-achịkwa CivicOS, ọ nwere njikọ na pati ndọrọ ndọrọ ọchịchị ọ bụla?",
+      "a": "CivicOS bụ teknụzụ ọha nọọrọ onwe ya nke na-adịghị n'akụkụ pati ọ bụla, e wuru ya na koodu mepere emepe. Ọ dịghị pati ndọrọ ndọrọ ọchịchị ma ọ bụ atụmatụ azụmahịa nwe ya, na-akwado ya ego, ma ọ bụ na-achịkwa ya, koodu ya dịkwa n'ihu ọha ka onye ọ bụla nyochaa."
     }
   },
+  "stories": {
+    "marker": "Otu CivicOS si apụta",
+    "title": "Ihe atọ na-agbanwe mgbe ndekọ ghọrọ nke ọha",
+    "issues": {
+      "title": "Ọkụ okporo ụzọ mebiri na-enweta onye nwe ya",
+      "body": "Onye bi n'okporo ụzọ Dankande debere ya otu ugboro, jiri foto na ebe ọ dị. Ndị agbata obi nwere ike hụ ya, ụlọ ọrụ LGA nwere ike hụ ya, otu a kwa onye ọ bụla na-ajụ ihe mere o were izu atọ."
+    },
+    "consultations": {
+      "title": "Nnọkọ ndụmọdụ nke na-ebipụta nsonaazụ",
+      "body": "Kansụl na-emepe windo maka mbugharị ahịa, na-anakọta echiche ahaziri site n'aka ndị ahịa na ndị bi ebe ahụ, wee tinye mkpebi ahụ na ihe kpatara ya n'otu ebe ahụ."
+    },
+    "reps": {
+      "title": "Azịza kansụl na-akwụsị ịbụ asịrị",
+      "body": "Mgbe onye nnọchi anya kwere nkwa ụbọchị nrụzi, a na-edekọ ya na oge na profaịlụ ha — ka ajụjụ na-eso ya nwee ihe ọ ga-atụ aka na ya."
+    }
+  },
+  "stewardship": {
+    "marker": "Ndị nọ n'azụ nke a",
+    "title": "Nọọrọ onwe ya, adịghị n'akụkụ pati, e wuru ya n'ìhè",
+    "body": "Obere otu nọọrọ onwe ha na-elekọta CivicOS, ọ bụghị pati ma ọ bụ onye ọrụ nkwekọrịta. Koodu niile, usoro data, na API dị n'ihu ọha — onye ọ bụla nwere ike gụọ otu a na-echekwa ozi, ònye nwere ike hụ ya, na ihe na-eme mgbe edebere ya.",
+    "openSource": {
+      "title": "Onye ọ bụla nwere ike nyochaa ya",
+      "body": "Ọrụ ọ bụla, mbugharị, na ụzọ API dị n'ebe nchekwa ọha n'okpuru ikike mepere emepe. Ọ bụrụ na ị chọrọ ịlele otu a na-eji data gị eme ihe, gụọ koodu ahụ."
+    },
+    "invite": {
+      "title": "Anyị na-emepe ward na ward",
+      "body": "CivicOS na-apụta obodo n'obodo kama ikwu na ọ kpuchiri obodo niile mgbe ọ na-ekpuchighị. Ọ bụrụ na ị bụ onyeisi otu obodo ma ọ bụ na ị na-arụ ọrụ n'ụlọ ọrụ LGA, ị nwere ike weta ward gị n'oge."
+    },
+    "contribute": {
+      "title": "A na-anabata onyinye",
+      "body": "Ndị mmepe sọftwịa, ndị nsụgharị, na ndị nyocha ọha nwere ike mepee okwu ma ọ bụ arịrịọ mmekọ. Akwụkwọ ndụmọdụ kpuchiri ihe owuwu, ntọlite ime ụlọ, na usoro inye onyinye."
+    },
+    "ctaRepo": "Gụọ koodu ahụ na GitHub",
+    "ctaPartner": "Weta LGA gị"
+  },
   "newsletter": {
-    "marker": "§ 06 — Ozi ọha",
-    "title": "Debanye aha maka The Dispatch — bụrụ onye mbụ ịmara mgbe CivicOS rutere ebe gị",
-    "sub": "Otu email dị mkpụmkpụ kwa ọnwa nwere mmelite ngwaahịa, nzọụkwụ obodo, na ozi mbido. Enweghị ozi ahịa efu. Wepụ aha mgbe ọ bụla.",
-    "placeholder": "ị@oma.com",
+    "marker": "Nọrọ na nghọta",
+    "title": "Nọrọ na nghọta banyere CivicOS na steeti gị",
+    "sub": "Otu email kwa ọnwa gbasara LGA ọhụrụ anyị rutere, mmeri obodo dị ukwuu, na mmelite ikpo okwu. Enweghị spam, wepụ aha gị mgbe ọ bụla.",
+    "placeholder": "Tinye adreesị email gị",
     "submit": "Debanye aha",
     "submitting": "Na-edebanye…",
     "doneTitle": "Ị nọ n'ndepụta.",
-    "doneSub": "Anyị ga-akpọtụrụ gị ka anyị na-agbasa."
+    "doneSub": "Anyị ga-edetara gị mgbe CivicOS rutere LGA gị."
   },
   "cta": {
-    "eyebrow": "Debanye olu gị",
-    "title": "Ị dị njikere isonye n'<em>akụkụ</em>?",
-    "sub": "Sonye ụmụ amaala, ndị nnọchi anya, na nzukọ ndị na-ewu ndụ ọha kacha aza ajụjụ — ọnụ, na ndekọ.",
-    "ctaPrimary": "Mepee akaụntụ gị",
-    "ctaSecondary": "Banye"
+    "eyebrow": "Sonye n'obodo gị",
+    "title": "Ị dị njikere ime ka obodo gị <em>gụọ</em> na ndekọ?",
+    "sub": "Sonye ndị bi ebe ahụ, ndị ndu obodo, na ndị ọrụ gọọmenti na-ewulite gọọmenti ime obodo na-azaghachi ngwa ngwa ma na-aza ajụjụ, ọnụ.",
+    "ctaPrimary": "Mepee akaụntụ nwa amaala gị",
+    "ctaSecondary": "Soro anyị dịka LGA ma ọ bụ onye nnọchi anya"
   },
   "footer": {
     "mission": "Imesi ntinye aka n'ọchịchị onye kwuo uche ya site n'akụrụngwa dijitalụ echekwara, doro anya, na enwere ohere.",
@@ -631,8 +682,8 @@
       "terms": "Iwu"
     },
     "checks": {
-      "privacy": "Na-akwanyere nzuzo ùgwù",
-      "audit": "Enwere ike ịnyochaa",
+      "privacy": "Adreesị gị na-anọgide bụrụ nzuzo",
+      "audit": "Adịghị n'akụkụ pati",
       "open": "Ewuru ya n'ìhè"
     }
   },
@@ -774,9 +825,9 @@
     "ha": "Hausa"
   },
   "manifesto": {
-    "marker": "§ 00 — Nkwuputa",
-    "headline": "Usoro ọrụ maka <em>ntinye aka obodo</em>.",
-    "body": "CivicOS bụ akụrụngwa dijitalụ e kekọrọ ọnụ nke na-enye ọchịchị, mahadum, NGO na obodo ike iwulite ahụmịhe obodo a tụkwasịrị obi — nke a haziri gburugburu ebe ndị mmadụ na-ebi n'ezie.",
+    "marker": "Ihe kpatara anyị wuru nke a",
+    "headline": "Arụrụ ya maka ezi ọnọdụ nke <em>gọọmenti ime obodo</em>.",
+    "body": "Onye bi ebe ahụ kọrọ pipes mmiri gbawara, ọ nụghị ihe ọ bụla ruo ọtụtụ ọnwa. Kansụl doziri okporo ụzọ, ọ dịghị onye nọ n'èzí ward ahụ maara. CivicOS bụ ndekọ a kekọrọ ọnụ nke na-emechi ọghẹrẹ ahụ — ọchịchị, mahadum, NGO na obodo na-eji ya, e haziri ya gburugburu ebe ndị mmadụ na-ebi n'ezie.",
     "actors": {
       "governments": "Ọchịchị",
       "universities": "Mahadum",
