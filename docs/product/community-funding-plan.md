@@ -94,12 +94,34 @@ _authorization on money_ is the worst place to add a network hop and an eventual
 consistency window. Extract later if payment volume justifies it — the package
 boundaries above are drawn so that extraction is mechanical.
 
-### Payments: a provider port, not a provider
+### Payments architecture — DECIDED 2026-07-30
 
-The spec names cards, bank transfer, Apple/Google Pay, USDT/USDC/BTC/ETH/SOL
-"powered by LinkiSwap", plus future mobile money. That's a very wide surface, and
-**LinkiSwap is an unknown to me — I have not seen its API, and I don't know
-whether it's an internal product, a third party, or aspirational.**
+**Each organization connects its own Paystack sub-account. CivicOS is not the
+merchant of record and never holds funds.**
+
+Money flows payer → Paystack → the organization's settlement account. Four
+consequences, and the third is the one that changes the product:
+
+1. **Regulatory posture is much lighter.** CivicOS orchestrates and records;
+   it never takes custody, so it is not holding client money.
+2. **KYB shifts to Paystack.** The org's bank account is validated by Paystack
+   at sub-account creation. CivicOS receives bank details once to create the
+   sub-account and then stores **only the returned sub-account code** — never
+   the account number.
+3. **Milestone-gated withdrawal is no longer possible.** There is no
+   CivicOS-held balance to release, so the platform cannot stop an
+   organization spending funds that have already settled. The transparency
+   model is therefore **disclosure, not control**: record every donation,
+   publish it against the spend plan, require a final report. The one lever
+   retained is pausing a campaign, which stops _new_ donations rather than
+   recovering settled ones. This must be stated plainly on the public page —
+   implying a control we do not have would be worse than having none.
+4. **Refunds become the org's liability**, since the money has left Paystack's
+   float. Policy still open (question 4).
+
+A `PaymentProvider` port still wraps Paystack, so a second provider or the
+eventual LinkiSwap crypto rail can be added without touching the ledger.
+**LinkiSwap remains an unknown** — no API spec seen — and stays in Phase 6.
 
 So the plan defines an interface and one concrete implementation:
 
@@ -268,15 +290,26 @@ The high-risk phase. Sequence inside it matters:
   hub in community-service.
 - **Exit:** a donor can answer "where did my money go?" without asking anyone.
 
-### Phase 5 — Withdrawals & completion
+### Phase 5 — Settlement reconciliation & completion
 
-- Withdrawal request → admin release, gated on a published milestone.
-- Ledger entries for payouts; remaining balance always derivable.
-- Final report requirement before `ARCHIVED`.
-- **v1 payouts may be manual** (admin releases via the PSP dashboard, records
-  the reference). Automated payouts need KYB/settlement-account plumbing that
-  shouldn't block the first campaign completing.
-- **Exit:** a campaign can complete its full lifecycle end to end.
+Substantially reshaped by the merchant-of-record decision. There are no
+CivicOS-issued payouts to build: Paystack settles directly to the org, so
+this phase is about **accounting for money that has already moved**, not
+releasing it.
+
+- Reconcile the donation ledger against Paystack's settlement reports;
+  surface drift to admins. Not optional — this is how we find out we are
+  wrong before a donor does.
+- Per-milestone reported spend, published by the org against the plan.
+- Final report required before `ARCHIVED`.
+- Public "reported vs unreported" state on the campaign page, since
+  reporting is the only accountability lever that remains.
+- **Optional spike:** Paystack sub-accounts carry a settlement schedule. If
+  the API supports platform-triggered settlement on a `manual` schedule,
+  milestone-gated release could be restored without CivicOS taking custody.
+  Unverified against their docs — worth a spike before assuming it.
+- **Exit:** a campaign can complete its full lifecycle, and its public page
+  reconciles against Paystack.
 
 ### Phase 6 — Discovery, analytics, CivicAI, crypto
 
@@ -338,13 +371,16 @@ exceeding balance.
 
 These need answers from product/legal before the phases they gate:
 
-1. **Who is the merchant of record?** Does CivicOS hold funds and disburse, or
-   does each org connect its own PSP sub-account? This is the single biggest
-   fork — it changes the licensing posture, the KYB burden, and whether Phase 3
-   is weeks or months. **Blocks Phase 3.**
+1. ~~**Who is the merchant of record?**~~ **DECIDED 2026-07-30: each
+   organization connects its own PSP sub-account.** CivicOS never takes
+   custody of funds — money flows payer → Paystack → the org's settlement
+   account. See "Payments architecture" above for what this changes.
 2. **What is LinkiSwap?** Internal product, third party, or intended? Is there
    an API spec? **Blocks Phase 6.**
-3. **Platform fee?** Any cut, or fully pass-through? Affects ledger shape.
+3. ~~**Platform fee?**~~ **DECIDED: a percentage fee**, taken via the
+   Paystack split. Stored in integer basis points, disclosed publicly on the
+   campaign page — a donor should be able to see what reaches the
+   organization before giving. The rate itself is still a product call.
 4. **Refund policy.** Donor-initiated refunds, or PSP-dispute only? Affects
    whether `REFUNDED` needs partial amounts.
 5. **Regulatory scope.** Fundraising by NGOs in Nigeria may require specific
