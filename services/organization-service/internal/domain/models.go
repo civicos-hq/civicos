@@ -17,6 +17,7 @@ type CampaignStatus string
 type CampaignCategory string
 type MilestoneStatus string
 type PauseReason string
+type DonationStatus string
 
 const (
 	OrgKindGovernment OrgKind = "GOVERNMENT"
@@ -116,6 +117,20 @@ const (
 	PauseOrganizationSuspended PauseReason = "ORGANIZATION_SUSPENDED"
 	PauseFalseInformation      PauseReason = "FALSE_INFORMATION"
 	PauseOther                 PauseReason = "OTHER"
+
+	// Donation lifecycle. A donation is created PENDING when the donor is
+	// sent to Paystack, and only the webhook may move it to SETTLED — the
+	// browser redirect is a hint, not proof, because a donor can close the
+	// tab or forge the return URL.
+	//
+	// ABANDONED exists so an intent that never completed is distinguishable
+	// from one that actively failed; conflating them makes the funnel
+	// impossible to reason about.
+	DonationPending   DonationStatus = "PENDING"
+	DonationSettled   DonationStatus = "SETTLED"
+	DonationFailed    DonationStatus = "FAILED"
+	DonationAbandoned DonationStatus = "ABANDONED"
+	DonationRefunded  DonationStatus = "REFUNDED"
 )
 
 // ValidPauseReason reports whether v is a known pause reason code.
@@ -176,6 +191,23 @@ type Organization struct {
 	FundingVerifiedAt     *time.Time `json:"fundingVerifiedAt,omitempty"`
 	FundingVerifiedByID   *string    `gorm:"type:uuid" json:"fundingVerifiedById,omitempty"`
 
+	// ─── PSP connection (Phase 3) ───
+	//
+	// CivicOS is not the merchant of record. Each organization has its own
+	// Paystack sub-account and Paystack settles directly to it.
+	//
+	// Note what is NOT stored: the bank account number. CivicOS receives it
+	// once, passes it to Paystack to create the sub-account, and keeps only
+	// the returned code. Holding account numbers we have no further use for
+	// would be taking on breach liability for nothing.
+	PSPProvider       *string `gorm:"type:varchar(20)" json:"pspProvider,omitempty"`
+	PSPSubaccountCode *string `gorm:"type:varchar(64);index" json:"pspSubaccountCode,omitempty"`
+	// PSPBankName and the last four digits are kept only so an admin can
+	// recognise which account was connected without going to Paystack.
+	PSPBankName     *string    `json:"pspBankName,omitempty"`
+	PSPAccountLast4 *string    `gorm:"type:varchar(4)" json:"pspAccountLast4,omitempty"`
+	PSPConnectedAt  *time.Time `json:"pspConnectedAt,omitempty"`
+
 	CreatedByID string    `gorm:"type:uuid;not null" json:"createdById"`
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
@@ -209,6 +241,11 @@ func (o *Organization) FundingEligible() (bool, []string) {
 	}
 	if !o.BankAccountVerified {
 		missing = append(missing, "bank account verification")
+	}
+	// Phase 3: without a sub-account there is nowhere for Paystack to settle,
+	// so a campaign could be published and take money that has no destination.
+	if blank(o.PSPSubaccountCode) {
+		missing = append(missing, "connected payout account")
 	}
 	return len(missing) == 0, missing
 }
@@ -486,4 +523,89 @@ type Milestone struct {
 	CompletedAt *time.Time `json:"completedAt,omitempty"`
 	CreatedAt   time.Time  `json:"createdAt"`
 	UpdatedAt   time.Time  `json:"updatedAt"`
+}
+
+// Donation is one ledger entry: money a donor paid toward a campaign.
+//
+// APPEND-ONLY once SETTLED. Nothing in the codebase may mutate a settled
+// donation's amounts — a correction is a new row (a refund), never an edit,
+// because the ledger is the only account of this money CivicOS will ever
+// have. Campaign.RaisedMinor is a cached projection recomputed FROM these
+// rows, never incremented in place: a replayed webhook would inflate a
+// counter but cannot double-insert against the unique index below.
+//
+// CivicOS never holds these funds. Paystack settles directly to the
+// organization's sub-account, so this table records money that moved between
+// other parties rather than a balance owed.
+type Donation struct {
+	ID         string `gorm:"type:uuid;primaryKey" json:"id"`
+	CampaignID string `gorm:"type:uuid;not null;index" json:"campaignId"`
+	// OrganizationID is denormalised from the campaign so org-level
+	// reporting and reconciliation never need a join, and so the row still
+	// makes sense if a campaign is ever archived away.
+	OrganizationID string `gorm:"type:uuid;not null;index" json:"organizationId"`
+
+	Currency string `gorm:"type:varchar(3);not null" json:"currency"`
+	// All amounts are integer minor units. GrossMinor is what the donor
+	// paid; PlatformFeeMinor is CivicOS's cut; NetMinor is gross minus that
+	// fee. PSPFeeMinor is Paystack's own charge, recorded from the webhook
+	// (it varies by channel and is not known when the intent is created).
+	GrossMinor       int64 `gorm:"not null" json:"grossMinor"`
+	PlatformFeeMinor int64 `gorm:"not null;default:0" json:"platformFeeMinor"`
+	NetMinor         int64 `gorm:"not null;default:0" json:"netMinor"`
+	PSPFeeMinor      int64 `gorm:"not null;default:0" json:"pspFeeMinor"`
+	// PlatformFeeBps is the rate applied AT THE TIME OF THIS DONATION.
+	// Stored per row rather than read from config at reporting time, so
+	// changing the platform rate later cannot retroactively rewrite what a
+	// past donor was told.
+	PlatformFeeBps int64 `gorm:"not null;default:0" json:"platformFeeBps"`
+
+	Status   DonationStatus `gorm:"type:varchar(20);not null;default:'PENDING';index" json:"status"`
+	Provider string         `gorm:"type:varchar(20);not null" json:"provider"`
+
+	// ProviderRef is Paystack's transaction reference and carries a UNIQUE
+	// index: it is the idempotency guarantee. Webhooks arrive more than
+	// once, and a replay must be a no-op rather than a second donation.
+	ProviderRef string `gorm:"type:varchar(100);not null;uniqueIndex" json:"providerRef"`
+	// IdempotencyKey is client-supplied when creating the intent, so a
+	// double-tapped donate button cannot open two transactions.
+	IdempotencyKey string `gorm:"type:varchar(100);not null;uniqueIndex" json:"-"`
+
+	DonorUserID *string `gorm:"type:uuid;index" json:"donorUserId,omitempty"`
+	DonorName   *string `json:"donorName,omitempty"`
+	IsAnonymous bool    `gorm:"default:false" json:"isAnonymous"`
+	// DonorEmail is required by Paystack and used for receipts. json:"-"
+	// because it must never reach a public payload — the public donor list
+	// shows a display name or "Anonymous", nothing more.
+	DonorEmail *string `json:"-"`
+	// Message is an optional public note from the donor. Nullable, and
+	// moderated by the same rules as comments if it is ever surfaced.
+	Message *string `json:"message,omitempty"`
+
+	SettledAt *time.Time `json:"settledAt,omitempty"`
+	FailedAt  *time.Time `json:"failedAt,omitempty"`
+	CreatedAt time.Time  `json:"createdAt"`
+	UpdatedAt time.Time  `json:"updatedAt"`
+}
+
+// WebhookEvent records every provider callback we accept, keyed by the
+// provider's own event id.
+//
+// Separate from Donation on purpose: a webhook may arrive for a transaction
+// we have no row for (a stale test, a different integration, an attack), and
+// that fact is worth keeping. It is also the audit trail for "we were told
+// this, at this time, and it verified" during reconciliation.
+type WebhookEvent struct {
+	ID          string `gorm:"type:uuid;primaryKey" json:"id"`
+	Provider    string `gorm:"type:varchar(20);not null" json:"provider"`
+	EventType   string `gorm:"type:varchar(60);not null;index" json:"eventType"`
+	ProviderRef string `gorm:"type:varchar(100);index" json:"providerRef"`
+	// Signature verification result. A failed verification is still stored —
+	// repeated failures are the signal that someone is probing the endpoint.
+	Verified bool `gorm:"not null;default:false;index" json:"verified"`
+	// Payload is the raw body, retained for dispute and reconciliation.
+	Payload   string    `gorm:"type:jsonb;not null;default:'{}'" json:"-"`
+	Handled   bool      `gorm:"not null;default:false" json:"handled"`
+	Note      *string   `json:"note,omitempty"`
+	CreatedAt time.Time `json:"createdAt"`
 }
