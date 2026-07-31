@@ -1802,6 +1802,25 @@
       "reference": "Payment reference:",
       "receiptNote": "A receipt is on its way to the email you gave. CivicOS never sees your card details.",
       "backToCampaigns": "Back to campaigns"
+    },
+    "accounting": {
+      "heading": "Where the money went",
+      "lede": "What this campaign received through CivicOS, and what the organization says it has spent.",
+      "received": "Received through CivicOS",
+      "reported": "Reported as spent",
+      "unreported": "Not yet accounted for",
+      "progressLabel": "{{percent}}% of funds accounted for",
+      "percent": "{{percent}}% of what came in has been accounted for.",
+      "exceeds": "This organization reports spending more than it raised here. That can happen when a campaign is topped up from other funds.",
+      "none": "This organization has not published any spending yet.",
+      "unknownMilestone": "Unassigned",
+      "publishedBy": "published by {{name}}",
+      "receipt": "View receipt",
+      "disclaimer": "Spending figures are published by the organization. Donations settle directly to their bank account, so CivicOS does not hold the money and cannot verify these figures independently."
+    },
+    "updates": {
+      "heading": "Updates from the organization",
+      "attachment": "View attachment"
     }
   }
 }

@@ -133,6 +133,16 @@ func main() {
 	// spend's storage.
 	campSvc.WithSpend(spend.NewReader(spendSvc))
 
+	// Funding updates reuse ProgressUpdate. Wired here rather than at
+	// construction because progress is built before campaigns exists.
+	//
+	// WithCampaigns is a safety dependency, not a convenience: campaignId
+	// arrives in the request body while authorisation is checked against the
+	// org in the URL, so the service must verify the campaign belongs to
+	// that org before accepting the update.
+	progSvc.WithCampaigns(campSvc)
+	progHandler.WithNotifications(notifier, aud, campSvc)
+
 	msRepo := milestones.NewRepository(db)
 	msSvc := milestones.NewService(msRepo)
 	msHandler := milestones.NewHandler(msSvc, orgSvc).WithNotifications(notifier, aud, campSvc)

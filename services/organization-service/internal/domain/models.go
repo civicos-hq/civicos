@@ -308,11 +308,23 @@ type IssueAssignment struct {
 // Project. Public updates are readable by anyone; internal notes are
 // member-only.
 type ProgressUpdate struct {
-	ID             string    `gorm:"type:uuid;primaryKey" json:"id"`
-	OrganizationID string    `gorm:"type:uuid;not null;index" json:"organizationId"`
-	IssueID        *string   `gorm:"type:uuid;index" json:"issueId,omitempty"`
-	ProjectID      *string   `gorm:"type:uuid;index" json:"projectId,omitempty"`
-	Body           string    `gorm:"not null" json:"body"`
+	ID             string  `gorm:"type:uuid;primaryKey" json:"id"`
+	OrganizationID string  `gorm:"type:uuid;not null;index" json:"organizationId"`
+	IssueID        *string `gorm:"type:uuid;index" json:"issueId,omitempty"`
+	ProjectID      *string `gorm:"type:uuid;index" json:"projectId,omitempty"`
+	// CampaignID makes this the funding-update feed as well (Phase 4).
+	// Reusing ProgressUpdate rather than adding a near-identical model: an
+	// update is an update, and a campaign's audience deserves the same
+	// moderation and hide-filter machinery issues and projects already have.
+	CampaignID *string `gorm:"type:uuid;index" json:"campaignId,omitempty"`
+	// Title is optional. A funding feed reads far better with headings, but
+	// requiring one would break the existing issue and project updates.
+	Title *string `json:"title,omitempty"`
+	Body  string  `gorm:"not null" json:"body"`
+	// AttachmentURLs carries photographs, documents and financial reports.
+	// The spend plan is a promise; photographs of the boreholes are the
+	// evidence, and that evidence is the point of the feed.
+	AttachmentURLs []string  `gorm:"type:jsonb;serializer:json;not null;default:'[]'" json:"attachmentUrls"`
 	IsPublic       bool      `gorm:"default:true" json:"isPublic"`
 	AuthorID       string    `gorm:"type:uuid;not null" json:"authorId"`
 	AuthorName     string    `gorm:"not null" json:"authorName"`

@@ -895,6 +895,25 @@
       "reference": "Lambar biyan kuɗi:",
       "receiptNote": "Rasidi na zuwa imel ɗin da ka bayar. CivicOS ba ya ganin bayanan katinka.",
       "backToCampaigns": "Koma zuwa kamfen"
+    },
+    "accounting": {
+      "heading": "Inda kuɗin ya tafi",
+      "lede": "Abin da wannan kamfen ɗin ya karɓa ta CivicOS, da abin da ƙungiyar ta ce ta kashe.",
+      "received": "An karɓa ta CivicOS",
+      "reported": "An bayar da rahoton kashewa",
+      "unreported": "Ba a bayar da lissafi ba tukuna",
+      "progressLabel": "Kashi {{percent}}% na kuɗin an ba da lissafinsa",
+      "percent": "Kashi {{percent}}% na abin da ya shigo an ba da lissafinsa.",
+      "exceeds": "Wannan ƙungiya ta ba da rahoton kashe fiye da abin da ta tara a nan. Hakan na iya faruwa idan an ƙara kuɗi daga wani wuri.",
+      "none": "Wannan ƙungiya ba ta buga wani kashewa ba tukuna.",
+      "unknownMilestone": "Ba a keɓe ba",
+      "publishedBy": "{{name}} ya buga",
+      "receipt": "Duba rasit",
+      "disclaimer": "Ƙungiyar ce ke buga waɗannan alkaluman kashewa. Gudummawa na shiga asusun bankinsu kai tsaye, don haka CivicOS ba ya riƙe kuɗin kuma ba za mu iya tabbatar da waɗannan alkaluman da kanmu ba."
+    },
+    "updates": {
+      "heading": "Sabuntawa daga ƙungiyar",
+      "attachment": "Duba haɗe"
     }
   }
 }

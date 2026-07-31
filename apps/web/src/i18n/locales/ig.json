@@ -895,6 +895,25 @@
       "reference": "Nrụtụ aka ịkwụ ụgwọ:",
       "receiptNote": "Akwụkwọ nnata na-abịa na email i nyere. CivicOS anaghị ahụ nkọwa kaadị gị.",
       "backToCampaigns": "Laghachi na mkpọsa"
+    },
+    "accounting": {
+      "heading": "Ebe ego ahụ gara",
+      "lede": "Ihe mkpọsa a natara site na CivicOS, na ihe nzukọ ahụ kwuru na ha mefuru.",
+      "received": "Enwetara site na CivicOS",
+      "reported": "Akọrọ dị ka emefuru",
+      "unreported": "A kọwabeghị",
+      "progressLabel": "{{percent}}% nke ego akọwaala",
+      "percent": "{{percent}}% nke ihe batara akọwaala.",
+      "exceeds": "Nzukọ a na-akọ na ha mefuru karịa ihe ha chịkọtara ebe a. Nke a nwere ike ime ma ọ bụrụ na e tinyere ego site na ebe ọzọ.",
+      "none": "Nzukọ a ebipụtabeghị mmefu ọ bụla.",
+      "unknownMilestone": "Ekenyeghị",
+      "publishedBy": "{{name}} bipụtara ya",
+      "receipt": "Lee akwụkwọ nnata",
+      "disclaimer": "Ọ bụ nzukọ ahụ na-ebipụta ọnụọgụ mmefu ndị a. Onyinye na-abanye ozugbo n'akaụntụ ụlọ akụ ha, ya mere CivicOS anaghị ejide ego ahụ, anyị enweghịkwa ike ịkwado ọnụọgụ ndị a n'onwe anyị."
+    },
+    "updates": {
+      "heading": "Mmelite sitere na nzukọ",
+      "attachment": "Lee ihe njikọ"
     }
   }
 }

@@ -339,6 +339,12 @@ func main() {
 	// limitStandard, matching the sibling org authoring routes — an org
 	// treasurer entering a batch of receipts is an authoring action, not a
 	// citizen action on a tight budget.
+	// Funding updates — the evidence half of the transparency page. Public
+	// for the same reason spend is: a donor should not need an account to
+	// see what their money did. Writes go through the existing
+	// org-scoped progress-updates route, which already carries auth.
+	r.GET("/api/v1/campaigns/:campaignId/updates", orgProxy)
+
 	r.GET("/api/v1/campaigns/:campaignId/spend", orgProxy)
 	r.POST("/api/v1/campaigns/:campaignId/spend", authMiddleware, limitStandard, orgProxy)
 	r.PATCH("/api/v1/spend/:spendId", authMiddleware, limitStandard, orgProxy)

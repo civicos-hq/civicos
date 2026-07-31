@@ -1124,6 +1124,25 @@
       "reference": "Payment reference:",
       "receiptNote": "Receipt dey come to the email wey you give. CivicOS no dey see your card details.",
       "backToCampaigns": "Go back to campaigns"
+    },
+    "accounting": {
+      "heading": "Where the money go",
+      "lede": "Wetin this campaign collect through CivicOS, and wetin the organization talk say dem don spend.",
+      "received": "Money wey enter through CivicOS",
+      "reported": "Wetin dem report say dem spend",
+      "unreported": "Wey dem never explain",
+      "progressLabel": "{{percent}}% of the money don get explanation",
+      "percent": "{{percent}}% of wetin enter don get explanation.",
+      "exceeds": "This organization report say dem spend pass wetin dem raise here. E fit happen if dem add money from another place.",
+      "none": "This organization never publish any spending yet.",
+      "unknownMilestone": "No be assign",
+      "publishedBy": "{{name}} publish am",
+      "receipt": "See receipt",
+      "disclaimer": "Na the organization dey publish these spending figures. Donation dey enter their bank account direct, so CivicOS no dey hold the money and we no fit confirm these figures by ourself."
+    },
+    "updates": {
+      "heading": "Updates from the organization",
+      "attachment": "See attachment"
     }
   }
 }

@@ -6960,3 +6960,118 @@ button {
   color: #4d6b58;
   max-width: 40ch;
 }
+
+/* ── Transparency dashboard (Phase 4) ─────────────────────────────────
+   The accounting block. Two columns of figures that mean different
+   things — received is ledger truth, reported is the organization's
+   claim — so the "not yet accounted for" row is styled apart from the
+   two it is derived from. */
+.fund-account {
+  margin: 0 0 14px;
+  border: 1px solid rgba(16, 40, 24, 0.14);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.fund-account-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 11px 14px;
+  font-size: 0.95rem;
+}
+.fund-account-row + .fund-account-row {
+  border-top: 1px solid rgba(16, 40, 24, 0.1);
+}
+.fund-account-row dt {
+  color: #4d6b58;
+}
+.fund-account-row dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.fund-account-row--rest {
+  background: rgba(16, 40, 24, 0.04);
+}
+.fund-progress--account {
+  margin-bottom: 6px;
+}
+.fund-account-pct {
+  margin: 0 0 10px;
+  font-size: 0.85rem;
+  color: #4d6b58;
+}
+.fund-account-note {
+  margin: 0 0 12px;
+  padding: 9px 12px;
+  border-left: 3px solid #b8860b;
+  background: rgba(184, 134, 11, 0.08);
+  font-size: 0.85rem;
+}
+.fund-account-disclaimer {
+  margin: 14px 0 0;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: #4d6b58;
+}
+.fund-empty-inline {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #4d6b58;
+}
+
+.fund-spend-list,
+.fund-updates {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+.fund-spend,
+.fund-update {
+  padding: 13px 15px;
+  border: 1px solid rgba(16, 40, 24, 0.13);
+  border-radius: 10px;
+}
+.fund-spend-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.fund-spend-amount {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.fund-spend-date,
+.fund-update-meta {
+  font-size: 0.8rem;
+  color: #4d6b58;
+}
+.fund-spend-desc,
+.fund-update-body {
+  margin: 6px 0 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+.fund-spend-meta {
+  margin: 7px 0 0;
+  font-size: 0.8rem;
+  color: #4d6b58;
+}
+.fund-update-title {
+  margin: 4px 0 0;
+  font-size: 1.02rem;
+  font-weight: 650;
+}
+.fund-update-files {
+  list-style: none;
+  margin: 9px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 0.83rem;
+}

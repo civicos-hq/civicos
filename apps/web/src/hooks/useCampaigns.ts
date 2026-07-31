@@ -67,6 +67,8 @@ export interface PublicMilestone {
 export interface PublicCampaignDetail extends PublicCampaign {
   description: string;
   milestones: PublicMilestone[];
+  /** Absent when the campaign has no spend reporting available. */
+  spend?: SpendSummary;
 }
 
 export interface CampaignFilters {
@@ -129,6 +131,11 @@ export function formatMoney(minor: number, currency: string, locale?: string): s
   return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency,
+    // narrowSymbol, or Nigerians are shown "NGN 100,000" instead of
+    // "₦100,000": Intl only picks the ₦ glyph for an explicitly Nigerian
+    // locale, and the app passes i18n.language ("en", "ha", "ig"…), never
+    // "en-NG". Applies to every locale we ship.
+    currencyDisplay: 'narrowSymbol',
     maximumFractionDigits: 0,
   }).format(minor / 100);
 }
@@ -210,4 +217,98 @@ export function previewSplit(amountMinor: number, platformFeeBps: number) {
   const gross = Math.max(0, Math.floor(amountMinor));
   const fee = Math.floor((gross * platformFeeBps) / 10_000);
   return { grossMinor: gross, platformFeeMinor: fee, netMinor: gross - fee };
+}
+
+// ─── Transparency dashboard (Phase 4) ───────────────────────────────────
+
+/**
+ * The organization's own account of what it did with the money.
+ *
+ * Named `reported`, never `spent`, throughout. Donations settle straight to
+ * the organization's Paystack sub-account, so CivicOS never holds the money
+ * and cannot verify a single line of this. It is a claim published under the
+ * organization's name, and the UI has to say so.
+ */
+export interface SpendSummary {
+  reportedMinor: number;
+  unreportedMinor: number;
+  /** The organization reports spending more than it raised here — legitimate
+   *  (they may have topped up from other funds) and surfaced rather than
+   *  clamped, so the arithmetic on the page still adds up. */
+  exceedsReceived: boolean;
+  recordCount: number;
+  perMilestone: Record<string, number>;
+}
+
+export interface SpendRecord {
+  id: string;
+  milestoneId: string;
+  amountMinor: number;
+  currency: string;
+  description: string;
+  spentAt: string;
+  receiptUrl?: string | null;
+  publishedBy: string;
+  publishedAt: string;
+}
+
+export interface FundingUpdate {
+  id: string;
+  campaignId?: string | null;
+  title?: string | null;
+  body: string;
+  attachmentUrls: string[];
+  authorName: string;
+  createdAt: string;
+}
+
+export function useCampaignSpend(campaignId: string | undefined) {
+  return useQuery({
+    queryKey: ['campaign-spend', campaignId],
+    enabled: !!campaignId,
+    queryFn: async () => {
+      const res = await api.get<ApiResponse<{ spend: SpendRecord[] }>>(
+        `/api/v1/campaigns/${campaignId}/spend`,
+      );
+      return res.data.data?.spend ?? [];
+    },
+  });
+}
+
+export function useCampaignUpdates(campaignId: string | undefined) {
+  return useQuery({
+    queryKey: ['campaign-updates', campaignId],
+    enabled: !!campaignId,
+    queryFn: async () => {
+      const res = await api.get<ApiResponse<{ updates: FundingUpdate[] }>>(
+        `/api/v1/campaigns/${campaignId}/updates`,
+      );
+      return res.data.data?.updates ?? [];
+    },
+  });
+}
+
+/**
+ * Formats minor units WITHOUT rounding away the kobo.
+ *
+ * `formatMoney` rounds to whole units, which is right for a progress bar but
+ * wrong for the accounting section: a donor reading "₦62 reported" against a
+ * stored ₦62.50 sees figures that do not sum to the total shown above them.
+ * A transparency page whose arithmetic does not add up undermines the exact
+ * thing it exists to demonstrate.
+ */
+export function formatMoneyExact(minor: number, currency: string, locale?: string): string {
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency,
+    currencyDisplay: 'narrowSymbol',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(minor / 100);
+}
+
+/** What share of received money has been accounted for, 0-100. */
+export function accountedPercent(reportedMinor: number, receivedMinor: number): number {
+  if (receivedMinor <= 0) return 0;
+  return Math.min(100, Math.max(0, Math.round((reportedMinor / receivedMinor) * 100)));
 }

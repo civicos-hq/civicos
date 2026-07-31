@@ -4,11 +4,18 @@ import { CheckCircle2, Circle, Clock, MapPin, ShieldCheck } from 'lucide-react';
 import { TopNav, Footer } from './HomePage';
 import { useSeo } from '../hooks/useSeo';
 import {
+  accountedPercent,
   formatMoney,
+  formatMoneyExact,
   progressPercent,
+  useCampaignSpend,
+  useCampaignUpdates,
   usePublicCampaign,
   usePublicDonations,
+  type FundingUpdate,
+  type PublicCampaignDetail,
   type PublicMilestone,
+  type SpendRecord,
 } from '../hooks/useCampaigns';
 import { DonateForm } from '../components/DonateForm';
 
@@ -56,12 +63,151 @@ function MilestoneRow({
   );
 }
 
+/**
+ * The accounting section — Phase 4's reason for existing.
+ *
+ * Two columns of figures that mean different things, and the page must not
+ * blur them: `received` is ledger truth CivicOS observed, `reported` is a
+ * claim the organization published. Because donations settle straight to the
+ * organization's own account, CivicOS cannot verify the second column at
+ * all. Every label here says "reported by" for that reason.
+ */
+function AccountingSection({
+  campaign,
+  spend,
+  locale,
+}: {
+  campaign: PublicCampaignDetail;
+  spend: SpendRecord[];
+  locale: string;
+}) {
+  const { t } = useTranslation();
+  const summary = campaign.spend;
+  if (!summary) return null;
+
+  const received = campaign.raisedMinor;
+  const pct = accountedPercent(summary.reportedMinor, received);
+  const byMilestone = new Map(campaign.milestones.map((m) => [m.id, m.title]));
+
+  return (
+    <>
+      <h2 className="fund-plan-heading">{t('campaigns.accounting.heading')}</h2>
+      <p className="fund-plan-lede">{t('campaigns.accounting.lede')}</p>
+
+      <dl className="fund-account">
+        <div className="fund-account-row">
+          <dt>{t('campaigns.accounting.received')}</dt>
+          <dd>{formatMoneyExact(received, campaign.currency, locale)}</dd>
+        </div>
+        <div className="fund-account-row">
+          <dt>{t('campaigns.accounting.reported')}</dt>
+          <dd>{formatMoneyExact(summary.reportedMinor, campaign.currency, locale)}</dd>
+        </div>
+        <div className="fund-account-row fund-account-row--rest">
+          <dt>{t('campaigns.accounting.unreported')}</dt>
+          <dd>{formatMoneyExact(summary.unreportedMinor, campaign.currency, locale)}</dd>
+        </div>
+      </dl>
+
+      <div
+        className="fund-progress fund-progress--account"
+        role="progressbar"
+        aria-valuenow={pct}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={t('campaigns.accounting.progressLabel', { percent: pct })}
+      >
+        <span className="fund-progress-fill" style={{ width: `${pct}%` }} />
+      </div>
+      <p className="fund-account-pct">{t('campaigns.accounting.percent', { percent: pct })}</p>
+
+      {summary.exceedsReceived && (
+        <p className="fund-account-note">{t('campaigns.accounting.exceeds')}</p>
+      )}
+
+      {spend.length === 0 ? (
+        <p className="fund-empty-inline">{t('campaigns.accounting.none')}</p>
+      ) : (
+        <ul className="fund-spend-list">
+          {spend.map((r) => (
+            <li key={r.id} className="fund-spend">
+              <div className="fund-spend-head">
+                <span className="fund-spend-amount">
+                  {formatMoneyExact(r.amountMinor, r.currency, locale)}
+                </span>
+                <span className="fund-spend-date">
+                  {new Date(r.spentAt).toLocaleDateString(locale)}
+                </span>
+              </div>
+              <p className="fund-spend-desc">{r.description}</p>
+              <p className="fund-spend-meta">
+                {byMilestone.get(r.milestoneId) ?? t('campaigns.accounting.unknownMilestone')}
+                {' · '}
+                {t('campaigns.accounting.publishedBy', { name: r.publishedBy })}
+                {r.receiptUrl && (
+                  <>
+                    {' · '}
+                    <a href={r.receiptUrl} target="_blank" rel="noreferrer noopener">
+                      {t('campaigns.accounting.receipt')}
+                    </a>
+                  </>
+                )}
+              </p>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* Whose claim this is, stated plainly rather than in a tooltip. */}
+      <p className="fund-account-disclaimer">{t('campaigns.accounting.disclaimer')}</p>
+    </>
+  );
+}
+
+/** The evidence feed: what the organization says it has been doing. */
+function UpdatesSection({ updates, locale }: { updates: FundingUpdate[]; locale: string }) {
+  const { t } = useTranslation();
+  if (updates.length === 0) return null;
+
+  return (
+    <>
+      <h2 className="fund-plan-heading">{t('campaigns.updates.heading')}</h2>
+      <ol className="fund-updates">
+        {updates.map((u) => (
+          <li key={u.id} className="fund-update">
+            <p className="fund-update-meta">
+              {new Date(u.createdAt).toLocaleDateString(locale)}
+              {' · '}
+              {u.authorName}
+            </p>
+            {u.title && <h3 className="fund-update-title">{u.title}</h3>}
+            <p className="fund-update-body">{u.body}</p>
+            {u.attachmentUrls.length > 0 && (
+              <ul className="fund-update-files">
+                {u.attachmentUrls.map((url) => (
+                  <li key={url}>
+                    <a href={url} target="_blank" rel="noreferrer noopener">
+                      {t('campaigns.updates.attachment')}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+        ))}
+      </ol>
+    </>
+  );
+}
+
 export function CampaignDetailPage() {
   const { slug } = useParams();
   const { t, i18n } = useTranslation();
   const query = usePublicCampaign(slug);
   const c = query.data;
   const donationsQuery = usePublicDonations(c?.id);
+  const spendQuery = useCampaignSpend(c?.id);
+  const updatesQuery = useCampaignUpdates(c?.id);
 
   useSeo({
     title: c ? `${c.title} — CivicOS` : t('campaigns.detailSeoFallback'),
@@ -172,6 +318,10 @@ export function CampaignDetailPage() {
                 <MilestoneRow key={m.id} m={m} currency={c.currency} locale={i18n.language} />
               ))}
             </ul>
+
+            <AccountingSection campaign={c} spend={spendQuery.data ?? []} locale={i18n.language} />
+
+            <UpdatesSection updates={updatesQuery.data ?? []} locale={i18n.language} />
 
             {donations.length > 0 && (
               <>
