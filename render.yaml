@@ -198,6 +198,17 @@ services:
       # not by this redirect.
       - key: DONATION_CALLBACK_URL
         value: https://civicos.ng/donations/complete
+      # How often the background sweep re-checks the ledger against
+      # Paystack. This is what catches a donation whose webhook never
+      # arrived — without it, money that moved can sit PENDING forever
+      # and nothing in the system notices. 0 disables it.
+      - key: RECONCILE_INTERVAL_MINUTES
+        value: '60'
+      # Used to link a donation receipt back to the campaign it funded.
+      # SMTP_* come from the civicos-secrets group above, shared with
+      # identity-service.
+      - key: APP_URL
+        value: https://civicos.ng
 
   # ── Citizen web (static site) ──────────────────────────────────────
   # Built by turbo which builds shared packages first, then the app.

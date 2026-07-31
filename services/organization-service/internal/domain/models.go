@@ -584,8 +584,18 @@ type Donation struct {
 
 	SettledAt *time.Time `json:"settledAt,omitempty"`
 	FailedAt  *time.Time `json:"failedAt,omitempty"`
-	CreatedAt time.Time  `json:"createdAt"`
-	UpdatedAt time.Time  `json:"updatedAt"`
+
+	// ReceiptSentAt records that the donor was emailed their receipt.
+	//
+	// Stored rather than inferred so a receipt is sent exactly once, and so
+	// a settled donation that never got one is findable. Sending mail cannot
+	// be inside the settlement transaction — an SMTP outage must never block
+	// money being banked — which leaves a window where the process can die
+	// after settling and before sending. This column is what lets
+	// reconciliation close that window instead of the donor noticing.
+	ReceiptSentAt *time.Time `gorm:"index" json:"receiptSentAt,omitempty"`
+	CreatedAt     time.Time  `json:"createdAt"`
+	UpdatedAt     time.Time  `json:"updatedAt"`
 }
 
 // WebhookEvent records every provider callback we accept, keyed by the

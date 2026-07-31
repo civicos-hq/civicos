@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"log"
+	"time"
 
 	"github.com/civicos/organization-service/internal/announcements"
 	"github.com/civicos/organization-service/internal/assignments"
@@ -19,6 +21,7 @@ import (
 	"github.com/civicos/organization-service/internal/projects"
 	"github.com/civicos/organization-service/pkg/config"
 	"github.com/civicos/organization-service/pkg/database"
+	"github.com/civicos/organization-service/pkg/mailer"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -117,9 +120,32 @@ func main() {
 	} else {
 		log.Printf("payments: DISABLED (no PAYSTACK_SECRET_KEY) — donation endpoints will return 503")
 	}
+	// Receipts. Mail is optional infrastructure: with no SMTP host the
+	// console mailer prints the receipt to the log, so a dev environment
+	// still exercises the path and a misconfigured relay never costs a
+	// donation.
+	var receiptMailer donations.ReceiptSender
+	if cfg.SMTPHost != "" {
+		receiptMailer = mailer.NewSMTPMailer(cfg.SMTPHost, int(cfg.SMTPPort), cfg.SMTPUser, cfg.SMTPPassword, cfg.SMTPFrom)
+		log.Printf("receipts: smtp %s:%d", cfg.SMTPHost, cfg.SMTPPort)
+	} else {
+		receiptMailer = mailer.NewConsoleMailer(cfg.SMTPFrom)
+		log.Printf("receipts: no SMTP_HOST — receipts will be printed to this log")
+	}
+
 	donRepo := donations.NewRepository(db)
-	donSvc := donations.NewService(donRepo, payProvider, cfg.PlatformFeeBps, cfg.DonationCallbackURL)
+	donSvc := donations.NewService(donRepo, payProvider, cfg.PlatformFeeBps, cfg.DonationCallbackURL).
+		WithReceipts(receiptMailer, cfg.AppURL)
 	donHandler := donations.NewHandler(donSvc, orgSvc, auditor)
+
+	// Reconciliation. The webhook is the only thing that settles a donation,
+	// which makes it a single point of failure — a delivery that never
+	// arrives leaves money that genuinely moved sitting PENDING forever.
+	// This sweep is how we find that out instead of a donor telling us.
+	reconcileCtx, stopReconciler := context.WithCancel(context.Background())
+	defer stopReconciler()
+	donations.StartReconciler(reconcileCtx, donSvc,
+		time.Duration(cfg.ReconcileIntervalMinutes)*time.Minute)
 
 	authMiddleware := middleware.JWTAuth(cfg, db)
 	requireVerified := middleware.RequireVerified()

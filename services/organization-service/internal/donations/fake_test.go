@@ -6,6 +6,7 @@ import (
 	"crypto/sha512"
 	"encoding/hex"
 	"fmt"
+	"sort"
 	"time"
 
 	"github.com/civicos/organization-service/internal/domain"
@@ -16,8 +17,11 @@ import (
 // fakeProvider signs with the real HMAC scheme so the signature path under
 // test is the production one — only the network calls are stubbed.
 type fakeProvider struct {
-	secret  string
-	initErr error
+	secret      string
+	initErr     error
+	verify      map[string]TransactionStatus
+	verifyErrs  map[string]error
+	verifyCalls int
 }
 
 func (f *fakeProvider) Name() string { return "paystack" }
@@ -36,6 +40,15 @@ func (f *fakeProvider) bodyCurrency(ref string, amount int64, currency string) [
 	return []byte(fmt.Sprintf(
 		`{"event":"charge.success","data":{"id":991,"reference":%q,"status":"success","amount":%d,"currency":%q,"fees":1500,"subaccount":{"subaccount_code":"ACCT_test"}}}`,
 		ref, amount, currency))
+}
+
+// bodyWithEvent varies the provider event id so a delivery gets PAST the
+// event-level dedupe and reaches the already-settled check. That is the
+// replay path that actually matters for receipts.
+func (f *fakeProvider) bodyWithEvent(ref string, amount int64, eventID int) []byte {
+	return []byte(fmt.Sprintf(
+		`{"event":"charge.success","data":{"id":%d,"reference":%q,"status":"success","amount":%d,"currency":"NGN","fees":1500,"subaccount":{"subaccount_code":"ACCT_test"}}}`,
+		eventID, ref, amount))
 }
 
 func (f *fakeProvider) bodyStatus(ref string, amount int64, status string) []byte {
@@ -63,8 +76,34 @@ func (f *fakeProvider) InitializeTransaction(_ context.Context, in InitializeInp
 	return Initialized{AuthorizationURL: "https://checkout.test/" + in.Reference, Reference: in.Reference}, nil
 }
 
-func (f *fakeProvider) VerifyTransaction(context.Context, string) (TransactionStatus, error) {
-	return TransactionStatus{}, nil
+// VerifyTransaction answers from a per-reference script so reconciliation
+// tests can pose the exact disagreements the job exists to catch.
+func (f *fakeProvider) VerifyTransaction(_ context.Context, ref string) (TransactionStatus, error) {
+	if err, ok := f.verifyErrs[ref]; ok {
+		return TransactionStatus{}, err
+	}
+	if st, ok := f.verify[ref]; ok {
+		f.verifyCalls++
+		return st, nil
+	}
+	f.verifyCalls++
+	return TransactionStatus{Reference: ref}, nil
+}
+
+// says scripts what the provider will report for a reference.
+func (f *fakeProvider) says(ref string, st TransactionStatus) {
+	if f.verify == nil {
+		f.verify = map[string]TransactionStatus{}
+	}
+	st.Reference = ref
+	f.verify[ref] = st
+}
+
+func (f *fakeProvider) failsFor(ref string, err error) {
+	if f.verifyErrs == nil {
+		f.verifyErrs = map[string]error{}
+	}
+	f.verifyErrs[ref] = err
 }
 
 type fakeStore struct {
@@ -76,6 +115,7 @@ type fakeStore struct {
 	seenEvents   map[string]bool
 	settled      []domain.Donation
 	settleCalls  int
+	writeCalls   int // every mutating store call, for the "reports, never rewrites" guard
 	fundedCalled bool
 }
 
@@ -122,6 +162,66 @@ func (f *fakeStore) ListSettledForCampaign(string) ([]domain.Donation, error) {
 	return f.settled, nil
 }
 
+// ListStale mirrors the repository: strictly older than the cutoff, oldest
+// first, capped. A fake that ignored the cutoff would let a test pass while
+// the real job chased donations whose donor is still on the checkout page.
+func (f *fakeStore) ListStale(status domain.DonationStatus, olderThan time.Time, limit int) ([]domain.Donation, error) {
+	var out []domain.Donation
+	for _, d := range f.donations {
+		if d.Status == status && d.CreatedAt.Before(olderThan) {
+			out = append(out, *d)
+		}
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].CreatedAt.Before(out[j].CreatedAt) })
+	if limit > 0 && len(out) > limit {
+		out = out[:limit]
+	}
+	return out, nil
+}
+
+func (f *fakeStore) ListSettledSince(since time.Time, limit int) ([]domain.Donation, error) {
+	var out []domain.Donation
+	for _, d := range f.donations {
+		if d.Status == domain.DonationSettled && d.SettledAt != nil && !d.SettledAt.Before(since) {
+			out = append(out, *d)
+		}
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].SettledAt.Before(*out[j].SettledAt) })
+	if limit > 0 && len(out) > limit {
+		out = out[:limit]
+	}
+	return out, nil
+}
+
+func (f *fakeStore) MarkReceiptSent(donationID string) error {
+	f.writeCalls++
+	d, ok := f.donations[donationID]
+	if !ok {
+		return gorm.ErrRecordNotFound
+	}
+	now := time.Now().UTC()
+	d.ReceiptSentAt = &now
+	return nil
+}
+
+// ListSettledWithoutReceipt mirrors the repository's filter exactly. A fake
+// that ignored receipt_sent_at would let a test pass while the real sweep
+// emailed every donor again on every tick.
+func (f *fakeStore) ListSettledWithoutReceipt(settledBefore time.Time, limit int) ([]domain.Donation, error) {
+	var out []domain.Donation
+	for _, d := range f.donations {
+		if d.Status == domain.DonationSettled && d.ReceiptSentAt == nil &&
+			d.SettledAt != nil && d.SettledAt.Before(settledBefore) {
+			out = append(out, *d)
+		}
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].SettledAt.Before(*out[j].SettledAt) })
+	if limit > 0 && len(out) > limit {
+		out = out[:limit]
+	}
+	return out, nil
+}
+
 func (f *fakeStore) Campaign(id string) (*domain.Campaign, error) {
 	if c, ok := f.campaigns[id]; ok {
 		return c, nil
@@ -140,6 +240,7 @@ func (f *fakeStore) Org(id string) (*domain.Organization, error) {
 // projection is SUMMED from settled rows rather than incremented.
 func (f *fakeStore) Settle(id string, pspFee int64) (SettleResult, error) {
 	f.settleCalls++
+	f.writeCalls++
 	d, ok := f.donations[id]
 	if !ok {
 		return SettleResult{}, gorm.ErrRecordNotFound
@@ -167,6 +268,7 @@ func (f *fakeStore) Settle(id string, pspFee int64) (SettleResult, error) {
 }
 
 func (f *fakeStore) MarkFailed(id string, status domain.DonationStatus) error {
+	f.writeCalls++
 	if d, ok := f.donations[id]; ok {
 		d.Status = status
 	}
@@ -174,6 +276,7 @@ func (f *fakeStore) MarkFailed(id string, status domain.DonationStatus) error {
 }
 
 func (f *fakeStore) SetCampaignFunded(id string) error {
+	f.writeCalls++
 	f.fundedCalled = true
 	if c, ok := f.campaigns[id]; ok && c.Status == domain.CampaignPublished {
 		c.Status = domain.CampaignFunded

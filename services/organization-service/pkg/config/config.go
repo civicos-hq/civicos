@@ -32,6 +32,29 @@ type Config struct {
 	// never by the browser coming back, because a donor can close the tab or
 	// craft the return URL themselves.
 	DonationCallbackURL string
+
+	// ReconcileIntervalMinutes is how often the background reconciliation
+	// sweep runs. 0 disables it — the on-demand admin endpoint still works.
+	//
+	// This is the job that catches donations whose webhook never arrived.
+	// Turning it off means trusting that Paystack's delivery never fails,
+	// which is not a property any payment provider offers.
+	ReconcileIntervalMinutes int64
+
+	// ─── Mail (donation receipts) ───
+	//
+	// Optional. When SMTPHost is empty the service falls back to the console
+	// mailer and receipts are printed to the log — a donation must never be
+	// refused because mail is misconfigured.
+	SMTPHost     string
+	SMTPPort     int64
+	SMTPUser     string
+	SMTPPassword string
+	SMTPFrom     string
+
+	// AppURL is the public web origin, used to link a receipt back to the
+	// campaign it funded.
+	AppURL string
 }
 
 // PaystackEnabled reports whether donation endpoints can operate. Checked at
@@ -58,6 +81,15 @@ func Load() *Config {
 		PaystackPublicKey:   os.Getenv("PAYSTACK_PUBLIC_KEY"),
 		PlatformFeeBps:      getInt64("PLATFORM_FEE_BPS", 0),
 		DonationCallbackURL: getStr("DONATION_CALLBACK_URL", "http://localhost:5173/campaigns"),
+
+		ReconcileIntervalMinutes: getInt64("RECONCILE_INTERVAL_MINUTES", 60),
+
+		SMTPHost:     os.Getenv("SMTP_HOST"),
+		SMTPPort:     getInt64("SMTP_PORT", 1025),
+		SMTPUser:     os.Getenv("SMTP_USER"),
+		SMTPPassword: os.Getenv("SMTP_PASSWORD"),
+		SMTPFrom:     getStr("SMTP_FROM", "CivicOS <no-reply@civicos.local>"),
+		AppURL:       ensureScheme(getStr("APP_URL", "http://localhost:5173")),
 	}
 	if len(cfg.JWTSecret) < 32 {
 		fatalf("JWT_SECRET must be at least 32 characters")
@@ -67,10 +99,26 @@ func Load() *Config {
 	if cfg.PlatformFeeBps < 0 || cfg.PlatformFeeBps > 10_000 {
 		fatalf("PLATFORM_FEE_BPS must be between 0 and 10000 (basis points), got %d", cfg.PlatformFeeBps)
 	}
+	if cfg.ReconcileIntervalMinutes < 0 {
+		fatalf("RECONCILE_INTERVAL_MINUTES must not be negative, got %d", cfg.ReconcileIntervalMinutes)
+	}
 	if cfg.PaystackSecretKey != "" && !strings.HasPrefix(cfg.PaystackSecretKey, "sk_") {
 		fatalf("PAYSTACK_SECRET_KEY does not look like a Paystack secret key")
 	}
 	return cfg
+}
+
+// ensureScheme hardens APP_URL against the bare-host form Render's Blueprint
+// injects via `fromService.host` — without a scheme, the campaign link in a
+// receipt would be unclickable. A value with an explicit port is a dev URL.
+func ensureScheme(u string) string {
+	if u == "" || strings.HasPrefix(u, "http://") || strings.HasPrefix(u, "https://") {
+		return u
+	}
+	if strings.Contains(u, ":") {
+		return "http://" + u
+	}
+	return "https://" + u
 }
 
 func getInt64(key string, fallback int64) int64 {
