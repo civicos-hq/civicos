@@ -41,6 +41,10 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth gin.HandlerFunc, opti
 	// trusts the caller rather than the signature is a hole.
 	rg.POST("/webhooks/paystack", h.paystackWebhook)
 
+	// The bank list backing the payout form. Org admin only: it is only
+	// useful to someone who can actually connect an account.
+	rg.GET("/organizations/:id/psp-banks", auth, h.listBanks)
+
 	// Org admin: connect the payout destination.
 	rg.POST("/organizations/:id/psp-account", auth, h.connectSubaccount)
 
@@ -188,6 +192,20 @@ func (h *Handler) paystackWebhook(c *gin.Context) {
 }
 
 // ─── Sub-account connection ─────────────────────────────────────────────
+
+func (h *Handler) listBanks(c *gin.Context) {
+	orgID := c.Param("id")
+	userID, userRole := actorFrom(c)
+	if err := h.orgs.CanAdmin(orgID, userID, userRole); err != nil {
+		handleAppErr(c, err)
+		return
+	}
+	banks, err := h.svc.ListBanks(c.Request.Context())
+	if handleAppErr(c, err) {
+		return
+	}
+	response.Success(c, http.StatusOK, gin.H{"banks": banks})
+}
 
 func (h *Handler) connectSubaccount(c *gin.Context) {
 	orgID := c.Param("id")

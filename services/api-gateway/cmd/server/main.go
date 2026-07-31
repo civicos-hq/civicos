@@ -365,6 +365,9 @@ func main() {
 	// a row and must not be throttled mid-investigation.
 	r.POST("/api/v1/admin/donations/reconcile", authMiddleware, limitStandard, orgProxy)
 
+	// The bank list backing the payout form. Org admin only.
+	r.GET("/api/v1/organizations/:id/psp-banks", authMiddleware, orgProxy)
+
 	// Org connects its payout destination (org admin).
 	r.POST("/api/v1/organizations/:id/psp-account", authMiddleware, limitStandard, orgProxy)
 

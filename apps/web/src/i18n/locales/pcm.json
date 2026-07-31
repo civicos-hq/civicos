@@ -1251,5 +1251,25 @@
       "campaigns": "Fundraising"
     },
     "viewAllCampaigns": "See all"
+  },
+  "payout": {
+    "heading": "Payout account",
+    "connected": "{{bank}} ····{{last4}}",
+    "connectedNote": "Donation wey enter your campaigns go land here. CivicOS no dey hold the money.",
+    "change": "Change the account",
+    "notConnected": "You never connect payout account. Your campaigns no fit collect donation until you add one.",
+    "outstandingHeading": "Wetin still remain before you fit collect donation",
+    "bankLabel": "Bank",
+    "bankPlaceholder": "Choose your bank",
+    "banksError": "We no fit load the bank list. Try again small time.",
+    "accountLabel": "Account number",
+    "accountHelp": "10 digits. We go send am to Paystack to confirm the account — CivicOS no dey keep am.",
+    "businessLabel": "Account name",
+    "businessHelp": "The name wey dey the account.",
+    "emailLabel": "Settlement contact email (optional)",
+    "privacyNote": "We go send your account number to Paystack one time, CivicOS no dey store am. Na only the bank name and last four digits we dey keep.",
+    "connect": "Connect the account",
+    "connecting": "Dey connect…",
+    "error": "We no fit connect that account. Check the bank and account number."
   }
 }

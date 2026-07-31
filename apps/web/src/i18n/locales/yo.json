@@ -1022,5 +1022,25 @@
       "campaigns": "Ìkówójọ"
     },
     "viewAllCampaigns": "Wo gbogbo rẹ̀"
+  },
+  "payout": {
+    "heading": "Àkàǹtì gbígba owó",
+    "connected": "{{bank}} ····{{last4}}",
+    "connectedNote": "Ìtọrẹ sí àwọn ìpolongo rẹ yóò wọ ibí. CivicOS kò di owó náà mú.",
+    "change": "Yí àkàǹtì padà",
+    "notConnected": "Kò sí àkàǹtì gbígba owó tí a so pọ̀. Àwọn ìpolongo rẹ kò lè gba ìtọrẹ títí o fi fi ọ̀kan kún un.",
+    "outstandingHeading": "Ohun tí ó ṣẹ́kù kí o tó lè gba ìtọrẹ",
+    "bankLabel": "Báǹkì",
+    "bankPlaceholder": "Yan báǹkì rẹ",
+    "banksError": "A kò lè gbé àkójọ báǹkì wọlé. Gbìyànjú lẹ́ẹ̀kansí láìpẹ́.",
+    "accountLabel": "Nọ́mbà àkàǹtì",
+    "accountHelp": "Nọ́mbà 10. A ó fi ránṣẹ́ sí Paystack láti fọwọ́sí àkàǹtì náà — CivicOS kò tọ́jú rẹ̀.",
+    "businessLabel": "Orúkọ àkàǹtì",
+    "businessHelp": "Orúkọ tí a fi ṣí àkàǹtì náà.",
+    "emailLabel": "Ímeèlì olùbánisọ̀rọ̀ ìsanwó (àṣàyàn)",
+    "privacyNote": "A ó fi nọ́mbà àkàǹtì rẹ ránṣẹ́ sí Paystack lẹ́ẹ̀kan, CivicOS kò sì tọ́jú rẹ̀. Orúkọ báǹkì àti nọ́mbà mẹ́rin ìkẹyìn nìkan ni a ń pamọ́.",
+    "connect": "So àkàǹtì pọ̀",
+    "connecting": "Ń so pọ̀…",
+    "error": "A kò lè so àkàǹtì yẹn pọ̀. Ṣàyẹ̀wò báǹkì àti nọ́mbà àkàǹtì."
   }
 }

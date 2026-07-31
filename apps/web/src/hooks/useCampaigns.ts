@@ -651,3 +651,77 @@ export function useDeleteCampaign(orgId: string | undefined) {
 export function isDeletable(status: string): boolean {
   return status === 'DRAFT';
 }
+
+// ─── Payout account ─────────────────────────────────────────────────────
+
+export interface Bank {
+  name: string;
+  code: string;
+}
+
+export interface FundingEligibility {
+  eligible: boolean;
+  missing: string[];
+}
+
+export function useBanks(orgId: string | undefined, enabled = true) {
+  return useQuery({
+    queryKey: ['psp-banks'],
+    enabled: !!orgId && enabled,
+    // The list rarely changes and every org sees the same one.
+    staleTime: 60 * 60 * 1000,
+    retry: false,
+    queryFn: async () => {
+      const res = await api.get<ApiResponse<{ banks: Bank[] }>>(
+        `/api/v1/organizations/${orgId}/psp-banks`,
+      );
+      return res.data.data?.banks ?? [];
+    },
+  });
+}
+
+export function useFundingEligibility(orgId: string | undefined) {
+  return useQuery({
+    queryKey: ['funding-eligibility', orgId],
+    enabled: !!orgId,
+    retry: false,
+    queryFn: async () => {
+      const res = await api.get<ApiResponse<FundingEligibility>>(
+        `/api/v1/organizations/${orgId}/funding-eligibility`,
+      );
+      return res.data.data ?? { eligible: false, missing: [] };
+    },
+  });
+}
+
+export interface ConnectPayoutInput {
+  bankCode: string;
+  accountNumber: string;
+  businessName: string;
+  contactEmail?: string;
+}
+
+/**
+ * Connects the organization's payout destination.
+ *
+ * The account number is sent once and never stored by CivicOS — Paystack
+ * returns a sub-account code, and only that plus the bank name and the last
+ * four digits are kept. Nothing here should ever be written to local storage
+ * or a log.
+ */
+export function useConnectPayout(orgId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: ConnectPayoutInput) => {
+      await api.post(`/api/v1/organizations/${orgId}/psp-account`, input);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['funding-eligibility', orgId] });
+      qc.invalidateQueries({ queryKey: ['organization', orgId] });
+      // The org dashboard renders from the membership list, not from a
+      // per-org query — without this the newly connected account does not
+      // show until a full reload.
+      qc.invalidateQueries({ queryKey: ['my-organizations'] });
+    },
+  });
+}

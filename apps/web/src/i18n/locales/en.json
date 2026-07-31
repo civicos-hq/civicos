@@ -1921,5 +1921,25 @@
     "eyebrow": "Section — Fundraising",
     "title": "New campaign",
     "subtitle": "Saved as a draft. It becomes public only after a CivicOS admin reviews and approves it."
+  },
+  "payout": {
+    "heading": "Payout account",
+    "connected": "{{bank}} ····{{last4}}",
+    "connectedNote": "Donations to your campaigns settle here. CivicOS never holds the money.",
+    "change": "Change account",
+    "notConnected": "No payout account connected. Your campaigns cannot accept donations until you add one.",
+    "outstandingHeading": "Still needed before you can accept donations",
+    "bankLabel": "Bank",
+    "bankPlaceholder": "Select your bank",
+    "banksError": "Could not load the bank list. Try again shortly.",
+    "accountLabel": "Account number",
+    "accountHelp": "10 digits. Sent to Paystack to verify the account — CivicOS never stores it.",
+    "businessLabel": "Account name",
+    "businessHelp": "The name the account is held in.",
+    "emailLabel": "Settlement contact email (optional)",
+    "privacyNote": "Your account number is sent to Paystack once and is never stored by CivicOS. Only the bank name and last four digits are kept.",
+    "connect": "Connect account",
+    "connecting": "Connecting…",
+    "error": "Could not connect that account. Check the bank and account number."
   }
 }

@@ -475,6 +475,18 @@ type ConnectInput struct {
 	ContactEmail  string `json:"contactEmail" binding:"omitempty,email"`
 }
 
+// ListBanks returns the settlement destinations an organization can pick.
+func (s *Service) ListBanks(ctx context.Context) ([]Bank, error) {
+	if s.provider == nil {
+		return nil, &AppError{Code: "DONATIONS_UNAVAILABLE", Message: "Donations are not enabled on this deployment", Status: http.StatusServiceUnavailable}
+	}
+	banks, err := s.provider.ListBanks(ctx)
+	if err != nil {
+		return nil, &AppError{Code: "PSP_UNAVAILABLE", Message: "Could not load the bank list. Please try again.", Status: http.StatusBadGateway}
+	}
+	return banks, nil
+}
+
 // ConnectSubaccount registers the organization's payout destination with
 // Paystack and stores only the returned code.
 //

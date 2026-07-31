@@ -13,6 +13,7 @@ import {
 } from '@civicos/types';
 import { PageHeader, useTodayMeta } from '../components/PageHeader';
 import { OrgCampaigns } from '../components/OrgCampaigns';
+import { PayoutAccount } from '../components/PayoutAccount';
 import { EmptyState } from '../components/EmptyState';
 import { CommunityInsightsTile } from '../components/civic/CommunityInsightsTile';
 import { useMe } from '../hooks/useMe';
@@ -178,6 +179,10 @@ export function OrgDashboardPage() {
             )}
           </div>
           <OrgCampaigns orgId={orgId} locale={i18n.language} />
+
+          {/* Where the money goes. Placed with campaigns because it is the
+              prerequisite for any of them taking a donation. */}
+          {canAdmin && <PayoutAccount org={membership.organization} />}
         </div>
       )}
     </section>

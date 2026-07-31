@@ -1022,5 +1022,25 @@
       "campaigns": "Tara kuɗi"
     },
     "viewAllCampaigns": "Duba duka"
+  },
+  "payout": {
+    "heading": "Asusun karɓar kuɗi",
+    "connected": "{{bank}} ····{{last4}}",
+    "connectedNote": "Gudummawar kamfen ɗinku na shiga nan. CivicOS ba ya riƙe kuɗin.",
+    "change": "Canza asusu",
+    "notConnected": "Ba a haɗa asusun karɓar kuɗi ba. Kamfen ɗinku ba za su iya karɓar gudummawa ba sai kun ƙara ɗaya.",
+    "outstandingHeading": "Abin da ya rage kafin ku karɓi gudummawa",
+    "bankLabel": "Banki",
+    "bankPlaceholder": "Zaɓi bankin ku",
+    "banksError": "Ba a iya loda jerin bankuna ba. Ka sake gwadawa nan ba da jimawa ba.",
+    "accountLabel": "Lambar asusu",
+    "accountHelp": "Lambobi 10. Ana aika zuwa Paystack don tabbatar da asusun — CivicOS ba ya adana ta.",
+    "businessLabel": "Sunan asusu",
+    "businessHelp": "Sunan da aka buɗe asusun da shi.",
+    "emailLabel": "Imel ɗin tuntuɓar biyan kuɗi (na zaɓi)",
+    "privacyNote": "Ana aika lambar asusun ku zuwa Paystack sau ɗaya kuma CivicOS ba ya adana ta. Sunan banki da lambobi huɗu na ƙarshe kawai ake ajiyewa.",
+    "connect": "Haɗa asusu",
+    "connecting": "Ana haɗawa…",
+    "error": "Ba a iya haɗa wannan asusun ba. Duba banki da lambar asusu."
   }
 }

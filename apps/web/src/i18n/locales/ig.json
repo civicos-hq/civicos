@@ -1022,5 +1022,25 @@
       "campaigns": "Ịchịkọta ego"
     },
     "viewAllCampaigns": "Lee ha niile"
+  },
+  "payout": {
+    "heading": "Akaụntụ nnata ego",
+    "connected": "{{bank}} ····{{last4}}",
+    "connectedNote": "Onyinye mkpọsa gị na-abanye ebe a. CivicOS anaghị ejide ego ahụ.",
+    "change": "Gbanwee akaụntụ",
+    "notConnected": "Ejikọtaghị akaụntụ nnata ego. Mkpọsa gị enweghị ike ịnata onyinye tupu ị tinye otu.",
+    "outstandingHeading": "Ihe ka fọdụrụ tupu ị nweta onyinye",
+    "bankLabel": "Ụlọ akụ",
+    "bankPlaceholder": "Họrọ ụlọ akụ gị",
+    "banksError": "Enweghị ike ibudata ndepụta ụlọ akụ. Nwaa ọzọ n'oge na-adịghị anya.",
+    "accountLabel": "Nọmba akaụntụ",
+    "accountHelp": "Ọnụọgụ 10. A na-eziga ya Paystack ka o kwado akaụntụ ahụ — CivicOS anaghị echekwa ya.",
+    "businessLabel": "Aha akaụntụ",
+    "businessHelp": "Aha e ji mepee akaụntụ ahụ.",
+    "emailLabel": "Email kọntaktị nkwụnye ego (nhọrọ)",
+    "privacyNote": "A na-eziga nọmba akaụntụ gị Paystack otu ugboro, CivicOS anaghị echekwa ya. Naanị aha ụlọ akụ na ọnụọgụ anọ ikpeazụ ka echekwara.",
+    "connect": "Jikọọ akaụntụ",
+    "connecting": "Na-ejikọ…",
+    "error": "Enweghị ike ijikọ akaụntụ ahụ. Lelee ụlọ akụ na nọmba akaụntụ."
   }
 }
