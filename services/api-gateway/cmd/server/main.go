@@ -314,7 +314,11 @@ func main() {
 	// account to help. limitCreate rather than limitStandard, because an
 	// unauthenticated endpoint that opens payment transactions is exactly
 	// where a tighter budget belongs.
-	r.POST("/api/v1/campaigns/:campaignId/donation-intents", limitCreate, orgProxy)
+	// OptionalJWTAuth, not JWTAuth: guests may give, but a signed-in donor
+	// must be ATTRIBUTED. With no auth at all the downstream service never
+	// saw a user id, so no donation was linked to an account and every
+	// donor-facing notification had an empty audience.
+	r.POST("/api/v1/campaigns/:campaignId/donation-intents", middleware.OptionalJWTAuth(cfg), limitCreate, orgProxy)
 	r.GET("/api/v1/campaigns/:campaignId/donations", orgProxy)
 
 	// PAYSTACK WEBHOOK — intentionally NOT behind authMiddleware.

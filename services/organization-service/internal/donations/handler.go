@@ -26,10 +26,13 @@ func NewHandler(svc *Service, orgs *organizations.Service, auditor *audit.Audito
 // Without it, anyone who knows the URL can stream an unbounded body at us.
 const maxWebhookBody = 1 << 20 // 1 MiB
 
-func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth gin.HandlerFunc) {
+func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth gin.HandlerFunc, optionalAuth gin.HandlerFunc) {
 	// PUBLIC — a donor need not have an account to give. Rate limiting at
 	// the gateway does the abuse work; there is nothing to authenticate.
-	rg.POST("/campaigns/:campaignId/donation-intents", h.createIntent)
+	// optionalAuth, not auth: a guest may give, but a signed-in donor must
+	// be ATTRIBUTED, or their donation is never linked to their account and
+	// they can never be notified about the campaign they funded.
+	rg.POST("/campaigns/:campaignId/donation-intents", optionalAuth, h.createIntent)
 	rg.GET("/campaigns/:campaignId/donations", h.publicDonations)
 
 	// UNAUTHENTICATED BY NECESSITY. Paystack does not carry our JWTs, so

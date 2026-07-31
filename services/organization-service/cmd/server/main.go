@@ -188,6 +188,8 @@ func main() {
 
 	authMiddleware := middleware.JWTAuth(cfg, db)
 	requireVerified := middleware.RequireVerified()
+	// Attributes a donation to a signed-in donor without requiring an account.
+	optionalAuth := middleware.OptionalAuth(cfg, db)
 
 	r := gin.New()
 	r.Use(gin.Logger(), gin.Recovery())
@@ -215,7 +217,7 @@ func main() {
 	consultHandler.RegisterRoutes(v1, authMiddleware, requireVerified)
 	campHandler.RegisterRoutes(v1, authMiddleware)
 	msHandler.RegisterRoutes(v1, authMiddleware)
-	donHandler.RegisterRoutes(v1, authMiddleware)
+	donHandler.RegisterRoutes(v1, authMiddleware, optionalAuth)
 	spendHandler.RegisterRoutes(v1, authMiddleware)
 
 	addr := ":" + cfg.Port
