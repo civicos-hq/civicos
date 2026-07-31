@@ -4,18 +4,48 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/civicos/organization-service/internal/domain"
+	"github.com/civicos/organization-service/internal/notifications"
 	"github.com/civicos/organization-service/internal/organizations"
 	"github.com/civicos/organization-service/pkg/response"
 	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
-	svc  *Service
-	orgs *organizations.Service
+	svc       *Service
+	orgs      *organizations.Service
+	notifier  Notifier
+	audience  Audience
+	campaigns CampaignLookup
 }
 
 func NewHandler(svc *Service, orgs *organizations.Service) *Handler {
 	return &Handler{svc: svc, orgs: orgs}
+}
+
+// Notifier is the slice of notifications this package needs.
+type Notifier interface {
+	EmitMany(userIDs []string, t notifications.NotificationType, title, body string, linkURL *string)
+}
+
+// Audience answers who has a stake in a campaign.
+type Audience interface {
+	Donors(campaignID string) []string
+	Stakeholders(campaignID, orgID string) []string
+}
+
+// CampaignLookup resolves the campaign a milestone belongs to, so a
+// notification can name it and link to it.
+type CampaignLookup interface {
+	Get(campaignID string) (*domain.Campaign, error)
+}
+
+// WithNotifications attaches fan-out for milestone completion. Optional.
+func (h *Handler) WithNotifications(n Notifier, a Audience, c CampaignLookup) *Handler {
+	h.notifier = n
+	h.audience = a
+	h.campaigns = c
+	return h
 }
 
 // RegisterRoutes mounts milestones under their campaign. As with campaigns,
@@ -79,9 +109,18 @@ func (h *Handler) update(c *gin.Context) {
 		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", err.Error())
 		return
 	}
+	before, _ := h.svc.Get(item)
 	updated, err := h.svc.Update(item, input)
 	if handleAppErr(c, err) {
 		return
+	}
+
+	// Announce only the CROSSING into COMPLETED. Re-saving an
+	// already-complete milestone — fixing a typo in its title, say — must
+	// not tell every donor the work was finished again.
+	if updated.Status == domain.MilestoneCompleted &&
+		(before == nil || before.Status != domain.MilestoneCompleted) {
+		h.announceCompleted(updated)
 	}
 	response.Success(c, http.StatusOK, gin.H{"milestone": updated})
 }
@@ -95,6 +134,25 @@ func (h *Handler) delete(c *gin.Context) {
 		return
 	}
 	response.Success(c, http.StatusOK, gin.H{"ok": true})
+}
+
+// announceCompleted tells the people who funded a milestone that it is done.
+// This is the spend plan turning into evidence, which is the whole point of
+// publishing one.
+func (h *Handler) announceCompleted(m *domain.Milestone) {
+	if h.notifier == nil || h.audience == nil || h.campaigns == nil {
+		return
+	}
+	camp, err := h.campaigns.Get(m.CampaignID)
+	if err != nil || camp == nil {
+		return
+	}
+	link := "/campaigns/" + camp.Slug
+	h.notifier.EmitMany(h.audience.Stakeholders(camp.ID, camp.OrganizationID),
+		notifications.TypeMilestoneCompleted,
+		"Milestone completed: "+m.Title,
+		camp.Title+" has completed a step of its spend plan.",
+		&link)
 }
 
 // loadForOrgAdmin resolves the milestone, walks up to its campaign, and

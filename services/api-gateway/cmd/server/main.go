@@ -329,6 +329,21 @@ func main() {
 	// unsigned request is rejected before it touches the ledger.
 	r.POST("/api/v1/webhooks/paystack", orgProxy)
 
+	// ── Spend reporting (Phase 4) ──
+	//
+	// The public read is unauthenticated on purpose: a donor answering
+	// "where did my money go?" should not need an account to find out. That
+	// is the entire point of publishing an account of the spending.
+	//
+	// Writes are org-admin only (enforced in organization-service) and use
+	// limitStandard, matching the sibling org authoring routes — an org
+	// treasurer entering a batch of receipts is an authoring action, not a
+	// citizen action on a tight budget.
+	r.GET("/api/v1/campaigns/:campaignId/spend", orgProxy)
+	r.POST("/api/v1/campaigns/:campaignId/spend", authMiddleware, limitStandard, orgProxy)
+	r.PATCH("/api/v1/spend/:spendId", authMiddleware, limitStandard, orgProxy)
+	r.DELETE("/api/v1/spend/:spendId", authMiddleware, limitStandard, orgProxy)
+
 	// Reconciliation — the safety net under the webhook above.
 	//
 	// PLATFORM_ADMIN only (enforced in organization-service): a run can move

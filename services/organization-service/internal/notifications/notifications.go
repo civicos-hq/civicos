@@ -21,6 +21,16 @@ type NotificationType string
 const (
 	TypeConsultationUpdate NotificationType = "CONSULTATION_UPDATE"
 	TypeAnnouncementUpdate NotificationType = "ANNOUNCEMENT_UPDATE"
+
+	// Community Funding (Phase 4). Values must match community-service's
+	// enum exactly — it owns the schema and the client filters on these
+	// strings.
+	TypeCampaignApproved   NotificationType = "CAMPAIGN_APPROVED"
+	TypeDonationReceived   NotificationType = "DONATION_RECEIVED"
+	TypeMilestoneCompleted NotificationType = "MILESTONE_COMPLETED"
+	TypeCampaignUpdate     NotificationType = "CAMPAIGN_UPDATE"
+	TypeFundingGoalReached NotificationType = "FUNDING_GOAL_REACHED"
+	TypeCampaignCompleted  NotificationType = "CAMPAIGN_COMPLETED"
 )
 
 // Notification is a re-declaration of community-service's model with

@@ -319,6 +319,53 @@ type ProgressUpdate struct {
 	CreatedAt      time.Time `json:"createdAt"`
 }
 
+// SpendRecord is an organization's account of money it has spent against a
+// campaign's published plan.
+//
+// This is the heart of Phase 4, and its honest framing matters more than its
+// schema: because Paystack settles donations directly to the organization,
+// CivicOS never holds the money and **cannot verify any of this**. A spend
+// record is a CLAIM the organization publishes, not a fact the platform
+// attests to. Every surface that shows one must say so.
+//
+// Disclosure is the accountability lever that remains once custody is gone.
+// Making it structured — tied to a milestone, dated, itemised, optionally
+// evidenced — is what makes it checkable by the people who paid.
+type SpendRecord struct {
+	ID         string `gorm:"type:uuid;primaryKey" json:"id"`
+	CampaignID string `gorm:"type:uuid;not null;index" json:"campaignId"`
+	// MilestoneID ties spend to the plan donors were shown before giving.
+	// Required: unattributed spend is exactly the vagueness this feature
+	// exists to remove.
+	MilestoneID string `gorm:"type:uuid;not null;index" json:"milestoneId"`
+	// OrganizationID is denormalised so org-level reporting needs no join,
+	// matching Donation.
+	OrganizationID string `gorm:"type:uuid;not null;index" json:"organizationId"`
+
+	// Integer minor units, like every other amount in this system.
+	AmountMinor int64  `gorm:"not null" json:"amountMinor"`
+	Currency    string `gorm:"type:varchar(3);not null;default:'NGN'" json:"currency"`
+	Description string `gorm:"type:text;not null" json:"description"`
+
+	// SpentAt is when the money left the organization, which is not when
+	// they got round to publishing it. Donors reading a timeline care about
+	// the former.
+	SpentAt time.Time `gorm:"not null;index" json:"spentAt"`
+
+	// ReceiptURL is optional evidence — an invoice, a photograph of a
+	// receipt. Optional deliberately: requiring it would push organizations
+	// with poor paperwork into reporting nothing at all, and partial
+	// disclosure beats silence.
+	ReceiptURL *string `json:"receiptUrl,omitempty"`
+
+	// Who published it. Attribution is part of accountability.
+	PublishedByID   string `gorm:"type:uuid;not null" json:"publishedById"`
+	PublishedByName string `gorm:"not null" json:"publishedByName"`
+
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
 // Consultation is a structured feedback ask published by an organization to
 // either the whole org membership or a single community. Lifecycle is
 // DRAFT → PUBLISHED → CLOSED. Editing questions is only allowed while the

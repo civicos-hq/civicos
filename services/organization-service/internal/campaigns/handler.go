@@ -7,19 +7,53 @@ import (
 
 	"github.com/civicos/organization-service/internal/audit"
 	"github.com/civicos/organization-service/internal/domain"
+	"github.com/civicos/organization-service/internal/notifications"
 	"github.com/civicos/organization-service/internal/organizations"
 	"github.com/civicos/organization-service/pkg/response"
 	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
-	svc     *Service
-	orgs    *organizations.Service
-	auditor *audit.Auditor
+	svc      *Service
+	orgs     *organizations.Service
+	auditor  *audit.Auditor
+	notifier Notifier
+	audience Audience
 }
 
 func NewHandler(svc *Service, orgs *organizations.Service, auditor *audit.Auditor) *Handler {
 	return &Handler{svc: svc, orgs: orgs, auditor: auditor}
+}
+
+// Notifier is the slice of notifications this package needs. Declared here
+// rather than imported wholesale so the campaign lifecycle does not depend
+// on how notifications are delivered.
+type Notifier interface {
+	EmitMany(userIDs []string, t notifications.NotificationType, title, body string, linkURL *string)
+}
+
+// Audience answers "who has a stake in this campaign".
+type Audience interface {
+	OrgMembers(orgID string) []string
+	Donors(campaignID string) []string
+	Stakeholders(campaignID, orgID string) []string
+}
+
+// WithNotifications attaches notification fan-out. Optional: a campaign must
+// still be reviewable and completable when notifications are unavailable.
+func (h *Handler) WithNotifications(n Notifier, a Audience) *Handler {
+	h.notifier = n
+	h.audience = a
+	return h
+}
+
+// notify fans out, tolerating a missing notifier. A notification miss must
+// never fail the lifecycle action that triggered it.
+func (h *Handler) notify(userIDs []string, t notifications.NotificationType, title, body, link string) {
+	if h.notifier == nil || len(userIDs) == 0 {
+		return
+	}
+	h.notifier.EmitMany(userIDs, t, title, body, &link)
 }
 
 // RegisterRoutes mounts on v1 because campaign URLs span two resource roots
@@ -240,6 +274,16 @@ func (h *Handler) complete(c *gin.Context) {
 		return
 	}
 	h.record(c, "campaign.completed", item.ID, nil)
+
+	// Donors first, then the org — Stakeholders preserves that order, so the
+	// people who paid for the work are the ones this is really addressed to.
+	if h.audience != nil {
+		h.notify(h.audience.Stakeholders(updated.ID, updated.OrganizationID),
+			notifications.TypeCampaignCompleted,
+			"Campaign completed: "+updated.Title,
+			"The organization has marked this campaign complete. Its final report is due before it can be archived.",
+			"/campaigns/"+updated.Slug)
+	}
 	response.Success(c, http.StatusOK, gin.H{"campaign": updated})
 }
 
@@ -281,6 +325,19 @@ func (h *Handler) review(c *gin.Context) {
 		"decision": strings.ToUpper(input.Decision),
 		"status":   updated.Status,
 	})
+
+	// Only an approval is announced, and only to the organization.
+	// NEEDS_CHANGES and REJECTED carry the reviewer's note, which is a
+	// private conversation between the platform and the org — the same
+	// reasoning that keeps reviewNote out of the public DTO. The org learns
+	// those outcomes in its own console, not in a fan-out.
+	if updated.Status == domain.CampaignApproved && h.audience != nil {
+		h.notify(h.audience.OrgMembers(updated.OrganizationID),
+			notifications.TypeCampaignApproved,
+			"Campaign approved: "+updated.Title,
+			"Your campaign passed review and can now be published.",
+			"/campaigns/"+updated.Slug)
+	}
 	response.Success(c, http.StatusOK, gin.H{"campaign": updated})
 }
 

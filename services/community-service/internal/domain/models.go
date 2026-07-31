@@ -35,6 +35,20 @@ const (
 	NotificationConsultationUpdate     NotificationType = "CONSULTATION_UPDATE"
 	NotificationAnnouncementUpdate     NotificationType = "ANNOUNCEMENT_UPDATE"
 	NotificationSystem                 NotificationType = "SYSTEM"
+
+	// ─── Community Funding (Phase 4) ───
+	//
+	// Separate types rather than one CAMPAIGN_UPDATE catch-all: a donor
+	// deciding whether to open a notification is answering different
+	// questions for "the goal was reached" and "the money was spent on
+	// something". Collapsing them would make the tray unfilterable exactly
+	// where trust matters most.
+	NotificationCampaignApproved   NotificationType = "CAMPAIGN_APPROVED"
+	NotificationDonationReceived   NotificationType = "DONATION_RECEIVED"
+	NotificationMilestoneCompleted NotificationType = "MILESTONE_COMPLETED"
+	NotificationCampaignUpdate     NotificationType = "CAMPAIGN_UPDATE"
+	NotificationFundingGoalReached NotificationType = "FUNDING_GOAL_REACHED"
+	NotificationCampaignCompleted  NotificationType = "CAMPAIGN_COMPLETED"
 )
 
 type Notification struct {

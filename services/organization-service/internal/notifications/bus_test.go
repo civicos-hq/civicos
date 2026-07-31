@@ -2,6 +2,8 @@ package notifications
 
 import (
 	"encoding/json"
+	"os"
+	"strings"
 	"testing"
 	"time"
 )
@@ -73,4 +75,33 @@ func TestNATSBus_NilIsSafe(t *testing.T) {
 	var b *NATSBus
 	b.PublishNotification(Event{ID: "x", UserID: "u"})
 	b.Close()
+}
+
+// community-service owns the notifications schema; this service only mirrors
+// the enum. Nothing structural keeps the two in sync — they are separate Go
+// modules — so a value changed on one side would silently produce
+// notifications the client cannot filter or route.
+//
+// This reads the canonical source and compares. It skips rather than fails
+// when the sibling checkout is not present, so it can never become a false
+// alarm in an environment that builds one service in isolation.
+func TestNotificationTypes_MatchCommunityService(t *testing.T) {
+	const canonical = "../../../community-service/internal/domain/models.go"
+	src, err := os.ReadFile(canonical)
+	if err != nil {
+		t.Skipf("canonical enum not readable here (%v) — skipping drift check", err)
+	}
+	text := string(src)
+
+	mirrored := []NotificationType{
+		TypeConsultationUpdate, TypeAnnouncementUpdate,
+		TypeCampaignApproved, TypeDonationReceived, TypeMilestoneCompleted,
+		TypeCampaignUpdate, TypeFundingGoalReached, TypeCampaignCompleted,
+	}
+	for _, v := range mirrored {
+		want := `NotificationType = "` + string(v) + `"`
+		if !strings.Contains(text, want) {
+			t.Errorf("%q is not declared in community-service — the two enums have drifted", v)
+		}
+	}
 }
