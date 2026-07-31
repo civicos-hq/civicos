@@ -326,9 +326,23 @@ resolved as product decisions rather than quietly reinterpreted:
 - ✅ Public donor list honouring anonymity flags (shipped in Phase 3).
 - ✅ Notifications: six campaign types, fanned out to donors and org members
   via `internal/audience`, pushed live through the NATS → SSE bridge.
-- ⬜ **Org-facing console** for publishing spend and updates. The API and the
-  citizen views are done; organizations currently have to call the endpoints
-  directly.
+- ✅ **Org campaign management on the organization dashboard** — create a
+  campaign (with the first line of its spend plan in the same form), see
+  every status the public never does, read the reviewer's note on
+  NEEDS_CHANGES, edit content and the spend plan while still DRAFT or
+  NEEDS_CHANGES, delete a draft outright, mark milestones complete on a live
+  campaign (progress reporting, the one plan change allowed after review),
+  submit for review
+  and publish once approved. Editing closes when the campaign leaves the
+  org's hands — enforced by the server, mirrored by the UI — so a donor is
+  always giving to the thing they read. Review, pause,
+  resume and archive stay with the platform admin: an organization approving
+  its own fundraiser would defeat the review.
+- ✅ **Org-facing console** for publishing spend and updates, rendered inline
+  on the organization's own campaign page — it reports against the same
+  figures its donors are reading. Visibility is gated on OWNER/ADMIN
+  membership, but that is a rendering decision only: every write is
+  authorised again server-side against the owning organization.
 - **Exit:** a donor can answer "where did my money go?" without asking anyone.
 
 ### Phase 5 — Settlement reconciliation & completion

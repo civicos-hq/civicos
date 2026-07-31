@@ -2,7 +2,16 @@ import { useState, type FormEvent } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { Megaphone, Briefcase, Inbox, Mail, Phone, Globe, ShieldCheck } from 'lucide-react';
+import {
+  Megaphone,
+  Briefcase,
+  Inbox,
+  Mail,
+  Phone,
+  Globe,
+  ShieldCheck,
+  HandCoins,
+} from 'lucide-react';
 import { Button, Input } from '@civicos/ui';
 import {
   UserRole,
@@ -21,6 +30,7 @@ import { useRelativeTime } from '../hooks/useRelativeTime';
 import { Modal } from '../components/Modal';
 import { EmptyState } from '../components/EmptyState';
 import { ReportButton } from '../components/civic/ReportButton';
+import { OrgCampaigns, NewCampaignButton } from '../components/OrgCampaigns';
 
 const PLATFORM_ADMIN_ROLE: UserRole = UserRole.PLATFORM_ADMIN;
 
@@ -77,7 +87,7 @@ function useAssignments(orgId: string, enabled: boolean) {
 }
 
 export function OrganizationDetailPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { id = '' } = useParams<{ id: string }>();
   const orgQuery = useOrganization(id);
   const meQuery = useMe();
@@ -154,6 +164,24 @@ export function OrganizationDetailPage() {
         </div>
         <ProjectList items={projQuery.data ?? []} isLoading={projQuery.isLoading} />
       </section>
+
+      {/* Campaigns. Members only: this lists statuses the public never sees
+          (DRAFT, PENDING_REVIEW, NEEDS_CHANGES) and the reviewer's note. */}
+      {isMember && (
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              <HandCoins
+                className="mr-2 inline h-4 w-4 text-civic-700 dark:text-civic-200"
+                aria-hidden="true"
+              />
+              {t('orgCampaigns.heading')}
+            </h2>
+            <NewCampaignButton orgId={id} />
+          </div>
+          <OrgCampaigns orgId={id} locale={i18n.language} />
+        </section>
+      )}
 
       {isMember && (
         <section className="space-y-3">

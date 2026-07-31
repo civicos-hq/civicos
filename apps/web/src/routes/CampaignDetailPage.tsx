@@ -9,6 +9,7 @@ import {
   formatMoneyExact,
   progressPercent,
   useCampaignSpend,
+  useCanManageCampaign,
   useCampaignUpdates,
   usePublicCampaign,
   usePublicDonations,
@@ -18,6 +19,7 @@ import {
   type SpendRecord,
 } from '../hooks/useCampaigns';
 import { DonateForm } from '../components/DonateForm';
+import { CampaignConsole } from '../components/CampaignConsole';
 
 // Public campaign page. Shows the ask, the spend plan, and — since Phase 3 —
 // the donate flow and public donor list. Phase 4 extends it with the full
@@ -208,6 +210,7 @@ export function CampaignDetailPage() {
   const donationsQuery = usePublicDonations(c?.id);
   const spendQuery = useCampaignSpend(c?.id);
   const updatesQuery = useCampaignUpdates(c?.id);
+  const canManage = useCanManageCampaign(c?.organizationId);
 
   useSeo({
     title: c ? `${c.title} — CivicOS` : t('campaigns.detailSeoFallback'),
@@ -322,6 +325,12 @@ export function CampaignDetailPage() {
             <AccountingSection campaign={c} spend={spendQuery.data ?? []} locale={i18n.language} />
 
             <UpdatesSection updates={updatesQuery.data ?? []} locale={i18n.language} />
+
+            {/* Shown only to admins of the owning organization. Rendering
+                only — every write is authorised again server-side. */}
+            {canManage && (
+              <CampaignConsole campaign={c} spend={spendQuery.data ?? []} locale={i18n.language} />
+            )}
 
             {donations.length > 0 && (
               <>

@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { ApiResponse } from '@civicos/types';
 import { api } from '../lib/api';
 
@@ -311,4 +311,326 @@ export function formatMoneyExact(minor: number, currency: string, locale?: strin
 export function accountedPercent(reportedMinor: number, receivedMinor: number): number {
   if (receivedMinor <= 0) return 0;
   return Math.min(100, Math.max(0, Math.round((reportedMinor / receivedMinor) * 100)));
+}
+
+// ─── Org console (Phase 4) ──────────────────────────────────────────────
+
+/**
+ * Whether the signed-in user may publish on behalf of this campaign's
+ * organization.
+ *
+ * This gates VISIBILITY only. Every write is authorised again server-side
+ * against the owning org — a client-side role check decides what to render,
+ * never what is permitted.
+ */
+export function useCanManageCampaign(organizationId: string | undefined) {
+  const q = useQuery({
+    queryKey: ['my-organizations'],
+    // A signed-out visitor has no token; asking would just 401 on every
+    // campaign page view.
+    enabled: !!organizationId && !!localStorage.getItem('accessToken'),
+    retry: false,
+    queryFn: async () => {
+      const res = await api.get<
+        ApiResponse<{
+          memberships: { organization: { id: string }; membership: { role: string } }[];
+        }>
+      >('/api/v1/me/organizations');
+      return res.data.data?.memberships ?? [];
+    },
+  });
+  const m = (q.data ?? []).find((x) => x.organization?.id === organizationId);
+  // STAFF can read an org's internals but must not publish financial claims
+  // in its name.
+  return m?.membership?.role === 'OWNER' || m?.membership?.role === 'ADMIN';
+}
+
+export interface CreateSpendInput {
+  milestoneId: string;
+  amountMinor: number;
+  description: string;
+  spentAt: string;
+  receiptUrl?: string;
+}
+
+export function useCreateSpend(campaignId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: CreateSpendInput) => {
+      const res = await api.post<ApiResponse<{ spend: SpendRecord }>>(
+        `/api/v1/campaigns/${campaignId}/spend`,
+        input,
+      );
+      return res.data.data?.spend;
+    },
+    onSuccess: () => {
+      // The campaign detail carries the summary totals, so both have to
+      // refetch or the page shows a new record against a stale total.
+      qc.invalidateQueries({ queryKey: ['campaign-spend', campaignId] });
+      qc.invalidateQueries({ queryKey: ['public-campaign'] });
+    },
+  });
+}
+
+export function useDeleteSpend(campaignId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (spendId: string) => {
+      await api.delete(`/api/v1/spend/${spendId}`);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['campaign-spend', campaignId] });
+      qc.invalidateQueries({ queryKey: ['public-campaign'] });
+    },
+  });
+}
+
+export interface CreateUpdateInput {
+  campaignId: string;
+  title?: string;
+  body: string;
+  attachmentUrls?: string[];
+}
+
+export function useCreateFundingUpdate(
+  organizationId: string | undefined,
+  campaignId: string | undefined,
+) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: CreateUpdateInput) => {
+      const res = await api.post<ApiResponse<{ update: FundingUpdate }>>(
+        `/api/v1/organizations/${organizationId}/progress-updates`,
+        input,
+      );
+      return res.data.data?.update;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['campaign-updates', campaignId] });
+    },
+  });
+}
+
+// ─── Org campaign management ────────────────────────────────────────────
+
+/**
+ * A campaign as its own organization sees it — including the statuses the
+ * public never does (DRAFT, PENDING_REVIEW, NEEDS_CHANGES, REJECTED) and the
+ * reviewer's note.
+ *
+ * `reviewNote` is why this is a separate type from PublicCampaign: it is a
+ * private conversation between the platform and the organization, and the
+ * public DTO deliberately omits it.
+ */
+export interface OrgCampaign {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string;
+  status: string;
+  category: CampaignCategory;
+  currency: string;
+  goalMinor: number;
+  raisedMinor: number;
+  donorCount: number;
+  reviewNote?: string | null;
+  isEmergency: boolean;
+  createdAt?: string;
+  // The org-scoped endpoint returns the full campaign, so the edit form can
+  // be populated from the list without a second fetch.
+  description?: string;
+  state?: string | null;
+  lga?: string | null;
+}
+
+export function useOrgCampaigns(organizationId: string | undefined, enabled = true) {
+  return useQuery({
+    queryKey: ['org-campaigns', organizationId],
+    enabled: !!organizationId && enabled,
+    retry: false,
+    queryFn: async () => {
+      const res = await api.get<ApiResponse<{ campaigns: OrgCampaign[] }>>(
+        `/api/v1/organizations/${organizationId}/campaigns`,
+      );
+      return res.data.data?.campaigns ?? [];
+    },
+  });
+}
+
+export interface CreateCampaignInput {
+  title: string;
+  summary: string;
+  description: string;
+  category: CampaignCategory;
+  goalMinor: number;
+  state?: string;
+  lga?: string;
+  isEmergency?: boolean;
+}
+
+export function useCreateCampaign(organizationId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: CreateCampaignInput) => {
+      const res = await api.post<ApiResponse<{ campaign: OrgCampaign }>>(
+        `/api/v1/organizations/${organizationId}/campaigns`,
+        input,
+      );
+      return res.data.data?.campaign;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['org-campaigns', organizationId] }),
+  });
+}
+
+/**
+ * Edits campaign content.
+ *
+ * The server permits this only while a campaign is DRAFT or NEEDS_CHANGES —
+ * once it is in review or live, content is frozen, because a donor who reads
+ * a campaign and gives money must be giving to the thing they read. The UI
+ * mirrors that rather than letting someone fill in a form only to be
+ * refused.
+ */
+export function useUpdateCampaign(organizationId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (v: { campaignId: string; input: Partial<CreateCampaignInput> }) => {
+      await api.patch(`/api/v1/campaigns/${v.campaignId}`, v.input);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['org-campaigns', organizationId] });
+      qc.invalidateQueries({ queryKey: ['public-campaign'] });
+    },
+  });
+}
+
+/** Whether an organization may still change this campaign's content. */
+export function isEditable(status: string): boolean {
+  return status === 'DRAFT' || status === 'NEEDS_CHANGES';
+}
+
+function invalidatePlan(
+  qc: ReturnType<typeof useQueryClient>,
+  campaignId?: string,
+  orgId?: string,
+) {
+  qc.invalidateQueries({ queryKey: ['milestones', campaignId] });
+  // The public page renders the plan and the spend summary keys off it.
+  qc.invalidateQueries({ queryKey: ['public-campaign'] });
+  qc.invalidateQueries({ queryKey: ['org-campaigns', orgId] });
+}
+
+export function useCreateMilestone(organizationId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (v: { campaignId: string; title: string; targetMinor: number }) => {
+      await api.post(`/api/v1/campaigns/${v.campaignId}/milestones`, {
+        title: v.title,
+        targetMinor: v.targetMinor,
+      });
+      return v.campaignId;
+    },
+    // Invalidate the plan too, not just the campaign list. Without this the
+    // spend-plan editor keeps showing a stale plan after adding to it, and
+    // the remaining-capacity figure it computes goes wrong with it.
+    onSuccess: (campaignId) => invalidatePlan(qc, campaignId, organizationId),
+  });
+}
+
+/**
+ * Drives the org-side lifecycle steps: submit for review, then publish once
+ * the platform has approved.
+ *
+ * Deliberately does NOT cover review, pause, resume or archive — those are
+ * platform-admin actions and live in the admin console. An organization
+ * approving its own fundraiser would defeat the point of review.
+ */
+export function useCampaignLifecycle(organizationId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (v: { campaignId: string; action: 'submit' | 'publish' | 'complete' }) => {
+      await api.post(`/api/v1/campaigns/${v.campaignId}/${v.action}`);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['org-campaigns', organizationId] });
+      qc.invalidateQueries({ queryKey: ['public-campaign'] });
+    },
+  });
+}
+
+// ─── Spend plan management ──────────────────────────────────────────────
+
+export interface Milestone {
+  id: string;
+  campaignId: string;
+  title: string;
+  description?: string | null;
+  targetMinor: number;
+  status: 'PLANNED' | 'IN_PROGRESS' | 'COMPLETED';
+  position: number;
+  completedAt?: string | null;
+}
+
+export function useMilestones(campaignId: string | undefined, enabled = true) {
+  return useQuery({
+    queryKey: ['milestones', campaignId],
+    enabled: !!campaignId && enabled,
+    retry: false,
+    queryFn: async () => {
+      const res = await api.get<ApiResponse<{ milestones: Milestone[] }>>(
+        `/api/v1/campaigns/${campaignId}/milestones`,
+      );
+      return res.data.data?.milestones ?? [];
+    },
+  });
+}
+
+export function useDeleteMilestone(orgId: string | undefined, campaignId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (milestoneId: string) => {
+      await api.delete(`/api/v1/milestones/${milestoneId}`);
+    },
+    onSuccess: () => invalidatePlan(qc, campaignId, orgId),
+  });
+}
+
+/**
+ * Marks a milestone complete.
+ *
+ * Deliberately available while a campaign is LIVE, unlike every other change
+ * to the plan: this is progress reporting, not rewriting what donors were
+ * shown. It is also what fires the MILESTONE_COMPLETED notification to
+ * everyone who funded the campaign.
+ */
+export function useCompleteMilestone(orgId: string | undefined, campaignId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (milestoneId: string) => {
+      await api.patch(`/api/v1/milestones/${milestoneId}`, { status: 'COMPLETED' });
+    },
+    onSuccess: () => invalidatePlan(qc, campaignId, orgId),
+  });
+}
+
+/**
+ * Deletes a draft campaign.
+ *
+ * DRAFT only, and the server agrees: anything already submitted is archived
+ * rather than deleted, so a campaign that reviewers or donors have seen
+ * leaves a trail instead of vanishing.
+ */
+export function useDeleteCampaign(orgId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (campaignId: string) => {
+      await api.delete(`/api/v1/campaigns/${campaignId}`);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['org-campaigns', orgId] }),
+  });
+}
+
+/** Only a draft may be deleted; everything later is archived instead. */
+export function isDeletable(status: string): boolean {
+  return status === 'DRAFT';
 }
