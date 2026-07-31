@@ -13,6 +13,7 @@ type ListFilters struct {
 	OrgID      string
 	IssueID    string
 	ProjectID  string
+	CampaignID string
 	PublicOnly bool
 }
 
@@ -29,6 +30,9 @@ func (r *Repository) Find(f ListFilters) ([]domain.ProgressUpdate, error) {
 	}
 	if f.ProjectID != "" {
 		q = q.Where("project_id = ?", f.ProjectID)
+	}
+	if f.CampaignID != "" {
+		q = q.Where("campaign_id = ?", f.CampaignID)
 	}
 	if f.PublicOnly {
 		q = q.Where("is_public = ?", true)

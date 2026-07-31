@@ -68,6 +68,39 @@ type PublicDetail struct {
 	PublicCampaign
 	Description string            `json:"description"`
 	Milestones  []PublicMilestone `json:"milestones"`
+
+	// Spend is the organization's own account of what it did with the money.
+	//
+	// Presented alongside the ledger figures but NOT equivalent to them:
+	// RaisedMinor is something CivicOS observed, spend is something the
+	// organization asserts. Because donations settle straight to the
+	// organization's own account, the platform cannot verify a single line
+	// of it. Every surface rendering this must say whose claim it is.
+	Spend *SpendSummary `json:"spend,omitempty"`
+}
+
+// SpendSummary mirrors spend.Summary. Redeclared here rather than imported
+// so the public DTO stays an explicit allow-list — the same reason
+// PublicCampaign does not embed domain.Campaign.
+type SpendSummary struct {
+	ReportedMinor   int64            `json:"reportedMinor"`
+	UnreportedMinor int64            `json:"unreportedMinor"`
+	ExceedsReceived bool             `json:"exceedsReceived"`
+	RecordCount     int              `json:"recordCount"`
+	PerMilestone    map[string]int64 `json:"perMilestone"`
+}
+
+// SpendReader supplies the reported-spend totals. An interface so the
+// campaign page does not depend on how spend is stored, and so a campaign
+// still renders when spend reporting is unavailable.
+type SpendReader interface {
+	SummaryFor(campaignID string, receivedMinor int64, currency string) (*SpendSummary, error)
+}
+
+// WithSpend attaches reported-spend aggregation to the public page.
+func (s *Service) WithSpend(r SpendReader) *Service {
+	s.spend = r
+	return s
 }
 
 type PublicMilestone struct {
@@ -174,11 +207,19 @@ func (s *Service) GetPublicBySlug(slug string) (*PublicDetail, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &PublicDetail{
+	detail := &PublicDetail{
 		PublicCampaign: s.toPublic(c, names[c.OrganizationID]),
 		Description:    c.Description,
 		Milestones:     toPublicMilestones(ms),
-	}, nil
+	}
+	// Best-effort: a campaign page that cannot load spend is still worth
+	// serving. Failing the whole page would hide the goal and the plan too.
+	if s.spend != nil {
+		if sum, err := s.spend.SummaryFor(c.ID, c.RaisedMinor, c.Currency); err == nil {
+			detail.Spend = sum
+		}
+	}
+	return detail, nil
 }
 
 func isPublicStatus(s domain.CampaignStatus) bool {

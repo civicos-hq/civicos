@@ -33,6 +33,7 @@ type Service struct {
 	// platformFeeBps is carried here purely so the public projection can
 	// disclose the rate. The donations package owns the actual arithmetic.
 	platformFeeBps int64
+	spend          SpendReader
 }
 
 func NewService(repo Store) *Service {

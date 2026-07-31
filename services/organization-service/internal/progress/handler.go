@@ -4,14 +4,19 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/civicos/organization-service/internal/domain"
+	"github.com/civicos/organization-service/internal/notifications"
 	"github.com/civicos/organization-service/internal/organizations"
 	"github.com/civicos/organization-service/pkg/response"
 	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
-	svc  *Service
-	orgs *organizations.Service
+	svc       *Service
+	orgs      *organizations.Service
+	notifier  Notifier
+	audience  Audience
+	campaigns CampaignLookup
 }
 
 func NewHandler(svc *Service, orgs *organizations.Service) *Handler {
@@ -22,6 +27,10 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth gin.HandlerFunc) {
 	// Public reads — anyone can see progress on an issue or project.
 	rg.GET("/issues/:issueId/progress-updates", h.listForIssue)
 	rg.GET("/projects/:projectId/progress-updates", h.listForProject)
+	// Funding updates (Phase 4). Public and unauthenticated: this is the
+	// evidence half of the transparency page, and a donor should not need
+	// an account to see what their money did.
+	rg.GET("/campaigns/:campaignId/updates", h.listForCampaign)
 
 	// Writes require org admin.
 	rg.POST("/organizations/:id/progress-updates", auth, h.create)
@@ -46,6 +55,65 @@ func (h *Handler) listForProject(c *gin.Context) {
 	response.Success(c, http.StatusOK, gin.H{"updates": items})
 }
 
+func (h *Handler) listForCampaign(c *gin.Context) {
+	items, err := h.svc.List(ListFilters{CampaignID: c.Param("campaignId"), PublicOnly: true})
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to list updates")
+		return
+	}
+	response.Success(c, http.StatusOK, gin.H{"updates": items})
+}
+
+// Notifier is the slice of notifications this package needs.
+type Notifier interface {
+	EmitMany(userIDs []string, t notifications.NotificationType, title, body string, linkURL *string)
+}
+
+// Audience answers who has a stake in a campaign.
+type Audience interface {
+	Stakeholders(campaignID, orgID string) []string
+}
+
+// CampaignLookup names the campaign an update belongs to.
+type CampaignLookup interface {
+	Get(campaignID string) (*domain.Campaign, error)
+}
+
+// WithNotifications attaches fan-out for funding updates. Optional.
+func (h *Handler) WithNotifications(n Notifier, a Audience, c CampaignLookup) *Handler {
+	h.notifier = n
+	h.audience = a
+	h.campaigns = c
+	return h
+}
+
+// announceCampaignUpdate tells the people who paid that there is something
+// new to read. Only for PUBLIC updates: an internal note is not something to
+// push to donors.
+func (h *Handler) announceCampaignUpdate(p *domain.ProgressUpdate) {
+	if h.notifier == nil || h.audience == nil || h.campaigns == nil {
+		return
+	}
+	if p.CampaignID == nil || !p.IsPublic {
+		return
+	}
+	camp, err := h.campaigns.Get(*p.CampaignID)
+	if err != nil || camp == nil {
+		return
+	}
+	title := "Update: " + camp.Title
+	if p.Title != nil && *p.Title != "" {
+		title = *p.Title
+	}
+	preview := p.Body
+	if len(preview) > 200 {
+		preview = preview[:200] + "…"
+	}
+	link := "/campaigns/" + camp.Slug
+	h.notifier.EmitMany(h.audience.Stakeholders(camp.ID, camp.OrganizationID),
+		notifications.TypeCampaignUpdate, title, preview, &link)
+}
+
 func (h *Handler) create(c *gin.Context) {
 	orgID := c.Param("id")
 	userID, _ := c.Get("userID")
@@ -64,6 +132,7 @@ func (h *Handler) create(c *gin.Context) {
 	if handleAppErr(c, err) {
 		return
 	}
+	h.announceCampaignUpdate(item)
 	response.Success(c, http.StatusCreated, gin.H{"update": item})
 }
 

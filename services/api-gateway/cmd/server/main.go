@@ -314,7 +314,11 @@ func main() {
 	// account to help. limitCreate rather than limitStandard, because an
 	// unauthenticated endpoint that opens payment transactions is exactly
 	// where a tighter budget belongs.
-	r.POST("/api/v1/campaigns/:campaignId/donation-intents", limitCreate, orgProxy)
+	// OptionalJWTAuth, not JWTAuth: guests may give, but a signed-in donor
+	// must be ATTRIBUTED. With no auth at all the downstream service never
+	// saw a user id, so no donation was linked to an account and every
+	// donor-facing notification had an empty audience.
+	r.POST("/api/v1/campaigns/:campaignId/donation-intents", middleware.OptionalJWTAuth(cfg), limitCreate, orgProxy)
 	r.GET("/api/v1/campaigns/:campaignId/donations", orgProxy)
 
 	// PAYSTACK WEBHOOK — intentionally NOT behind authMiddleware.
@@ -329,6 +333,27 @@ func main() {
 	// unsigned request is rejected before it touches the ledger.
 	r.POST("/api/v1/webhooks/paystack", orgProxy)
 
+	// ── Spend reporting (Phase 4) ──
+	//
+	// The public read is unauthenticated on purpose: a donor answering
+	// "where did my money go?" should not need an account to find out. That
+	// is the entire point of publishing an account of the spending.
+	//
+	// Writes are org-admin only (enforced in organization-service) and use
+	// limitStandard, matching the sibling org authoring routes — an org
+	// treasurer entering a batch of receipts is an authoring action, not a
+	// citizen action on a tight budget.
+	// Funding updates — the evidence half of the transparency page. Public
+	// for the same reason spend is: a donor should not need an account to
+	// see what their money did. Writes go through the existing
+	// org-scoped progress-updates route, which already carries auth.
+	r.GET("/api/v1/campaigns/:campaignId/updates", orgProxy)
+
+	r.GET("/api/v1/campaigns/:campaignId/spend", orgProxy)
+	r.POST("/api/v1/campaigns/:campaignId/spend", authMiddleware, limitStandard, orgProxy)
+	r.PATCH("/api/v1/spend/:spendId", authMiddleware, limitStandard, orgProxy)
+	r.DELETE("/api/v1/spend/:spendId", authMiddleware, limitStandard, orgProxy)
+
 	// Reconciliation — the safety net under the webhook above.
 	//
 	// PLATFORM_ADMIN only (enforced in organization-service): a run can move
@@ -339,6 +364,9 @@ func main() {
 	// through a batch of donor complaints will legitimately fire several in
 	// a row and must not be throttled mid-investigation.
 	r.POST("/api/v1/admin/donations/reconcile", authMiddleware, limitStandard, orgProxy)
+
+	// The bank list backing the payout form. Org admin only.
+	r.GET("/api/v1/organizations/:id/psp-banks", authMiddleware, orgProxy)
 
 	// Org connects its payout destination (org admin).
 	r.POST("/api/v1/organizations/:id/psp-account", authMiddleware, limitStandard, orgProxy)

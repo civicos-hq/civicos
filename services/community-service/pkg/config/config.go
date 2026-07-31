@@ -11,11 +11,17 @@ type Config struct {
 	Port        string
 	DatabaseURL string
 	JWTSecret   string
+
+	// NATSURL feeds the realtime bridge: notifications written by other
+	// services (announcements, consultations, campaigns) are pushed to the
+	// SSE hub instead of waiting for the user's next fetch. Optional.
+	NATSURL string
 }
 
 func Load() *Config {
 	_ = godotenv.Load()
 	cfg := &Config{
+		NATSURL: os.Getenv("NATS_URL"),
 		// PORT wins when set — PaaS providers like Render dictate it.
 		// Falls back to COMMUNITY_SERVICE_PORT for local dev.
 		Port:        getStr("PORT", getStr("COMMUNITY_SERVICE_PORT", "3002")),

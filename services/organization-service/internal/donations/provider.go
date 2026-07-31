@@ -37,6 +37,13 @@ type PaymentProvider interface {
 	// place an attacker can try to fabricate money.
 	VerifyWebhook(rawBody []byte, signature string) (WebhookEvent, error)
 
+	// ListBanks returns the banks an organization can settle to.
+	//
+	// Fetched from the provider rather than hardcoded: Nigerian bank codes
+	// change as fintechs come and go, and a stale local list silently blocks
+	// an organization whose bank is missing from it.
+	ListBanks(ctx context.Context) ([]Bank, error)
+
 	// VerifyTransaction re-reads a transaction from the provider. The
 	// webhook says what happened; this confirms it independently, which is
 	// what reconciliation and any manual repair are built on.
@@ -52,6 +59,12 @@ type CreateSubaccountInput struct {
 	PlatformFeeBps int64
 	// PrimaryContactEmail receives provider-side settlement notices.
 	PrimaryContactEmail string
+}
+
+// Bank is a settlement destination offered by the provider.
+type Bank struct {
+	Name string `json:"name"`
+	Code string `json:"code"`
 }
 
 type Subaccount struct {

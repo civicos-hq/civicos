@@ -279,6 +279,97 @@ prints receipts to the log, so a dev environment still exercises the
 whole path. In local development Mailpit catches them — read them at
 `http://localhost:8025`.
 
+### Reported spend — the transparency dashboard
+
+Phase 4's answer to "where did my money go?".
+
+Organizations publish spend records against the milestones donors were
+shown before giving. Each entry is dated, itemised, attributed to a named
+person, and optionally carries a receipt link.
+
+**CivicOS cannot verify any of it.** Donations settle straight to the
+organization's own Paystack sub-account, so the platform never holds the
+money and cannot check a line of this against a bank statement. A spend
+record is a _claim published under the organization's name_, not a fact
+the platform attests to, and every surface that shows one says so.
+
+That is a weaker guarantee than holding funds and releasing them against
+milestones — it is the guarantee the merchant-of-record decision left in
+place. The design leans into it: make the claim specific enough that the
+people who paid can check it, even though we cannot enforce it.
+
+Three decisions worth keeping:
+
+- **Reporting more than was raised is allowed and surfaced, not clamped.**
+  An organization may legitimately top up from other funds. Silently
+  capping the figure would make the arithmetic on the page fail to add up,
+  so `exceedsReceived` flags it instead.
+- **There is no "remaining balance" figure.** CivicOS does not hold the
+  money and cannot know an organization's actual balance — only what came
+  through this platform and what they say they spent. A derived balance
+  presented as fact would be an invented number.
+- **Spend can still be reported while a campaign is PAUSED.** Pausing
+  stops new donations; an organization under investigation is exactly who
+  should be accounting for what it already took.
+
+Amendments and withdrawals are audited with the figures before and after,
+so a published claim cannot be quietly rewritten.
+
+The citizen page shows amounts to the kobo — `₦62.50`, not `₦63` — using
+a separate formatter from the rounded one used for progress bars. Three
+rows that are supposed to sum must visibly sum.
+
+### Funding updates
+
+The evidence half of the same page. `ProgressUpdate` gained a
+`CampaignID`, a title and attachment URLs, so a campaign feed reuses the
+moderation and hide-filter machinery issues and projects already have.
+
+One authorisation subtlety: the create route authorises against the
+organization in the **path**, while `campaignId` arrives in the **body**.
+The service verifies the campaign belongs to that organization — without
+it, an admin of one org could publish updates onto another org's campaign
+page, under its name, to its donors. A campaign owned by someone else
+returns `404`, not `403`, so ids cannot be probed.
+
+### Notifications and the realtime bridge
+
+Six campaign notification types: `CAMPAIGN_APPROVED`, `DONATION_RECEIVED`,
+`MILESTONE_COMPLETED`, `CAMPAIGN_UPDATE`, `FUNDING_GOAL_REACHED`,
+`CAMPAIGN_COMPLETED`.
+
+Who hears what is resolved once, in `internal/audience`, and shared by
+campaigns, milestones, donations and progress:
+
+- **Only approvals are announced.** `NEEDS_CHANGES` and `REJECTED` carry
+  the reviewer's note, which is a private conversation between platform
+  and organization — the same reasoning that keeps `reviewNote` out of the
+  public DTO.
+- **Donors are not told about other people's donations.** The org hears
+  that money arrived; donors already have their receipt. Otherwise a busy
+  campaign makes the notification tray unusable.
+- **Anonymous donors are still notified.** Anonymity governs the public
+  donor list, not whether someone hears what happened to their own money.
+
+`community-service` owns the notifications schema; this service mirrors
+the enum. Nothing structural keeps the two in sync, so a test reads the
+canonical source and compares — it skips rather than fails when the
+sibling checkout is absent.
+
+**The realtime bridge.** The SSE hub lives in community-service, but this
+service writes notification rows directly, so before Phase 4 nothing it
+emitted pushed live — announcements and consultations included. Now:
+
+1. organization-service writes the row (exactly once, as before),
+2. publishes the committed row to NATS on `civicos.notifications.created`,
+3. community-service subscribes and **only pushes to the hub** — it never
+   writes.
+
+A dead broker therefore costs realtime and nothing else: the notification
+is still in the table and still appears on the next fetch. That fallback
+is what allows core NATS with no persistence — the hub already documents
+itself as lossy, with the REST list as the source of truth.
+
 ## Environment
 
 - `DATABASE_URL`
@@ -292,3 +383,5 @@ still starts and serves campaigns; donation endpoints return `503`):
 - `PLATFORM_FEE_BPS` — integer basis points, default `0`
 - `DONATION_CALLBACK_URL` — where Paystack returns the donor
 - `RECONCILE_INTERVAL_MINUTES` — default `60`, `0` disables the sweep
+- `NATS_URL` — realtime notification bus. Optional: without it,
+  notifications still persist and appear on the user's next fetch.

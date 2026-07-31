@@ -222,6 +222,69 @@ components:
             - PENDING_WITH_MISMATCHED_DETAILS
             - PROVIDER_UNREACHABLE
 
+    PublicSpend:
+      type: object
+      description: |
+        One line of the organization's own account of its spending. An
+        explicit allow-list rather than the stored model, matching
+        PublicCampaign — new internal fields stay private until somebody
+        deliberately publishes them.
+      properties:
+        id: { type: string, format: uuid }
+        milestoneId:
+          type: string
+          format: uuid
+          description: The part of the published plan this was spent on.
+        amountMinor: { type: integer, format: int64 }
+        currency: { type: string }
+        description: { type: string }
+        spentAt:
+          type: string
+          format: date-time
+          description: When the money left the organization. UTC.
+        receiptUrl: { type: string, nullable: true }
+        publishedBy:
+          type: string
+          description: |
+            The person's NAME, not their user id. Attribution is for
+            readers; exposing ids invites correlation across surfaces.
+        publishedAt: { type: string, format: date-time }
+
+    SpendSummary:
+      type: object
+      description: |
+        Campaign-level accounting, returned inside the public campaign
+        detail.
+
+        Note what is deliberately ABSENT: any single "remaining balance"
+        figure. CivicOS does not hold the money and cannot know an
+        organization's actual balance — only what came through this
+        platform and what the organization says it spent. Presenting a
+        derived balance as fact would be inventing a number.
+      properties:
+        reportedMinor:
+          type: integer
+          format: int64
+          description: The organization's claim, summed. NOT verified.
+        unreportedMinor:
+          type: integer
+          format: int64
+          description: |
+            Received minus reported, floored at zero — see
+            `exceedsReceived`.
+        exceedsReceived:
+          type: boolean
+          description: |
+            The organization reports spending more than it raised here.
+            Legitimate — they may have topped up from other funds — and
+            surfaced rather than clamped, because silently capping it would
+            make the arithmetic on the page fail to add up.
+        recordCount: { type: integer }
+        perMilestone:
+          type: object
+          additionalProperties: { type: integer, format: int64 }
+          description: Reported total keyed by milestone id.
+
     DonationStatus:
       type: string
       description: |
@@ -352,7 +415,11 @@ components:
       type: object
       description: |
         The "respond publicly" primitive. Each update belongs to one org
-        and points at either an Issue (an assigned report) or a Project.
+        and points at **exactly one** of an Issue (an assigned report), a
+        Project, or — since Phase 4 — a Campaign. An update belonging to two
+        at once would appear on both feeds saying different things to
+        different audiences.
+
         Public updates are readable by anyone; internal notes are
         member-only.
       properties:
@@ -360,6 +427,21 @@ components:
         organizationId: { type: string, format: uuid }
         issueId: { type: string, format: uuid, nullable: true }
         projectId: { type: string, format: uuid, nullable: true }
+        campaignId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Set when this is a funding update on a campaign.
+        title:
+          type: string
+          nullable: true
+          description: Optional. A funding feed reads better with headings.
+        attachmentUrls:
+          type: array
+          items: { type: string }
+          description: |
+            Photographs, documents and financial reports. The spend plan is
+            a promise; the photographs are the evidence.
         body: { type: string }
         isPublic: { type: boolean }
         authorId: { type: string, format: uuid }
@@ -1051,6 +1133,29 @@ paths:
               properties:
                 issueId: { type: string, format: uuid, nullable: true }
                 projectId: { type: string, format: uuid, nullable: true }
+                campaignId:
+                  type: string
+                  format: uuid
+                  nullable: true
+                  description: |
+                    Publishes this as a funding update on a campaign.
+
+                    **The campaign must belong to the organization in the
+                    path.** Authorisation is checked against that org, while
+                    this id arrives in the body — without the ownership check
+                    an admin of one organization could publish updates onto
+                    another organization's campaign page, under its name, to
+                    its donors. A campaign owned by someone else returns 404,
+                    not 403, so ids cannot be probed.
+                title:
+                  type: string
+                  maxLength: 200
+                  nullable: true
+                attachmentUrls:
+                  type: array
+                  maxItems: 12
+                  items: { type: string, format: uri }
+                  description: Photographs, documents, financial reports.
                 body: { type: string, minLength: 2 }
                 isPublic: { type: boolean, default: true }
             examples:
@@ -2331,12 +2436,35 @@ paths:
         transparency surface: a citizen can see the goal and exactly how the
         money is meant to be spent, before the campaign can accept anything.
 
+        Phase 4 adds a `spend` summary: what the campaign received through
+        CivicOS alongside what the organization says it spent. Read the two
+        differently — `raisedMinor` is ledger truth the platform observed,
+        `spend` is an unverified claim the organization published, because
+        donations settle straight to its own account. See `SpendSummary`.
+
         A campaign in a non-public status returns **404, not 403**. A 403
         would confirm that a campaign with that slug exists and is merely
         hidden, turning the slug into an oracle for drafts and rejected
         applications.
       responses:
-        '200': { description: Public campaign detail with milestones. }
+        '200':
+          description: |
+            Public campaign detail with milestones and, when available, the
+            reported-spend summary. `spend` is omitted if spend reporting is
+            not wired on this deployment.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      campaign:
+                        type: object
+                        properties:
+                          spend: { $ref: '#/components/schemas/SpendSummary' }
         '404':
           description: No published campaign with that slug.
           content:
@@ -2616,6 +2744,188 @@ paths:
                         message: Could not connect that account. Check the bank and account number.,
                       },
                   }
+
+  /campaigns/{campaignId}/spend:
+    get:
+      tags: [Campaigns]
+      security: []
+      summary: What the organization says it spent (public)
+      description: |
+        **These figures are published by the organization, not verified by
+        CivicOS.** Donations settle directly to the organization's own
+        Paystack sub-account, so the platform never holds the money and
+        cannot check a single line of this against a bank statement.
+
+        That is a weaker guarantee than holding funds and releasing them
+        against milestones, and it is the guarantee the merchant-of-record
+        decision left in place. The design leans into it: every entry is
+        tied to a milestone donors were shown before giving, dated,
+        itemised and attributed to a named person, so the claim is
+        *checkable by the people who paid* even though it is not
+        enforceable by us.
+
+        Unauthenticated on purpose — a donor answering "where did my money
+        go?" should not need an account to find out.
+      parameters:
+        - in: path
+          name: campaignId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Spend records, most recently spent first.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      spend:
+                        type: array
+                        items: { $ref: '#/components/schemas/PublicSpend' }
+    post:
+      tags: [Campaigns]
+      summary: Publish a spend record (org admin)
+      description: |
+        Records what the organization did with money raised through this
+        campaign. Org admin only.
+
+        Refused before the campaign is PUBLISHED — a campaign that never
+        went live cannot have raised anything here, so spend against it
+        describes something that did not happen through CivicOS.
+
+        Deliberately still allowed while a campaign is PAUSED: pausing
+        stops new donations, and an organization under investigation is
+        exactly who should be accounting for what it already took.
+      parameters:
+        - in: path
+          name: campaignId
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [milestoneId, amountMinor, description, spentAt]
+              properties:
+                milestoneId:
+                  type: string
+                  format: uuid
+                  description: |
+                    Must belong to this campaign. Required: unattributed
+                    spend is exactly the vagueness this feature exists to
+                    remove.
+                amountMinor:
+                  type: integer
+                  format: int64
+                  description: Integer minor units (kobo). Never a float.
+                description: { type: string, minLength: 3, maxLength: 2000 }
+                spentAt:
+                  type: string
+                  description: |
+                    When the money left the organization — not when this was
+                    typed in. `YYYY-MM-DD` or RFC3339. A future date is
+                    refused, or a typo could show a campaign's money
+                    accounted for before it was spent.
+                receiptUrl:
+                  type: string
+                  description: |
+                    Optional evidence. Optional deliberately: requiring it
+                    would push organizations with poor paperwork into
+                    reporting nothing at all, and partial disclosure beats
+                    silence.
+      responses:
+        '201': { description: Published. }
+        '400': { description: VALIDATION_ERROR, INVALID_AMOUNT, or MILESTONE_MISMATCH. }
+        '403': { description: Not an admin of the owning organization. }
+        '404': { description: CAMPAIGN_NOT_FOUND or MILESTONE_NOT_FOUND. }
+        '409': { description: CAMPAIGN_NOT_REPORTABLE — the campaign has never been published. }
+
+  /spend/{spendId}:
+    patch:
+      tags: [Campaigns]
+      summary: Amend a published spend record (org admin)
+      description: |
+        Every amendment is audited with the figure before and after. A
+        published spend record is an accountability claim; letting an
+        organization change one silently would let it rewrite what it told
+        donors after the fact.
+      parameters:
+        - in: path
+          name: spendId
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amountMinor: { type: integer, format: int64 }
+                description: { type: string }
+                spentAt: { type: string }
+                receiptUrl: { type: string }
+      responses:
+        '200': { description: Amended. }
+        '403': { description: Not an admin of the owning organization. }
+        '404': { description: SPEND_NOT_FOUND. }
+    delete:
+      tags: [Campaigns]
+      summary: Withdraw a published spend record (org admin)
+      description: |
+        The record's full content is preserved in the audit entry —
+        withdrawing a published claim is the most sensitive of these
+        actions.
+      parameters:
+        - in: path
+          name: spendId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Withdrawn. }
+        '403': { description: Not an admin of the owning organization. }
+        '404': { description: SPEND_NOT_FOUND. }
+
+  /campaigns/{campaignId}/updates:
+    get:
+      tags: [Campaigns]
+      security: []
+      summary: Funding updates for a campaign (public)
+      description: |
+        The evidence half of the transparency page: what the organization
+        says it has been doing, with photographs, documents and financial
+        reports attached. Backed by the same `ProgressUpdate` model as
+        issue and project updates, so it inherits their moderation and
+        hide-filter behaviour.
+
+        Only public updates are returned. Create these through
+        `POST /organizations/{id}/progress-updates` with `campaignId` set.
+      parameters:
+        - in: path
+          name: campaignId
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Updates, newest first.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      updates:
+                        type: array
+                        items: { $ref: '#/components/schemas/ProgressUpdate' }
 
   /admin/donations/reconcile:
     post:

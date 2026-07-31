@@ -354,6 +354,20 @@ export interface Organization {
   announcementCount: number;
   projectCount: number;
   assignmentCount: number;
+
+  /**
+   * Where donations are paid out to (Community Funding).
+   *
+   * Only the provider's sub-account code, the bank name and the last four
+   * digits are ever stored — the account number itself is sent to the
+   * payment provider once and never persisted by CivicOS, which is why
+   * there is no field for it here.
+   */
+  pspProvider?: string;
+  pspSubaccountCode?: string;
+  pspBankName?: string;
+  pspAccountLast4?: string;
+
   createdById: UUID;
   createdAt: ISODateTime;
   updatedAt: ISODateTime;

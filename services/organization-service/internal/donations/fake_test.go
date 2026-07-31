@@ -319,3 +319,7 @@ func (f *fakeStore) ConnectSubaccount(orgID, provider, code, bank, last4 string)
 	}
 	return nil
 }
+
+func (f *fakeProvider) ListBanks(context.Context) ([]Bank, error) {
+	return []Bank{{Name: "Zenith Bank", Code: "057"}, {Name: "Access Bank", Code: "044"}}, nil
+}

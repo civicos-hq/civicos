@@ -7,6 +7,7 @@ import (
 
 	"github.com/civicos/organization-service/internal/announcements"
 	"github.com/civicos/organization-service/internal/assignments"
+	"github.com/civicos/organization-service/internal/audience"
 	"github.com/civicos/organization-service/internal/audit"
 	"github.com/civicos/organization-service/internal/campaigns"
 	"github.com/civicos/organization-service/internal/communities"
@@ -19,6 +20,7 @@ import (
 	"github.com/civicos/organization-service/internal/organizations"
 	"github.com/civicos/organization-service/internal/progress"
 	"github.com/civicos/organization-service/internal/projects"
+	"github.com/civicos/organization-service/internal/spend"
 	"github.com/civicos/organization-service/pkg/config"
 	"github.com/civicos/organization-service/pkg/database"
 	"github.com/civicos/organization-service/pkg/mailer"
@@ -46,8 +48,18 @@ func main() {
 		&domain.Milestone{},
 		&domain.Donation{},
 		&domain.WebhookEvent{},
+		&domain.SpendRecord{},
 	); err != nil {
 		log.Fatalf("migration failed: %v", err)
+	}
+
+	// Realtime notification bus. organization-service writes notification
+	// rows itself, but the SSE hub that pushes them to browsers lives in
+	// community-service — without this bridge they sit until the next fetch.
+	// Optional by design: a missing broker costs realtime, not delivery.
+	eventBus := notifications.ConnectNATS(cfg.NATSURL)
+	if eventBus != nil {
+		defer eventBus.Close()
 	}
 
 	// Shared audit writer.
@@ -62,7 +74,7 @@ func main() {
 	// service-owned notifications table (same shared-DB pattern as audit).
 	// Constructed early so downstream handlers (announcements, consultations)
 	// can wire it in.
-	notifier := notifications.NewDBNotifier(db)
+	notifier := notifications.NewDBNotifier(db).WithBus(eventBus)
 
 	// Announcements — depend on orgSvc for member/admin checks and the
 	// notifier for publish fan-out.
@@ -101,13 +113,39 @@ func main() {
 	// No donations, withdrawals or payment provider yet; see
 	// docs/product/community-funding-plan.md for the phase order and why
 	// transparency lands before money.
+	// Who hears about a campaign event. One definition shared by campaigns,
+	// milestones and donations — see internal/audience.
+	aud := audience.New(db)
+
 	campRepo := campaigns.NewRepository(db)
 	campSvc := campaigns.NewService(campRepo).WithPlatformFee(cfg.PlatformFeeBps)
-	campHandler := campaigns.NewHandler(campSvc, orgSvc, auditor)
+	campHandler := campaigns.NewHandler(campSvc, orgSvc, auditor).WithNotifications(notifier, aud)
+
+	// Spend reporting (Phase 4). Because donations settle straight to the
+	// organization, disclosure is the accountability lever that remains —
+	// see internal/spend.
+	spendRepo := spend.NewRepository(db)
+	spendSvc := spend.NewService(spendRepo)
+	spendHandler := spend.NewHandler(spendSvc, orgSvc, auditor)
+
+	// The public campaign page shows reported spend alongside the ledger.
+	// Wired after both exist; campaigns depends on the interface, not on
+	// spend's storage.
+	campSvc.WithSpend(spend.NewReader(spendSvc))
+
+	// Funding updates reuse ProgressUpdate. Wired here rather than at
+	// construction because progress is built before campaigns exists.
+	//
+	// WithCampaigns is a safety dependency, not a convenience: campaignId
+	// arrives in the request body while authorisation is checked against the
+	// org in the URL, so the service must verify the campaign belongs to
+	// that org before accepting the update.
+	progSvc.WithCampaigns(campSvc)
+	progHandler.WithNotifications(notifier, aud, campSvc)
 
 	msRepo := milestones.NewRepository(db)
 	msSvc := milestones.NewService(msRepo)
-	msHandler := milestones.NewHandler(msSvc, orgSvc)
+	msHandler := milestones.NewHandler(msSvc, orgSvc).WithNotifications(notifier, aud, campSvc)
 
 	// Donations (Phase 3). Paystack is OPTIONAL: without a key the provider
 	// is nil, donation endpoints return 503, and everything else — campaigns,
@@ -135,7 +173,8 @@ func main() {
 
 	donRepo := donations.NewRepository(db)
 	donSvc := donations.NewService(donRepo, payProvider, cfg.PlatformFeeBps, cfg.DonationCallbackURL).
-		WithReceipts(receiptMailer, cfg.AppURL)
+		WithReceipts(receiptMailer, cfg.AppURL).
+		WithNotifications(notifier, aud)
 	donHandler := donations.NewHandler(donSvc, orgSvc, auditor)
 
 	// Reconciliation. The webhook is the only thing that settles a donation,
@@ -149,6 +188,8 @@ func main() {
 
 	authMiddleware := middleware.JWTAuth(cfg, db)
 	requireVerified := middleware.RequireVerified()
+	// Attributes a donation to a signed-in donor without requiring an account.
+	optionalAuth := middleware.OptionalAuth(cfg, db)
 
 	r := gin.New()
 	r.Use(gin.Logger(), gin.Recovery())
@@ -176,7 +217,8 @@ func main() {
 	consultHandler.RegisterRoutes(v1, authMiddleware, requireVerified)
 	campHandler.RegisterRoutes(v1, authMiddleware)
 	msHandler.RegisterRoutes(v1, authMiddleware)
-	donHandler.RegisterRoutes(v1, authMiddleware)
+	donHandler.RegisterRoutes(v1, authMiddleware, optionalAuth)
+	spendHandler.RegisterRoutes(v1, authMiddleware)
 
 	addr := ":" + cfg.Port
 	log.Printf("organization-service listening on %s", addr)

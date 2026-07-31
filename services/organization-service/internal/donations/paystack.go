@@ -267,3 +267,41 @@ func (p *Paystack) call(ctx context.Context, method, path string, payload any, o
 	}
 	return json.Unmarshal(raw, out)
 }
+
+// ListBanks fetches the current Nigerian bank list from Paystack.
+func (p *Paystack) ListBanks(ctx context.Context) ([]Bank, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet,
+		p.baseURL+"/bank?country=nigeria&perPage=100", nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Authorization", "Bearer "+p.secretKey)
+
+	res, err := p.http.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	var body struct {
+		Status bool `json:"status"`
+		Data   []struct {
+			Name string `json:"name"`
+			Code string `json:"code"`
+		} `json:"data"`
+	}
+	if err := json.NewDecoder(res.Body).Decode(&body); err != nil {
+		return nil, err
+	}
+	if !body.Status {
+		return nil, fmt.Errorf("paystack: bank list unavailable")
+	}
+	out := make([]Bank, 0, len(body.Data))
+	for _, b := range body.Data {
+		if b.Code == "" {
+			continue
+		}
+		out = append(out, Bank{Name: b.Name, Code: b.Code})
+	}
+	return out, nil
+}

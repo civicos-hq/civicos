@@ -5,12 +5,13 @@ import {
   Building2,
   Compass,
   FileText,
-  Home,
   LogOut,
   Megaphone,
   MessageSquare,
   User,
   Users,
+  HandCoins,
+  Home,
   Wrench,
 } from 'lucide-react';
 import { Link, NavLink } from 'react-router-dom';
@@ -24,6 +25,7 @@ const navItems = [
   { to: '/community', i18n: 'sidebar.community', icon: Home },
   { to: '/issues', i18n: 'sidebar.issues', icon: AlertCircle },
   { to: '/petitions', i18n: 'sidebar.petitions', icon: FileText },
+  { to: '/campaigns', i18n: 'sidebar.campaigns', icon: HandCoins },
   { to: '/representatives', i18n: 'sidebar.representatives', icon: Users },
   { to: '/organizations', i18n: 'sidebar.organizations', icon: Building2 },
   { to: '/consultations', i18n: 'sidebar.consultations', icon: MessageSquare },

@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { ApiResponse } from '@civicos/types';
 import { api } from '../lib/api';
 
@@ -67,6 +67,8 @@ export interface PublicMilestone {
 export interface PublicCampaignDetail extends PublicCampaign {
   description: string;
   milestones: PublicMilestone[];
+  /** Absent when the campaign has no spend reporting available. */
+  spend?: SpendSummary;
 }
 
 export interface CampaignFilters {
@@ -129,6 +131,11 @@ export function formatMoney(minor: number, currency: string, locale?: string): s
   return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency,
+    // narrowSymbol, or Nigerians are shown "NGN 100,000" instead of
+    // "₦100,000": Intl only picks the ₦ glyph for an explicitly Nigerian
+    // locale, and the app passes i18n.language ("en", "ha", "ig"…), never
+    // "en-NG". Applies to every locale we ship.
+    currencyDisplay: 'narrowSymbol',
     maximumFractionDigits: 0,
   }).format(minor / 100);
 }
@@ -210,4 +217,511 @@ export function previewSplit(amountMinor: number, platformFeeBps: number) {
   const gross = Math.max(0, Math.floor(amountMinor));
   const fee = Math.floor((gross * platformFeeBps) / 10_000);
   return { grossMinor: gross, platformFeeMinor: fee, netMinor: gross - fee };
+}
+
+// ─── Transparency dashboard (Phase 4) ───────────────────────────────────
+
+/**
+ * The organization's own account of what it did with the money.
+ *
+ * Named `reported`, never `spent`, throughout. Donations settle straight to
+ * the organization's Paystack sub-account, so CivicOS never holds the money
+ * and cannot verify a single line of this. It is a claim published under the
+ * organization's name, and the UI has to say so.
+ */
+export interface SpendSummary {
+  reportedMinor: number;
+  unreportedMinor: number;
+  /** The organization reports spending more than it raised here — legitimate
+   *  (they may have topped up from other funds) and surfaced rather than
+   *  clamped, so the arithmetic on the page still adds up. */
+  exceedsReceived: boolean;
+  recordCount: number;
+  perMilestone: Record<string, number>;
+}
+
+export interface SpendRecord {
+  id: string;
+  milestoneId: string;
+  amountMinor: number;
+  currency: string;
+  description: string;
+  spentAt: string;
+  receiptUrl?: string | null;
+  publishedBy: string;
+  publishedAt: string;
+}
+
+export interface FundingUpdate {
+  id: string;
+  campaignId?: string | null;
+  title?: string | null;
+  body: string;
+  attachmentUrls: string[];
+  authorName: string;
+  createdAt: string;
+}
+
+export function useCampaignSpend(campaignId: string | undefined) {
+  return useQuery({
+    queryKey: ['campaign-spend', campaignId],
+    enabled: !!campaignId,
+    queryFn: async () => {
+      const res = await api.get<ApiResponse<{ spend: SpendRecord[] }>>(
+        `/api/v1/campaigns/${campaignId}/spend`,
+      );
+      return res.data.data?.spend ?? [];
+    },
+  });
+}
+
+export function useCampaignUpdates(campaignId: string | undefined) {
+  return useQuery({
+    queryKey: ['campaign-updates', campaignId],
+    enabled: !!campaignId,
+    queryFn: async () => {
+      const res = await api.get<ApiResponse<{ updates: FundingUpdate[] }>>(
+        `/api/v1/campaigns/${campaignId}/updates`,
+      );
+      return res.data.data?.updates ?? [];
+    },
+  });
+}
+
+/**
+ * Formats minor units WITHOUT rounding away the kobo.
+ *
+ * `formatMoney` rounds to whole units, which is right for a progress bar but
+ * wrong for the accounting section: a donor reading "₦62 reported" against a
+ * stored ₦62.50 sees figures that do not sum to the total shown above them.
+ * A transparency page whose arithmetic does not add up undermines the exact
+ * thing it exists to demonstrate.
+ */
+export function formatMoneyExact(minor: number, currency: string, locale?: string): string {
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency,
+    currencyDisplay: 'narrowSymbol',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(minor / 100);
+}
+
+/** What share of received money has been accounted for, 0-100. */
+export function accountedPercent(reportedMinor: number, receivedMinor: number): number {
+  if (receivedMinor <= 0) return 0;
+  return Math.min(100, Math.max(0, Math.round((reportedMinor / receivedMinor) * 100)));
+}
+
+// ─── Org console (Phase 4) ──────────────────────────────────────────────
+
+/**
+ * Whether the signed-in user may publish on behalf of this campaign's
+ * organization.
+ *
+ * This gates VISIBILITY only. Every write is authorised again server-side
+ * against the owning org — a client-side role check decides what to render,
+ * never what is permitted.
+ */
+export function useCanManageCampaign(organizationId: string | undefined) {
+  const q = useQuery({
+    queryKey: ['my-organizations'],
+    // A signed-out visitor has no token; asking would just 401 on every
+    // campaign page view.
+    enabled: !!organizationId && !!localStorage.getItem('accessToken'),
+    retry: false,
+    queryFn: async () => {
+      const res = await api.get<
+        ApiResponse<{
+          memberships: { organization: { id: string }; membership: { role: string } }[];
+        }>
+      >('/api/v1/me/organizations');
+      return res.data.data?.memberships ?? [];
+    },
+  });
+  const m = (q.data ?? []).find((x) => x.organization?.id === organizationId);
+  // STAFF can read an org's internals but must not publish financial claims
+  // in its name.
+  return m?.membership?.role === 'OWNER' || m?.membership?.role === 'ADMIN';
+}
+
+export interface CreateSpendInput {
+  milestoneId: string;
+  amountMinor: number;
+  description: string;
+  spentAt: string;
+  receiptUrl?: string;
+}
+
+export function useCreateSpend(campaignId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: CreateSpendInput) => {
+      const res = await api.post<ApiResponse<{ spend: SpendRecord }>>(
+        `/api/v1/campaigns/${campaignId}/spend`,
+        input,
+      );
+      return res.data.data?.spend;
+    },
+    onSuccess: () => {
+      // The campaign detail carries the summary totals, so both have to
+      // refetch or the page shows a new record against a stale total.
+      qc.invalidateQueries({ queryKey: ['campaign-spend', campaignId] });
+      qc.invalidateQueries({ queryKey: ['public-campaign'] });
+    },
+  });
+}
+
+export function useDeleteSpend(campaignId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (spendId: string) => {
+      await api.delete(`/api/v1/spend/${spendId}`);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['campaign-spend', campaignId] });
+      qc.invalidateQueries({ queryKey: ['public-campaign'] });
+    },
+  });
+}
+
+export interface CreateUpdateInput {
+  campaignId: string;
+  title?: string;
+  body: string;
+  attachmentUrls?: string[];
+}
+
+export function useCreateFundingUpdate(
+  organizationId: string | undefined,
+  campaignId: string | undefined,
+) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: CreateUpdateInput) => {
+      const res = await api.post<ApiResponse<{ update: FundingUpdate }>>(
+        `/api/v1/organizations/${organizationId}/progress-updates`,
+        input,
+      );
+      return res.data.data?.update;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['campaign-updates', campaignId] });
+    },
+  });
+}
+
+// ─── Org campaign management ────────────────────────────────────────────
+
+/**
+ * A campaign as its own organization sees it — including the statuses the
+ * public never does (DRAFT, PENDING_REVIEW, NEEDS_CHANGES, REJECTED) and the
+ * reviewer's note.
+ *
+ * `reviewNote` is why this is a separate type from PublicCampaign: it is a
+ * private conversation between the platform and the organization, and the
+ * public DTO deliberately omits it.
+ */
+export interface OrgCampaign {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string;
+  status: string;
+  category: CampaignCategory;
+  currency: string;
+  goalMinor: number;
+  raisedMinor: number;
+  donorCount: number;
+  reviewNote?: string | null;
+  isEmergency: boolean;
+  createdAt?: string;
+  // The org-scoped endpoint returns the full campaign, so the edit form can
+  // be populated from the list without a second fetch.
+  description?: string;
+  state?: string | null;
+  lga?: string | null;
+}
+
+/**
+ * Maps a category enum to its translation key.
+ *
+ * The enum is SCREAMING_SNAKE (`EMERGENCY_RELIEF`) but the locale files are
+ * keyed camelCase (`emergencyRelief`), so translating the raw value silently
+ * falls through to the fallback and shows the enum to the user.
+ */
+export function categoryKey(c: CampaignCategory): string {
+  return c.toLowerCase().replace(/_([a-z])/g, (_, ch: string) => ch.toUpperCase());
+}
+
+export function useOrgCampaigns(organizationId: string | undefined, enabled = true) {
+  return useQuery({
+    queryKey: ['org-campaigns', organizationId],
+    enabled: !!organizationId && enabled,
+    retry: false,
+    queryFn: async () => {
+      const res = await api.get<ApiResponse<{ campaigns: OrgCampaign[] }>>(
+        `/api/v1/organizations/${organizationId}/campaigns`,
+      );
+      return res.data.data?.campaigns ?? [];
+    },
+  });
+}
+
+export interface CreateCampaignInput {
+  title: string;
+  summary: string;
+  description: string;
+  category: CampaignCategory;
+  goalMinor: number;
+  state?: string;
+  lga?: string;
+  isEmergency?: boolean;
+}
+
+export function useCreateCampaign(organizationId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: CreateCampaignInput) => {
+      const res = await api.post<ApiResponse<{ campaign: OrgCampaign }>>(
+        `/api/v1/organizations/${organizationId}/campaigns`,
+        input,
+      );
+      return res.data.data?.campaign;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['org-campaigns', organizationId] }),
+  });
+}
+
+/**
+ * Edits campaign content.
+ *
+ * The server permits this only while a campaign is DRAFT or NEEDS_CHANGES —
+ * once it is in review or live, content is frozen, because a donor who reads
+ * a campaign and gives money must be giving to the thing they read. The UI
+ * mirrors that rather than letting someone fill in a form only to be
+ * refused.
+ */
+export function useUpdateCampaign(organizationId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (v: { campaignId: string; input: Partial<CreateCampaignInput> }) => {
+      await api.patch(`/api/v1/campaigns/${v.campaignId}`, v.input);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['org-campaigns', organizationId] });
+      qc.invalidateQueries({ queryKey: ['public-campaign'] });
+    },
+  });
+}
+
+/** Whether an organization may still change this campaign's content. */
+export function isEditable(status: string): boolean {
+  return status === 'DRAFT' || status === 'NEEDS_CHANGES';
+}
+
+function invalidatePlan(
+  qc: ReturnType<typeof useQueryClient>,
+  campaignId?: string,
+  orgId?: string,
+) {
+  qc.invalidateQueries({ queryKey: ['milestones', campaignId] });
+  // The public page renders the plan and the spend summary keys off it.
+  qc.invalidateQueries({ queryKey: ['public-campaign'] });
+  qc.invalidateQueries({ queryKey: ['org-campaigns', orgId] });
+}
+
+export function useCreateMilestone(organizationId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (v: { campaignId: string; title: string; targetMinor: number }) => {
+      await api.post(`/api/v1/campaigns/${v.campaignId}/milestones`, {
+        title: v.title,
+        targetMinor: v.targetMinor,
+      });
+      return v.campaignId;
+    },
+    // Invalidate the plan too, not just the campaign list. Without this the
+    // spend-plan editor keeps showing a stale plan after adding to it, and
+    // the remaining-capacity figure it computes goes wrong with it.
+    onSuccess: (campaignId) => invalidatePlan(qc, campaignId, organizationId),
+  });
+}
+
+/**
+ * Drives the org-side lifecycle steps: submit for review, then publish once
+ * the platform has approved.
+ *
+ * Deliberately does NOT cover review, pause, resume or archive — those are
+ * platform-admin actions and live in the admin console. An organization
+ * approving its own fundraiser would defeat the point of review.
+ */
+export function useCampaignLifecycle(organizationId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (v: { campaignId: string; action: 'submit' | 'publish' | 'complete' }) => {
+      await api.post(`/api/v1/campaigns/${v.campaignId}/${v.action}`);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['org-campaigns', organizationId] });
+      qc.invalidateQueries({ queryKey: ['public-campaign'] });
+    },
+  });
+}
+
+// ─── Spend plan management ──────────────────────────────────────────────
+
+export interface Milestone {
+  id: string;
+  campaignId: string;
+  title: string;
+  description?: string | null;
+  targetMinor: number;
+  status: 'PLANNED' | 'IN_PROGRESS' | 'COMPLETED';
+  position: number;
+  completedAt?: string | null;
+}
+
+export function useMilestones(campaignId: string | undefined, enabled = true) {
+  return useQuery({
+    queryKey: ['milestones', campaignId],
+    enabled: !!campaignId && enabled,
+    retry: false,
+    // The plan is edited inside a dialog. Refetching on window focus or on a
+    // stale timer swapped the list out underneath the user mid-edit, which
+    // read as flicker. Mutations invalidate this key explicitly, so it stays
+    // correct without background churn.
+    refetchOnWindowFocus: false,
+    staleTime: 30_000,
+    queryFn: async () => {
+      const res = await api.get<ApiResponse<{ milestones: Milestone[] }>>(
+        `/api/v1/campaigns/${campaignId}/milestones`,
+      );
+      return res.data.data?.milestones ?? [];
+    },
+  });
+}
+
+export function useDeleteMilestone(orgId: string | undefined, campaignId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (milestoneId: string) => {
+      await api.delete(`/api/v1/milestones/${milestoneId}`);
+    },
+    onSuccess: () => invalidatePlan(qc, campaignId, orgId),
+  });
+}
+
+/**
+ * Marks a milestone complete.
+ *
+ * Deliberately available while a campaign is LIVE, unlike every other change
+ * to the plan: this is progress reporting, not rewriting what donors were
+ * shown. It is also what fires the MILESTONE_COMPLETED notification to
+ * everyone who funded the campaign.
+ */
+export function useCompleteMilestone(orgId: string | undefined, campaignId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (milestoneId: string) => {
+      await api.patch(`/api/v1/milestones/${milestoneId}`, { status: 'COMPLETED' });
+    },
+    onSuccess: () => invalidatePlan(qc, campaignId, orgId),
+  });
+}
+
+/**
+ * Deletes a draft campaign.
+ *
+ * DRAFT only, and the server agrees: anything already submitted is archived
+ * rather than deleted, so a campaign that reviewers or donors have seen
+ * leaves a trail instead of vanishing.
+ */
+export function useDeleteCampaign(orgId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (campaignId: string) => {
+      await api.delete(`/api/v1/campaigns/${campaignId}`);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['org-campaigns', orgId] }),
+  });
+}
+
+/** Only a draft may be deleted; everything later is archived instead. */
+export function isDeletable(status: string): boolean {
+  return status === 'DRAFT';
+}
+
+// ─── Payout account ─────────────────────────────────────────────────────
+
+export interface Bank {
+  name: string;
+  code: string;
+}
+
+export interface FundingEligibility {
+  eligible: boolean;
+  missing: string[];
+}
+
+export function useBanks(orgId: string | undefined, enabled = true) {
+  return useQuery({
+    queryKey: ['psp-banks'],
+    enabled: !!orgId && enabled,
+    // The list rarely changes and every org sees the same one.
+    staleTime: 60 * 60 * 1000,
+    retry: false,
+    queryFn: async () => {
+      const res = await api.get<ApiResponse<{ banks: Bank[] }>>(
+        `/api/v1/organizations/${orgId}/psp-banks`,
+      );
+      return res.data.data?.banks ?? [];
+    },
+  });
+}
+
+export function useFundingEligibility(orgId: string | undefined) {
+  return useQuery({
+    queryKey: ['funding-eligibility', orgId],
+    enabled: !!orgId,
+    retry: false,
+    queryFn: async () => {
+      const res = await api.get<ApiResponse<FundingEligibility>>(
+        `/api/v1/organizations/${orgId}/funding-eligibility`,
+      );
+      return res.data.data ?? { eligible: false, missing: [] };
+    },
+  });
+}
+
+export interface ConnectPayoutInput {
+  bankCode: string;
+  accountNumber: string;
+  businessName: string;
+  contactEmail?: string;
+}
+
+/**
+ * Connects the organization's payout destination.
+ *
+ * The account number is sent once and never stored by CivicOS — Paystack
+ * returns a sub-account code, and only that plus the bank name and the last
+ * four digits are kept. Nothing here should ever be written to local storage
+ * or a log.
+ */
+export function useConnectPayout(orgId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: ConnectPayoutInput) => {
+      await api.post(`/api/v1/organizations/${orgId}/psp-account`, input);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['funding-eligibility', orgId] });
+      qc.invalidateQueries({ queryKey: ['organization', orgId] });
+      // The org dashboard renders from the membership list, not from a
+      // per-org query — without this the newly connected account does not
+      // show until a full reload.
+      qc.invalidateQueries({ queryKey: ['my-organizations'] });
+    },
+  });
 }

@@ -21,6 +21,16 @@ type NotificationType string
 const (
 	TypeConsultationUpdate NotificationType = "CONSULTATION_UPDATE"
 	TypeAnnouncementUpdate NotificationType = "ANNOUNCEMENT_UPDATE"
+
+	// Community Funding (Phase 4). Values must match community-service's
+	// enum exactly — it owns the schema and the client filters on these
+	// strings.
+	TypeCampaignApproved   NotificationType = "CAMPAIGN_APPROVED"
+	TypeDonationReceived   NotificationType = "DONATION_RECEIVED"
+	TypeMilestoneCompleted NotificationType = "MILESTONE_COMPLETED"
+	TypeCampaignUpdate     NotificationType = "CAMPAIGN_UPDATE"
+	TypeFundingGoalReached NotificationType = "FUNDING_GOAL_REACHED"
+	TypeCampaignCompleted  NotificationType = "CAMPAIGN_COMPLETED"
 )
 
 // Notification is a re-declaration of community-service's model with
@@ -51,9 +61,22 @@ type Notifier interface {
 // table. Failures are logged but never returned to the caller — a
 // notification miss should not block the primary action (publish a
 // consultation, etc.).
-type DBNotifier struct{ db *gorm.DB }
+type DBNotifier struct {
+	db *gorm.DB
+	// bus is optional. When set, a committed notification is also announced
+	// so community-service's SSE hub can push it to connected browsers. When
+	// nil, notifications behave exactly as before: they appear on next fetch.
+	bus Bus
+}
 
 func NewDBNotifier(db *gorm.DB) *DBNotifier { return &DBNotifier{db: db} }
+
+// WithBus attaches the event bus. Separate from the constructor so realtime
+// stays visibly optional at the wiring site.
+func (n *DBNotifier) WithBus(b Bus) *DBNotifier {
+	n.bus = b
+	return n
+}
 
 func (n *DBNotifier) Emit(userID string, t NotificationType, title, body string, linkURL *string) error {
 	if userID == "" || title == "" {
@@ -71,6 +94,13 @@ func (n *DBNotifier) Emit(userID string, t NotificationType, title, body string,
 	if err := n.db.Create(row).Error; err != nil {
 		log.Printf("⚠️  notify: write failed userId=%s type=%s err=%v", userID, t, err)
 		return err
+	}
+
+	// Announce only AFTER the row is committed. Publishing first would let a
+	// browser render a notification that failed to persist and vanishes on
+	// the next refresh.
+	if n.bus != nil {
+		n.bus.PublishNotification(eventFor(row))
 	}
 	return nil
 }

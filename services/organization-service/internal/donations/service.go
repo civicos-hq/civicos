@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/civicos/organization-service/internal/domain"
+	"github.com/civicos/organization-service/internal/notifications"
+	"github.com/civicos/organization-service/pkg/mailer"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -50,6 +52,30 @@ type Service struct {
 	// appURL is the public web origin, used to link a receipt back to the
 	// campaign it funded.
 	appURL string
+
+	// Notifications are optional. Money settling must never depend on a
+	// notification being deliverable.
+	notifier Notifier
+	audience Audience
+}
+
+// Notifier is the slice of notifications this package needs.
+type Notifier interface {
+	EmitMany(userIDs []string, t notifications.NotificationType, title, body string, linkURL *string)
+}
+
+// Audience answers who has a stake in a campaign.
+type Audience interface {
+	OrgMembers(orgID string) []string
+	Donors(campaignID string) []string
+	Stakeholders(campaignID, orgID string) []string
+}
+
+// WithNotifications attaches fan-out for settlement events.
+func (s *Service) WithNotifications(n Notifier, a Audience) *Service {
+	s.notifier = n
+	s.audience = a
+	return s
 }
 
 func NewService(repo Store, provider PaymentProvider, platformFeeBps int64, callbackURL string) *Service {
@@ -337,6 +363,7 @@ func (s *Service) applyStatus(d *domain.Donation, st TransactionStatus) (ApplyOu
 	// settlement transaction, and deliberately unable to fail this call —
 	// see receipt.go.
 	s.deliverReceipt(d)
+	s.announceSettlement(d, res.Campaign)
 
 	return OutcomeSettled, nil, nil
 }
@@ -352,6 +379,43 @@ func (s *Service) reconcileAgainstIntent(d *domain.Donation, st TransactionStatu
 		return fmt.Errorf("currency mismatch: opened %s, provider reported %s", d.Currency, st.Currency)
 	}
 	return nil
+}
+
+// announceSettlement tells the organization money arrived, and tells
+// everyone when the goal is met.
+//
+// Reached from the same fresh-settlement path as the receipt, so a donation
+// recovered by reconciliation days later still notifies — the money moved,
+// and when we found out does not change who deserves to hear about it.
+//
+// Never returns an error: the donation is already banked.
+func (s *Service) announceSettlement(d *domain.Donation, c *domain.Campaign) {
+	if s.notifier == nil || s.audience == nil || c == nil {
+		return
+	}
+	amount := mailer.FormatMoney(d.GrossMinor, d.Currency)
+	link := "/campaigns/" + c.Slug
+
+	// The organization needs to know money arrived. Donors do not need a
+	// notification about their own donation — they already have the receipt,
+	// and telling every previous donor about every new one would make the
+	// tray unusable on a busy campaign.
+	s.notifier.EmitMany(s.audience.OrgMembers(c.OrganizationID),
+		notifications.TypeDonationReceived,
+		"Donation received: "+amount,
+		amount+" was donated to "+c.Title+".",
+		&link)
+
+	// Goal reached is ledger truth and is announced once, at the crossing.
+	// Guarding on AlreadySettled upstream is what keeps a replayed webhook
+	// from re-announcing it.
+	if c.GoalMinor > 0 && c.RaisedMinor >= c.GoalMinor {
+		s.notifier.EmitMany(s.audience.Stakeholders(c.ID, c.OrganizationID),
+			notifications.TypeFundingGoalReached,
+			"Goal reached: "+c.Title,
+			c.Title+" has reached its funding goal of "+mailer.FormatMoney(c.GoalMinor, c.Currency)+".",
+			&link)
+	}
 }
 
 func truncate(b []byte) []byte {
@@ -409,6 +473,18 @@ type ConnectInput struct {
 	AccountNumber string `json:"accountNumber" binding:"required,min=6,max=20"`
 	BusinessName  string `json:"businessName" binding:"required,min=2"`
 	ContactEmail  string `json:"contactEmail" binding:"omitempty,email"`
+}
+
+// ListBanks returns the settlement destinations an organization can pick.
+func (s *Service) ListBanks(ctx context.Context) ([]Bank, error) {
+	if s.provider == nil {
+		return nil, &AppError{Code: "DONATIONS_UNAVAILABLE", Message: "Donations are not enabled on this deployment", Status: http.StatusServiceUnavailable}
+	}
+	banks, err := s.provider.ListBanks(ctx)
+	if err != nil {
+		return nil, &AppError{Code: "PSP_UNAVAILABLE", Message: "Could not load the bank list. Please try again.", Status: http.StatusBadGateway}
+	}
+	return banks, nil
 }
 
 // ConnectSubaccount registers the organization's payout destination with

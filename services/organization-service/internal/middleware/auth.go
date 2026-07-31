@@ -112,3 +112,49 @@ func RequireRole(allowed ...string) gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+// OptionalAuth attributes a request to a signed-in user when a valid token
+// is present, and lets it through as a guest when it is not.
+//
+// It exists for donations. Giving is deliberately open to guests, but the
+// route carrying no auth at all meant a SIGNED-IN donor was anonymous too:
+// nothing ever set userID, so no donation was linked to an account. That
+// made every donor-facing notification unreachable, since the audience is
+// resolved from donations that carry a user id.
+//
+// An invalid or expired token is ignored rather than rejected — the caller
+// asked to donate, not to authenticate, and refusing a payment because a
+// stale token sat in localStorage would cost a donation to punish a session
+// problem. A BANNED user is still refused: that check is the one thing here
+// worth failing closed on.
+func OptionalAuth(cfg *config.Config, db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		header := c.GetHeader("Authorization")
+		if !strings.HasPrefix(header, "Bearer ") {
+			c.Next()
+			return
+		}
+		claims := &Claims{}
+		token, err := jwt.ParseWithClaims(strings.TrimPrefix(header, "Bearer "), claims, func(t *jwt.Token) (any, error) {
+			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("unexpected signing method")
+			}
+			return []byte(cfg.JWTSecret), nil
+		})
+		if err != nil || !token.Valid {
+			c.Next() // proceed as a guest
+			return
+		}
+		if isBanned(db, claims.UserID) {
+			response.Error(c, http.StatusForbidden, "ACCOUNT_BANNED",
+				"Your account has been suspended. Contact support if you believe this is a mistake.")
+			c.Abort()
+			return
+		}
+		c.Set("userID", claims.UserID)
+		c.Set("userName", claims.Name)
+		c.Set("userRole", claims.Role)
+		c.Set("emailVerified", claims.EmailVerified)
+		c.Next()
+	}
+}

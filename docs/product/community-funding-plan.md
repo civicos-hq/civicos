@@ -304,15 +304,45 @@ The high-risk phase. Sequence inside it matters:
 
 ### Phase 4 — Transparency dashboard
 
-- Public campaign page: goal, progress, funds received/withdrawn/remaining,
-  milestones, timeline, photos, reports, completion %.
-- Funding updates (text + images + documents + financial reports), reusing
-  `ProgressUpdate`.
-- Public donor list honouring anonymity flags.
-- Notifications: extend `NotificationType` with `CAMPAIGN_APPROVED`,
-  `DONATION_RECEIVED`, `MILESTONE_COMPLETED`, `CAMPAIGN_UPDATE`,
-  `FUNDING_GOAL_REACHED`, `CAMPAIGN_COMPLETED`. Fan-out via the existing SSE
-  hub in community-service.
+Two items in the original list could not be built as written, and were
+resolved as product decisions rather than quietly reinterpreted:
+
+1. **"Funds withdrawn/remaining" does not exist.** Paystack settles directly
+   to the organization, so CivicOS never holds or releases anything and
+   cannot know their balance. **Reported spend was pulled forward from Phase
+   5** instead, because disclosure is what actually satisfies this phase's
+   exit criterion.
+2. **The SSE hub was not reachable** from organization-service, which writes
+   notification rows directly. Announcements and consultations had the same
+   silent gap. **NATS fan-out was chosen**, fixing the whole class.
+
+- ✅ Public campaign page: goal, progress, received vs reported vs
+  unaccounted, milestones, photos, reports, completion %.
+- ✅ Reported spend against milestones — dated, itemised, attributed,
+  optionally evidenced. Published by the organization and clearly labelled
+  as **unverified**: the platform holds no funds and cannot check it.
+- ✅ Funding updates (text + images + documents + financial reports),
+  reusing `ProgressUpdate`.
+- ✅ Public donor list honouring anonymity flags (shipped in Phase 3).
+- ✅ Notifications: six campaign types, fanned out to donors and org members
+  via `internal/audience`, pushed live through the NATS → SSE bridge.
+- ✅ **Org campaign management on the organization dashboard** — create a
+  campaign (with the first line of its spend plan in the same form), see
+  every status the public never does, read the reviewer's note on
+  NEEDS_CHANGES, edit content and the spend plan while still DRAFT or
+  NEEDS_CHANGES, delete a draft outright, mark milestones complete on a live
+  campaign (progress reporting, the one plan change allowed after review),
+  submit for review
+  and publish once approved. Editing closes when the campaign leaves the
+  org's hands — enforced by the server, mirrored by the UI — so a donor is
+  always giving to the thing they read. Review, pause,
+  resume and archive stay with the platform admin: an organization approving
+  its own fundraiser would defeat the review.
+- ✅ **Org-facing console** for publishing spend and updates, rendered inline
+  on the organization's own campaign page — it reports against the same
+  figures its donors are reading. Visibility is gated on OWNER/ADMIN
+  membership, but that is a rendering decision only: every write is
+  authorised again server-side against the owning organization.
 - **Exit:** a donor can answer "where did my money go?" without asking anyone.
 
 ### Phase 5 — Settlement reconciliation & completion
@@ -325,7 +355,8 @@ releasing it.
 - ✅ Reconcile the donation ledger against Paystack; surface drift to
   admins. Delivered in Phase 3 rather than deferred to here, because the
   gap it covers opens the moment the first donation is taken.
-- Per-milestone reported spend, published by the org against the plan.
+- ✅ Per-milestone reported spend — delivered in Phase 4, since it is what
+  makes that phase's exit criterion true.
 - Final report required before `ARCHIVED`.
 - Public "reported vs unreported" state on the campaign page, since
   reporting is the only accountability lever that remains.

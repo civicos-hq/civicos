@@ -4,6 +4,7 @@ import { HandCoins, MapPin, ShieldCheck } from 'lucide-react';
 import { TopNav, Footer } from './HomePage';
 import { useSeo } from '../hooks/useSeo';
 import {
+  categoryKey,
   formatMoney,
   progressPercent,
   usePublicCampaigns,
@@ -80,10 +81,6 @@ function CampaignCard({ c }: { c: PublicCampaign }) {
       </div>
     </Link>
   );
-}
-
-function categoryKey(c: CampaignCategory): string {
-  return c.toLowerCase().replace(/_([a-z])/g, (_, ch: string) => ch.toUpperCase());
 }
 
 export function CampaignsPage() {

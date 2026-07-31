@@ -103,6 +103,9 @@ const OrgAnnouncementDetailPage = lazy(() =>
     default: m.OrgAnnouncementDetailPage,
   })),
 );
+const OrgCampaignCreatePage = lazy(() =>
+  import('./routes/OrgCampaignCreatePage').then((m) => ({ default: m.OrgCampaignCreatePage })),
+);
 const OrgProjectCreatePage = lazy(() =>
   import('./routes/OrgProjectCreatePage').then((m) => ({ default: m.OrgProjectCreatePage })),
 );
@@ -207,6 +210,7 @@ function AppRoutes() {
           <Route path="/org/:orgId/consultations/:id" element={<OrgConsultationDetailPage />} />
           <Route path="/org/:orgId/announcements/new" element={<OrgAnnouncementCreatePage />} />
           <Route path="/org/:orgId/announcements/:id" element={<OrgAnnouncementDetailPage />} />
+          <Route path="/org/:orgId/campaigns/new" element={<OrgCampaignCreatePage />} />
           <Route path="/org/:orgId/projects/new" element={<OrgProjectCreatePage />} />
           <Route path="/org/:orgId/projects/:id" element={<OrgProjectDetailPage />} />
           <Route path="/notifications" element={<NotificationsPage />} />

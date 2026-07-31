@@ -52,6 +52,11 @@ type Config struct {
 	SMTPPassword string
 	SMTPFrom     string
 
+	// NATSURL is the event bus used to push notifications to
+	// community-service's SSE hub in realtime. Optional: without it,
+	// notifications still persist and appear on the user's next fetch.
+	NATSURL string
+
 	// AppURL is the public web origin, used to link a receipt back to the
 	// campaign it funded.
 	AppURL string
@@ -90,6 +95,7 @@ func Load() *Config {
 		SMTPPassword: os.Getenv("SMTP_PASSWORD"),
 		SMTPFrom:     getStr("SMTP_FROM", "CivicOS <no-reply@civicos.local>"),
 		AppURL:       ensureScheme(getStr("APP_URL", "http://localhost:5173")),
+		NATSURL:      os.Getenv("NATS_URL"),
 	}
 	if len(cfg.JWTSecret) < 32 {
 		fatalf("JWT_SECRET must be at least 32 characters")
