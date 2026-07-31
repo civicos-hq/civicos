@@ -6731,3 +6731,232 @@ button {
   font-size: 0.8rem;
   color: #4d6b58;
 }
+
+/* ─── Donate form + donor list (Phase 3) ────────────────────────────────
+   Lives inside the white .fund-detail-aside card, so it declares dark ink
+   explicitly rather than inheriting whichever band the section landed on. */
+
+.fund-donate {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 1.2rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--pr-border);
+  color: #102818;
+}
+
+.fund-donate-heading {
+  margin: 0;
+  font-family: var(--pr-serif);
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: #102818;
+}
+
+.fund-donate-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.fund-preset {
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--pr-border);
+  background: #fff;
+  color: #1f4231;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.fund-preset:hover {
+  border-color: #234f2c;
+}
+.fund-preset.is-active {
+  background: #d7ecd6;
+  border-color: #234f2c;
+  color: #102818;
+  font-weight: 600;
+}
+.fund-preset:focus-visible,
+.fund-donate input:focus-visible,
+.fund-donate textarea:focus-visible {
+  outline: 2px solid #234f2c;
+  outline-offset: 2px;
+}
+
+.fund-field {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.84rem;
+  color: #1f4231;
+}
+.fund-field input,
+.fund-field textarea {
+  width: 100%;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--pr-border);
+  border-radius: 8px;
+  background: #fff;
+  color: #102818;
+  font: inherit;
+}
+.fund-field input:disabled {
+  background: #f4f6f4;
+  color: #7a8b7c;
+}
+.fund-field small {
+  color: #4d6b58;
+  font-size: 0.76rem;
+}
+
+.fund-check {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.84rem;
+  color: #1f4231;
+}
+
+/* The fee disclosure. Deliberately prominent and above the submit button —
+   a donor should see what reaches the organization before committing, not
+   discover it on the receipt. */
+.fund-split {
+  margin: 0;
+  padding: 0.6rem 0.7rem;
+  border-radius: 8px;
+  background: #f1f6f1;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: #1f4231;
+}
+.fund-split strong {
+  color: #102818;
+}
+.fund-split-fee {
+  font-size: 0.78rem;
+  color: #4d6b58;
+}
+
+.fund-donate-submit {
+  width: 100%;
+  justify-content: center;
+  margin-top: 0.2rem;
+}
+.fund-donate-submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.fund-donate-error {
+  margin: 0;
+  font-size: 0.84rem;
+  color: #9b1c1c;
+}
+
+.fund-donate-note {
+  margin: 0;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  color: #4d6b58;
+}
+
+@keyframes fund-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.fund-spin {
+  animation: fund-spin 900ms linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .fund-spin {
+    animation: none;
+  }
+}
+
+/* ── Donor list ── */
+.fund-donor-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+.fund-donor {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.3rem 0.75rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--pr-border);
+  border-radius: 8px;
+}
+.fund-donor-name {
+  font-weight: 600;
+  color: #102818;
+  font-size: 0.9rem;
+}
+.fund-donor-amount {
+  font-weight: 600;
+  color: #1f4231;
+  font-size: 0.9rem;
+}
+.fund-donor-message {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.84rem;
+  color: #4d6b58;
+}
+
+/* Donation return page — where Paystack sends the donor back. */
+.fund-complete {
+  display: grid;
+  justify-items: center;
+  gap: 0.85rem;
+  max-width: 34rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.75rem 3rem;
+  background: #ffffff;
+  border: 1px solid var(--pr-border);
+  border-radius: 12px;
+  text-align: center;
+  color: #102818;
+}
+.fund-complete-icon {
+  color: #2f7a43;
+}
+.fund-complete-title {
+  margin: 0;
+  font-family: var(--pr-serif);
+  font-weight: 700;
+  font-size: 1.7rem;
+  letter-spacing: -0.02em;
+  color: #102818;
+}
+.fund-complete-body {
+  margin: 0;
+  max-width: 42ch;
+  line-height: 1.6;
+  color: #1f4231;
+}
+.fund-complete-ref {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #4d6b58;
+}
+.fund-complete-ref code {
+  font-family: var(--pr-mono);
+  font-size: 0.8rem;
+}
+.fund-complete-note {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: #4d6b58;
+  max-width: 40ch;
+}

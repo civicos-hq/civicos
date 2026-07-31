@@ -249,6 +249,14 @@ func (s *Service) HandleWebhook(ctx context.Context, rawBody []byte, signature s
 		_ = s.repo.MarkWebhookHandled(rowID, nil)
 		return nil
 	}
+	// The donor opened checkout and walked away. Terminal, and worth
+	// recording as its own thing — otherwise the row sits PENDING forever
+	// and looks like a payment we lost track of.
+	if ev.Status.Abandoned {
+		_ = s.repo.MarkFailed(d.ID, domain.DonationAbandoned)
+		_ = s.repo.MarkWebhookHandled(rowID, nil)
+		return nil
+	}
 	if !ev.Status.Succeeded {
 		note := "event carried no terminal status"
 		_ = s.repo.MarkWebhookHandled(rowID, &note)

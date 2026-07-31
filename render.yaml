@@ -64,6 +64,18 @@ envVarGroups:
         sync: false
       - key: SMTP_FROM
         value: 'CivicOS <no-reply@civicos.example>'
+      # ── Community Funding · Paystack ──
+      # CivicOS is not the merchant of record: each organization connects
+      # its own Paystack sub-account and Paystack settles directly to it.
+      # These are the PLATFORM credentials used to create those sub-accounts
+      # and initialise splits.
+      #
+      # sync: false — set in the Render dashboard, never committed. Find them
+      # at Paystack Dashboard → Settings → API Keys & Webhooks.
+      - key: PAYSTACK_SECRET_KEY
+        sync: false
+      - key: PAYSTACK_PUBLIC_KEY
+        sync: false
 
 services:
   # ── Managed Redis (Render "Key Value") ─────────────────────────────
@@ -175,6 +187,17 @@ services:
         fromDatabase:
           name: civicos-postgres
           property: connectionString
+      # CivicOS's cut, in integer BASIS POINTS (250 = 2.5%). Not a secret,
+      # and deliberately visible here — it is disclosed on every public
+      # campaign page, so it should be reviewable in the repo too.
+      - key: PLATFORM_FEE_BPS
+        value: '250'
+      # Where Paystack returns the donor after payment. Must be a real
+      # citizen-facing URL: the local default (localhost:5173) would strand
+      # every donor on a dead page. Settlement is decided by the webhook,
+      # not by this redirect.
+      - key: DONATION_CALLBACK_URL
+        value: https://civicos.ng/donations/complete
 
   # ── Citizen web (static site) ──────────────────────────────────────
   # Built by turbo which builds shared packages first, then the app.

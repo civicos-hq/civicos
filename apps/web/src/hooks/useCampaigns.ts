@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import type { ApiResponse } from '@civicos/types';
 import { api } from '../lib/api';
 
@@ -46,6 +46,12 @@ export interface PublicCampaign {
   endDate?: string | null;
   publishedAt?: string | null;
   completedAt?: string | null;
+  /**
+   * CivicOS's cut in integer basis points (250 = 2.5%), disclosed publicly.
+   * A donor is entitled to know what actually reaches the organization
+   * before giving — see DonateForm's live split.
+   */
+  platformFeeBps: number;
 }
 
 export interface PublicMilestone {
@@ -131,4 +137,77 @@ export function formatMoney(minor: number, currency: string, locale?: string): s
 export function progressPercent(raisedMinor: number, goalMinor: number): number {
   if (goalMinor <= 0) return 0;
   return Math.min(100, Math.max(0, Math.round((raisedMinor / goalMinor) * 100)));
+}
+
+// ─── Donations (Phase 3) ────────────────────────────────────────────────
+
+export interface DonationIntent {
+  authorizationUrl: string;
+  reference: string;
+  amountMinor: number;
+  platformFeeMinor: number;
+  netMinor: number;
+  currency: string;
+}
+
+export interface PublicDonation {
+  donorName: string;
+  amountMinor: number;
+  message?: string;
+  settledAt: string;
+}
+
+export interface DonateInput {
+  amountMinor: number;
+  email: string;
+  donorName?: string;
+  isAnonymous: boolean;
+  message?: string;
+}
+
+/**
+ * Opens a donation and hands back a Paystack checkout URL.
+ *
+ * The idempotency key is generated per attempt, client-side, so a
+ * double-tapped donate button cannot open two transactions — the server has
+ * a unique index on it and will refuse the second.
+ */
+export function useCreateDonationIntent(campaignId: string | undefined) {
+  return useMutation({
+    mutationFn: async (input: DonateInput) => {
+      const res = await api.post<ApiResponse<{ donation: DonationIntent }>>(
+        `/api/v1/campaigns/${campaignId}/donation-intents`,
+        { ...input, idempotencyKey: crypto.randomUUID() },
+      );
+      return res.data.data!.donation;
+    },
+  });
+}
+
+export function usePublicDonations(campaignId: string | undefined) {
+  return useQuery({
+    queryKey: ['public-donations', campaignId],
+    enabled: !!campaignId,
+    queryFn: async () => {
+      const res = await api.get<ApiResponse<{ donations: PublicDonation[] }>>(
+        `/api/v1/campaigns/${campaignId}/donations`,
+      );
+      return res.data.data?.donations ?? [];
+    },
+  });
+}
+
+/**
+ * Splits an amount the way the server will, for the live fee disclosure.
+ *
+ * Mirrors ComputeSplit in services/organization-service/internal/donations:
+ * integer basis points, floored so any fraction of a kobo falls to the
+ * organization rather than the platform. This is a PREVIEW — the server
+ * recomputes authoritatively — but it must not disagree, or the donor sees
+ * one number here and another on their receipt.
+ */
+export function previewSplit(amountMinor: number, platformFeeBps: number) {
+  const gross = Math.max(0, Math.floor(amountMinor));
+  const fee = Math.floor((gross * platformFeeBps) / 10_000);
+  return { grossMinor: gross, platformFeeMinor: fee, netMinor: gross - fee };
 }

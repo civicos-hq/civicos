@@ -854,7 +854,6 @@
     "spendPlanLede": "A pín {{allocated}} nínú àfojúsùn {{goal}} sí àwọn ìgbésẹ̀ wọ̀nyí.",
     "donorCount_one": "Olùrànlọ́wọ́ {{count}}",
     "donorCount_other": "Àwọn olùrànlọ́wọ́ {{count}}",
-    "donationsSoon": "Ìrànlọ́wọ́ yóò ṣí láìpẹ́. A tẹ ìpolongo yìí jáde kí o lè rí ètò náà kí ó tó bẹ̀rẹ̀ sí kó owó jọ.",
     "trustNote": "Àwọn àjọ tí a ti rí gbà nìkan ló lè tẹ ìpolongo jáde.",
     "categories": {
       "all": "Gbogbo rẹ̀",
@@ -870,6 +869,32 @@
       "planned": "A ti ṣètò",
       "in_progress": "Ó ń lọ lọ́wọ́",
       "completed": "Ó ti parí"
+    },
+    "notAccepting": "Ìpolongo yìí kò gba ìrànlọ́wọ́ lọ́wọ́lọ́wọ́.",
+    "donorsHeading": "Àwọn ìrànlọ́wọ́ tuntun",
+    "donate": {
+      "heading": "Ṣe ìrànlọ́wọ́",
+      "amountLabel": "Iye",
+      "emailLabel": "Ímeèlì",
+      "emailHelp": "Fún ìwé ẹ̀rí rẹ. A kì í fi hàn ní gbangba.",
+      "nameLabel": "Orúkọ rẹ (àṣàyàn)",
+      "anonymous": "Ṣe ìrànlọ́wọ́ láìsí orúkọ",
+      "messageLabel": "Ọ̀rọ̀ (àṣàyàn)",
+      "reachesOrg": "yóò dé ọwọ́ {{org}}",
+      "platformFee": "ó ní owó ìdíyelé CivicOS tí ó jẹ́ {{percent}}%, èyí tí í ṣe {{fee}}",
+      "noFee": "Gbogbo náírà yóò dé ọwọ́ àjọ náà — CivicOS kò gba owó kankan.",
+      "submit": "Ṣe ìrànlọ́wọ́ {{amount}}",
+      "submitting": "À ń ṣí ojú-ìwé ìsanwó tí ó ní ààbò…",
+      "paystackNote": "Wàá parí rẹ̀ ní ojú-ìwé ìsanwó Paystack. CivicOS kì í rí àwọn àlàyé káàdì rẹ.",
+      "genericError": "A kò lè bẹ̀rẹ̀ ìsanwó. Jọ̀wọ́ gbìyànjú lẹ́ẹ̀kansí."
+    },
+    "complete": {
+      "seoTitle": "A dúpẹ́ — CivicOS",
+      "title": "A dúpẹ́",
+      "body": "À ń fi ìsanwó rẹ hàn pẹ̀lú Paystack. Nígbà tí ó bá yọ, ìrànlọ́wọ́ rẹ yóò hàn ní ojú-ìwé ìpolongo — ó sábà máa ń jẹ́ láàárín ìṣẹ́jú kan.",
+      "reference": "Ìtọ́ka ìsanwó:",
+      "receiptNote": "Ìwé ẹ̀rí ń bọ̀ sí ímeèlì tí o fún wa. CivicOS kì í rí àwọn àlàyé káàdì rẹ.",
+      "backToCampaigns": "Padà sí àwọn ìpolongo"
     }
   }
 }

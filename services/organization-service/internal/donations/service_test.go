@@ -3,6 +3,7 @@ package donations
 import (
 	"context"
 	"errors"
+	"net/http"
 	"testing"
 	"time"
 
@@ -270,4 +271,40 @@ func newSettledFixture(t *testing.T, amount int64) (*fakeStore, *Service, *domai
 	st.donations[d.ID] = d
 	svc := NewService(st, st.p, 0, "")
 	return st, svc, d
+}
+
+func TestWebhook_AbandonedMarksRowNotPending(t *testing.T) {
+	st, svc, d := newSettledFixture(t, 2_000_000)
+	body := st.p.bodyStatus(d.ProviderRef, 2_000_000, "abandoned")
+	if err := svc.HandleWebhook(context.Background(), body, st.p.sigFor(body)); err != nil {
+		t.Fatalf("handle: %v", err)
+	}
+	if got := st.donations[d.ID].Status; got != domain.DonationAbandoned {
+		t.Fatalf("status = %s, want ABANDONED (a walked-away donor must not sit PENDING forever)", got)
+	}
+	if st.campaigns[d.CampaignID].RaisedMinor != 0 {
+		t.Fatalf("an abandoned donation moved the total")
+	}
+}
+
+// A deployment without PAYSTACK_SECRET_KEY still serves campaigns, so the
+// webhook route exists with a nil provider. An unsolicited delivery must
+// degrade to 503, never panic — this is exactly the state production is in
+// between the route shipping and the key being set.
+func TestNilProvider_DegradesNeverPanics(t *testing.T) {
+	svc := NewService(newFakeStore(), nil, 250, "http://x/complete")
+	ctx := context.Background()
+
+	if err := svc.HandleWebhook(ctx, []byte(`{"event":"charge.success"}`), "sig"); err == nil {
+		t.Fatal("webhook with no provider should error, not succeed")
+	} else if ae, ok := err.(*AppError); !ok || ae.Status != http.StatusServiceUnavailable {
+		t.Fatalf("want 503 AppError, got %#v", err)
+	}
+
+	if _, err := svc.CreateIntent(ctx, "c1", nil, IntentInput{AmountMinor: 1000, Email: "d@example.com"}); err == nil {
+		t.Fatal("intent with no provider should error")
+	}
+	if _, err := svc.ConnectSubaccount(ctx, "o1", ConnectInput{}); err == nil {
+		t.Fatal("connect with no provider should error")
+	}
 }

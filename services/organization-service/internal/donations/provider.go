@@ -93,9 +93,15 @@ type WebhookEvent struct {
 // trusting the intent — a mismatch means something is wrong and must not be
 // silently accepted.
 type TransactionStatus struct {
-	Reference   string
-	Succeeded   bool
-	Failed      bool
+	Reference string
+	Succeeded bool
+	Failed    bool
+	// Abandoned means the donor opened checkout and walked away. Terminal,
+	// but distinct from Failed: nothing went wrong, the person simply did
+	// not pay. Conflating the two makes the funnel unreadable — "how many
+	// donations failed" would silently include everyone who changed their
+	// mind.
+	Abandoned   bool
 	AmountMinor int64
 	Currency    string
 	// PSPFeeMinor is the provider's own charge, only knowable after the fact.

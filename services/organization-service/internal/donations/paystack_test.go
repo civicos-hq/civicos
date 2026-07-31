@@ -148,3 +148,38 @@ func TestAPICalls_RequireAKey(t *testing.T) {
 		t.Fatalf("InitializeTransaction without a key: %v", err)
 	}
 }
+
+// Paystack reports a donor who opened checkout and walked away as
+// "abandoned". Confirmed against a real /transaction/verify response. It is
+// terminal but not a failure, and must not leave the row PENDING forever.
+func TestVerifyWebhook_AbandonedIsTerminalButNotFailed(t *testing.T) {
+	body := strings.Replace(successBody, `"status":"success"`, `"status":"abandoned"`, 1)
+	p := NewPaystack(testSecret)
+	ev, err := p.VerifyWebhook([]byte(body), sign(body, testSecret))
+	if err != nil {
+		t.Fatalf("verify: %v", err)
+	}
+	if ev.Status.Succeeded {
+		t.Fatalf("abandoned must not read as succeeded")
+	}
+	if ev.Status.Failed {
+		t.Fatalf("abandoned must not be conflated with failed — the funnel would be unreadable")
+	}
+	if !ev.Status.Abandoned {
+		t.Fatalf("abandoned should be flagged as such")
+	}
+}
+
+// Paystack sends null for fees and paid_at on a transaction that was never
+// paid. Confirmed against their live sandbox. Unmarshalling must not error.
+func TestVerifyWebhook_NullFeesAndPaidAt(t *testing.T) {
+	body := `{"event":"charge.success","data":{"id":9,"reference":"civicos_x","status":"abandoned","amount":2000000,"currency":"NGN","fees":null,"paid_at":null,"subaccount":{"subaccount_code":"ACCT_x"}}}`
+	p := NewPaystack(testSecret)
+	ev, err := p.VerifyWebhook([]byte(body), sign(body, testSecret))
+	if err != nil {
+		t.Fatalf("null fees/paid_at should parse cleanly, got %v", err)
+	}
+	if ev.Status.PSPFeeMinor != 0 {
+		t.Fatalf("null fees should read as 0, got %d", ev.Status.PSPFeeMinor)
+	}
+}

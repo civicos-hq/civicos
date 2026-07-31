@@ -69,6 +69,17 @@ tags:
       transparency ships before money.
   - name: Milestones
     description: A campaign's spend plan. Editable only while the campaign is DRAFT or NEEDS_CHANGES.
+  - name: Donations
+    description: |
+      Community Funding donations (Phase 3), powered by Paystack.
+
+      **CivicOS is not the merchant of record.** Each organization connects
+      its own Paystack sub-account and Paystack settles directly to it —
+      CivicOS never holds funds. These endpoints orchestrate and record;
+      they do not move money on anyone's behalf.
+
+      All amounts are integer minor units (kobo for NGN). No endpoint here
+      accepts or returns a decimal.
 
 security:
   - bearerAuth: []
@@ -146,6 +157,15 @@ components:
     MilestoneStatus:
       type: string
       enum: [PLANNED, IN_PROGRESS, COMPLETED]
+    DonationStatus:
+      type: string
+      description: |
+        Only the webhook may move a donation to SETTLED. The browser redirect
+        after payment is a hint, not proof — a donor can close the tab or
+        craft the return URL. ABANDONED is kept distinct from FAILED so an
+        intent that never completed is separable from one that actively
+        failed.
+      enum: [PENDING, SETTLED, FAILED, ABANDONED, REFUNDED]
     PauseReason:
       type: string
       description: |
@@ -2331,3 +2351,266 @@ paths:
                       },
                   }
         '403': { description: Members of this organization or platform admins only. }
+
+  # ─────────────────────── DONATIONS (Phase 3) ───────────────────────
+
+  /campaigns/{campaignId}/donation-intents:
+    parameters:
+      - in: path
+        name: campaignId
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [Donations]
+      security: []
+      summary: Start a donation (public, guests welcome)
+      description: |
+        Opens a Paystack transaction against the organization's sub-account
+        and records a PENDING ledger row, returning a checkout URL.
+
+        **No account required.** A donor should not have to sign up to help.
+        If a session is present the donation is attributed to that user;
+        otherwise it is a guest donation.
+
+        The ledger row is written **before** the donor is sent to Paystack.
+        Reversed, a donor could pay against a reference CivicOS has no record
+        of — money would move with nothing to reconcile against.
+
+        Only PUBLISHED and FUNDED campaigns accept donations. **PAUSED is
+        excluded on purpose**: once funds settle straight to the organization,
+        pausing is the only governance lever left, so it must actually stop
+        new money.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amountMinor, email, idempotencyKey]
+              properties:
+                amountMinor:
+                  type: integer
+                  format: int64
+                  minimum: 1
+                  description: Amount in minor units (kobo). Integer only.
+                email:
+                  type: string
+                  format: email
+                  description: Required by Paystack and used for the receipt. Never exposed publicly.
+                donorName: { type: string, nullable: true }
+                isAnonymous:
+                  type: boolean
+                  default: false
+                  description: When true the public donor list shows "Anonymous" instead of the name.
+                message: { type: string, nullable: true }
+                idempotencyKey:
+                  type: string
+                  minLength: 8
+                  maxLength: 100
+                  description: |
+                    Client-generated, unique per attempt. Carries a unique
+                    index, so a double-tapped donate button cannot open two
+                    transactions.
+            examples:
+              default:
+                value:
+                  amountMinor: 2000000
+                  email: donor@example.com
+                  donorName: Ada
+                  isAnonymous: false
+                  idempotencyKey: 8f2c1d90-6a4b-4c2e-9f11-2b7d5e0a3c44
+      responses:
+        '201':
+          description: Intent created; send the donor to `authorizationUrl`.
+          content:
+            application/json:
+              examples:
+                default:
+                  {
+                    value:
+                      {
+                        success: true,
+                        data:
+                          {
+                            donation:
+                              {
+                                authorizationUrl: https://checkout.paystack.com/xxxx,
+                                reference: civicos_9f2b…,
+                                amountMinor: 2000000,
+                                platformFeeMinor: 50000,
+                                netMinor: 1950000,
+                                currency: NGN,
+                              },
+                          },
+                      },
+                  }
+        '400': { description: Invalid amount or payload. }
+        '409':
+          description: Campaign cannot accept donations, org not eligible, or key reused.
+          content:
+            application/json:
+              examples:
+                notAccepting:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: CAMPAIGN_NOT_ACCEPTING,
+                        message: This campaign is not accepting donations,
+                      },
+                  }
+                reusedKey:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: DONATION_ALREADY_STARTED,
+                        message: A donation with this key is already in progress,
+                      },
+                  }
+        '502': { description: The payment provider refused the transaction. }
+        '503':
+          description: Donations are not enabled on this deployment (no Paystack key configured).
+
+  /campaigns/{campaignId}/donations:
+    parameters:
+      - in: path
+        name: campaignId
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Donations]
+      security: []
+      summary: Public donor list
+      description: |
+        Settled donations only. Returns a display name (or "Anonymous"), the
+        amount, an optional message and the settlement time.
+
+        Deliberately absent: donor email and user id. The transparency this
+        feature exists for is about where the money goes, not who gave it.
+      responses:
+        '200': { description: Settled donations, newest first. }
+
+  /organizations/{id}/psp-account:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [Donations]
+      summary: Connect the organization's payout account (org admin)
+      description: |
+        Creates a Paystack sub-account for the organization so Paystack can
+        settle donations directly to its bank account.
+
+        **The account number is not stored.** It is passed to Paystack once
+        and only the returned sub-account code, the bank name and the last
+        four digits are persisted — enough for an admin to recognise the
+        account, and no more. Holding account numbers CivicOS has no further
+        use for would be breach liability for nothing.
+
+        A connected account is one of the requirements in
+        `GET /organizations/{id}/funding-eligibility`: without it a campaign
+        could publish and take money that has nowhere to settle.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [bankCode, accountNumber, businessName]
+              properties:
+                bankCode:
+                  type: string
+                  description: Paystack bank code (e.g. "057" for Zenith Bank).
+                accountNumber: { type: string, minLength: 6, maxLength: 20 }
+                businessName: { type: string, minLength: 2 }
+                contactEmail: { type: string, format: email }
+            examples:
+              default:
+                value:
+                  bankCode: '057'
+                  accountNumber: '0000000000'
+                  businessName: Zaria Relief Trust
+                  contactEmail: trust@zariarelief.ng
+      responses:
+        '200': { description: Organization with its connected payout account. }
+        '403': { description: Not an owner/admin of this organization. }
+        '502':
+          description: The provider rejected the account details.
+          content:
+            application/json:
+              examples:
+                default:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: PSP_SUBACCOUNT_FAILED,
+                        message: Could not connect that account. Check the bank and account number.,
+                      },
+                  }
+
+  /webhooks/paystack:
+    post:
+      tags: [Donations]
+      security: []
+      summary: Paystack settlement callback (signature-authenticated)
+      description: |
+        **Unauthenticated by necessity, and must stay that way.** Paystack
+        does not carry CivicOS JWTs; the request authenticates by an HMAC
+        SHA-512 signature over the raw body in `x-paystack-signature`,
+        verified inside organization-service. Putting auth middleware in
+        front of this route would break settlement entirely.
+
+        It is also deliberately **not rate-limited** at the gateway:
+        throttling a payment provider's callbacks means dropping settlement
+        events during exactly the traffic spike where they matter most.
+
+        Behaviour worth knowing when reading logs:
+
+        - A **valid signature proves origin, not content.** An event whose
+          amount or currency disagrees with the opened intent is recorded,
+          noted, and left **unsettled** for a human — never quietly banked.
+        - Replays are a no-op. Deliveries are deduped on the provider's event
+          id, and the campaign total is recomputed by SUM over settled rows
+          rather than incremented, so repeats converge instead of inflating.
+        - **Anything merely unactionable answers 200** — an unknown
+          reference, a duplicate, an ignored event type. Paystack retries
+          non-2xx, so returning an error for "nothing to do" buys a retry
+          storm. Only a bad signature (401) and a genuine server fault (500)
+          are non-2xx.
+      parameters:
+        - in: header
+          name: x-paystack-signature
+          required: true
+          schema: { type: string }
+          description: HMAC SHA-512 of the raw request body, keyed with the Paystack secret key.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Raw Paystack event payload. The signature covers these exact bytes.
+      responses:
+        '200':
+          {
+            description: Received. Also returned for events that were understood but not actionable.,
+          }
+        '401':
+          description: Signature verification failed. The attempt is recorded; nothing is applied.
+          content:
+            application/json:
+              examples:
+                default:
+                  {
+                    value:
+                      {
+                        success: false,
+                        code: INVALID_SIGNATURE,
+                        message: Signature verification failed,
+                      },
+                  }
+        '500': { description: Server-side failure — Paystack should retry. }
