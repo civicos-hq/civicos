@@ -495,6 +495,10 @@ func (f *fakeStore) Org(orgID string) (*domain.Organization, error) {
 		org.OfficialEmail = &s
 		org.RepresentativeName = &s
 		org.BankAccountVerified = true
+		// Phase 3: eligibility also requires a connected Paystack
+		// sub-account, since without one there is nowhere to settle.
+		code := "ACCT_test"
+		org.PSPSubaccountCode = &code
 	}
 	return org, nil
 }
@@ -565,6 +569,7 @@ func TestSubmit_RequiresFullFundingEligibility(t *testing.T) {
 	for _, want := range []string{
 		"organization verification", "registration number", "country",
 		"official email", "named representative", "bank account verification",
+		"connected payout account",
 	} {
 		if !strings.Contains(appErr.Message, want) {
 			t.Errorf("error should name the missing %q; got %q", want, appErr.Message)
@@ -586,6 +591,7 @@ func TestFundingEligible_PartialPaperwork(t *testing.T) {
 		Country:             &set,
 		OfficialEmail:       &set,
 		RepresentativeName:  &set,
+		PSPSubaccountCode:   &set,
 		BankAccountVerified: false, // the one gap
 	}
 	ok, missing := org.FundingEligible()
@@ -596,7 +602,18 @@ func TestFundingEligible_PartialPaperwork(t *testing.T) {
 		t.Fatalf("expected exactly the bank gap, got %v", missing)
 	}
 
+	// A connected payout account is its own requirement: without somewhere
+	// for Paystack to settle, a published campaign could take money that has
+	// no destination.
 	org.BankAccountVerified = true
+	org.PSPSubaccountCode = nil
+	if ok, missing := org.FundingEligible(); ok {
+		t.Fatalf("should not be eligible without a payout account")
+	} else if len(missing) != 1 || missing[0] != "connected payout account" {
+		t.Fatalf("expected exactly the payout gap, got %v", missing)
+	}
+
+	org.PSPSubaccountCode = &set
 	if ok, missing := org.FundingEligible(); !ok {
 		t.Fatalf("should be eligible now, missing %v", missing)
 	}

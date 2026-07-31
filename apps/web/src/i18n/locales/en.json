@@ -1761,7 +1761,6 @@
     "spendPlanLede": "{{allocated}} of the {{goal}} goal is allocated across these milestones.",
     "donorCount_one": "{{count}} donor",
     "donorCount_other": "{{count}} donors",
-    "donationsSoon": "Donations open soon. This campaign is published so you can see the plan before it starts raising.",
     "trustNote": "Only verified organizations can publish a campaign.",
     "categories": {
       "all": "All",
@@ -1777,6 +1776,32 @@
       "planned": "Planned",
       "in_progress": "In progress",
       "completed": "Completed"
+    },
+    "notAccepting": "This campaign is not accepting donations right now.",
+    "donorsHeading": "Recent donations",
+    "donate": {
+      "heading": "Donate",
+      "amountLabel": "Amount",
+      "emailLabel": "Email",
+      "emailHelp": "For your receipt. Never shown publicly.",
+      "nameLabel": "Your name (optional)",
+      "anonymous": "Give anonymously",
+      "messageLabel": "Message (optional)",
+      "reachesOrg": "reaches {{org}}",
+      "platformFee": "includes a {{percent}}% CivicOS platform fee of {{fee}}",
+      "noFee": "Every naira reaches the organization — CivicOS takes no fee.",
+      "submit": "Donate {{amount}}",
+      "submitting": "Opening secure checkout…",
+      "paystackNote": "You'll finish on Paystack's secure checkout. CivicOS never sees your card details.",
+      "genericError": "Could not start the payment. Please try again."
+    },
+    "complete": {
+      "seoTitle": "Thank you — CivicOS",
+      "title": "Thank you",
+      "body": "We're confirming your payment with Paystack. Once it clears, your donation will appear on the campaign page — usually within a minute.",
+      "reference": "Payment reference:",
+      "receiptNote": "A receipt is on its way to the email you gave. CivicOS never sees your card details.",
+      "backToCampaigns": "Back to campaigns"
     }
   }
 }

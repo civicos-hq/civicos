@@ -13,6 +13,7 @@ import { HomePage } from './routes/HomePage';
 import { PrivacyPage } from './routes/PrivacyPage';
 import { CampaignsPage } from './routes/CampaignsPage';
 import { CampaignDetailPage } from './routes/CampaignDetailPage';
+import { DonationCompletePage } from './routes/DonationCompletePage';
 import { TermsPage } from './routes/TermsPage';
 import { LoginPage } from './routes/LoginPage';
 import { RegisterPage } from './routes/RegisterPage';
@@ -173,6 +174,9 @@ function AppRoutes() {
           unauthenticated too. */}
       <Route path="/campaigns" element={<CampaignsPage />} />
       <Route path="/campaigns/:slug" element={<CampaignDetailPage />} />
+      {/* Paystack's return URL. Public and above the :slug route would be
+          ambiguous, so it lives under /donations rather than /campaigns. */}
+      <Route path="/donations/complete" element={<DonationCompletePage />} />
 
       {/* Authenticated */}
       <Route element={<RequireAuth />}>

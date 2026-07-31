@@ -854,7 +854,6 @@
     "spendPlanLede": "E kesara {{allocated}} site na ebumnuche {{goal}} n'ofe nzọụkwụ ndị a.",
     "donorCount_one": "Onye nyere onyinye {{count}}",
     "donorCount_other": "Ndị nyere onyinye {{count}}",
-    "donationsSoon": "Onyinye ga-emeghe n'oge na-adịghị anya. E bipụtara mkpọsa a ka ị wee hụ atụmatụ ya tupu ọ malite ịkpakọta ego.",
     "trustNote": "Naanị nzukọ akwadoro nwere ike ibipụta mkpọsa.",
     "categories": {
       "all": "Niile",
@@ -870,6 +869,32 @@
       "planned": "A haziri",
       "in_progress": "Na-aga n'ihu",
       "completed": "Emechara"
+    },
+    "notAccepting": "Mkpọsa a anaghị anabata onyinye ugbu a.",
+    "donorsHeading": "Onyinye ndị na-adịbeghị anya",
+    "donate": {
+      "heading": "Nye onyinye",
+      "amountLabel": "Ego",
+      "emailLabel": "Email",
+      "emailHelp": "Maka akwụkwọ nnata gị. Anaghị egosi ya ọha.",
+      "nameLabel": "Aha gị (nhọrọ)",
+      "anonymous": "Nye na-akpọghị aha",
+      "messageLabel": "Ozi (nhọrọ)",
+      "reachesOrg": "ga-eru {{org}}",
+      "platformFee": "ọ gụnyere ụgwọ ikpo okwu CivicOS nke {{percent}}% bụ {{fee}}",
+      "noFee": "Naira ọ bụla ga-eru nzukọ ahụ — CivicOS anaghị ewere ụgwọ.",
+      "submit": "Nye {{amount}}",
+      "submitting": "Na-emeghe ebe ịkwụ ụgwọ echedoro…",
+      "paystackNote": "Ị ga-emecha na Paystack ebe ịkwụ ụgwọ echedoro. CivicOS anaghị ahụ nkọwa kaadị gị.",
+      "genericError": "Enweghị ike ịmalite ịkwụ ụgwọ. Biko nwaa ọzọ."
+    },
+    "complete": {
+      "seoTitle": "Daalụ — CivicOS",
+      "title": "Daalụ",
+      "body": "Anyị na-akwado ịkwụ ụgwọ gị na Paystack. Ozugbo ọ gafere, onyinye gị ga-apụta na peeji mkpọsa ahụ — na-abụkarị n'ime otu nkeji.",
+      "reference": "Nrụtụ aka ịkwụ ụgwọ:",
+      "receiptNote": "Akwụkwọ nnata na-abịa na email i nyere. CivicOS anaghị ahụ nkọwa kaadị gị.",
+      "backToCampaigns": "Laghachi na mkpọsa"
     }
   }
 }

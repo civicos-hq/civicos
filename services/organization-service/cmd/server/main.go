@@ -10,6 +10,7 @@ import (
 	"github.com/civicos/organization-service/internal/communities"
 	"github.com/civicos/organization-service/internal/consultations"
 	"github.com/civicos/organization-service/internal/domain"
+	"github.com/civicos/organization-service/internal/donations"
 	"github.com/civicos/organization-service/internal/middleware"
 	"github.com/civicos/organization-service/internal/milestones"
 	"github.com/civicos/organization-service/internal/notifications"
@@ -40,6 +41,8 @@ func main() {
 		&domain.ConsultationOutcome{},
 		&domain.Campaign{},
 		&domain.Milestone{},
+		&domain.Donation{},
+		&domain.WebhookEvent{},
 	); err != nil {
 		log.Fatalf("migration failed: %v", err)
 	}
@@ -96,12 +99,27 @@ func main() {
 	// docs/product/community-funding-plan.md for the phase order and why
 	// transparency lands before money.
 	campRepo := campaigns.NewRepository(db)
-	campSvc := campaigns.NewService(campRepo)
+	campSvc := campaigns.NewService(campRepo).WithPlatformFee(cfg.PlatformFeeBps)
 	campHandler := campaigns.NewHandler(campSvc, orgSvc, auditor)
 
 	msRepo := milestones.NewRepository(db)
 	msSvc := milestones.NewService(msRepo)
 	msHandler := milestones.NewHandler(msSvc, orgSvc)
+
+	// Donations (Phase 3). Paystack is OPTIONAL: without a key the provider
+	// is nil, donation endpoints return 503, and everything else — campaigns,
+	// admin review, the public pages — keeps working. A missing payment key
+	// must degrade giving, not take the service down.
+	var payProvider donations.PaymentProvider
+	if cfg.PaystackEnabled() {
+		payProvider = donations.NewPaystack(cfg.PaystackSecretKey)
+		log.Printf("payments: paystack enabled, platform fee %d bps", cfg.PlatformFeeBps)
+	} else {
+		log.Printf("payments: DISABLED (no PAYSTACK_SECRET_KEY) — donation endpoints will return 503")
+	}
+	donRepo := donations.NewRepository(db)
+	donSvc := donations.NewService(donRepo, payProvider, cfg.PlatformFeeBps, cfg.DonationCallbackURL)
+	donHandler := donations.NewHandler(donSvc, orgSvc, auditor)
 
 	authMiddleware := middleware.JWTAuth(cfg, db)
 	requireVerified := middleware.RequireVerified()
@@ -132,6 +150,7 @@ func main() {
 	consultHandler.RegisterRoutes(v1, authMiddleware, requireVerified)
 	campHandler.RegisterRoutes(v1, authMiddleware)
 	msHandler.RegisterRoutes(v1, authMiddleware)
+	donHandler.RegisterRoutes(v1, authMiddleware)
 
 	addr := ":" + cfg.Port
 	log.Printf("organization-service listening on %s", addr)

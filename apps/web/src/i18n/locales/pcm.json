@@ -1083,7 +1083,6 @@
     "spendPlanLede": "{{allocated}} out of the {{goal}} goal don share across these milestones.",
     "donorCount_one": "{{count}} donor",
     "donorCount_other": "{{count}} donors",
-    "donationsSoon": "Donation go soon open. Dem publish this campaign so you fit see the plan before e start to raise money.",
     "trustNote": "Na only verified organization fit publish campaign.",
     "categories": {
       "all": "All",
@@ -1099,6 +1098,32 @@
       "planned": "Planned",
       "in_progress": "Dey go on",
       "completed": "Don finish"
+    },
+    "notAccepting": "This campaign no dey collect donation right now.",
+    "donorsHeading": "Recent donations",
+    "donate": {
+      "heading": "Donate",
+      "amountLabel": "Amount",
+      "emailLabel": "Email",
+      "emailHelp": "Na for your receipt. We no go show am anywhere.",
+      "nameLabel": "Your name (optional)",
+      "anonymous": "Give am anonymous",
+      "messageLabel": "Message (optional)",
+      "reachesOrg": "go reach {{org}}",
+      "platformFee": "e include {{percent}}% CivicOS platform fee wey be {{fee}}",
+      "noFee": "Every naira go reach the organization — CivicOS no dey collect fee.",
+      "submit": "Donate {{amount}}",
+      "submitting": "We dey open secure checkout…",
+      "paystackNote": "You go finish for Paystack secure checkout. CivicOS no dey see your card details.",
+      "genericError": "We no fit start the payment. Abeg try again."
+    },
+    "complete": {
+      "seoTitle": "Thank you — CivicOS",
+      "title": "Thank you",
+      "body": "We dey confirm your payment with Paystack. Once e clear, your donation go show for the campaign page — usually within one minute.",
+      "reference": "Payment reference:",
+      "receiptNote": "Receipt dey come to the email wey you give. CivicOS no dey see your card details.",
+      "backToCampaigns": "Go back to campaigns"
     }
   }
 }

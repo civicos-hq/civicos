@@ -7,15 +7,18 @@ import {
   formatMoney,
   progressPercent,
   usePublicCampaign,
+  usePublicDonations,
   type PublicMilestone,
 } from '../hooks/useCampaigns';
+import { DonateForm } from '../components/DonateForm';
 
-// Public campaign page. Phase 2 shows the ask and the spend plan; Phase 4
-// extends this same page with the funds-flow dashboard (received /
-// withdrawn / remaining, receipts, reports).
+// Public campaign page. Shows the ask, the spend plan, and — since Phase 3 —
+// the donate flow and public donor list. Phase 4 extends it with the full
+// funds-flow dashboard (withdrawn / remaining, receipts, reports).
 //
-// There is deliberately no donate button yet — no payment rail exists, and
-// a dead CTA on a fundraising page is worse than none.
+// Donations are only offered on campaigns that can actually take money.
+// PAUSED is excluded: once funds settle straight to the organization,
+// pausing is the only governance lever left, so the UI must respect it.
 
 const MILESTONE_ICON = {
   COMPLETED: CheckCircle2,
@@ -58,6 +61,7 @@ export function CampaignDetailPage() {
   const { t, i18n } = useTranslation();
   const query = usePublicCampaign(slug);
   const c = query.data;
+  const donationsQuery = usePublicDonations(c?.id);
 
   useSeo({
     title: c ? `${c.title} — CivicOS` : t('campaigns.detailSeoFallback'),
@@ -99,6 +103,10 @@ export function CampaignDetailPage() {
   const pct = progressPercent(c.raisedMinor, c.goalMinor);
   const place = [c.lga, c.state].filter(Boolean).join(', ');
   const allocated = c.milestones.reduce((sum, m) => sum + m.targetMinor, 0);
+  // Mirrors the server's rule in donations.CreateIntent. A campaign that is
+  // completed, reported or paused must not show a donate form.
+  const acceptsDonations = c.status === 'PUBLISHED' || c.status === 'FUNDED';
+  const donations = donationsQuery.data ?? [];
 
   return (
     <div className="home-shell">
@@ -164,6 +172,23 @@ export function CampaignDetailPage() {
                 <MilestoneRow key={m.id} m={m} currency={c.currency} locale={i18n.language} />
               ))}
             </ul>
+
+            {donations.length > 0 && (
+              <>
+                <h2 className="fund-plan-heading">{t('campaigns.donorsHeading')}</h2>
+                <ul className="fund-donor-list">
+                  {donations.map((d, i) => (
+                    <li key={i} className="fund-donor">
+                      <span className="fund-donor-name">{d.donorName}</span>
+                      <span className="fund-donor-amount">
+                        {formatMoney(d.amountMinor, c.currency, i18n.language)}
+                      </span>
+                      {d.message && <p className="fund-donor-message">{d.message}</p>}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
           </div>
 
           <aside className="fund-detail-aside">
@@ -187,10 +212,11 @@ export function CampaignDetailPage() {
 
             <p className="fund-donors">{t('campaigns.donorCount', { count: c.donorCount })}</p>
 
-            {/* Honest placeholder rather than a dead button. Donations land
-                in Phase 3; until a payment rail exists, saying so is more
-                trustworthy than a CTA that goes nowhere. */}
-            <p className="fund-soon">{t('campaigns.donationsSoon')}</p>
+            {acceptsDonations ? (
+              <DonateForm campaign={c} />
+            ) : (
+              <p className="fund-soon">{t('campaigns.notAccepting')}</p>
+            )}
 
             <p className="fund-trust">
               <ShieldCheck className="h-4 w-4" aria-hidden="true" />

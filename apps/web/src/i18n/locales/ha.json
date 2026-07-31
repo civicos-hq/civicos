@@ -854,7 +854,6 @@
     "spendPlanLede": "An raba {{allocated}} daga cikin burin {{goal}} a kan waɗannan matakai.",
     "donorCount_one": "Mai bayarwa {{count}}",
     "donorCount_other": "Masu bayarwa {{count}}",
-    "donationsSoon": "Bayarwa za ta buɗe nan ba da jimawa ba. An buga wannan kamfen ne domin ka ga tsarin kafin ya fara tara kuɗi.",
     "trustNote": "Ƙungiyoyin da aka tabbatar kaɗai ne za su iya buga kamfen.",
     "categories": {
       "all": "Duka",
@@ -870,6 +869,32 @@
       "planned": "An shirya",
       "in_progress": "Ana kan aiki",
       "completed": "An kammala"
+    },
+    "notAccepting": "Wannan kamfen ba ya karɓar gudummawa a yanzu.",
+    "donorsHeading": "Gudummawar kwanan nan",
+    "donate": {
+      "heading": "Bayar da gudummawa",
+      "amountLabel": "Adadi",
+      "emailLabel": "Imel",
+      "emailHelp": "Domin rasidinka. Ba a taɓa nuna shi a bainar jama'a.",
+      "nameLabel": "Sunanka (na zaɓi)",
+      "anonymous": "Bayar ba tare da suna ba",
+      "messageLabel": "Saƙo (na zaɓi)",
+      "reachesOrg": "zai isa ga {{org}}",
+      "platformFee": "ya haɗa da kuɗin dandalin CivicOS na kashi {{percent}}% wato {{fee}}",
+      "noFee": "Kowace naira za ta isa ga ƙungiyar — CivicOS ba ya karɓar kuɗi.",
+      "submit": "Bayar da {{amount}}",
+      "submitting": "Ana buɗe tsarin biyan kuɗi mai aminci…",
+      "paystackNote": "Za ka kammala a shafin biyan kuɗi mai aminci na Paystack. CivicOS ba ya ganin bayanan katinka.",
+      "genericError": "Ba a iya fara biyan kuɗin ba. Da fatan za a sake gwadawa."
+    },
+    "complete": {
+      "seoTitle": "Na gode — CivicOS",
+      "title": "Na gode",
+      "body": "Muna tabbatar da biyan kuɗinka tare da Paystack. Da zarar ya wuce, gudummawarka za ta bayyana a shafin kamfen — yawanci cikin minti ɗaya.",
+      "reference": "Lambar biyan kuɗi:",
+      "receiptNote": "Rasidi na zuwa imel ɗin da ka bayar. CivicOS ba ya ganin bayanan katinka.",
+      "backToCampaigns": "Koma zuwa kamfen"
     }
   }
 }
