@@ -971,7 +971,8 @@
     "organizations": "Organizations",
     "notifications": "Notifications",
     "profile": "Profile",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "campaigns": "Community funding"
   },
   "language": {
     "label": "Language",
@@ -1233,5 +1234,22 @@
     "remaining": "{{remaining}} still remain to share.",
     "fullyAllocated": "The plan don cover the whole goal.",
     "exceedsGoal": "E pass the {{remaining}} wey remain. Reduce am, or increase the goal."
+  },
+  "orgDashboard": {
+    "tabs": {
+      "campaigns": "Campaigns"
+    }
+  },
+  "orgCampaignCreate": {
+    "back": "← Go back to campaigns",
+    "eyebrow": "Section — Fundraising",
+    "title": "New campaign",
+    "subtitle": "We go save am as draft. E go only show for public after CivicOS admin review and approve am."
+  },
+  "organizationDetail": {
+    "sections": {
+      "campaigns": "Fundraising"
+    },
+    "viewAllCampaigns": "See all"
   }
 }

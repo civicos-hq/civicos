@@ -12,6 +12,7 @@ import {
   type Project,
 } from '@civicos/types';
 import { PageHeader, useTodayMeta } from '../components/PageHeader';
+import { OrgCampaigns } from '../components/OrgCampaigns';
 import { EmptyState } from '../components/EmptyState';
 import { CommunityInsightsTile } from '../components/civic/CommunityInsightsTile';
 import { useMe } from '../hooks/useMe';
@@ -28,13 +29,14 @@ import { MessageSquare, Megaphone, Briefcase, Inbox } from 'lucide-react';
 
 // Tab type mirrors the sub-sections on the dashboard. Adding a tab is
 // low-effort: add to this union, add a case in the switch, add an i18n key.
-type Tab = 'consultations' | 'announcements' | 'projects' | 'assignments';
+type Tab = 'consultations' | 'announcements' | 'projects' | 'assignments' | 'campaigns';
 
 const TABS: Array<{ id: Tab; i18n: string }> = [
   { id: 'consultations', i18n: 'orgDashboard.tabs.consultations' },
   { id: 'announcements', i18n: 'orgDashboard.tabs.announcements' },
   { id: 'projects', i18n: 'orgDashboard.tabs.projects' },
   { id: 'assignments', i18n: 'orgDashboard.tabs.assignments' },
+  { id: 'campaigns', i18n: 'orgDashboard.tabs.campaigns' },
 ];
 
 const CONSULTATION_TONE: Record<ConsultationStatus, string> = {
@@ -85,7 +87,7 @@ function formatNaira(kobo?: number): string {
 }
 
 export function OrgDashboardPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const meta = useTodayMeta();
   const { orgId } = useParams<{ orgId: string }>();
   const [params, setParams] = useSearchParams();
@@ -163,6 +165,21 @@ export function OrgDashboardPage() {
       {activeTab === 'announcements' && <AnnouncementsSection orgId={orgId} canAdmin={canAdmin} />}
       {activeTab === 'projects' && <ProjectsSection orgId={orgId} canAdmin={canAdmin} />}
       {activeTab === 'assignments' && <AssignmentsSection orgId={orgId} canAdmin={canAdmin} />}
+      {activeTab === 'campaigns' && orgId && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="font-fraunces text-lg font-semibold text-slate-900 dark:text-slate-100">
+              {t('orgCampaigns.heading')}
+            </h2>
+            {canAdmin && (
+              <Link to={`/org/${orgId}/campaigns/new`}>
+                <Button size="sm">{t('orgCampaigns.newCampaign')}</Button>
+              </Link>
+            )}
+          </div>
+          <OrgCampaigns orgId={orgId} locale={i18n.language} />
+        </div>
+      )}
     </section>
   );
 }

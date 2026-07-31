@@ -814,7 +814,8 @@
     "organizations": "Ọgbakọ",
     "notifications": "Ọkwa",
     "profile": "Profaịlụ",
-    "signOut": "Pụta"
+    "signOut": "Pụta",
+    "campaigns": "Ịchịkọta ego"
   },
   "language": {
     "label": "Asụsụ",
@@ -1004,5 +1005,22 @@
     "remaining": "{{remaining}} fọdụrụ ike ikenye.",
     "fullyAllocated": "Atụmatụ ahụ kpuchiri ebumnobi ahụ dum.",
     "exceedsGoal": "Nke ahụ karịrị {{remaining}} fọdụrụ. Belata ya, ma ọ bụ welie ebumnobi ahụ."
+  },
+  "orgDashboard": {
+    "tabs": {
+      "campaigns": "Mkpọsa"
+    }
+  },
+  "orgCampaignCreate": {
+    "back": "← Laghachi na mkpọsa",
+    "eyebrow": "Ngalaba — Ịchịkọta ego",
+    "title": "Mkpọsa ọhụrụ",
+    "subtitle": "E chekwara ya dị ka edemede. Ọ ga-abụ nke ọha naanị mgbe onye nchịkwa CivicOS nyochara ma kwadoo ya."
+  },
+  "organizationDetail": {
+    "sections": {
+      "campaigns": "Ịchịkọta ego"
+    },
+    "viewAllCampaigns": "Lee ha niile"
   }
 }

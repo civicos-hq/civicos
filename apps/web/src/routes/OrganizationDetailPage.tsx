@@ -31,6 +31,7 @@ import { Modal } from '../components/Modal';
 import { EmptyState } from '../components/EmptyState';
 import { ReportButton } from '../components/civic/ReportButton';
 import { OrgCampaigns, NewCampaignButton } from '../components/OrgCampaigns';
+import { usePublicCampaigns, formatMoney } from '../hooks/useCampaigns';
 
 const PLATFORM_ADMIN_ROLE: UserRole = UserRole.PLATFORM_ADMIN;
 
@@ -165,6 +166,8 @@ export function OrganizationDetailPage() {
         <ProjectList items={projQuery.data ?? []} isLoading={projQuery.isLoading} />
       </section>
 
+      <OrgPublicCampaigns orgId={id} locale={i18n.language} />
+
       {/* Campaigns. Members only: this lists statuses the public never sees
           (DRAFT, PENDING_REVIEW, NEEDS_CHANGES) and the reviewer's note. */}
       {isMember && (
@@ -195,6 +198,58 @@ export function OrganizationDetailPage() {
           <AssignmentList items={asgQuery.data ?? []} isLoading={asgQuery.isLoading} orgId={id} />
         </section>
       )}
+    </section>
+  );
+}
+
+/**
+ * An organization's live campaigns, shown to everyone.
+ *
+ * Without this a citizen reading about an organization has no way to reach
+ * what it is raising money for — the campaign pages existed but nothing
+ * linked to them.
+ */
+function OrgPublicCampaigns({ orgId, locale }: { orgId: string; locale: string }) {
+  const { t } = useTranslation();
+  const { data: campaigns = [] } = usePublicCampaigns({ organizationId: orgId });
+  if (campaigns.length === 0) return null;
+
+  return (
+    <section className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+          <HandCoins
+            className="mr-2 inline h-4 w-4 text-civic-700 dark:text-civic-200"
+            aria-hidden="true"
+          />
+          {t('organizationDetail.sections.campaigns')}
+        </h2>
+        <Link
+          to={`/campaigns?organizationId=${orgId}`}
+          className="text-sm font-semibold text-civic-700 hover:underline dark:text-civic-200"
+        >
+          {t('organizationDetail.viewAllCampaigns')}
+        </Link>
+      </div>
+      <ul className="space-y-2">
+        {campaigns.slice(0, 3).map((c) => (
+          <li key={c.id}>
+            <Link
+              to={`/campaigns/${c.slug}`}
+              className="block rounded-lg border border-slate-200 p-3 transition hover:border-civic-300 dark:border-slate-700 dark:hover:border-civic-500"
+            >
+              <p className="font-semibold text-slate-900 dark:text-slate-100">{c.title}</p>
+              <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+                {formatMoney(c.raisedMinor, c.currency, locale)}
+                {' / '}
+                {formatMoney(c.goalMinor, c.currency, locale)}
+                {' · '}
+                {t('campaigns.donorCount', { count: c.donorCount })}
+              </p>
+            </Link>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

@@ -9,6 +9,7 @@ import {
   useCreateCampaign,
   useCreateMilestone,
   useOrgCampaigns,
+  categoryKey,
   useUpdateCampaign,
   useMilestones,
   useDeleteMilestone,
@@ -271,7 +272,7 @@ function CampaignFieldSet({
       <Field label={t('orgCampaigns.descriptionLabel')} hint={t('orgCampaigns.descriptionHint')}>
         <textarea
           className={INPUT_CLASS}
-          rows={4}
+          rows={3}
           name="description"
           value={f.description}
           onChange={(e) => set('description', e.target.value)}
@@ -279,33 +280,35 @@ function CampaignFieldSet({
         />
       </Field>
 
-      <Field label={t('orgCampaigns.categoryLabel')}>
-        <select
-          className={INPUT_CLASS}
-          name="category"
-          value={f.category}
-          onChange={(e) => set('category', e.target.value as CampaignCategory)}
-        >
-          {CATEGORIES.map((c) => (
-            <option key={c} value={c}>
-              {t(`campaigns.categories.${c}`, c)}
-            </option>
-          ))}
-        </select>
-      </Field>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Field label={t('orgCampaigns.categoryLabel')}>
+          <select
+            className={INPUT_CLASS}
+            name="category"
+            value={f.category}
+            onChange={(e) => set('category', e.target.value as CampaignCategory)}
+          >
+            {CATEGORIES.map((c) => (
+              <option key={c} value={c}>
+                {t(`campaigns.categories.${categoryKey(c)}`, c)}
+              </option>
+            ))}
+          </select>
+        </Field>
 
-      <Field label={t('orgCampaigns.goalLabel')}>
-        <input
-          className={INPUT_CLASS}
-          inputMode="decimal"
-          name="goalMajor"
-          value={f.goalMajor}
-          onChange={(e) => set('goalMajor', e.target.value)}
-          required
-        />
-      </Field>
+        <Field label={t('orgCampaigns.goalLabel')}>
+          <input
+            className={INPUT_CLASS}
+            inputMode="decimal"
+            name="goalMajor"
+            value={f.goalMajor}
+            onChange={(e) => set('goalMajor', e.target.value)}
+            required
+          />
+        </Field>
+      </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid gap-3 sm:grid-cols-2">
         <Field label={t('orgCampaigns.stateLabel')}>
           <input
             className={INPUT_CLASS}
@@ -453,14 +456,20 @@ function SpendPlanEditor({ campaign, orgId }: { campaign: OrgCampaign; orgId: st
           {t('orgCampaigns.addMilestone')}
         </Button>
       </div>
-      {overAllocates && (
-        <p className="text-xs text-amber-700 dark:text-amber-300">
-          {t('orgCampaigns.exceedsGoal', {
-            remaining: formatMoney(remaining, campaign.currency, 'en-NG'),
-          })}
-        </p>
-      )}
-      {error && <p className="text-xs text-red-600 dark:text-red-400">{error}</p>}
+      {/* Fixed-height slot. Showing and hiding this as the user types was
+          changing the dialog's height on every keystroke, which is what made
+          it jump. The space is always reserved; only the text changes. */}
+      <p className="min-h-[1.25rem] text-xs" aria-live="polite">
+        {overAllocates ? (
+          <span className="text-amber-700 dark:text-amber-300">
+            {t('orgCampaigns.exceedsGoal', {
+              remaining: formatMoney(remaining, campaign.currency, 'en-NG'),
+            })}
+          </span>
+        ) : error ? (
+          <span className="text-red-600 dark:text-red-400">{error}</span>
+        ) : null}
+      </p>
     </div>
   );
 }
@@ -504,7 +513,7 @@ function EditCampaignModal({
   }
 
   return (
-    <Modal title={t('orgCampaigns.editCampaign')} onClose={onClose}>
+    <Modal title={t('orgCampaigns.editCampaign')} onClose={onClose} size="xl">
       <form className="space-y-3" onSubmit={onSubmit}>
         <CampaignFieldSet f={f} set={set} />
 
@@ -641,7 +650,7 @@ function NewCampaignModal({ orgId, onClose }: { orgId: string; onClose: () => vo
   }
 
   return (
-    <Modal title={t('orgCampaigns.newCampaign')} onClose={onClose}>
+    <Modal title={t('orgCampaigns.newCampaign')} onClose={onClose} size="xl">
       <form className="space-y-3" onSubmit={onSubmit}>
         <CampaignFieldSet f={f} set={set} />
 

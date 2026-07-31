@@ -443,6 +443,17 @@ export interface OrgCampaign {
   lga?: string | null;
 }
 
+/**
+ * Maps a category enum to its translation key.
+ *
+ * The enum is SCREAMING_SNAKE (`EMERGENCY_RELIEF`) but the locale files are
+ * keyed camelCase (`emergencyRelief`), so translating the raw value silently
+ * falls through to the fallback and shows the enum to the user.
+ */
+export function categoryKey(c: CampaignCategory): string {
+  return c.toLowerCase().replace(/_([a-z])/g, (_, ch: string) => ch.toUpperCase());
+}
+
 export function useOrgCampaigns(organizationId: string | undefined, enabled = true) {
   return useQuery({
     queryKey: ['org-campaigns', organizationId],
@@ -576,6 +587,12 @@ export function useMilestones(campaignId: string | undefined, enabled = true) {
     queryKey: ['milestones', campaignId],
     enabled: !!campaignId && enabled,
     retry: false,
+    // The plan is edited inside a dialog. Refetching on window focus or on a
+    // stale timer swapped the list out underneath the user mid-edit, which
+    // read as flicker. Mutations invalidate this key explicitly, so it stays
+    // correct without background churn.
+    refetchOnWindowFocus: false,
+    staleTime: 30_000,
     queryFn: async () => {
       const res = await api.get<ApiResponse<{ milestones: Milestone[] }>>(
         `/api/v1/campaigns/${campaignId}/milestones`,

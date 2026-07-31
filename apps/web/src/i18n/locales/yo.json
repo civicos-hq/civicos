@@ -814,7 +814,8 @@
     "organizations": "Àwọn Àjọ",
     "notifications": "Àwọn Ìfìmọ̀ràn",
     "profile": "Profáìlì",
-    "signOut": "Jáde"
+    "signOut": "Jáde",
+    "campaigns": "Ìkówójọ"
   },
   "language": {
     "label": "Èdè",
@@ -1004,5 +1005,22 @@
     "remaining": "{{remaining}} ṣì kù láti pín.",
     "fullyAllocated": "Ètò náà bo gbogbo àfojúsùn náà.",
     "exceedsGoal": "Ìyẹn ju {{remaining}} tí ó ṣẹ́kù lọ. Dín in kù, tàbí gbé àfojúsùn náà ga."
+  },
+  "orgDashboard": {
+    "tabs": {
+      "campaigns": "Ìpolongo"
+    }
+  },
+  "orgCampaignCreate": {
+    "back": "← Padà sí àwọn ìpolongo",
+    "eyebrow": "Apá — Ìkówójọ",
+    "title": "Ìpolongo tuntun",
+    "subtitle": "A fi pamọ́ gẹ́gẹ́ bí àkọsílẹ̀. Yóò di ti gbogbo ènìyàn lẹ́yìn tí alábòójútó CivicOS bá ṣàyẹ̀wò tí ó sì fọwọ́sí i."
+  },
+  "organizationDetail": {
+    "sections": {
+      "campaigns": "Ìkówójọ"
+    },
+    "viewAllCampaigns": "Wo gbogbo rẹ̀"
   }
 }

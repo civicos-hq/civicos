@@ -60,10 +60,10 @@ three can be signed in at once.
 
 ## Act 1 — The organization creates a campaign
 
-Sign in as **org@civicos.demo** and open the organization page printed by the
-seed script.
+Sign in as **org@civicos.demo**, then click **My organization** in the
+sidebar and open the **Campaigns** tab.
 
-1. Find **Fundraising campaigns** → **New campaign**.
+1. Click **New campaign**.
 2. Fill it in. The form mirrors the server's rules, so the button stays
    disabled until they are met:
    - Title ≥ 4 characters — _Flood relief for Sabon Gari_

@@ -814,7 +814,8 @@
     "organizations": "Ƙungiyoyi",
     "notifications": "Sanarwa",
     "profile": "Bayani",
-    "signOut": "Fita"
+    "signOut": "Fita",
+    "campaigns": "Tara kuɗi"
   },
   "language": {
     "label": "Harshe",
@@ -1004,5 +1005,22 @@
     "remaining": "Sauran {{remaining}} da za a raba.",
     "fullyAllocated": "Shirin ya rufe dukkan burin.",
     "exceedsGoal": "Wannan ya fi {{remaining}} da ya rage. Ka rage shi, ko ka ƙara burin."
+  },
+  "orgDashboard": {
+    "tabs": {
+      "campaigns": "Kamfen"
+    }
+  },
+  "orgCampaignCreate": {
+    "back": "← Koma zuwa kamfen",
+    "eyebrow": "Sashe — Tara kuɗi",
+    "title": "Sabon kamfen",
+    "subtitle": "An adana shi a matsayin daftari. Zai bayyana ga jama'a ne kawai bayan mai gudanarwa na CivicOS ya bita ya amince."
+  },
+  "organizationDetail": {
+    "sections": {
+      "campaigns": "Tara kuɗi"
+    },
+    "viewAllCampaigns": "Duba duka"
   }
 }

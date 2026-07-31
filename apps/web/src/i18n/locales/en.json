@@ -1195,7 +1195,8 @@
     "myOrg": "My organization",
     "notifications": "Notifications",
     "profile": "Profile",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "campaigns": "Community funding"
   },
   "announcementsPage": {
     "eyebrow": "Section — Announcements",
@@ -1266,7 +1267,8 @@
       "consultations": "Consultations",
       "announcements": "Announcements",
       "projects": "Projects",
-      "assignments": "Assignments"
+      "assignments": "Assignments",
+      "campaigns": "Campaigns"
     },
     "newConsultation": "New consultation",
     "newAnnouncement": "New announcement",
@@ -1587,7 +1589,8 @@
     "sections": {
       "announcements": "Announcements",
       "projects": "Projects",
-      "assignments": "Reports received"
+      "assignments": "Reports received",
+      "campaigns": "Fundraising"
     },
     "emptyAnnouncements": "No announcements posted yet.",
     "emptyProjects": "No projects yet.",
@@ -1634,7 +1637,8 @@
       "IN_PROGRESS": "In progress",
       "COMPLETED": "Completed",
       "REJECTED": "Rejected"
-    }
+    },
+    "viewAllCampaigns": "View all"
   },
   "language": {
     "label": "Language",
@@ -1911,5 +1915,11 @@
     "remaining": "{{remaining}} left to allocate.",
     "fullyAllocated": "The plan covers the full goal.",
     "exceedsGoal": "That is more than the {{remaining}} still unallocated. Reduce it, or raise the goal."
+  },
+  "orgCampaignCreate": {
+    "back": "← Back to campaigns",
+    "eyebrow": "Section — Fundraising",
+    "title": "New campaign",
+    "subtitle": "Saved as a draft. It becomes public only after a CivicOS admin reviews and approves it."
   }
 }
