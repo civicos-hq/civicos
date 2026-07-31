@@ -268,10 +268,35 @@ The high-risk phase. Sequence inside it matters:
    `ProviderRef`, transitions `PENDING → SETTLED`, writes ledger.
 4. Recompute projection (`RaisedMinor`, `DonorCount`) inside the same
    transaction as the ledger write.
-5. Reconciliation job comparing our ledger against the PSP's settlement report,
-   surfacing drift to admins. **Not optional** — this is how we find out we're
-   wrong before a donor does.
-6. Receipts (PDF/email) via the existing Mailpit-in-dev mail path.
+5. ✅ Reconciliation job comparing our ledger against the PSP's settlement
+   report, surfacing drift to admins. **Not optional** — this is how we find
+   out we're wrong before a donor does.
+
+   Shipped as `internal/donations/reconcile.go`: two sweeps, with `PENDING`
+   rows repaired through the ordinary settle path and `SETTLED` rows only
+   ever reported on. Runs on a timer (`RECONCILE_INTERVAL_MINUTES`) and on
+   demand at `POST /v1/admin/donations/reconcile` (`PLATFORM_ADMIN`).
+
+   Verified end-to-end against the real Paystack sandbox, including a
+   genuinely **paid** transaction whose webhook was never delivered: the
+   sweep found it, settled it, rebuilt the campaign projection from the
+   ledger, recorded Paystack's own fee, and reported it as
+   `RECOVERED_MISSED_WEBHOOK`. A second run changed nothing.
+
+6. ✅ Receipts via the existing Mailpit-in-dev mail path.
+
+   Emailed on fresh settlement (webhook _or_ reconciliation recovery),
+   never on a replay. Mail failure can never block settlement, and
+   `Donation.ReceiptSentAt` lets the reconciliation sweep re-send
+   anything missed during an SMTP outage.
+
+   **Delivered as email, not PDF.** A PDF attachment would need a
+   rendering dependency, and the ₦ sign is not in the core PDF font set
+   — it would need an embedded TTF to avoid rendering as garbage on the
+   one document a donor keeps. The HTML email prints to PDF from any
+   client, so the remaining gain is small. Worth revisiting if
+   organizations ask for a formal attachment.
+
 7. Guest + anonymous donation.
 
 - **Exit:** a donor can fund a published campaign; totals are provably derived
@@ -297,9 +322,9 @@ CivicOS-issued payouts to build: Paystack settles directly to the org, so
 this phase is about **accounting for money that has already moved**, not
 releasing it.
 
-- Reconcile the donation ledger against Paystack's settlement reports;
-  surface drift to admins. Not optional — this is how we find out we are
-  wrong before a donor does.
+- ✅ Reconcile the donation ledger against Paystack; surface drift to
+  admins. Delivered in Phase 3 rather than deferred to here, because the
+  gap it covers opens the moment the first donation is taken.
 - Per-milestone reported spend, published by the org against the plan.
 - Final report required before `ARCHIVED`.
 - Public "reported vs unreported" state on the campaign page, since

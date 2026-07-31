@@ -157,6 +157,71 @@ components:
     MilestoneStatus:
       type: string
       enum: [PLANNED, IN_PROGRESS, COMPLETED]
+    ReconciliationReport:
+      type: object
+      description: |
+        The outcome of one reconciliation run. `drift` being empty is the
+        only thing that means "our ledger and Paystack agree".
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Identifies this run. Used as the audit row's target and in log lines.
+        ranAt: { type: string, format: date-time, description: UTC. }
+        durationMs: { type: integer }
+        pendingChecked: { type: integer }
+        settledChecked: { type: integer }
+        recovered:
+          type: integer
+          description: Payments Paystack had that no webhook ever settled, now repaired.
+        recoveredMinor:
+          type: integer
+          format: int64
+          description: |
+            Money, in integer minor units, that would have been lost had this
+            run not happened. The most useful number in the report.
+        markedFailed: { type: integer }
+        markedAbandoned: { type: integer }
+        stillPending: { type: integer }
+        receiptsSent:
+          type: integer
+          description: |
+            Donors who had settled without ever receiving a receipt and have
+            now been emailed. Non-zero means the inline send failed earlier
+            — worth noticing even though the donor has since been told.
+        receiptsFailed: { type: integer }
+        drift:
+          type: array
+          items: { $ref: '#/components/schemas/ReconciliationDrift' }
+
+    ReconciliationDrift:
+      type: object
+      description: One disagreement between the ledger and Paystack.
+      properties:
+        donationId: { type: string, format: uuid }
+        campaignId: { type: string, format: uuid }
+        reference: { type: string }
+        amountMinor: { type: integer, format: int64 }
+        detail: { type: string }
+        kind:
+          type: string
+          description: |
+            - `RECOVERED_MISSED_WEBHOOK` — repaired, but the webhook failed.
+            - `AMOUNT_MISMATCH` — we banked a different figure than Paystack holds. Public totals are wrong.
+            - `CURRENCY_MISMATCH` — currencies disagree.
+            - `SUBACCOUNT_MISMATCH` — the payment credited a different organization. Money reached the wrong people.
+            - `SETTLED_HERE_BUT_NOT_AT_PROVIDER` — we show settled, Paystack does not. A missed reversal or a ledger bug.
+            - `PENDING_WITH_MISMATCHED_DETAILS` — reported successful but the details do not match the intent, so it was NOT settled.
+            - `PROVIDER_UNREACHABLE` — the row could not be checked at all. Not evidence of a problem, but not evidence of health either.
+          enum:
+            - RECOVERED_MISSED_WEBHOOK
+            - AMOUNT_MISMATCH
+            - CURRENCY_MISMATCH
+            - SUBACCOUNT_MISMATCH
+            - SETTLED_HERE_BUT_NOT_AT_PROVIDER
+            - PENDING_WITH_MISMATCHED_DETAILS
+            - PROVIDER_UNREACHABLE
+
     DonationStatus:
       type: string
       description: |
@@ -2551,6 +2616,80 @@ paths:
                         message: Could not connect that account. Check the bank and account number.,
                       },
                   }
+
+  /admin/donations/reconcile:
+    post:
+      tags: [Donations]
+      summary: Reconcile the donation ledger against Paystack (platform admin)
+      description: |
+        Re-reads transactions directly from Paystack and compares them with
+        our ledger. This is the safety net under the webhook.
+
+        The webhook is the only thing that settles a donation, which makes it
+        a single point of failure: a delivery that never arrives — or arrives
+        while the endpoint is down — leaves money that genuinely moved
+        sitting `PENDING` forever. Paystack retries, gives up, and nothing in
+        the system notices. This endpoint is how we notice.
+
+        The two sweeps have deliberately different powers:
+
+        - **`PENDING` rows are repaired.** A donation Paystack reports as
+          successful is settled through the ordinary settle path, exactly as
+          the missed webhook would have. Safe because settlement is
+          idempotent and because `PENDING` means nobody was told anything.
+        - **`SETTLED` rows are only reported on.** If Paystack disagrees with
+          money we already banked, that is for a human to look at, not for a
+          background job to quietly rewrite. Auto-correcting settled money
+          would destroy the audit trail that makes the discrepancy
+          explicable.
+
+        A repaired row is **still reported as drift** (`RECOVERED_MISSED_WEBHOOK`).
+        The money ended up in the right place, but the delivery path failed
+        and that needs explaining.
+
+        `PLATFORM_ADMIN` only: a run can move a donation to `SETTLED`, which
+        changes a campaign's public total. Every run is audited against its
+        own generated run id.
+
+        The same sweep runs on a timer (`RECONCILE_INTERVAL_MINUTES`); this
+        endpoint exists so an admin chasing a specific complaint does not
+        have to wait for the next tick.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pendingGraceMinutes:
+                  type: integer
+                  description: |
+                    How old a `PENDING` row must be before it is chased.
+                    **Omit** for the default (20 minutes) — a donor may still
+                    be on the Paystack checkout page, and writing off an
+                    in-flight payment is worse than waiting. An explicit `0`
+                    means "check everything now" and is honoured as such.
+                settledWindowHours:
+                  type: integer
+                  description: How far back to re-check settled rows. Default 48.
+                limit:
+                  type: integer
+                  description: Maximum rows per sweep. Default 500.
+      responses:
+        '200':
+          description: The run completed. A 200 does NOT mean the ledger was clean — read `drift`.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      report: { $ref: '#/components/schemas/ReconciliationReport' }
+        '403': { description: Not a platform admin. }
+        '503': { description: Donations are not enabled on this deployment (no Paystack key). }
 
   /webhooks/paystack:
     post:

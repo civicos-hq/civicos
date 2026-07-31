@@ -329,6 +329,17 @@ func main() {
 	// unsigned request is rejected before it touches the ledger.
 	r.POST("/api/v1/webhooks/paystack", orgProxy)
 
+	// Reconciliation — the safety net under the webhook above.
+	//
+	// PLATFORM_ADMIN only (enforced in organization-service): a run can move
+	// a donation to SETTLED, which changes a campaign's public total.
+	//
+	// limitStandard rather than limitCreate: a run costs one Paystack call
+	// per row, so it should not be cheap to spam, but an admin working
+	// through a batch of donor complaints will legitimately fire several in
+	// a row and must not be throttled mid-investigation.
+	r.POST("/api/v1/admin/donations/reconcile", authMiddleware, limitStandard, orgProxy)
+
 	// Org connects its payout destination (org admin).
 	r.POST("/api/v1/organizations/:id/psp-account", authMiddleware, limitStandard, orgProxy)
 

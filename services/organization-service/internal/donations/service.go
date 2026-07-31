@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/civicos/organization-service/internal/domain"
 	"github.com/google/uuid"
@@ -17,6 +18,14 @@ type Store interface {
 	FindByRef(provider, ref string) (*domain.Donation, error)
 	FindByIdempotencyKey(key string) (*domain.Donation, error)
 	ListSettledForCampaign(campaignID string) ([]domain.Donation, error)
+	// Reconciliation reads. ListStale finds payments whose webhook never
+	// arrived; ListSettledSince re-checks money already banked.
+	ListStale(status domain.DonationStatus, olderThan time.Time, limit int) ([]domain.Donation, error)
+	ListSettledSince(since time.Time, limit int) ([]domain.Donation, error)
+	// Receipt bookkeeping. MarkReceiptSent records delivery;
+	// ListSettledWithoutReceipt finds donors we settled but never told.
+	MarkReceiptSent(donationID string) error
+	ListSettledWithoutReceipt(settledBefore time.Time, limit int) ([]domain.Donation, error)
 	Campaign(id string) (*domain.Campaign, error)
 	Org(id string) (*domain.Organization, error)
 	Settle(donationID string, pspFeeMinor int64) (SettleResult, error)
@@ -32,10 +41,27 @@ type Service struct {
 	provider       PaymentProvider
 	platformFeeBps int64
 	callbackURL    string
+
+	// receipts is optional. Without a mailer the service still takes
+	// donations and settles them — a donor who gets no email is a worse
+	// experience, but a donor whose payment is refused because SMTP is
+	// misconfigured is a broken product.
+	receipts ReceiptSender
+	// appURL is the public web origin, used to link a receipt back to the
+	// campaign it funded.
+	appURL string
 }
 
 func NewService(repo Store, provider PaymentProvider, platformFeeBps int64, callbackURL string) *Service {
 	return &Service{repo: repo, provider: provider, platformFeeBps: platformFeeBps, callbackURL: callbackURL}
+}
+
+// WithReceipts attaches the mailer. Separate from NewService so that mail
+// stays visibly optional at the wiring site.
+func (s *Service) WithReceipts(sender ReceiptSender, appURL string) *Service {
+	s.receipts = sender
+	s.appURL = appURL
+	return s
 }
 
 // PlatformFeeBps is exposed so the public campaign page can disclose the
@@ -244,48 +270,75 @@ func (s *Service) HandleWebhook(ctx context.Context, rawBody []byte, signature s
 		return err
 	}
 
-	if ev.Status.Failed {
-		_ = s.repo.MarkFailed(d.ID, domain.DonationFailed)
-		_ = s.repo.MarkWebhookHandled(rowID, nil)
-		return nil
+	_, note, err := s.applyStatus(d, ev.Status)
+	if err != nil {
+		return err
 	}
-	// The donor opened checkout and walked away. Terminal, and worth
-	// recording as its own thing — otherwise the row sits PENDING forever
-	// and looks like a payment we lost track of.
-	if ev.Status.Abandoned {
-		_ = s.repo.MarkFailed(d.ID, domain.DonationAbandoned)
-		_ = s.repo.MarkWebhookHandled(rowID, nil)
-		return nil
-	}
-	if !ev.Status.Succeeded {
+	_ = s.repo.MarkWebhookHandled(rowID, note)
+	return nil
+}
+
+// applyStatus moves a donation to whatever terminal state the provider
+// reports, and is the ONLY place that does so.
+//
+// Both the webhook and the reconciliation sweep come through here. That is
+// the entire point: if reconciliation carried its own notion of what
+// settling means, the job meant to detect drift would become a source of it.
+//
+// The note is returned rather than written, so each caller can record it
+// where it belongs — on the webhook row, or in the reconciliation report.
+func (s *Service) applyStatus(d *domain.Donation, st TransactionStatus) (ApplyOutcome, *string, error) {
+	switch {
+	case st.Failed:
+		if err := s.repo.MarkFailed(d.ID, domain.DonationFailed); err != nil {
+			return OutcomeError, nil, err
+		}
+		return OutcomeFailed, nil, nil
+
+	case st.Abandoned:
+		// The donor opened checkout and walked away. Terminal, and worth
+		// recording as its own thing — otherwise the row sits PENDING
+		// forever and looks like a payment we lost track of.
+		if err := s.repo.MarkFailed(d.ID, domain.DonationAbandoned); err != nil {
+			return OutcomeError, nil, err
+		}
+		return OutcomeAbandoned, nil, nil
+
+	case !st.Succeeded:
 		note := "event carried no terminal status"
-		_ = s.repo.MarkWebhookHandled(rowID, &note)
-		return nil
+		return OutcomeStillPending, &note, nil
 	}
 
 	// Trust the signature for authenticity, but still check the contents
 	// against what we asked for. A signed message is proof it came from
 	// Paystack, not proof it describes the transaction we opened.
-	if err := s.reconcileAgainstIntent(d, ev.Status); err != nil {
+	if err := s.reconcileAgainstIntent(d, st); err != nil {
 		note := err.Error()
-		_ = s.repo.MarkWebhookHandled(rowID, &note)
 		// Deliberately NOT settled. A mismatch is for a human to look at.
-		return nil
+		return OutcomeMismatch, &note, nil
 	}
 
-	res, err := s.repo.Settle(d.ID, ev.Status.PSPFeeMinor)
+	res, err := s.repo.Settle(d.ID, st.PSPFeeMinor)
 	if err != nil {
-		return err
+		return OutcomeError, nil, err
 	}
-	if !res.AlreadySettled && res.Campaign != nil {
+	if res.AlreadySettled {
+		return OutcomeAlreadySettled, nil, nil
+	}
+	if res.Campaign != nil && res.Campaign.RaisedMinor >= res.Campaign.GoalMinor {
 		// Goal reached is ledger truth, asserted by the platform alone —
 		// see campaigns.ActorSystem.
-		if res.Campaign.RaisedMinor >= res.Campaign.GoalMinor {
-			_ = s.repo.SetCampaignFunded(res.Campaign.ID)
-		}
+		_ = s.repo.SetCampaignFunded(res.Campaign.ID)
 	}
-	_ = s.repo.MarkWebhookHandled(rowID, nil)
-	return nil
+
+	// Receipt on FRESH settlement only. A replayed webhook lands on
+	// AlreadySettled above and returns before reaching here, so a donor
+	// cannot be emailed twice for one donation. Deliberately outside the
+	// settlement transaction, and deliberately unable to fail this call —
+	// see receipt.go.
+	s.deliverReceipt(d)
+
+	return OutcomeSettled, nil, nil
 }
 
 // reconcileAgainstIntent refuses to settle a donation whose reported details

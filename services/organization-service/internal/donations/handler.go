@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/civicos/organization-service/internal/audit"
 	"github.com/civicos/organization-service/internal/organizations"
@@ -39,6 +40,84 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth gin.HandlerFunc) {
 
 	// Org admin: connect the payout destination.
 	rg.POST("/organizations/:id/psp-account", auth, h.connectSubaccount)
+
+	// Platform admin: run reconciliation on demand. The job also runs on a
+	// timer, but an admin investigating a specific complaint should not have
+	// to wait for the next tick.
+	rg.POST("/admin/donations/reconcile", auth, h.reconcile)
+}
+
+// ─── Reconciliation ─────────────────────────────────────────────────────
+
+type reconcileInput struct {
+	// Minutes a PENDING donation must have sat before it is chased.
+	// Omitted uses the default; an explicit 0 means "check everything now",
+	// which is what an admin chasing a specific complaint needs.
+	PendingGraceMinutes *int `json:"pendingGraceMinutes"`
+	// How far back to re-check already-settled rows.
+	SettledWindowHours int `json:"settledWindowHours"`
+	Limit              int `json:"limit"`
+}
+
+// reconcile re-reads transactions from the provider and repairs or reports.
+//
+// PLATFORM_ADMIN only. It can move a donation to SETTLED, which changes a
+// campaign's public total — not something an org should be able to trigger
+// against its own campaigns.
+func (h *Handler) reconcile(c *gin.Context) {
+	_, userRole := actorFrom(c)
+	if userRole != "PLATFORM_ADMIN" {
+		response.Error(c, http.StatusForbidden, "FORBIDDEN", "Platform admins only")
+		return
+	}
+
+	var in reconcileInput
+	// A body is optional: an empty POST runs with the defaults.
+	_ = c.ShouldBindJSON(&in)
+
+	opts := ReconcileOptions{
+		SettledWindow: time.Duration(in.SettledWindowHours) * time.Hour,
+		Limit:         in.Limit,
+	}
+	if in.PendingGraceMinutes != nil {
+		grace := time.Duration(*in.PendingGraceMinutes) * time.Minute
+		opts.PendingGrace = &grace
+	}
+
+	rep, err := h.svc.Reconcile(c.Request.Context(), opts)
+	if handleAppErr(c, err) {
+		return
+	}
+
+	// Audited: this is a privileged action that can change public totals,
+	// and "who ran it, when, and what did it find" needs to be answerable
+	// without reading application logs.
+	if h.auditor != nil {
+		h.auditor.Log(audit.Entry{
+			Actor:  audit.FromContext(c),
+			Action: "donations.reconciled",
+			// The run itself is the target: reconciliation is
+			// platform-wide and has no single donation to point at, and
+			// audit_logs.target_id is a NOT NULL uuid column.
+			TargetType: "RECONCILIATION_RUN",
+			TargetID:   rep.ID,
+			Metadata: map[string]any{
+				"pendingChecked": rep.PendingChecked,
+				"settledChecked": rep.SettledChecked,
+				"recovered":      rep.Recovered,
+				"recoveredMinor": rep.RecoveredMinor,
+				"driftCount":     len(rep.Drift),
+			},
+			Request: c.Request,
+		})
+	}
+	response.Success(c, http.StatusOK, gin.H{"report": rep})
+}
+
+func actorFrom(c *gin.Context) (userID, userRole string) {
+	id, _ := c.Get("userID")
+	role, _ := c.Get("userRole")
+	return asString(id), asString(role)
 }
 
 // ─── Donations ──────────────────────────────────────────────────────────

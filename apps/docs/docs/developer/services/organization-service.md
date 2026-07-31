@@ -153,8 +153,142 @@ shared-DB pattern as `audit_logs`). Emit sites:
 If services move to isolated databases later, `DBNotifier.Emit` becomes
 a NATS publish or an HTTP call.
 
+## Community Funding — donations and settlement
+
+Organizations raise money against a campaign. CivicOS is **not** the
+merchant of record: each organization connects its own Paystack
+sub-account, and Paystack settles directly to them. The platform fee is
+expressed as the sub-account's transaction charge, so CivicOS never
+takes custody of donor money.
+
+That decision has a consequence worth stating plainly: because funds
+never pass through CivicOS, there is no milestone-gated withdrawal to
+build. **Transparency here is disclosure, not control.** The levers that
+remain are publication (pausing a campaign stops new donations) and
+reporting.
+
+### Money is always integer minor units
+
+`int64` kobo, never a float, end to end. The platform fee is held in
+integer **basis points** (`PLATFORM_FEE_BPS=250` is 2.5%) and the split
+is computed with integer division that floors — rounding in the
+organization's favour, never the platform's. Each donation stores the
+rate that applied **at the time it was made**, so changing the platform
+rate later cannot retroactively rewrite what a past donor was told.
+
+### The webhook is the only thing that settles a donation
+
+`POST /v1/webhooks/paystack` authenticates by HMAC SHA-512 over the raw
+body and must not sit behind auth middleware. The browser redirect after
+checkout is a hint, never proof — a donor can close the tab or type the
+return URL themselves.
+
+Two properties hold it together:
+
+- **Replays are a no-op.** Deliveries dedupe on the provider's event id,
+  and a campaign's total is recomputed by `SUM` over settled rows rather
+  than incremented, so repeats converge instead of inflating.
+- **A signature proves origin, not content.** An event whose amount or
+  currency disagrees with the opened intent is recorded, noted, and left
+  unsettled for a human.
+
+### Reconciliation — the safety net under the webhook
+
+Making the webhook the only settlement path also makes it a single point
+of failure. A delivery that never arrives — or arrives while the
+endpoint is down — leaves money that genuinely moved sitting `PENDING`
+forever. Paystack retries, gives up, and nothing notices.
+
+`internal/donations/reconcile.go` is what notices. It re-reads
+transactions from Paystack and runs two sweeps with deliberately
+different powers:
+
+| Sweep          | Power                                                   | Why                                                                                        |
+| -------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `PENDING` rows | **Repaired** — settled through the ordinary settle path | Idempotent, and `PENDING` means nobody was told anything yet                               |
+| `SETTLED` rows | **Reported on only** — never mutated                    | Rewriting banked money would destroy the audit trail that makes the discrepancy explicable |
+
+A repaired row is still reported as drift (`RECOVERED_MISSED_WEBHOOK`).
+The money ended up in the right place, but the delivery path failed and
+that needs explaining.
+
+A grace period (default 20 minutes) protects donors who are still on the
+checkout page — writing off an in-flight payment is worse than waiting.
+An admin can pass an explicit `pendingGraceMinutes: 0` to mean "check
+everything now", and that is honoured rather than treated as unset.
+
+Drift kinds, roughly in order of seriousness: `SUBACCOUNT_MISMATCH`
+(money reached the wrong organization), `AMOUNT_MISMATCH` (public totals
+are wrong), `SETTLED_HERE_BUT_NOT_AT_PROVIDER`,
+`PENDING_WITH_MISMATCHED_DETAILS`, `RECOVERED_MISSED_WEBHOOK`,
+`PROVIDER_UNREACHABLE`.
+
+`PROVIDER_UNREACHABLE` deserves a note: it is not evidence of a problem,
+but it means the row was **not checked**. Counting it as clean would let
+an unreachable Paystack look like a healthy ledger.
+
+Runs happen two ways:
+
+- On a timer, every `RECONCILE_INTERVAL_MINUTES` (0 disables). Findings
+  go to the operator log, one line per drift.
+- On demand via `POST /v1/admin/donations/reconcile`, `PLATFORM_ADMIN`
+  only — a run can move a donation to `SETTLED`, which changes a
+  campaign's public total. Every run is audited against its own run id.
+
+Findings are logged rather than stored in a table. That is a real
+tradeoff — drift found overnight lives only in logs until someone looks
+— taken because a new table here would put financial records under
+`AutoMigrate`, which this repo has no migration tooling to evolve
+safely. The on-demand endpoint returns the same report synchronously, so
+an admin investigating a complaint never depends on log retention.
+
+### Receipts
+
+A settled donation emails the donor a receipt. It goes out on **fresh**
+settlement only, from the shared `applyStatus` path, so it covers both
+the webhook and a donation recovered by reconciliation — and a replayed
+webhook, which stops at the already-settled check, cannot email anyone
+twice.
+
+The governing rule is that **sending a receipt must never affect whether
+a donation settles**. Money moving is the fact; the email is a
+description of it. An SMTP outage, a bounced address or a slow relay
+must not roll back a settlement or fail a webhook (Paystack would just
+retry it). Every mail failure is logged and swallowed.
+
+The cost of that is a window: the process can settle a donation and die
+before the mail goes out. `Donation.ReceiptSentAt` closes it —
+reconciliation re-sends anything settled without a receipt, after a
+short delay so it cannot race the inline send. A receipt is only ever
+recorded after a send actually succeeded, so a failure stays retryable.
+
+Two content decisions worth keeping:
+
+- **It is not a tax receipt, and it says so.** CivicOS is not the
+  merchant of record; the organization is the recipient of the gift.
+  Implying the document could be filed for tax relief would be a claim
+  made on another entity's behalf, and a donor acting on it could be
+  misled into a filing they cannot support.
+- **Amounts are shown to the kobo** — `₦62.50`, never `₦63`. A donor who
+  adds up a rounded receipt gets a different answer than the ledger
+  holds, and a receipt whose arithmetic does not reconcile is worse than
+  no receipt at all.
+
+Without `SMTP_HOST` the service falls back to a console mailer that
+prints receipts to the log, so a dev environment still exercises the
+whole path. In local development Mailpit catches them — read them at
+`http://localhost:8025`.
+
 ## Environment
 
 - `DATABASE_URL`
 - `JWT_SECRET`
 - `PORT` / `ORGANIZATION_SERVICE_PORT` (default `3003`)
+
+Community Funding (all optional — without a Paystack key the service
+still starts and serves campaigns; donation endpoints return `503`):
+
+- `PAYSTACK_SECRET_KEY` / `PAYSTACK_PUBLIC_KEY`
+- `PLATFORM_FEE_BPS` — integer basis points, default `0`
+- `DONATION_CALLBACK_URL` — where Paystack returns the donor
+- `RECONCILE_INTERVAL_MINUTES` — default `60`, `0` disables the sweep

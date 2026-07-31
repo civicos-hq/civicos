@@ -2,6 +2,7 @@ package donations
 
 import (
 	"errors"
+	"time"
 
 	"github.com/civicos/organization-service/internal/domain"
 	"gorm.io/gorm"
@@ -37,6 +38,45 @@ func (r *Repository) ListSettledForCampaign(campaignID string) ([]domain.Donatio
 	var list []domain.Donation
 	return list, r.db.Where("campaign_id = ? AND status = ?", campaignID, domain.DonationSettled).
 		Order("settled_at desc").Find(&list).Error
+}
+
+// ListStale returns donations sitting in a status longer than they should,
+// oldest first. Reconciliation uses it to find payments whose webhook never
+// arrived. Oldest first matters: if the limit truncates the sweep, the rows
+// most likely to have been forgotten are the ones that get looked at.
+func (r *Repository) ListStale(status domain.DonationStatus, olderThan time.Time, limit int) ([]domain.Donation, error) {
+	var list []domain.Donation
+	return list, r.db.Where("status = ? AND created_at < ?", status, olderThan.UTC()).
+		Order("created_at asc").Limit(limit).Find(&list).Error
+}
+
+// ListSettledSince returns recently settled donations for re-checking
+// against the provider. Bounded by a window because each row costs one
+// provider call.
+func (r *Repository) ListSettledSince(since time.Time, limit int) ([]domain.Donation, error) {
+	var list []domain.Donation
+	return list, r.db.Where("status = ? AND settled_at >= ?", domain.DonationSettled, since.UTC()).
+		Order("settled_at asc").Limit(limit).Find(&list).Error
+}
+
+// MarkReceiptSent records that the donor was emailed. Deliberately a plain
+// UPDATE with no status guard: it is only ever called after a send actually
+// succeeded, and refusing to record a receipt that went out would cause a
+// duplicate on the next sweep.
+func (r *Repository) MarkReceiptSent(donationID string) error {
+	return r.db.Model(&domain.Donation{}).Where("id = ?", donationID).
+		Update("receipt_sent_at", gorm.Expr("NOW()")).Error
+}
+
+// ListSettledWithoutReceipt finds donors whose money we banked but who were
+// never told. Oldest first, so the longest-waiting donor is served first if
+// the limit truncates.
+func (r *Repository) ListSettledWithoutReceipt(settledBefore time.Time, limit int) ([]domain.Donation, error) {
+	var list []domain.Donation
+	return list, r.db.Where(
+		"status = ? AND receipt_sent_at IS NULL AND settled_at IS NOT NULL AND settled_at < ?",
+		domain.DonationSettled, settledBefore.UTC(),
+	).Order("settled_at asc").Limit(limit).Find(&list).Error
 }
 
 // Campaign is a plain read used to validate an intent before creating it.
