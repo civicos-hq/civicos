@@ -50,6 +50,15 @@ func main() {
 		log.Fatalf("migration failed: %v", err)
 	}
 
+	// Realtime notification bus. organization-service writes notification
+	// rows itself, but the SSE hub that pushes them to browsers lives in
+	// community-service — without this bridge they sit until the next fetch.
+	// Optional by design: a missing broker costs realtime, not delivery.
+	eventBus := notifications.ConnectNATS(cfg.NATSURL)
+	if eventBus != nil {
+		defer eventBus.Close()
+	}
+
 	// Shared audit writer.
 	auditor := audit.New(db)
 
@@ -62,7 +71,7 @@ func main() {
 	// service-owned notifications table (same shared-DB pattern as audit).
 	// Constructed early so downstream handlers (announcements, consultations)
 	// can wire it in.
-	notifier := notifications.NewDBNotifier(db)
+	notifier := notifications.NewDBNotifier(db).WithBus(eventBus)
 
 	// Announcements — depend on orgSvc for member/admin checks and the
 	// notifier for publish fan-out.

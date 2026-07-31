@@ -44,6 +44,15 @@ func main() {
 	}
 
 	notificationHub := notifications.NewHub()
+
+	// Notifications written by OTHER services (announcements, consultations,
+	// campaign events) never pass through this service's Emit, so they never
+	// reached the hub — they waited for the user's next fetch. This bridge
+	// subscribes to those writes and pushes them live. It never persists:
+	// the publishing service already committed the row.
+	if bridge := notifications.StartBridge(cfg.NATSURL, notificationHub); bridge != nil {
+		defer bridge.Close()
+	}
 	notificationRepo := notifications.NewRepository(db)
 	notificationSvc := notifications.NewService(notificationRepo, notificationHub)
 	notificationHandler := notifications.NewHandler(notificationSvc, notificationHub)
