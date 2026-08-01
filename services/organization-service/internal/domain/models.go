@@ -378,6 +378,51 @@ type SpendRecord struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
+// ReconciliationFinding is a disagreement between our ledger and the payment
+// provider, recorded so it outlives the log line that noticed it.
+//
+// Until now the reconciliation sweep wrote findings to the operator log and
+// nowhere else. That was a defensible trade while there was no migration
+// tooling and adding a table meant putting another financial record under
+// AutoMigrate — but it meant drift found at 3am lived only in logs until
+// somebody thought to grep for it.
+//
+// Modelled as a PROBLEM, not an event. The sweep runs hourly; the same
+// unresolved drift will be detected on every pass, and inserting a row each
+// time would bury the one finding that is new under a hundred repeats of one
+// that is not. A finding is therefore unique per (donation, kind) and
+// accumulates TimesSeen instead.
+type ReconciliationFinding struct {
+	ID string `gorm:"type:uuid;primaryKey" json:"id"`
+
+	// Kind is a donations.DriftKind. Stored as a string rather than an enum
+	// so a new kind does not need a migration to be recordable.
+	Kind string `gorm:"type:varchar(48);not null;index" json:"kind"`
+
+	DonationID  string `gorm:"type:uuid;not null;index" json:"donationId"`
+	CampaignID  string `gorm:"type:uuid;index" json:"campaignId,omitempty"`
+	Reference   string `gorm:"type:varchar(100)" json:"reference,omitempty"`
+	AmountMinor int64  `gorm:"not null;default:0" json:"amountMinor"`
+	Detail      string `gorm:"type:text" json:"detail"`
+
+	// RunID is the reconciliation run that most recently saw this, so a
+	// finding can be traced back to the report and log lines it came from.
+	RunID string `gorm:"type:uuid" json:"runId,omitempty"`
+
+	FirstSeenAt time.Time `gorm:"not null" json:"firstSeenAt"`
+	LastSeenAt  time.Time `gorm:"not null;index" json:"lastSeenAt"`
+	TimesSeen   int       `gorm:"not null;default:1" json:"timesSeen"`
+
+	// Resolution is manual and deliberate. Nothing clears a finding
+	// automatically: drift that stops being detected may have been fixed, or
+	// may have become invisible, and those are not the same thing. An admin
+	// says which.
+	ResolvedAt     *time.Time `gorm:"index" json:"resolvedAt,omitempty"`
+	ResolvedByID   *string    `gorm:"type:uuid" json:"resolvedById,omitempty"`
+	ResolvedByName *string    `json:"resolvedByName,omitempty"`
+	ResolutionNote *string    `gorm:"type:text" json:"resolutionNote,omitempty"`
+}
+
 // Consultation is a structured feedback ask published by an organization to
 // either the whole org membership or a single community. Lifecycle is
 // DRAFT → PUBLISHED → CLOSED. Editing questions is only allowed while the
@@ -552,6 +597,28 @@ type Campaign struct {
 	SubmittedAt *time.Time `json:"submittedAt,omitempty"`
 	PublishedAt *time.Time `json:"publishedAt,omitempty"`
 	CompletedAt *time.Time `json:"completedAt,omitempty"`
+
+	// ─── Final report (Phase 5) ───
+	//
+	// REPORTED used to be a bare status flip: an organization could mark a
+	// campaign reported having published nothing at all, which is the
+	// opposite of what the status is for. These carry the substance.
+	//
+	// Columns on Campaign rather than a table of their own: a campaign has
+	// exactly one final report, and this repo has no migration tooling, so
+	// adding a fourth financial-adjacent model is a cost worth avoiding.
+	FinalReportBody *string `gorm:"type:text" json:"finalReportBody,omitempty"`
+	// Evidence: photographs, receipts, an audited statement.
+	FinalReportURLs []string `gorm:"type:jsonb;serializer:json;not null;default:'[]'" json:"finalReportUrls"`
+	// UnaccountedAtReportMinor is what remained unexplained WHEN THE REPORT
+	// WAS FILED, frozen at that moment.
+	//
+	// Deliberately a snapshot rather than a live figure. A live number would
+	// let an organization file a report with money unexplained and have the
+	// page quietly agree with them later once more spend was published —
+	// erasing the fact that the report was incomplete when it was made.
+	UnaccountedAtReportMinor *int64     `json:"unaccountedAtReportMinor,omitempty"`
+	ReportedAt               *time.Time `json:"reportedAt,omitempty"`
 
 	CreatedByID   string    `gorm:"type:uuid;not null" json:"createdById"`
 	CreatedByName string    `gorm:"not null" json:"createdByName"`

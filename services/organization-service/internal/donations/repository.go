@@ -6,6 +6,7 @@ import (
 
 	"github.com/civicos/organization-service/internal/domain"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type Repository struct{ db *gorm.DB }
@@ -210,4 +211,70 @@ func (r *Repository) ConnectSubaccount(orgID, provider, code, bankName, last4 st
 		"psp_account_last4":   last4,
 		"psp_connected_at":    gorm.Expr("NOW()"),
 	}).Error
+}
+
+// ─── Reconciliation findings ────────────────────────────────────────────
+
+// RecordFinding writes a drift finding, or updates the one already open for
+// this donation and kind.
+//
+// Upsert rather than insert: the sweep re-detects every unresolved
+// disagreement on every run, and a row per detection would bury a new finding
+// under repeats of an old one. A finding that had been resolved and is seen
+// again RE-OPENS — drift that comes back is not the same as drift that never
+// left, and pretending otherwise would hide a regression.
+func (r *Repository) RecordFinding(f *domain.ReconciliationFinding) error {
+	return r.db.Clauses(clause.OnConflict{
+		Columns: []clause.Column{{Name: "donation_id"}, {Name: "kind"}},
+		DoUpdates: clause.Assignments(map[string]any{
+			"last_seen_at": f.LastSeenAt,
+			"times_seen":   gorm.Expr("reconciliation_findings.times_seen + 1"),
+			"detail":       f.Detail,
+			"amount_minor": f.AmountMinor,
+			"run_id":       f.RunID,
+			// Re-opened. A finding that reappears after being resolved is a
+			// regression, and leaving it closed would hide it.
+			"resolved_at":      nil,
+			"resolved_by_id":   nil,
+			"resolved_by_name": nil,
+			"resolution_note":  nil,
+		}),
+	}).Create(f).Error
+}
+
+// ListFindings returns findings newest-seen first. Open ones by default;
+// resolved history is available but is not what an operator opens this for.
+func (r *Repository) ListFindings(includeResolved bool, limit int) ([]domain.ReconciliationFinding, error) {
+	q := r.db.Model(&domain.ReconciliationFinding{})
+	if !includeResolved {
+		q = q.Where("resolved_at IS NULL")
+	}
+	var out []domain.ReconciliationFinding
+	return out, q.Order("last_seen_at desc").Limit(limit).Find(&out).Error
+}
+
+// ResolveFinding marks a finding handled by a named human.
+func (r *Repository) ResolveFinding(id, byID, byName, note string) error {
+	res := r.db.Model(&domain.ReconciliationFinding{}).
+		Where("id = ? AND resolved_at IS NULL", id).
+		Updates(map[string]any{
+			"resolved_at":      gorm.Expr("NOW()"),
+			"resolved_by_id":   byID,
+			"resolved_by_name": byName,
+			"resolution_note":  note,
+		})
+	if res.Error != nil {
+		return res.Error
+	}
+	if res.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
+}
+
+// CountOpenFindings powers the badge an admin sees without opening the list.
+func (r *Repository) CountOpenFindings() (int64, error) {
+	var n int64
+	return n, r.db.Model(&domain.ReconciliationFinding{}).
+		Where("resolved_at IS NULL").Count(&n).Error
 }

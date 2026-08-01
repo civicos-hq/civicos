@@ -1187,6 +1187,13 @@
       "COMPLETED": "E don finish",
       "REPORTED": "Dem don report am",
       "ARCHIVED": "Dem archive am"
+    },
+    "finalReport": {
+      "heading": "Final report",
+      "filedOn": "Dem publish am {{date}}",
+      "attachment": "See attachment",
+      "fullyAccounted": "Dem don explain every naira wey enter through CivicOS.",
+      "partiallyAccounted": "{{amount}} of the money wey dem raise never get explanation when dem file this report."
     }
   },
   "orgCampaigns": {
@@ -1233,7 +1240,15 @@
     "allComplete": "All the milestones don finish.",
     "remaining": "{{remaining}} still remain to share.",
     "fullyAllocated": "The plan don cover the whole goal.",
-    "exceedsGoal": "E pass the {{remaining}} wey remain. Reduce am, or increase the goal."
+    "exceedsGoal": "E pass the {{remaining}} wey remain. Reduce am, or increase the goal.",
+    "fileReport": "File final report",
+    "reportBodyLabel": "Wetin this campaign deliver?",
+    "reportBodyHint": "At least 40 characters. Na this one donors go read.",
+    "reportFilesLabel": "Evidence (if you get am)",
+    "publishReport": "Publish the report",
+    "filing": "Dey publish…",
+    "reportShortfall": "{{amount}} never get explanation. You fit still file am, but we go publish that figure with your report.",
+    "reportError": "We no fit publish the report. Abeg try again."
   },
   "orgDashboard": {
     "tabs": {

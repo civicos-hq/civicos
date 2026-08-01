@@ -69,6 +69,11 @@ type PublicDetail struct {
 	Description string            `json:"description"`
 	Milestones  []PublicMilestone `json:"milestones"`
 
+	// FinalReport is the organization's closing account, present only once
+	// filed. Shown with the shortfall recorded at that moment, so a report
+	// filed with money unexplained stays visibly incomplete.
+	FinalReport *PublicFinalReport `json:"finalReport,omitempty"`
+
 	// Spend is the organization's own account of what it did with the money.
 	//
 	// Presented alongside the ledger figures but NOT equivalent to them:
@@ -77,6 +82,20 @@ type PublicDetail struct {
 	// organization's own account, the platform cannot verify a single line
 	// of it. Every surface rendering this must say whose claim it is.
 	Spend *SpendSummary `json:"spend,omitempty"`
+}
+
+// PublicFinalReport is the closing account as a citizen sees it.
+type PublicFinalReport struct {
+	Body        string   `json:"body"`
+	Attachments []string `json:"attachmentUrls"`
+	ReportedAt  string   `json:"reportedAt"`
+	// UnaccountedMinor is what was still unexplained WHEN THIS WAS FILED,
+	// not now. Publishing the live figure would let a late spend entry make
+	// an incomplete report look complete in hindsight.
+	UnaccountedMinor int64 `json:"unaccountedMinor"`
+	// FullyAccounted is the verdict in one field, so the page does not have
+	// to re-derive it and reach a different answer.
+	FullyAccounted bool `json:"fullyAccounted"`
 }
 
 // SpendSummary mirrors spend.Summary. Redeclared here rather than imported
@@ -212,6 +231,20 @@ func (s *Service) GetPublicBySlug(slug string) (*PublicDetail, error) {
 		Description:    c.Description,
 		Milestones:     toPublicMilestones(ms),
 	}
+	if c.FinalReportBody != nil && c.ReportedAt != nil {
+		unaccounted := int64(0)
+		if c.UnaccountedAtReportMinor != nil {
+			unaccounted = *c.UnaccountedAtReportMinor
+		}
+		detail.FinalReport = &PublicFinalReport{
+			Body:             *c.FinalReportBody,
+			Attachments:      append([]string{}, c.FinalReportURLs...),
+			ReportedAt:       c.ReportedAt.UTC().Format("2006-01-02T15:04:05Z"),
+			UnaccountedMinor: unaccounted,
+			FullyAccounted:   unaccounted <= 0,
+		}
+	}
+
 	// Best-effort: a campaign page that cannot load spend is still worth
 	// serving. Failing the whole page would hide the goal and the plan too.
 	if s.spend != nil {

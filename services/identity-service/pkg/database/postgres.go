@@ -1,9 +1,11 @@
 package database
 
 import (
+	"context"
 	"log"
 
 	"github.com/civicos/identity-service/internal/domain"
+	"github.com/civicos/identity-service/internal/migrate"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -15,6 +17,22 @@ func Connect(dsn string) *gorm.DB {
 	})
 	if err != nil {
 		log.Fatalf("❌ failed to connect to database: %v", err)
+	}
+
+	// Versioned migrations FIRST, before AutoMigrate.
+	//
+	// Order matters: these carry constraints and type changes that AutoMigrate
+	// would otherwise trip over, and a failed migration must stop the service
+	// rather than let it serve against a half-changed schema.
+	//
+	// identity-service is the single owner of migrations for the shared
+	// database — see internal/migrate for why.
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Fatalf("❌ failed to reach the underlying database handle: %v", err)
+	}
+	if err := migrate.Run(context.Background(), sqlDB); err != nil {
+		log.Fatalf("❌ %v", err)
 	}
 
 	// Auto-migrate — keeps schema in sync during development. Identity-service
@@ -34,16 +52,10 @@ func Connect(dsn string) *gorm.DB {
 		log.Fatalf("❌ failed to run migrations: %v", err)
 	}
 
-	// Backfill primary_community_id for users who existed before the field
-	// was introduced. Their active community becomes their primary — the
-	// safest guess and the one that keeps current behaviour unchanged.
-	if err := db.Exec(
-		`UPDATE users
-		 SET primary_community_id = community_id
-		 WHERE primary_community_id IS NULL AND community_id IS NOT NULL`,
-	).Error; err != nil {
-		log.Fatalf("❌ failed to backfill primary_community_id: %v", err)
-	}
+	// The primary_community_id backfill that used to live here is now
+	// migration 00003. It was a one-off data fix wearing the costume of
+	// connection logic, and it re-ran on every boot forever with no record
+	// that it had ever succeeded.
 
 	log.Println("✅ Database connected")
 	return db

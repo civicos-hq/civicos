@@ -67,6 +67,8 @@ export interface PublicMilestone {
 export interface PublicCampaignDetail extends PublicCampaign {
   description: string;
   milestones: PublicMilestone[];
+  /** Present only once the organization has filed its closing account. */
+  finalReport?: PublicFinalReport;
   /** Absent when the campaign has no spend reporting available. */
   spend?: SpendSummary;
 }
@@ -724,4 +726,45 @@ export function useConnectPayout(orgId: string | undefined) {
       qc.invalidateQueries({ queryKey: ['my-organizations'] });
     },
   });
+}
+
+// ─── Final report (Phase 5) ─────────────────────────────────────────────
+
+export interface PublicFinalReport {
+  body: string;
+  attachmentUrls: string[];
+  reportedAt: string;
+  /** What was still unexplained WHEN THIS WAS FILED, not now. */
+  unaccountedMinor: number;
+  fullyAccounted: boolean;
+}
+
+export interface FileReportInput {
+  body: string;
+  attachmentUrls?: string[];
+}
+
+/**
+ * Files the organization's closing account.
+ *
+ * Allowed with money still unaccounted for — the shortfall is recorded
+ * alongside rather than blocking the filing, so an incomplete account gets
+ * published as an incomplete account instead of nothing at all.
+ */
+export function useFileReport(orgId: string | undefined) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (v: { campaignId: string; input: FileReportInput }) => {
+      await api.post(`/api/v1/campaigns/${v.campaignId}/report`, v.input);
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['org-campaigns', orgId] });
+      qc.invalidateQueries({ queryKey: ['public-campaign'] });
+    },
+  });
+}
+
+/** A campaign awaiting its final report. */
+export function needsFinalReport(status: string): boolean {
+  return status === 'COMPLETED';
 }

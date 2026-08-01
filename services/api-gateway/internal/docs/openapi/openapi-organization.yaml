@@ -222,6 +222,55 @@ components:
             - PENDING_WITH_MISMATCHED_DETAILS
             - PROVIDER_UNREACHABLE
 
+    ReconciliationFinding:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        kind:
+          type: string
+          description: A DriftKind — see the reconcile endpoint for the full list.
+        donationId: { type: string, format: uuid }
+        campaignId: { type: string, format: uuid, nullable: true }
+        reference: { type: string, nullable: true }
+        amountMinor: { type: integer, format: int64 }
+        detail: { type: string }
+        runId:
+          type: string
+          format: uuid
+          nullable: true
+          description: The sweep that most recently saw this, for tracing back to its log lines.
+        firstSeenAt: { type: string, format: date-time }
+        lastSeenAt: { type: string, format: date-time }
+        timesSeen:
+          type: integer
+          description: How many sweeps have found this same unresolved problem.
+        resolvedAt: { type: string, format: date-time, nullable: true }
+        resolvedByName: { type: string, nullable: true }
+        resolutionNote: { type: string, nullable: true }
+
+    PublicFinalReport:
+      type: object
+      description: |
+        The organization's closing account, present only once filed.
+      properties:
+        body: { type: string }
+        attachmentUrls:
+          type: array
+          items: { type: string }
+        reportedAt: { type: string, format: date-time }
+        unaccountedMinor:
+          type: integer
+          format: int64
+          description: |
+            What was still unexplained **when this was filed** — not now.
+            Publishing the live figure would let spend recorded afterwards
+            make an incomplete report look complete in hindsight.
+        fullyAccounted:
+          type: boolean
+          description: |
+            The verdict in one field, so a client does not re-derive it and
+            reach a different answer than the page beside it.
+
     PublicSpend:
       type: object
       description: |
@@ -2111,14 +2160,53 @@ paths:
         schema: { type: string, format: uuid }
     post:
       tags: [Campaigns]
-      summary: Publish the final report (org admin)
+      summary: File the final report (org admin)
       description: |
-        COMPLETED → REPORTED. Publishing the final report is the gate for
-        archiving, so a campaign cannot be quietly retired without accounting
-        for what it did.
+        COMPLETED → REPORTED. The final report is the gate for archiving, so
+        a campaign cannot be quietly retired without accounting for what it
+        did.
+
+        Until Phase 5 this was a bare status flip: an organization could mark
+        a campaign reported having published nothing at all, which is the
+        opposite of what the status is for. A report now has to say
+        something.
+
+        **Filing is deliberately NOT blocked when money is still unaccounted
+        for.** Blocking would strand campaigns in `COMPLETED` and teach
+        organizations that saying nothing is safer than saying something
+        incomplete. Instead the shortfall at the moment of filing is recorded
+        alongside the report, so an incomplete account is published as an
+        incomplete account.
+
+        That figure is a **snapshot, not a live number**. If it were
+        recomputed, an organization could file with money unexplained,
+        publish more spend a week later, and have the page retroactively
+        agree the report was complete. Freezing it preserves what was true
+        when the claim was made.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [body]
+              properties:
+                body:
+                  type: string
+                  minLength: 40
+                  maxLength: 5000
+                  description: What the campaign actually delivered.
+                attachmentUrls:
+                  type: array
+                  maxItems: 12
+                  items: { type: string, format: uri }
+                  description: Evidence — photographs, receipts, a statement.
       responses:
-        '200': { description: Campaign is now REPORTED. }
-        '409': { description: Invalid transition. }
+        '200': { description: Report published; the campaign is now REPORTED. }
+        '400': { description: REPORT_TOO_SHORT or VALIDATION_ERROR. }
+        '403': { description: Not an admin of the owning organization. }
+        '409':
+          { description: CAMPAIGN_INVALID_TRANSITION — only a COMPLETED campaign can be reported. }
 
   # ─────────────────────── CAMPAIGN GOVERNANCE (platform admin) ───────────────────────
 
@@ -3000,6 +3088,88 @@ paths:
                       report: { $ref: '#/components/schemas/ReconciliationReport' }
         '403': { description: Not a platform admin. }
         '503': { description: Donations are not enabled on this deployment (no Paystack key). }
+
+  /admin/donations/drift:
+    get:
+      tags: [Donations]
+      summary: Unresolved reconciliation drift (platform admin)
+      description: |
+        Donations where the ledger and Paystack disagree, recorded by the
+        reconciliation sweep so they outlive the run that found them.
+
+        Before this, findings went to the operator log and nowhere else — so
+        drift discovered overnight waited for somebody to think to grep for
+        it.
+
+        A finding is a **problem, not an event**. The sweep re-detects every
+        unresolved disagreement on each pass, so findings are unique per
+        (donation, kind) and accumulate `timesSeen` rather than writing a row
+        per detection, which would bury the finding that is new under repeats
+        of one that is not.
+
+        `RECOVERED_MISSED_WEBHOOK` is reported in the run but never filed
+        here: the money was already banked correctly, and a permanently open
+        finding for something already fixed trains admins to ignore the list.
+      parameters:
+        - in: query
+          name: includeResolved
+          schema: { type: boolean, default: false }
+      responses:
+        '200':
+          description: Findings, most recently seen first.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      openCount: { type: integer }
+                      findings:
+                        type: array
+                        items: { $ref: '#/components/schemas/ReconciliationFinding' }
+        '403': { description: Not a platform admin. }
+
+  /admin/donations/drift/{findingId}/resolve:
+    post:
+      tags: [Donations]
+      summary: Mark a finding handled (platform admin)
+      description: |
+        Resolution is deliberately manual. Drift that stops being detected
+        may have been fixed, or may have become invisible, and only a person
+        can say which — so nothing here clears itself.
+
+        A finding that reappears after being resolved **re-opens**: drift that
+        comes back is a regression, not history.
+      parameters:
+        - in: path
+          name: findingId
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [note]
+              properties:
+                note:
+                  type: string
+                  minLength: 4
+                  maxLength: 1000
+                  description: |
+                    What was found and what was done. Required: "resolved"
+                    with no explanation is indistinguishable from someone
+                    clearing a list they did not read, and this is the audit
+                    trail for money that did not reconcile.
+      responses:
+        '200': { description: Resolved, attributed and audited. }
+        '400': { description: VALIDATION_ERROR — a note is required. }
+        '403': { description: Not a platform admin. }
+        '404': { description: FINDING_NOT_FOUND, or already resolved. }
 
   /webhooks/paystack:
     post:

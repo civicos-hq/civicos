@@ -14,6 +14,7 @@ import { AuditPage } from './routes/AuditPage';
 import { OrganizationDetailPage } from './routes/OrganizationDetailPage';
 import { ApplicationsPage } from './routes/ApplicationsPage';
 import { CampaignsPage } from './routes/CampaignsPage';
+import { DriftPage } from './routes/DriftPage';
 import { CampaignDetailPage } from './routes/CampaignDetailPage';
 import { ApplicationDetailPage } from './routes/ApplicationDetailPage';
 import { AdminShell } from './components/AdminShell';
@@ -37,6 +38,7 @@ export function App() {
           <Route path="/applications" element={<ApplicationsPage />} />
           <Route path="/applications/:kind/:id" element={<ApplicationDetailPage />} />
           <Route path="/campaigns" element={<CampaignsPage />} />
+          <Route path="/drift" element={<DriftPage />} />
           <Route path="/campaigns/:id" element={<CampaignDetailPage />} />
           <Route path="/moderation/direct-hide" element={<DirectHidePage />} />
           <Route path="/flags" element={<FlagsPage />} />

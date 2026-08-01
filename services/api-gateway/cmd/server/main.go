@@ -368,6 +368,11 @@ func main() {
 	// The bank list backing the payout form. Org admin only.
 	r.GET("/api/v1/organizations/:id/psp-banks", authMiddleware, orgProxy)
 
+	// Unresolved reconciliation drift. PLATFORM_ADMIN only (enforced in
+	// organization-service): these are the donations that did not reconcile.
+	r.GET("/api/v1/admin/donations/drift", authMiddleware, orgProxy)
+	r.POST("/api/v1/admin/donations/drift/:findingId/resolve", authMiddleware, limitStandard, orgProxy)
+
 	// Org connects its payout destination (org admin).
 	r.POST("/api/v1/organizations/:id/psp-account", authMiddleware, limitStandard, orgProxy)
 

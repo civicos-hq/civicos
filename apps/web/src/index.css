@@ -4508,13 +4508,15 @@ button {
 
 /* ─────────────── Dashboard — Green experiment ─────────────────────
    Applies the #234F2C forest palette to the authenticated dashboard
-   chrome so it matches the homepage + auth surfaces. Keeps the
+   chrome — DARK MODE ONLY. This block used to target light as well,
+   which meant the theme toggle did nothing on the dashboard: both
+   settings rendered the same green. Light mode now falls through to
+   the white palette declared far above; green is the dark theme. Keeps the
    content pane pure white (per taste — no tinted backgrounds behind
    copy) and moves the green identity onto the sidebar rail. Every
    blue accent (nav-active, focus rings, hover tints, avatar tile,
    search focus) retints to the same green tokens. Delete this block
    to revert to the navy palette. */
-[data-theme='light'] .dashboard-shell,
 [data-theme='dark'] .dashboard-shell {
   /* Content pane sits on a deeper forest green so section headers
      (pills + "12 items" text, "Recently added" labels, empty-state
@@ -4547,7 +4549,6 @@ button {
    states all flip to light-on-green without touching per-element
    rules. Cascading via custom properties is the point of the
    palette architecture. */
-[data-theme='light'] .dashboard-shell .dashboard-sidebar,
 [data-theme='dark'] .dashboard-shell .dashboard-sidebar {
   --dash-ink: #ffffff;
   --dash-muted: rgba(255, 255, 255, 0.75);
@@ -4564,7 +4565,6 @@ button {
    which is now white-transparent, but the brand mark is a small
    white tile floating on the green rail. Trade the navy shadow for
    a darker green one so it separates from the rail. */
-[data-theme='light'] .dashboard-shell .dashboard-sidebar .brand-mark,
 [data-theme='dark'] .dashboard-shell .dashboard-sidebar .brand-mark {
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
 }
@@ -4572,7 +4572,6 @@ button {
 /* Search bar focus — hardcoded blue in the base rule; redirect to a
    green ring so the topbar (white) has a green focus signal that
    matches the sidebar identity. */
-[data-theme='light'] .dashboard-shell .dashboard-search:focus,
 [data-theme='dark'] .dashboard-shell .dashboard-search:focus {
   border-color: #234f2c;
   box-shadow: 0 0 0 3px rgba(35, 79, 44, 0.18);
@@ -4581,7 +4580,6 @@ button {
 /* Avatar tile — the little user chip in the topbar was a
    navy → civic-blue diagonal. Swap for a green gradient so it
    reads as native to the palette. */
-[data-theme='light'] .dashboard-shell .dashboard-avatar,
 [data-theme='dark'] .dashboard-shell .dashboard-avatar {
   background: linear-gradient(125deg, #1b3d22, #234f2c);
 }
@@ -4589,7 +4587,6 @@ button {
 /* Focus-visible outlines inside the dashboard — the global outline
    is hardcoded blue; scope a green override to the dashboard so
    keyboard nav within the app matches the rest of the palette. */
-[data-theme='light'] .dashboard-shell :focus-visible,
 [data-theme='dark'] .dashboard-shell :focus-visible {
   outline-color: rgba(35, 79, 44, 0.5);
 }
@@ -4608,7 +4605,6 @@ button {
    authenticated content pane — the sidebar, topbar, and the
    auth/homepage surfaces already have their own green treatment
    and aren't affected. */
-[data-theme='light'] .dashboard-content .bg-white,
 [data-theme='dark'] .dashboard-content .bg-white,
 [data-theme='dark'] .dashboard-content .dark\:bg-slate-800,
 [data-theme='dark'] .dashboard-content .dark\:bg-slate-800\/70,
@@ -4626,9 +4622,7 @@ button {
 /* Card borders — replace the slate border tones with a subtle
    white/mint rule so the card edges still separate from the
    content pane without punching a hard slate line. */
-[data-theme='light'] .dashboard-content .border-slate-100,
 [data-theme='dark'] .dashboard-content .border-slate-100,
-[data-theme='light'] .dashboard-content .border-slate-200,
 [data-theme='dark'] .dashboard-content .border-slate-200,
 [data-theme='dark'] .dashboard-content .dark\:border-slate-600,
 [data-theme='dark'] .dashboard-content .dark\:border-slate-700,
@@ -4638,7 +4632,6 @@ button {
 
 /* Divide rules ("border-t border-slate-100 dark:border-slate-800"
    used to separate card sections). Same subtle white rule. */
-[data-theme='light'] .dashboard-content [class*='border-slate-100'],
 [data-theme='dark'] .dashboard-content [class*='border-slate-100'],
 [data-theme='dark'] .dashboard-content [class*='border-slate-800'] {
   border-color: rgba(255, 255, 255, 0.14) !important;
@@ -4648,22 +4641,17 @@ button {
    to white / white-transparent so they remain readable on the
    forest-green surface. Covers both the light-theme text-slate-*
    tokens and the dark-theme dark:text-slate-* pair. */
-[data-theme='light'] .dashboard-content .text-slate-900,
 [data-theme='dark'] .dashboard-content .text-slate-900,
 [data-theme='dark'] .dashboard-content .dark\:text-slate-100,
 [data-theme='dark'] .dashboard-content .dark\:text-slate-200 {
   color: #ffffff !important;
 }
-[data-theme='light'] .dashboard-content .text-slate-700,
 [data-theme='dark'] .dashboard-content .text-slate-700,
-[data-theme='light'] .dashboard-content .text-slate-800,
 [data-theme='dark'] .dashboard-content .text-slate-800,
 [data-theme='dark'] .dashboard-content .dark\:text-slate-300 {
   color: rgba(255, 255, 255, 0.86) !important;
 }
-[data-theme='light'] .dashboard-content .text-slate-500,
 [data-theme='dark'] .dashboard-content .text-slate-500,
-[data-theme='light'] .dashboard-content .text-slate-600,
 [data-theme='dark'] .dashboard-content .text-slate-600,
 [data-theme='dark'] .dashboard-content .dark\:text-slate-500 {
   color: rgba(255, 255, 255, 0.72) !important;
@@ -4673,7 +4661,6 @@ button {
    Was pale mint (#d7ecd6) which vanished on both green cards AND
    on the light-mint pill backgrounds tone-pills use (bg-civic-100).
    White reads on both surfaces. */
-[data-theme='light'] .dashboard-content .text-civic-700,
 [data-theme='dark'] .dashboard-content .text-civic-700,
 [data-theme='dark'] .dashboard-content .dark\:text-civic-200,
 [data-theme='dark'] .dashboard-content .dark\:text-civic-300 {
@@ -4684,7 +4671,6 @@ button {
    already tinted mint by the civic-* retint — bump their bg to a
    slightly deeper mint so they still read as a callout on the
    green card instead of vanishing into it. */
-[data-theme='light'] .dashboard-content .bg-civic-50\/40,
 [data-theme='dark'] .dashboard-content .bg-civic-50\/40 {
   background-color: rgba(255, 255, 255, 0.09) !important;
   border-color: rgba(255, 255, 255, 0.25) !important;
@@ -4699,13 +4685,6 @@ button {
    *-300 text token to a translucent-white "chip" surface with a
    crisp white border and white text so the pill boundary + label
    are unmistakable on the forest-green cards. */
-[data-theme='light'] .dashboard-content [class*='rounded-full'][class*='text-civic-700'],
-[data-theme='light'] .dashboard-content [class*='rounded-full'][class*='text-emerald-700'],
-[data-theme='light'] .dashboard-content [class*='rounded-full'][class*='text-sky-700'],
-[data-theme='light'] .dashboard-content [class*='rounded-full'][class*='text-slate-700'],
-[data-theme='light'] .dashboard-content [class*='rounded-full'][class*='text-slate-600'],
-[data-theme='light'] .dashboard-content [class*='rounded-full'][class*='text-rose-600'],
-[data-theme='light'] .dashboard-content [class*='rounded-full'][class*='text-amber-700'],
 [data-theme='dark'] .dashboard-content [class*='rounded-full'][class*='text-civic-200'],
 [data-theme='dark'] .dashboard-content [class*='rounded-full'][class*='text-emerald-300'],
 [data-theme='dark'] .dashboard-content [class*='rounded-full'][class*='text-sky-300'],
@@ -4723,19 +4702,14 @@ button {
    so buttons like <ShareButton> render dark-grey-on-green and read
    as invisible. These force the neutral gray tokens to white / white-
    transparent so any Button variant is readable on a green card. */
-[data-theme='light'] .dashboard-content .text-gray-700,
 [data-theme='dark'] .dashboard-content .text-gray-700,
-[data-theme='light'] .dashboard-content .text-gray-600,
 [data-theme='dark'] .dashboard-content .text-gray-600 {
   color: #ffffff !important;
 }
-[data-theme='light'] .dashboard-content .border-gray-200,
 [data-theme='dark'] .dashboard-content .border-gray-200 {
   border-color: rgba(255, 255, 255, 0.32) !important;
 }
-[data-theme='light'] .dashboard-content .hover\:bg-gray-50:hover,
 [data-theme='dark'] .dashboard-content .hover\:bg-gray-50:hover,
-[data-theme='light'] .dashboard-content .hover\:bg-gray-100:hover,
 [data-theme='dark'] .dashboard-content .hover\:bg-gray-100:hover {
   background-color: rgba(255, 255, 255, 0.14) !important;
 }
@@ -4746,35 +4720,27 @@ button {
    green treatment. Match the surface tone + white ink used by the
    Tailwind cards above so the top card + the cards below read as
    the same family. */
-[data-theme='light'] .dashboard-content .page-header,
 [data-theme='dark'] .dashboard-content .page-header {
   background: #234f2c;
   border-color: rgba(255, 255, 255, 0.16);
   box-shadow: 0 1px 2px rgba(11, 32, 18, 0.2);
 }
-[data-theme='light'] .dashboard-content .page-header::before,
 [data-theme='dark'] .dashboard-content .page-header::before {
   background: linear-gradient(90deg, #d7ecd6, #ffffff);
 }
-[data-theme='light'] .dashboard-content .page-header-title,
 [data-theme='dark'] .dashboard-content .page-header-title {
   color: #ffffff;
 }
-[data-theme='light'] .dashboard-content .page-header-subtitle,
 [data-theme='dark'] .dashboard-content .page-header-subtitle,
-[data-theme='light'] .dashboard-content .page-header-meta,
 [data-theme='dark'] .dashboard-content .page-header-meta {
   color: rgba(255, 255, 255, 0.78);
 }
-[data-theme='light'] .dashboard-content .page-header-eyebrow,
 [data-theme='dark'] .dashboard-content .page-header-eyebrow {
   color: #d7ecd6;
 }
-[data-theme='light'] .dashboard-content .page-header-marker,
 [data-theme='dark'] .dashboard-content .page-header-marker {
   background: #ffffff;
 }
-[data-theme='light'] .dashboard-content .page-header-notice,
 [data-theme='dark'] .dashboard-content .page-header-notice {
   border-top-color: rgba(255, 255, 255, 0.18);
 }
@@ -4793,7 +4759,6 @@ button {
    All animations run at 220ms with the standard soft cubic-bezier
    used elsewhere on the page. `will-change` on the base rule keeps
    the compositor primed so the first hover frame isn't jittery. */
-[data-theme='light'] .dashboard-content .bg-white,
 [data-theme='dark'] .dashboard-content .bg-white,
 [data-theme='dark'] .dashboard-content .dark\:bg-slate-800,
 [data-theme='dark'] .dashboard-content .dark\:bg-slate-800\/70,
@@ -4811,7 +4776,6 @@ button {
     filter 220ms ease;
   will-change: transform;
 }
-[data-theme='light'] .dashboard-content .bg-white:hover,
 [data-theme='dark'] .dashboard-content .bg-white:hover,
 [data-theme='dark'] .dashboard-content .dark\:bg-slate-800:hover,
 [data-theme='dark'] .dashboard-content .dark\:bg-slate-800\/70:hover,
@@ -4831,14 +4795,12 @@ button {
 
 /* PageHeader (top card on every page) — subtler lift because it's
    informational, not a click target. */
-[data-theme='light'] .dashboard-content .page-header,
 [data-theme='dark'] .dashboard-content .page-header {
   transition:
     transform 260ms cubic-bezier(0.2, 0.7, 0.2, 1),
     box-shadow 260ms cubic-bezier(0.2, 0.7, 0.2, 1),
     border-color 260ms ease;
 }
-[data-theme='light'] .dashboard-content .page-header:hover,
 [data-theme='dark'] .dashboard-content .page-header:hover {
   transform: translate3d(0, -2px, 0);
   border-color: rgba(255, 255, 255, 0.28);
@@ -4851,13 +4813,11 @@ button {
    renders as a horizontal row of items (notifications, docket-like
    panels). Small 2px shift + slight bg brightening so long lists
    animate crisply without the whole list feeling floaty. */
-[data-theme='light'] .dashboard-content li,
 [data-theme='dark'] .dashboard-content li {
   transition:
     transform 200ms cubic-bezier(0.2, 0.7, 0.2, 1),
     background-color 200ms ease;
 }
-[data-theme='light'] .dashboard-content li:hover,
 [data-theme='dark'] .dashboard-content li:hover {
   transform: translate3d(2px, 0, 0);
 }
@@ -7195,4 +7155,60 @@ button {
 .fund-console-danger {
   color: #b3261e;
   font-weight: 650;
+}
+
+/* ── Light mode: green sidebar rail ───────────────────────────────────
+   The forest rail is the brand's identity and stays in both themes —
+   only the content pane follows the light/dark setting. Redeclaring
+   the tokens the sidebar's children already read from is enough; no
+   per-element rule needs to know which theme is active. */
+[data-theme='light'] .dashboard-shell {
+  --dash-sidebar-top: #234f2c;
+  --dash-sidebar-bottom: #1b3d22;
+}
+
+[data-theme='light'] .dashboard-shell .dashboard-sidebar {
+  --dash-ink: #ffffff;
+  --dash-muted: rgba(255, 255, 255, 0.75);
+  --dash-line: rgba(255, 255, 255, 0.14);
+  --dash-surface: rgba(255, 255, 255, 0.08);
+  --dash-hover-tint: rgba(255, 255, 255, 0.08);
+  --dash-hover-tint-strong: rgba(255, 255, 255, 0.14);
+  --dash-active-tint: rgba(255, 255, 255, 0.18);
+  --dash-active-border: rgba(255, 255, 255, 0.32);
+  --dash-active-ink: #ffffff;
+  --dash-brand-mark-bg: #ffffff;
+  --dash-brand-mark-shadow: rgba(0, 0, 0, 0.35);
+  color: var(--dash-ink);
+}
+
+/* ── Final report (Phase 5) ───────────────────────────────────────────
+   Literal colours, never var(--pr-ink-soft): that token resolves
+   near-white in this context so the fallback never applies — the same
+   trap that made the accounting labels invisible. */
+.fund-report-meta {
+  margin: 0 0 10px;
+  font-size: 0.82rem;
+  color: #4d6b58;
+}
+.fund-report-verdict {
+  margin: 0 0 12px;
+  padding: 10px 13px;
+  border-radius: 8px;
+  border-left: 3px solid;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.fund-report-verdict--complete {
+  border-color: #2f7d4f;
+  background: rgba(47, 125, 79, 0.09);
+}
+.fund-report-verdict--partial {
+  border-color: #b8860b;
+  background: rgba(184, 134, 11, 0.09);
+}
+.fund-report-body p {
+  margin: 0 0 10px;
+  font-size: 0.95rem;
+  line-height: 1.6;
 }

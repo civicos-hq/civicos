@@ -421,6 +421,25 @@ func (f *fakeStore) Update(id string, updates map[string]any) error {
 		switch k {
 		case "status":
 			c.Status = v.(domain.CampaignStatus)
+		case "final_report_body":
+			body := v.(string)
+			c.FinalReportBody = &body
+		case "final_report_urls":
+			// Mirrors the real column: jsonb receives a marshalled string,
+			// and GORM's serializer decodes it on read. A fake that accepted
+			// a raw []string would keep passing while production rejected
+			// the value as invalid json — which is exactly what happened.
+			var urls []string
+			if err := json.Unmarshal([]byte(v.(string)), &urls); err != nil {
+				return err
+			}
+			c.FinalReportURLs = urls
+		case "unaccounted_at_report_minor":
+			amt := v.(int64)
+			c.UnaccountedAtReportMinor = &amt
+		case "reported_at":
+			at := v.(time.Time)
+			c.ReportedAt = &at
 		case "approval_status":
 			c.ApprovalStatus = v.(string)
 		case "title":

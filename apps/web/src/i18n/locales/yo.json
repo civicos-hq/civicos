@@ -958,6 +958,13 @@
       "COMPLETED": "A ti parí",
       "REPORTED": "A ti ròyìn",
       "ARCHIVED": "A ti fi pamọ́"
+    },
+    "finalReport": {
+      "heading": "Ìjábọ̀ ìkẹyìn",
+      "filedOn": "A tẹ̀ ẹ́ jáde {{date}}",
+      "attachment": "Wo ìfikún",
+      "fullyAccounted": "A ti ṣàlàyé gbogbo náírà tí a kójọ nípasẹ̀ CivicOS.",
+      "partiallyAccounted": "A kò tíì ṣàlàyé {{amount}} nínú ohun tí a kójọ nígbà tí a fi ìjábọ̀ yìí sílẹ̀."
     }
   },
   "orgCampaigns": {
@@ -1004,7 +1011,15 @@
     "allComplete": "A ti sàmì sí gbogbo àmì-ìlọsíwájú pé ó parí.",
     "remaining": "{{remaining}} ṣì kù láti pín.",
     "fullyAllocated": "Ètò náà bo gbogbo àfojúsùn náà.",
-    "exceedsGoal": "Ìyẹn ju {{remaining}} tí ó ṣẹ́kù lọ. Dín in kù, tàbí gbé àfojúsùn náà ga."
+    "exceedsGoal": "Ìyẹn ju {{remaining}} tí ó ṣẹ́kù lọ. Dín in kù, tàbí gbé àfojúsùn náà ga.",
+    "fileReport": "Fi ìjábọ̀ ìkẹyìn sílẹ̀",
+    "reportBodyLabel": "Kí ni ìpolongo yìí ṣe?",
+    "reportBodyHint": "Ó kéré tán lẹ́tà 40. Èyí ni àlàyé tí àwọn olùtọrẹ yóò kà.",
+    "reportFilesLabel": "Ẹ̀rí (àṣàyàn)",
+    "publishReport": "Tẹ ìjábọ̀ jáde",
+    "filing": "Ń tẹ̀ jáde…",
+    "reportShortfall": "A kò tíì ṣàlàyé {{amount}}. O ṣì lè fi sílẹ̀, ṣùgbọ́n a ó tẹ nọ́mbà yẹn jáde pẹ̀lú ìjábọ̀ rẹ.",
+    "reportError": "A kò lè tẹ ìjábọ̀ náà jáde. Jọ̀wọ́ gbìyànjú lẹ́ẹ̀kansí."
   },
   "orgDashboard": {
     "tabs": {

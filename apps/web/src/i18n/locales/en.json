@@ -1868,6 +1868,13 @@
       "COMPLETED": "Completed",
       "REPORTED": "Reported",
       "ARCHIVED": "Archived"
+    },
+    "finalReport": {
+      "heading": "Final report",
+      "filedOn": "Published {{date}}",
+      "attachment": "View attachment",
+      "fullyAccounted": "Every naira raised through CivicOS has been accounted for.",
+      "partiallyAccounted": "{{amount}} of what was raised had not been accounted for when this report was filed."
     }
   },
   "orgCampaigns": {
@@ -1914,7 +1921,15 @@
     "allComplete": "Every milestone is marked complete.",
     "remaining": "{{remaining}} left to allocate.",
     "fullyAllocated": "The plan covers the full goal.",
-    "exceedsGoal": "That is more than the {{remaining}} still unallocated. Reduce it, or raise the goal."
+    "exceedsGoal": "That is more than the {{remaining}} still unallocated. Reduce it, or raise the goal.",
+    "fileReport": "File final report",
+    "reportBodyLabel": "What did this campaign deliver?",
+    "reportBodyHint": "At least 40 characters. This is the account donors will read.",
+    "reportFilesLabel": "Evidence (optional)",
+    "publishReport": "Publish report",
+    "filing": "Publishing…",
+    "reportShortfall": "{{amount}} has not been accounted for. You can still file, but that figure is published alongside your report.",
+    "reportError": "Could not publish the report. Please try again."
   },
   "orgCampaignCreate": {
     "back": "← Back to campaigns",

@@ -2,7 +2,9 @@ package donations
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"gorm.io/gorm"
 	"log"
 	"net/http"
 	"strings"
@@ -199,6 +201,11 @@ func (s *Service) Reconcile(ctx context.Context, opts ReconcileOptions) (*Reconc
 	// stop it, and so it also covers anything the sweeps just recovered.
 	s.sweepReceipts(opts, rep)
 
+	// Persist before returning. A finding that only ever existed in this
+	// response would vanish the moment the timer-driven run finished with
+	// nobody watching, which is the case this exists for.
+	s.persistFindings(rep)
+
 	rep.DurationMS = time.Since(started).Milliseconds()
 	return rep, nil
 }
@@ -320,6 +327,65 @@ func drift(d *domain.Donation, kind DriftKind, detail string) Drift {
 		AmountMinor: d.GrossMinor,
 	}
 }
+
+// persistFindings records drift so it survives the run that found it.
+//
+// Failures are logged, never returned: the report is still correct and still
+// worth returning, and a storage problem must not make a reconciliation run
+// look like a failed one.
+//
+// RECOVERED_MISSED_WEBHOOK is deliberately excluded. It is reported so the
+// broken delivery path is visible in the run, but the money has already been
+// banked correctly — leaving a permanent open finding for something already
+// fixed would train admins to ignore the list, which is how a real finding
+// gets missed.
+func (s *Service) persistFindings(rep *ReconcileReport) {
+	for _, d := range rep.Drift {
+		if d.Kind == DriftRecovered || d.DonationID == "" {
+			continue
+		}
+		now := time.Now().UTC()
+		if err := s.repo.RecordFinding(&domain.ReconciliationFinding{
+			ID:          uuid.NewString(),
+			Kind:        string(d.Kind),
+			DonationID:  d.DonationID,
+			CampaignID:  d.CampaignID,
+			Reference:   d.Reference,
+			AmountMinor: d.AmountMinor,
+			Detail:      d.Detail,
+			RunID:       rep.ID,
+			FirstSeenAt: now,
+			LastSeenAt:  now,
+			TimesSeen:   1,
+		}); err != nil {
+			log.Printf("reconciliation: could not record finding for donation=%s: %v", d.DonationID, err)
+		}
+	}
+}
+
+// Findings returns drift an admin has not yet dealt with.
+func (s *Service) Findings(includeResolved bool, limit int) ([]domain.ReconciliationFinding, error) {
+	if limit <= 0 || limit > 500 {
+		limit = 200
+	}
+	return s.repo.ListFindings(includeResolved, limit)
+}
+
+// ResolveFinding marks a finding handled. Deliberately manual: drift that
+// stops being detected may have been fixed, or may have become invisible,
+// and only a human can say which.
+func (s *Service) ResolveFinding(id, byID, byName, note string) error {
+	if err := s.repo.ResolveFinding(id, byID, byName, note); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return &AppError{Code: "FINDING_NOT_FOUND", Message: "No open finding with that id", Status: http.StatusNotFound}
+		}
+		return err
+	}
+	return nil
+}
+
+// OpenFindingCount powers the badge shown before the list is opened.
+func (s *Service) OpenFindingCount() (int64, error) { return s.repo.CountOpenFindings() }
 
 // ─── Background runner ──────────────────────────────────────────────────
 

@@ -357,9 +357,33 @@ releasing it.
   gap it covers opens the moment the first donation is taken.
 - ✅ Per-milestone reported spend — delivered in Phase 4, since it is what
   makes that phase's exit criterion true.
-- Final report required before `ARCHIVED`.
-- Public "reported vs unreported" state on the campaign page, since
-  reporting is the only accountability lever that remains.
+- ✅ Final report required before `ARCHIVED`, and it now carries substance.
+  `REPORTED` used to be a bare status flip: an organization could mark a
+  campaign reported having published nothing at all. Filing now requires an
+  actual account of what was delivered.
+
+  Filing is deliberately **not blocked** when money is unaccounted for —
+  blocking would strand campaigns in `COMPLETED` and teach organizations
+  that silence is safer than an incomplete answer. The shortfall is recorded
+  alongside instead, and **frozen at filing time**: a live figure would let
+  an organization file a thin report, publish more spend a week later, and
+  have the page retroactively agree the report was complete.
+
+- ✅ Public "reported vs unreported" state on the campaign page. The live
+  accounting and the report's frozen figure are shown together and can
+  disagree on purpose — one is current, the other records what was true when
+  the organization signed it.
+
+- ✅ Reconciliation drift is persisted and surfaced to admins. Findings used
+  to go to the operator log and nowhere else, so drift discovered overnight
+  waited for somebody to grep for it. A finding is modelled as a _problem,
+  not an event_: unique per (donation, kind), accumulating `timesSeen`, and
+  re-opening if it returns after being resolved. Resolution is manual,
+  attributed and requires an explanation.
+
+- ✅ **Migration tooling** (goose), a prerequisite rather than a Phase 5 item
+  but blocking several of them. Also retired three orphan `.sql` files that
+  nothing executed and a backfill that re-ran on every service boot.
 - **Optional spike:** Paystack sub-accounts carry a settlement schedule. If
   the API supports platform-triggered settlement on a `manual` schedule,
   milestone-gated release could be restored without CivicOS taking custody.
