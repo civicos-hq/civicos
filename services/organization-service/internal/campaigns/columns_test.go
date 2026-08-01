@@ -37,6 +37,9 @@ func TestWrittenColumnsExistOnModel(t *testing.T) {
 				"published_at", "completed_at",
 				// Pause() / Resume()
 				"pause_reason_code", "pause_note",
+				// FileReport()
+				"final_report_body", "final_report_urls",
+				"unaccounted_at_report_minor", "reported_at",
 			},
 		},
 		{

@@ -28,6 +28,11 @@ type Store interface {
 	// ListSettledWithoutReceipt finds donors we settled but never told.
 	MarkReceiptSent(donationID string) error
 	ListSettledWithoutReceipt(settledBefore time.Time, limit int) ([]domain.Donation, error)
+	// Drift findings, so a disagreement outlives the log line that saw it.
+	RecordFinding(f *domain.ReconciliationFinding) error
+	ListFindings(includeResolved bool, limit int) ([]domain.ReconciliationFinding, error)
+	ResolveFinding(id, byID, byName, note string) error
+	CountOpenFindings() (int64, error)
 	Campaign(id string) (*domain.Campaign, error)
 	Org(id string) (*domain.Organization, error)
 	Settle(donationID string, pspFeeMinor int64) (SettleResult, error)

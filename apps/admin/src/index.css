@@ -13,7 +13,8 @@
     background: #f8fafc;
     color: #0f172a;
   }
-  code, .mono {
+  code,
+  .mono {
     font-family: 'JetBrains Mono', ui-monospace, monospace;
   }
 }
@@ -67,10 +68,18 @@
   color: #cbd5e1;
   font-size: 0.9rem;
   text-decoration: none;
-  transition: background 120ms ease, color 120ms ease;
+  transition:
+    background 120ms ease,
+    color 120ms ease;
 }
-.admin-nav-link:hover { background: rgba(255,255,255,0.06); color: #f8fafc; }
-.admin-nav-link.active { background: rgba(31, 110, 212, 0.18); color: #f0f7ff; }
+.admin-nav-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #f8fafc;
+}
+.admin-nav-link.active {
+  background: rgba(31, 110, 212, 0.18);
+  color: #f0f7ff;
+}
 
 .admin-main {
   display: flex;
@@ -153,7 +162,10 @@
   font-size: 0.9rem;
   background: white;
 }
-.admin-table-search:focus { outline: 2px solid #1f6ed4; outline-offset: -1px; }
+.admin-table-search:focus {
+  outline: 2px solid #1f6ed4;
+  outline-offset: -1px;
+}
 .admin-table {
   width: 100%;
   border-collapse: collapse;
@@ -175,8 +187,12 @@
   border-bottom: 1px solid #f1f5f9;
   vertical-align: middle;
 }
-.admin-table tr:last-child td { border-bottom: none; }
-.admin-table tr:hover td { background: #f8fafc; }
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+.admin-table tr:hover td {
+  background: #f8fafc;
+}
 
 /* ─── Chips ───────────────────────────────────────────────────────────── */
 .admin-chip {
@@ -189,24 +205,96 @@
   font-weight: 600;
   border: 1px solid transparent;
 }
-.admin-chip-role-PLATFORM_ADMIN { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
-.admin-chip-role-GOVERNMENT_ADMIN { background: #fff7ed; color: #9a3412; border-color: #fed7aa; }
-.admin-chip-role-NGO { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
-.admin-chip-role-REPRESENTATIVE { background: #eff6ff; color: #1e3a8a; border-color: #bfdbfe; }
-.admin-chip-role-ORGANIZATION { background: #eef2ff; color: #4338ca; border-color: #c7d2fe; }
-.admin-chip-role-MODERATOR { background: #fdf4ff; color: #86198f; border-color: #f5d0fe; }
-.admin-chip-role-CITIZEN { background: #f1f5f9; color: #334155; border-color: #cbd5e1; }
-.admin-chip-verified { background: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
-.admin-chip-banned { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
-.admin-chip-status-PENDING { background: #fff7ed; color: #9a3412; border-color: #fed7aa; }
-.admin-chip-status-APPROVED { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
-.admin-chip-status-NEEDS_CHANGES { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
-.admin-chip-status-REJECTED { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
-.admin-chip-status-HIDDEN { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
-.admin-chip-status-DISMISSED { background: #f1f5f9; color: #334155; border-color: #cbd5e1; }
-.admin-chip-status-REVIEWED { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
-.admin-chip-age-pending { background: #fff7ed; color: #9a3412; border-color: #fed7aa; }
-.admin-chip-age-stable { background: #f8fafc; color: #475569; border-color: #cbd5e1; }
+.admin-chip-role-PLATFORM_ADMIN {
+  background: #fef2f2;
+  color: #991b1b;
+  border-color: #fecaca;
+}
+.admin-chip-role-GOVERNMENT_ADMIN {
+  background: #fff7ed;
+  color: #9a3412;
+  border-color: #fed7aa;
+}
+.admin-chip-role-NGO {
+  background: #f0fdf4;
+  color: #166534;
+  border-color: #bbf7d0;
+}
+.admin-chip-role-REPRESENTATIVE {
+  background: #eff6ff;
+  color: #1e3a8a;
+  border-color: #bfdbfe;
+}
+.admin-chip-role-ORGANIZATION {
+  background: #eef2ff;
+  color: #4338ca;
+  border-color: #c7d2fe;
+}
+.admin-chip-role-MODERATOR {
+  background: #fdf4ff;
+  color: #86198f;
+  border-color: #f5d0fe;
+}
+.admin-chip-role-CITIZEN {
+  background: #f1f5f9;
+  color: #334155;
+  border-color: #cbd5e1;
+}
+.admin-chip-verified {
+  background: #ecfdf5;
+  color: #065f46;
+  border-color: #a7f3d0;
+}
+.admin-chip-banned {
+  background: #fef2f2;
+  color: #991b1b;
+  border-color: #fecaca;
+}
+.admin-chip-status-PENDING {
+  background: #fff7ed;
+  color: #9a3412;
+  border-color: #fed7aa;
+}
+.admin-chip-status-APPROVED {
+  background: #f0fdf4;
+  color: #166534;
+  border-color: #bbf7d0;
+}
+.admin-chip-status-NEEDS_CHANGES {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-color: #bfdbfe;
+}
+.admin-chip-status-REJECTED {
+  background: #fef2f2;
+  color: #991b1b;
+  border-color: #fecaca;
+}
+.admin-chip-status-HIDDEN {
+  background: #fef2f2;
+  color: #991b1b;
+  border-color: #fecaca;
+}
+.admin-chip-status-DISMISSED {
+  background: #f1f5f9;
+  color: #334155;
+  border-color: #cbd5e1;
+}
+.admin-chip-status-REVIEWED {
+  background: #f0fdf4;
+  color: #166534;
+  border-color: #bbf7d0;
+}
+.admin-chip-age-pending {
+  background: #fff7ed;
+  color: #9a3412;
+  border-color: #fed7aa;
+}
+.admin-chip-age-stable {
+  background: #f8fafc;
+  color: #475569;
+  border-color: #cbd5e1;
+}
 
 /* ─── Buttons ─────────────────────────────────────────────────────────── */
 .admin-btn {
@@ -219,16 +307,40 @@
   font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 120ms ease, transform 60ms ease;
+  transition:
+    background 120ms ease,
+    transform 60ms ease;
 }
-.admin-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.admin-btn-primary { background: #1f6ed4; color: white; }
-.admin-btn-primary:hover:not(:disabled) { background: #1858ad; }
-.admin-btn-secondary { background: white; color: #1e293b; border-color: #cbd5e1; }
-.admin-btn-secondary:hover:not(:disabled) { background: #f8fafc; }
-.admin-btn-danger { background: #dc2626; color: white; }
-.admin-btn-danger:hover:not(:disabled) { background: #b91c1c; }
-.admin-btn-sm { padding: 0.3rem 0.6rem; font-size: 0.78rem; }
+.admin-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.admin-btn-primary {
+  background: #1f6ed4;
+  color: white;
+}
+.admin-btn-primary:hover:not(:disabled) {
+  background: #1858ad;
+}
+.admin-btn-secondary {
+  background: white;
+  color: #1e293b;
+  border-color: #cbd5e1;
+}
+.admin-btn-secondary:hover:not(:disabled) {
+  background: #f8fafc;
+}
+.admin-btn-danger {
+  background: #dc2626;
+  color: white;
+}
+.admin-btn-danger:hover:not(:disabled) {
+  background: #b91c1c;
+}
+.admin-btn-sm {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.78rem;
+}
 
 .admin-review-event {
   border: 1px solid #e2e8f0;
@@ -267,14 +379,34 @@
   color: #0f172a;
   line-height: 1.1;
 }
-.admin-metric-card-pending { background: #fff7ed; border-color: #fed7aa; }
-.admin-metric-card-pending .admin-metric-label { color: #9a3412; }
-.admin-metric-card-danger { background: #fef2f2; border-color: #fecaca; }
-.admin-metric-card-danger .admin-metric-label { color: #991b1b; }
-.admin-metric-card-success { background: #f0fdf4; border-color: #bbf7d0; }
-.admin-metric-card-success .admin-metric-label { color: #166534; }
-.admin-metric-card-neutral { background: #f8fafc; border-color: #cbd5e1; }
-.admin-metric-card-neutral .admin-metric-label { color: #334155; }
+.admin-metric-card-pending {
+  background: #fff7ed;
+  border-color: #fed7aa;
+}
+.admin-metric-card-pending .admin-metric-label {
+  color: #9a3412;
+}
+.admin-metric-card-danger {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+.admin-metric-card-danger .admin-metric-label {
+  color: #991b1b;
+}
+.admin-metric-card-success {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+.admin-metric-card-success .admin-metric-label {
+  color: #166534;
+}
+.admin-metric-card-neutral {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+.admin-metric-card-neutral .admin-metric-label {
+  color: #334155;
+}
 
 /* ─── Login ───────────────────────────────────────────────────────────── */
 .admin-login {
@@ -310,16 +442,31 @@
   font-size: 0.9rem;
   color: #475569;
 }
-.admin-login-form { margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.85rem; }
-.admin-login-field { display: flex; flex-direction: column; gap: 0.3rem; }
-.admin-login-field label { font-size: 0.85rem; font-weight: 500; }
+.admin-login-form {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.admin-login-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.admin-login-field label {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
 .admin-login-field input {
   padding: 0.55rem 0.75rem;
   border: 1px solid #cbd5e1;
   border-radius: 0.5rem;
   font-size: 0.95rem;
 }
-.admin-login-field input:focus { outline: 2px solid #1f6ed4; outline-offset: -1px; }
+.admin-login-field input:focus {
+  outline: 2px solid #1f6ed4;
+  outline-offset: -1px;
+}
 .admin-login-error {
   padding: 0.65rem 0.85rem;
   background: #fef2f2;
@@ -397,8 +544,13 @@
   font-weight: 600;
   cursor: pointer;
 }
-.admin-narrator-button:hover:not(:disabled) { background: #1a5cb0; }
-.admin-narrator-button:disabled { opacity: 0.6; cursor: not-allowed; }
+.admin-narrator-button:hover:not(:disabled) {
+  background: #1a5cb0;
+}
+.admin-narrator-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 .admin-narrator-button-inner {
   display: inline-flex;
   align-items: center;
@@ -468,8 +620,12 @@
   height: 0.4rem;
   border-radius: 999px;
 }
-.admin-narrator-list-civic li::before { background: #1f6ed4; }
-.admin-narrator-list-slate li::before { background: #94a3b8; }
+.admin-narrator-list-civic li::before {
+  background: #1f6ed4;
+}
+.admin-narrator-list-slate li::before {
+  background: #94a3b8;
+}
 .admin-narrator-recs-list {
   margin: 0;
   padding-left: 1.25rem;
@@ -554,9 +710,15 @@
   height: 8px;
   border-radius: 50%;
 }
-.admin-health-dot-ok { background: #10b981; }
-.admin-health-dot-down { background: #dc2626; }
-.admin-health-dot-unknown { background: #94a3b8; }
+.admin-health-dot-ok {
+  background: #10b981;
+}
+.admin-health-dot-down {
+  background: #dc2626;
+}
+.admin-health-dot-unknown {
+  background: #94a3b8;
+}
 
 /* ─── Empty state ─────────────────────────────────────────────────────── */
 .admin-empty {
@@ -582,4 +744,70 @@
   width: min(500px, 100%);
   max-height: 90vh;
   overflow-y: auto;
+}
+
+/* ── Reconciliation drift ─────────────────────────────────────────────
+   Severity is carried by a left border rather than a fill: an operator
+   scanning this list needs to spot the serious rows at a glance, without
+   the page looking like an alarm when nothing is wrong. */
+.admin-drift {
+  padding: 14px 16px;
+  border-top: 1px solid var(--admin-line, #e2e8f0);
+  border-left: 3px solid transparent;
+}
+.admin-drift-danger {
+  border-left-color: #b3261e;
+}
+.admin-drift-pending {
+  border-left-color: #b8860b;
+}
+.admin-drift-neutral {
+  border-left-color: #94a3b8;
+}
+.admin-drift-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.admin-drift-kind {
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: capitalize;
+}
+.admin-drift-amount {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.admin-drift-plain {
+  margin: 6px 0 0;
+  font-size: 0.9rem;
+}
+.admin-drift-detail {
+  margin: 4px 0 0;
+  font-size: 0.82rem;
+  color: #516579;
+}
+.admin-drift-meta {
+  margin: 7px 0 0;
+  font-size: 0.75rem;
+  color: #516579;
+}
+.admin-drift-meta code {
+  font-size: 0.72rem;
+}
+.admin-drift-resolved {
+  margin: 8px 0 0;
+  font-size: 0.8rem;
+  color: #2f7d4f;
+}
+.admin-drift-resolve {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.admin-drift-resolve .admin-input {
+  flex: 1;
+  min-width: 240px;
 }

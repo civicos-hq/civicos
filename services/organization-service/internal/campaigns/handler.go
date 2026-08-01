@@ -292,11 +292,31 @@ func (h *Handler) report(c *gin.Context) {
 	if !ok {
 		return
 	}
-	updated, err := h.svc.Transition(item.ID, domain.CampaignReported, ActorOrg)
+	var input ReportInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", err.Error())
+		return
+	}
+	updated, err := h.svc.FileReport(item.ID, input)
 	if handleAppErr(c, err) {
 		return
 	}
-	h.record(c, "campaign.reported", item.ID, nil)
+	// The shortfall at filing time is audited too: "who said the work was
+	// finished, when, and how much was still unexplained" needs to be
+	// answerable without reading the campaign row later.
+	h.record(c, "campaign.reported", item.ID, map[string]any{
+		"attachments":              len(updated.FinalReportURLs),
+		"unaccountedAtReportMinor": updated.UnaccountedAtReportMinor,
+	})
+
+	// Everyone who funded it should hear that the account is closed.
+	if h.audience != nil {
+		h.notify(h.audience.Stakeholders(updated.ID, updated.OrganizationID),
+			notifications.TypeCampaignCompleted,
+			"Final report published: "+updated.Title,
+			"The organization has published its account of what this campaign delivered.",
+			"/campaigns/"+updated.Slug)
+	}
 	response.Success(c, http.StatusOK, gin.H{"campaign": updated})
 }
 

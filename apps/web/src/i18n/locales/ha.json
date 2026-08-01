@@ -958,6 +958,13 @@
       "COMPLETED": "An kammala",
       "REPORTED": "An bayar da rahoto",
       "ARCHIVED": "An adana"
+    },
+    "finalReport": {
+      "heading": "Rahoton ƙarshe",
+      "filedOn": "An buga {{date}}",
+      "attachment": "Duba haɗe",
+      "fullyAccounted": "An ba da lissafin kowace naira da aka tara ta CivicOS.",
+      "partiallyAccounted": "Ba a ba da lissafin {{amount}} na abin da aka tara ba lokacin da aka gabatar da wannan rahoton."
     }
   },
   "orgCampaigns": {
@@ -1004,7 +1011,15 @@
     "allComplete": "An yi wa kowane mataki alamar kammala.",
     "remaining": "Sauran {{remaining}} da za a raba.",
     "fullyAllocated": "Shirin ya rufe dukkan burin.",
-    "exceedsGoal": "Wannan ya fi {{remaining}} da ya rage. Ka rage shi, ko ka ƙara burin."
+    "exceedsGoal": "Wannan ya fi {{remaining}} da ya rage. Ka rage shi, ko ka ƙara burin.",
+    "fileReport": "Gabatar da rahoton ƙarshe",
+    "reportBodyLabel": "Me wannan kamfen ya cim ma?",
+    "reportBodyHint": "Aƙalla haruffa 40. Wannan shi ne lissafin da masu bayarwa za su karanta.",
+    "reportFilesLabel": "Shaida (na zaɓi)",
+    "publishReport": "Buga rahoton",
+    "filing": "Ana bugawa…",
+    "reportShortfall": "Ba a ba da lissafin {{amount}} ba. Har yanzu za ka iya gabatarwa, amma za a buga wannan adadin tare da rahoton ka.",
+    "reportError": "Ba a iya buga rahoton ba. Ka sake gwadawa."
   },
   "orgDashboard": {
     "tabs": {

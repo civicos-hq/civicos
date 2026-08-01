@@ -115,6 +115,8 @@ type fakeStore struct {
 	seenEvents   map[string]bool
 	settled      []domain.Donation
 	settleCalls  int
+	findings     map[string]*domain.ReconciliationFinding
+	findingErr   bool
 	writeCalls   int // every mutating store call, for the "reports, never rewrites" guard
 	fundedCalled bool
 }
@@ -220,6 +222,70 @@ func (f *fakeStore) ListSettledWithoutReceipt(settledBefore time.Time, limit int
 		out = out[:limit]
 	}
 	return out, nil
+}
+
+// findingKey mirrors the real unique index on (donation_id, kind). A fake
+// that appended blindly would let a duplicate-per-run regression through.
+func findingKey(donationID, kind string) string { return donationID + "|" + kind }
+
+func (f *fakeStore) RecordFinding(x *domain.ReconciliationFinding) error {
+	if f.findingErr {
+		return gorm.ErrInvalidDB
+	}
+	if f.findings == nil {
+		f.findings = map[string]*domain.ReconciliationFinding{}
+	}
+	k := findingKey(x.DonationID, x.Kind)
+	if existing, ok := f.findings[k]; ok {
+		existing.TimesSeen++
+		existing.LastSeenAt = x.LastSeenAt
+		existing.Detail = x.Detail
+		// Re-opened, exactly as the real upsert does.
+		existing.ResolvedAt = nil
+		existing.ResolvedByID = nil
+		return nil
+	}
+	cp := *x
+	f.findings[k] = &cp
+	return nil
+}
+
+func (f *fakeStore) ListFindings(includeResolved bool, limit int) ([]domain.ReconciliationFinding, error) {
+	var out []domain.ReconciliationFinding
+	for _, x := range f.findings {
+		if !includeResolved && x.ResolvedAt != nil {
+			continue
+		}
+		out = append(out, *x)
+	}
+	if limit > 0 && len(out) > limit {
+		out = out[:limit]
+	}
+	return out, nil
+}
+
+func (f *fakeStore) ResolveFinding(id, byID, byName, note string) error {
+	for _, x := range f.findings {
+		if x.ID == id && x.ResolvedAt == nil {
+			now := time.Now().UTC()
+			x.ResolvedAt = &now
+			x.ResolvedByID = &byID
+			x.ResolvedByName = &byName
+			x.ResolutionNote = &note
+			return nil
+		}
+	}
+	return gorm.ErrRecordNotFound
+}
+
+func (f *fakeStore) CountOpenFindings() (int64, error) {
+	var n int64
+	for _, x := range f.findings {
+		if x.ResolvedAt == nil {
+			n++
+		}
+	}
+	return n, nil
 }
 
 func (f *fakeStore) Campaign(id string) (*domain.Campaign, error) {

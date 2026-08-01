@@ -1,6 +1,7 @@
 package campaigns
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -643,6 +644,79 @@ func (s *Service) Resume(id string) (*domain.Campaign, error) {
 // (COMPLETED, REPORTED, ARCHIVED, and rejecting a paused campaign). The
 // guard table is consulted exactly as it is for the named methods above —
 // this is a thinner API over the same rules, not a way around them.
+// ReportInput is the substance of a final report.
+type ReportInput struct {
+	Body        string   `json:"body" binding:"required,min=40,max=5000"`
+	Attachments []string `json:"attachmentUrls" binding:"omitempty,max=12,dive,url"`
+}
+
+// FileReport publishes an organization's final report and moves the campaign
+// to REPORTED.
+//
+// Filing is deliberately NOT blocked when money is still unaccounted for.
+// Blocking would leave campaigns stranded in COMPLETED forever and teach
+// organizations that the honest move is to say nothing. Instead the shortfall
+// is recorded ALONGSIDE the report, so an incomplete account is published as
+// an incomplete account rather than quietly omitted.
+//
+// The figure is frozen at filing time — see
+// Campaign.UnaccountedAtReportMinor for why a live number would let the page
+// retroactively agree that a report was complete when it was not.
+func (s *Service) FileReport(id string, in ReportInput) (*domain.Campaign, error) {
+	c, err := s.Get(id)
+	if err != nil {
+		return nil, err
+	}
+	if err := CanTransition(c.Status, domain.CampaignReported, ActorOrg); err != nil {
+		return nil, err
+	}
+
+	body := strings.TrimSpace(in.Body)
+	if len(body) < 40 {
+		return nil, &AppError{
+			Code:    "REPORT_TOO_SHORT",
+			Message: "A final report needs to actually describe what was delivered",
+			Status:  http.StatusBadRequest,
+		}
+	}
+
+	// Marshalled by hand, not handed over as a []string.
+	//
+	// final_report_urls is jsonb with a GORM `serializer:json` tag, but
+	// serializers only run when GORM saves a STRUCT. This writes through
+	// Updates(map[string]any), which passes values straight to the driver —
+	// so a raw slice reaches Postgres and is rejected as invalid json. The
+	// map path bypasses field handling entirely, the same way it bypasses
+	// column-name checking.
+	//
+	// Never nil: clients map over this without a guard.
+	urls, err := json.Marshal(append([]string{}, in.Attachments...))
+	if err != nil {
+		return nil, fmt.Errorf("encode report attachments: %w", err)
+	}
+
+	updates := map[string]any{
+		"status":            domain.CampaignReported,
+		"final_report_body": body,
+		"reported_at":       time.Now().UTC(),
+		"final_report_urls": string(urls),
+	}
+
+	// Snapshot what is still unexplained, if spend reporting is available.
+	// Best-effort: a campaign must remain reportable even when the spend
+	// service is unreachable.
+	if s.spend != nil {
+		if sum, err := s.spend.SummaryFor(c.ID, c.RaisedMinor, c.Currency); err == nil && sum != nil {
+			updates["unaccounted_at_report_minor"] = sum.UnreportedMinor
+		}
+	}
+
+	if err := s.repo.Update(id, updates); err != nil {
+		return nil, err
+	}
+	return s.Get(id)
+}
+
 func (s *Service) Transition(id string, to domain.CampaignStatus, actor Actor) (*domain.Campaign, error) {
 	c, err := s.Get(id)
 	if err != nil {

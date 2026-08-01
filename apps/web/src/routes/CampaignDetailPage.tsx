@@ -166,6 +166,63 @@ function AccountingSection({
   );
 }
 
+/**
+ * The closing account.
+ *
+ * Shows the shortfall recorded AT FILING TIME, not the live figure — a
+ * report filed with money unexplained stays visibly incomplete even if more
+ * spend is published afterwards. Anything else would let an organization
+ * quietly rewrite the record of its own accountability.
+ */
+function FinalReportSection({
+  campaign,
+  locale,
+}: {
+  campaign: PublicCampaignDetail;
+  locale: string;
+}) {
+  const { t } = useTranslation();
+  const report = campaign.finalReport;
+  if (!report) return null;
+
+  return (
+    <>
+      <h2 className="fund-plan-heading">{t('campaigns.finalReport.heading')}</h2>
+      <p className="fund-report-meta">
+        {t('campaigns.finalReport.filedOn', {
+          date: new Date(report.reportedAt).toLocaleDateString(locale),
+        })}
+      </p>
+
+      <p
+        className={`fund-report-verdict fund-report-verdict--${report.fullyAccounted ? 'complete' : 'partial'}`}
+      >
+        {report.fullyAccounted
+          ? t('campaigns.finalReport.fullyAccounted')
+          : t('campaigns.finalReport.partiallyAccounted', {
+              amount: formatMoneyExact(report.unaccountedMinor, campaign.currency, locale),
+            })}
+      </p>
+
+      <div className="fund-report-body">
+        {report.body.split('\n').map((para, i) => (para.trim() ? <p key={i}>{para}</p> : null))}
+      </div>
+
+      {report.attachmentUrls.length > 0 && (
+        <ul className="fund-update-files">
+          {report.attachmentUrls.map((url) => (
+            <li key={url}>
+              <a href={url} target="_blank" rel="noreferrer noopener">
+                {t('campaigns.finalReport.attachment')}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
+  );
+}
+
 /** The evidence feed: what the organization says it has been doing. */
 function UpdatesSection({ updates, locale }: { updates: FundingUpdate[]; locale: string }) {
   const { t } = useTranslation();
@@ -323,6 +380,8 @@ export function CampaignDetailPage() {
             </ul>
 
             <AccountingSection campaign={c} spend={spendQuery.data ?? []} locale={i18n.language} />
+
+            <FinalReportSection campaign={c} locale={i18n.language} />
 
             <UpdatesSection updates={updatesQuery.data ?? []} locale={i18n.language} />
 

@@ -49,6 +49,7 @@ func main() {
 		&domain.Donation{},
 		&domain.WebhookEvent{},
 		&domain.SpendRecord{},
+		&domain.ReconciliationFinding{},
 	); err != nil {
 		log.Fatalf("migration failed: %v", err)
 	}

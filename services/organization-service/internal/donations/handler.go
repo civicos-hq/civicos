@@ -52,6 +52,12 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth gin.HandlerFunc, opti
 	// timer, but an admin investigating a specific complaint should not have
 	// to wait for the next tick.
 	rg.POST("/admin/donations/reconcile", auth, h.reconcile)
+
+	// Drift an admin still has to deal with. Separate from running a sweep:
+	// the findings outlive the run that produced them, which is the whole
+	// reason they are stored rather than logged.
+	rg.GET("/admin/donations/drift", auth, h.listDrift)
+	rg.POST("/admin/donations/drift/:findingId/resolve", auth, h.resolveDrift)
 }
 
 // ─── Reconciliation ─────────────────────────────────────────────────────
@@ -119,6 +125,59 @@ func (h *Handler) reconcile(c *gin.Context) {
 		})
 	}
 	response.Success(c, http.StatusOK, gin.H{"report": rep})
+}
+
+func (h *Handler) listDrift(c *gin.Context) {
+	_, userRole := actorFrom(c)
+	if userRole != "PLATFORM_ADMIN" {
+		response.Error(c, http.StatusForbidden, "FORBIDDEN", "Platform admins only")
+		return
+	}
+	findings, err := h.svc.Findings(c.Query("includeResolved") == "true", 200)
+	if handleAppErr(c, err) {
+		return
+	}
+	open, err := h.svc.OpenFindingCount()
+	if err != nil {
+		open = 0
+	}
+	response.Success(c, http.StatusOK, gin.H{"findings": findings, "openCount": open})
+}
+
+type resolveDriftInput struct {
+	// Why it is being closed. Required: "resolved" with no explanation is
+	// indistinguishable from someone clearing a list they did not read, and
+	// this is the audit trail for money that did not reconcile.
+	Note string `json:"note" binding:"required,min=4,max=1000"`
+}
+
+func (h *Handler) resolveDrift(c *gin.Context) {
+	userID, userRole := actorFrom(c)
+	if userRole != "PLATFORM_ADMIN" {
+		response.Error(c, http.StatusForbidden, "FORBIDDEN", "Platform admins only")
+		return
+	}
+	var in resolveDriftInput
+	if err := c.ShouldBindJSON(&in); err != nil {
+		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", err.Error())
+		return
+	}
+	userName, _ := c.Get("userName")
+	id := c.Param("findingId")
+	if err := h.svc.ResolveFinding(id, userID, asString(userName), in.Note); handleAppErr(c, err) {
+		return
+	}
+	if h.auditor != nil {
+		h.auditor.Log(audit.Entry{
+			Actor:      audit.FromContext(c),
+			Action:     "donations.drift_resolved",
+			TargetType: "RECONCILIATION_FINDING",
+			TargetID:   id,
+			Metadata:   map[string]any{"note": in.Note},
+			Request:    c.Request,
+		})
+	}
+	response.Success(c, http.StatusOK, gin.H{"ok": true})
 }
 
 func actorFrom(c *gin.Context) (userID, userRole string) {

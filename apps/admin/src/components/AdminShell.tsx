@@ -11,6 +11,7 @@ import {
   UserSquare2,
   Users,
   HandCoins,
+  AlertTriangle,
 } from 'lucide-react';
 import { clearSession, getSession } from '../lib/api';
 
@@ -42,6 +43,7 @@ export function AdminShell() {
         <p className="admin-nav-section">Trust</p>
         <NavLinkItem to="/applications" icon={Inbox} label="Applications" />
         <NavLinkItem to="/campaigns" icon={HandCoins} label="Campaign review" />
+        <NavLinkItem to="/drift" icon={AlertTriangle} label="Reconciliation drift" />
         <NavLinkItem to="/flags" icon={Flag} label="Moderation queue" />
         <NavLinkItem to="/moderation/direct-hide" icon={EyeOff} label="Direct hide" />
         <NavLinkItem to="/audit" icon={ClipboardList} label="Audit log" />

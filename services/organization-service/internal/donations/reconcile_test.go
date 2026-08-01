@@ -343,3 +343,140 @@ func TestReconcile_RunHasAnID(t *testing.T) {
 		t.Fatal("two runs share an id")
 	}
 }
+
+// ─── Drift persistence ──────────────────────────────────────────────────
+
+// The reason this exists: drift found by the hourly sweep used to live only
+// in the operator log, so a disagreement discovered at 3am waited for someone
+// to grep for it.
+func TestDrift_SurvivesTheRunThatFoundIt(t *testing.T) {
+	st, svc, d := newSettledFixture(t, 2_500_000)
+	aged(d, time.Hour)
+	st.p.says(d.ProviderRef, TransactionStatus{Succeeded: true, AmountMinor: 2_500_000, Currency: "NGN"})
+	run(t, svc) // settle it
+	st.p.says(d.ProviderRef, TransactionStatus{Failed: true, AmountMinor: 2_500_000})
+
+	rep := run(t, svc)
+
+	if !hasDrift(rep, DriftNotAtProvider) {
+		t.Fatalf("expected drift, got %v", driftKinds(rep))
+	}
+	open, _ := st.CountOpenFindings()
+	if open != 1 {
+		t.Fatalf("open findings = %d, want 1 — the finding did not outlive the run", open)
+	}
+	got, _ := st.ListFindings(false, 10)
+	if got[0].Kind != string(DriftNotAtProvider) || got[0].DonationID != d.ID {
+		t.Fatalf("wrong finding recorded: %+v", got[0])
+	}
+	if got[0].RunID == "" {
+		t.Error("finding is not traceable back to the run that produced it")
+	}
+}
+
+// The sweep runs hourly and re-detects the same unresolved drift every pass.
+// A row per detection would bury the finding that is new under repeats of one
+// that is not.
+func TestDrift_RepeatedDetectionUpdatesRatherThanDuplicates(t *testing.T) {
+	st, svc, d := newSettledFixture(t, 2_500_000)
+	aged(d, time.Hour)
+	st.p.says(d.ProviderRef, TransactionStatus{Succeeded: true, AmountMinor: 2_500_000, Currency: "NGN"})
+	run(t, svc)
+	st.p.says(d.ProviderRef, TransactionStatus{Failed: true, AmountMinor: 2_500_000})
+
+	run(t, svc)
+	run(t, svc)
+	run(t, svc)
+
+	open, _ := st.CountOpenFindings()
+	if open != 1 {
+		t.Fatalf("open findings = %d after three sweeps, want 1", open)
+	}
+	got, _ := st.ListFindings(false, 10)
+	if got[0].TimesSeen < 3 {
+		t.Fatalf("timesSeen = %d, want at least 3 — repeat detections are not being counted", got[0].TimesSeen)
+	}
+}
+
+// Money already banked correctly must not sit in the list forever. A
+// permanently open finding for something already fixed trains admins to
+// ignore the list, which is how a real finding gets missed.
+func TestDrift_RecoveredWebhookIsReportedButNotFiled(t *testing.T) {
+	st, svc, d := newSettledFixture(t, 5_000_000)
+	aged(d, time.Hour)
+	st.p.says(d.ProviderRef, TransactionStatus{Succeeded: true, AmountMinor: 5_000_000, Currency: "NGN"})
+
+	rep := run(t, svc)
+
+	if !hasDrift(rep, DriftRecovered) {
+		t.Fatal("recovery should still be reported in the run")
+	}
+	if open, _ := st.CountOpenFindings(); open != 0 {
+		t.Fatalf("open findings = %d — a recovered payment should not leave a standing finding", open)
+	}
+}
+
+// Resolution is manual, attributed, and explained.
+func TestDrift_ResolutionIsAttributed(t *testing.T) {
+	st, svc, d := newSettledFixture(t, 2_500_000)
+	aged(d, time.Hour)
+	st.p.says(d.ProviderRef, TransactionStatus{Succeeded: true, AmountMinor: 2_500_000, Currency: "NGN"})
+	run(t, svc)
+	st.p.says(d.ProviderRef, TransactionStatus{Failed: true, AmountMinor: 2_500_000})
+	run(t, svc)
+
+	got, _ := st.ListFindings(false, 10)
+	if err := svc.ResolveFinding(got[0].ID, "admin-1", "Chidi Admin", "Reversed at the bank; confirmed with Paystack support."); err != nil {
+		t.Fatalf("resolve: %v", err)
+	}
+	if open, _ := st.CountOpenFindings(); open != 0 {
+		t.Fatalf("open findings = %d after resolving, want 0", open)
+	}
+	all, _ := st.ListFindings(true, 10)
+	if all[0].ResolvedByName == nil || *all[0].ResolvedByName != "Chidi Admin" {
+		t.Fatal("resolution is not attributed to a named person")
+	}
+	if all[0].ResolutionNote == nil || *all[0].ResolutionNote == "" {
+		t.Fatal("resolution has no explanation — this is the audit trail for money that did not reconcile")
+	}
+}
+
+// Drift that comes back after being resolved is a regression, not history.
+func TestDrift_ReappearingAfterResolutionReopens(t *testing.T) {
+	st, svc, d := newSettledFixture(t, 2_500_000)
+	aged(d, time.Hour)
+	st.p.says(d.ProviderRef, TransactionStatus{Succeeded: true, AmountMinor: 2_500_000, Currency: "NGN"})
+	run(t, svc)
+	st.p.says(d.ProviderRef, TransactionStatus{Failed: true, AmountMinor: 2_500_000})
+	run(t, svc)
+
+	got, _ := st.ListFindings(false, 10)
+	_ = svc.ResolveFinding(got[0].ID, "admin-1", "Chidi", "Looked into it.")
+	if open, _ := st.CountOpenFindings(); open != 0 {
+		t.Fatal("precondition: should be resolved")
+	}
+
+	run(t, svc) // still failing at the provider
+
+	if open, _ := st.CountOpenFindings(); open != 1 {
+		t.Fatalf("open findings = %d — drift that returned stayed closed and is now invisible", open)
+	}
+}
+
+// A storage failure must not make a correct reconciliation run look failed.
+func TestDrift_ReportIsStillReturnedIfPersistenceFails(t *testing.T) {
+	st, svc, d := newSettledFixture(t, 2_500_000)
+	aged(d, time.Hour)
+	st.p.says(d.ProviderRef, TransactionStatus{Succeeded: true, AmountMinor: 2_500_000, Currency: "NGN"})
+	run(t, svc)
+	st.p.says(d.ProviderRef, TransactionStatus{Failed: true, AmountMinor: 2_500_000})
+	st.findingErr = true
+
+	rep, err := svc.Reconcile(context.Background(), ReconcileOptions{})
+	if err != nil {
+		t.Fatalf("a storage failure must not fail the run: %v", err)
+	}
+	if !hasDrift(rep, DriftNotAtProvider) {
+		t.Fatal("the report should still describe the drift it found")
+	}
+}

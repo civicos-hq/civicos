@@ -11,6 +11,9 @@ import {
   useOrgCampaigns,
   categoryKey,
   useUpdateCampaign,
+  useFileReport,
+  useCampaignSpend,
+  needsFinalReport,
   useMilestones,
   useDeleteMilestone,
   useCompleteMilestone,
@@ -127,6 +130,9 @@ function CampaignRow({
             <Button size="sm" variant="secondary" onClick={() => setEditing(true)}>
               {t('orgCampaigns.edit')}
             </Button>
+          )}
+          {needsFinalReport(campaign.status) && (
+            <FinalReportForm campaign={campaign} orgId={orgId} />
           )}
           {nextAction && (
             <Button size="sm" variant="secondary" onClick={() => run(nextAction)}>
@@ -578,6 +584,108 @@ function LivePlanProgress({ campaign, orgId }: { campaign: OrgCampaign; orgId: s
         </ul>
       )}
     </div>
+  );
+}
+
+/**
+ * Filing the closing account on a completed campaign.
+ *
+ * Offered only in COMPLETED, which is the one state where it applies. The
+ * shortfall is shown before filing rather than after, so an organization
+ * knows exactly what it is publishing alongside its report.
+ */
+function FinalReportForm({ campaign, orgId }: { campaign: OrgCampaign; orgId: string }) {
+  const { t } = useTranslation();
+  const file = useFileReport(orgId);
+  const [open, setOpen] = useState(false);
+  const [body, setBody] = useState('');
+  const [attachments, setAttachments] = useState('');
+  const [error, setError] = useState('');
+
+  // Sum the published spend rather than trusting a field on the campaign:
+  // the org-scoped campaign list returns the stored model, which carries no
+  // spend total, so anything read from there is silently zero.
+  const spend = useCampaignSpend(campaign.id);
+  const reported = (spend.data ?? []).reduce((sum, r) => sum + r.amountMinor, 0);
+  const unaccounted = Math.max(0, campaign.raisedMinor - reported);
+
+  async function onSubmit(e: FormEvent) {
+    e.preventDefault();
+    setError('');
+    try {
+      await file.mutateAsync({
+        campaignId: campaign.id,
+        input: {
+          body: body.trim(),
+          attachmentUrls: attachments
+            .split('\n')
+            .map((x) => x.trim())
+            .filter(Boolean),
+        },
+      });
+      setOpen(false);
+    } catch (err) {
+      const res = (err as { response?: { data?: { message?: string } } }).response;
+      setError(res?.data?.message ?? t('orgCampaigns.reportError'));
+    }
+  }
+
+  if (!open) {
+    return (
+      <Button size="sm" onClick={() => setOpen(true)}>
+        {t('orgCampaigns.fileReport')}
+      </Button>
+    );
+  }
+
+  return (
+    <Modal title={t('orgCampaigns.fileReport')} onClose={() => setOpen(false)} size="xl">
+      <form className="space-y-3" onSubmit={onSubmit}>
+        <Field label={t('orgCampaigns.reportBodyLabel')} hint={t('orgCampaigns.reportBodyHint')}>
+          <textarea
+            className={INPUT_CLASS}
+            rows={6}
+            name="reportBody"
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            required
+            minLength={40}
+          />
+        </Field>
+
+        <Field label={t('orgCampaigns.reportFilesLabel')} hint={t('orgCampaigns.attachmentsHint')}>
+          <textarea
+            className={INPUT_CLASS}
+            rows={2}
+            name="reportFiles"
+            value={attachments}
+            onChange={(e) => setAttachments(e.target.value)}
+            placeholder="https://"
+          />
+        </Field>
+
+        {/* Said before they file, not after. Filing with money unexplained is
+            allowed — but it is published alongside the report. */}
+        {unaccounted > 0 && (
+          <p className="rounded border-l-4 border-amber-500 bg-amber-50 px-3 py-2 text-xs text-slate-700 dark:bg-amber-900/20 dark:text-slate-200">
+            {t('orgCampaigns.reportShortfall', {
+              amount: formatMoney(unaccounted, campaign.currency, 'en-NG'),
+            })}
+          </p>
+        )}
+
+        {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="secondary" size="sm" onClick={() => setOpen(false)}>
+            {t('common.cancel')}
+          </Button>
+          <Button type="submit" size="sm" disabled={body.trim().length < 40 || file.isPending}>
+            {file.isPending ? t('orgCampaigns.filing') : t('orgCampaigns.publishReport')}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 }
 

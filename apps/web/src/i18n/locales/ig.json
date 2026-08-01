@@ -958,6 +958,13 @@
       "COMPLETED": "Emechara",
       "REPORTED": "A kọrọ",
       "ARCHIVED": "Echekwara"
+    },
+    "finalReport": {
+      "heading": "Akụkọ ikpeazụ",
+      "filedOn": "E bipụtara ya {{date}}",
+      "attachment": "Lee ihe njikọ",
+      "fullyAccounted": "A kọwaala naira ọ bụla e chịkọtara site na CivicOS.",
+      "partiallyAccounted": "A kọwabeghị {{amount}} nke ego e chịkọtara mgbe e depụtara akụkọ a."
     }
   },
   "orgCampaigns": {
@@ -1004,7 +1011,15 @@
     "allComplete": "A kara ihe mgbaru ọsọ niile emechara.",
     "remaining": "{{remaining}} fọdụrụ ike ikenye.",
     "fullyAllocated": "Atụmatụ ahụ kpuchiri ebumnobi ahụ dum.",
-    "exceedsGoal": "Nke ahụ karịrị {{remaining}} fọdụrụ. Belata ya, ma ọ bụ welie ebumnobi ahụ."
+    "exceedsGoal": "Nke ahụ karịrị {{remaining}} fọdụrụ. Belata ya, ma ọ bụ welie ebumnobi ahụ.",
+    "fileReport": "Depụta akụkọ ikpeazụ",
+    "reportBodyLabel": "Gịnị ka mkpọsa a mezuru?",
+    "reportBodyHint": "Opekempe mkpụrụedemede 40. Nke a bụ akụkọ ndị nyere onyinye ga-agụ.",
+    "reportFilesLabel": "Ihe àmà (nhọrọ)",
+    "publishReport": "Bipụta akụkọ",
+    "filing": "Na-ebipụta…",
+    "reportShortfall": "A kọwabeghị {{amount}}. Ị ka nwere ike depụta ya, mana a ga-ebipụta ọnụọgụ ahụ tinyere akụkọ gị.",
+    "reportError": "Enweghị ike ibipụta akụkọ ahụ. Biko nwaa ọzọ."
   },
   "orgDashboard": {
     "tabs": {
