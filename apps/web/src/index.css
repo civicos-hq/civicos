@@ -7243,3 +7243,23 @@ button {
 [data-theme='dark'] .fund-report-concern {
   border-top-color: rgba(148, 163, 184, 0.25);
 }
+
+/* Sort row on the campaign browse. Sits under the filter chips and reuses
+   .fund-filter so the two rows read as one control surface. */
+.fund-sorts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+/* Inherits the same token as .fund-lede rather than picking its own colour.
+   This page keeps its dark green background in BOTH themes, so a light-theme
+   colour chosen for a white card renders at about 1.6:1 here — legible in a
+   mockup, invisible on the actual page. */
+.fund-sorts-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--pr-ink-soft);
+  margin-right: 0.25rem;
+}

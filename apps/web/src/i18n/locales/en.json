@@ -1899,6 +1899,15 @@
       "attachment": "View attachment",
       "fullyAccounted": "Every naira raised through CivicOS has been accounted for.",
       "partiallyAccounted": "{{amount}} of what was raised had not been accounted for when this report was filed."
+    },
+    "sortLabel": "Sort",
+    "verifiedOnly": "Verified organizations",
+    "sorts": {
+      "RECENT": "Recently added",
+      "ENDING_SOON": "Ending soon",
+      "MOST_FUNDED": "Most funded",
+      "EMERGENCY": "Emergency first",
+      "NEAR_ME": "Near me"
     }
   },
   "orgCampaigns": {

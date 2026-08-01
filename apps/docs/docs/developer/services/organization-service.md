@@ -370,6 +370,55 @@ is still in the table and still appears on the next fetch. That fallback
 is what allows core NATS with no persistence — the hub already documents
 itself as lossy, with the REST list as the source of truth.
 
+## Public campaign browse — filters and sorts
+
+`GET /campaigns` is the citizen-facing browse. Filters narrow the list;
+**sorts reorder it without narrowing it**, which matters most for `NEAR_ME`.
+
+`verified` and `country` filter on the **owning organization**, not the
+campaign — a campaign has no verification state or country of its own. Both
+are expressed as a subquery rather than a join so the result stays
+`[]domain.Campaign` and every existing caller of `Repository.Find` is
+unaffected.
+
+Sorts live in `applySort` (`campaigns/repository.go`):
+
+| Sort               | Ordering                                                                   |
+| ------------------ | -------------------------------------------------------------------------- |
+| `RECENT` (default) | `created_at DESC`                                                          |
+| `ENDING_SOON`      | future deadlines first, soonest first; expired and undated sort to the END |
+| `MOST_FUNDED`      | `raised_minor DESC`                                                        |
+| `EMERGENCY`        | `is_emergency DESC`, then recency                                          |
+| `NEAR_ME`          | same LGA, then same state, then the rest — using `nearState` / `nearLga`   |
+
+Three things are deliberate:
+
+- **`ENDING_SOON` hides nothing.** A campaign past its deadline is not
+  "ending soon", but it may still be accepting money, so it sorts last rather
+  than being filtered out.
+- **`nearState` / `nearLga` are not the `state` / `lga` filters.** Near-me
+  orders the whole country by closeness; reusing the filters would make it
+  indistinguishable from filtering to one LGA. With no reference point it
+  falls back to recency instead of erroring — the same choice the discover
+  feed makes for an unknown kind.
+- **Every ordering ends with a deterministic tiebreak.** Without one Postgres
+  may return equal rows in any order, and a citizen paging through would see
+  items repeat or vanish.
+
+`MOST_FUNDED` is inherently self-reinforcing — the campaigns already carrying
+money get the most visibility — which is why it is one option among several
+rather than the default.
+
+### A GORM trap worth knowing
+
+`NEAR_ME` builds a `CASE` expression with the caller's state and LGA bound as
+parameters. It is applied with `db.Clauses(clause.OrderBy{...})`, **not**
+`db.Order(...)`: GORM's `Order` switches on the argument type and accepts only
+`string` and `clause.OrderByColumn`. Handed a `clause.OrderBy` it falls
+through the switch and **silently discards it** — the query runs with no
+`ORDER BY`, returns rows in whatever order Postgres feels like, and looks like
+a working sort until you read the generated SQL.
+
 ## Environment
 
 - `DATABASE_URL`

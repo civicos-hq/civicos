@@ -105,6 +105,15 @@ func (h *Handler) listPublic(c *gin.Context) {
 		LGA:           c.Query("lga"),
 		OrgID:         c.Query("organizationId"),
 		EmergencyOnly: c.Query("emergency") == "true",
+		// Filters on the owning organization rather than the campaign.
+		VerifiedOrgOnly: c.Query("verified") == "true",
+		Country:         c.Query("country"),
+		// nearState / nearLga are the reference point for sort=NEAR_ME, kept
+		// separate from the state / lga filters above: "near me" orders the
+		// whole list by closeness, it does not narrow it.
+		Sort:      ValidSort(c.Query("sort")),
+		NearState: c.Query("nearState"),
+		NearLGA:   c.Query("nearLga"),
 	})
 	if err != nil {
 		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to list campaigns")

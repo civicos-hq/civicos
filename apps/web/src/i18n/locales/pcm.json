@@ -1197,6 +1197,15 @@
       "attachment": "See attachment",
       "fullyAccounted": "Dem don explain every naira wey enter through CivicOS.",
       "partiallyAccounted": "{{amount}} of the money wey dem raise never get explanation when dem file this report."
+    },
+    "sortLabel": "Arrange",
+    "verifiedOnly": "Organizations wey dem verify",
+    "sorts": {
+      "RECENT": "New ones",
+      "ENDING_SOON": "Wey wan finish",
+      "MOST_FUNDED": "Wey get pass money",
+      "EMERGENCY": "Emergency first",
+      "NEAR_ME": "Near me"
     }
   },
   "orgCampaigns": {

@@ -23,8 +23,18 @@ well spent, and this page is explicit about where the line falls.
 
 Three routes, all of them public:
 
-- **Community funding** in the main navigation lists every open campaign,
-  filterable by category and by whether it is an emergency appeal.
+- **Community funding** in the main navigation lists every open campaign.
+  Filter by category, emergency appeals, or campaigns run by a verified
+  organization; sort by **Recently added**, **Ending soon**, **Most funded**,
+  **Emergency first**, or **Near me**.
+
+  Two of those are worth knowing about. **Ending soon** puts campaigns whose
+  deadline is still ahead of them first — one whose date has already passed
+  goes to the bottom rather than disappearing, because it may still be taking
+  money. **Near me** appears only when you are signed in and have joined a
+  community; it re-orders the whole list so the closest campaigns come first,
+  and does not hide anything further away.
+
 - **Discover** mixes campaigns in with issues, petitions and everything
   else near you, ranked by how close they are to your community.
 - **Search** finds a campaign by name — useful when someone has sent you

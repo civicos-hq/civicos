@@ -968,6 +968,15 @@
       "attachment": "Duba haɗe",
       "fullyAccounted": "An ba da lissafin kowace naira da aka tara ta CivicOS.",
       "partiallyAccounted": "Ba a ba da lissafin {{amount}} na abin da aka tara ba lokacin da aka gabatar da wannan rahoton."
+    },
+    "sortLabel": "Tsara",
+    "verifiedOnly": "Ƙungiyoyin da aka tabbatar",
+    "sorts": {
+      "RECENT": "Sabbin da aka ƙara",
+      "ENDING_SOON": "Za su ƙare nan ba da jimawa",
+      "MOST_FUNDED": "Mafi yawan tallafi",
+      "EMERGENCY": "Gaggawa da farko",
+      "NEAR_ME": "Kusa da ni"
     }
   },
   "orgCampaigns": {

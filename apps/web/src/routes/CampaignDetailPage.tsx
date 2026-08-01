@@ -21,7 +21,7 @@ import {
 import { DonateForm } from '../components/DonateForm';
 import { CampaignConsole } from '../components/CampaignConsole';
 import { ReportButton } from '../components/civic/ReportButton';
-import { useMe } from '../hooks/useMe';
+import { useOptionalMe } from '../hooks/useMe';
 
 // Public campaign page. Shows the ask, the spend plan, and — since Phase 3 —
 // the donate flow and public donor list. Phase 4 extends it with the full
@@ -287,7 +287,7 @@ export function CampaignDetailPage() {
   // a signed-out reader would just bounce them. Eligibility itself (donor or
   // local) is decided server-side — the modal explains a refusal rather than
   // the page guessing, which would need a second round trip on every view.
-  const { data: me } = useMe();
+  const { data: me } = useOptionalMe();
   const signedIn = Boolean(me?.id);
 
   useSeo({

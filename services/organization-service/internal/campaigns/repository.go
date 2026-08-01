@@ -1,8 +1,11 @@
 package campaigns
 
 import (
+	"strings"
+
 	"github.com/civicos/organization-service/internal/domain"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type Repository struct{ db *gorm.DB }
@@ -24,6 +27,53 @@ type ListFilters struct {
 	// EmergencyOnly powers the admin review queue's fast path for the
 	// spec's "Approve emergency campaigns" capability.
 	EmergencyOnly bool
+
+	// VerifiedOrgOnly and Country filter on the OWNING ORGANIZATION, not on
+	// the campaign — a campaign has no verification state or country of its
+	// own. Expressed as a subquery rather than a join so the result set stays
+	// []domain.Campaign and callers are unaffected.
+	VerifiedOrgOnly bool
+	Country         string
+
+	// Sort selects the ordering. Empty means the historical default
+	// (newest first by creation), which every existing caller relies on.
+	Sort SortOrder
+	// NearState and NearLGA are the reference point for SortNearMe. They are
+	// deliberately NOT filters: "near me" must still show the whole country,
+	// ordered by closeness, or it would be indistinguishable from filtering
+	// by LGA.
+	NearState string
+	NearLGA   string
+}
+
+// SortOrder is the citizen-facing ordering of the public campaign browse.
+type SortOrder string
+
+const (
+	SortRecent     SortOrder = "RECENT"
+	SortEndingSoon SortOrder = "ENDING_SOON"
+	SortMostFunded SortOrder = "MOST_FUNDED"
+	SortEmergency  SortOrder = "EMERGENCY"
+	SortNearMe     SortOrder = "NEAR_ME"
+)
+
+// ValidSort maps a caller's string to a known order. An unrecognised value
+// falls back to SortRecent rather than erroring — the same choice the
+// discover feed makes for an unknown kind, and for the same reason: a typo
+// in a query string should not hand a citizen an empty or broken page.
+func ValidSort(v string) SortOrder {
+	switch SortOrder(strings.ToUpper(strings.TrimSpace(v))) {
+	case SortEndingSoon:
+		return SortEndingSoon
+	case SortMostFunded:
+		return SortMostFunded
+	case SortEmergency:
+		return SortEmergency
+	case SortNearMe:
+		return SortNearMe
+	default:
+		return SortRecent
+	}
 }
 
 // publicStatuses is the allow-list for citizen-visible campaigns.
@@ -63,8 +113,77 @@ func (r *Repository) Find(f ListFilters) ([]domain.Campaign, error) {
 	if f.EmergencyOnly {
 		q = q.Where("is_emergency = ?", true)
 	}
+	if f.VerifiedOrgOnly {
+		q = q.Where("organization_id IN (?)",
+			r.db.Table("organizations").Select("id").Where("verified = ?", true))
+	}
+	if f.Country != "" {
+		q = q.Where("organization_id IN (?)",
+			r.db.Table("organizations").Select("id").Where("UPPER(country) = ?", strings.ToUpper(f.Country)))
+	}
 	var list []domain.Campaign
-	return list, q.Order("created_at desc").Find(&list).Error
+	return list, applySort(q, f).Find(&list).Error
+}
+
+// applySort translates a SortOrder into ORDER BY clauses.
+//
+// Every ordering ends with a deterministic tiebreak, so a campaign cannot
+// swap places between two identical requests — without one, Postgres is free
+// to return equal rows in any order and a citizen paging through would see
+// items repeat or vanish.
+func applySort(q *gorm.DB, f ListFilters) *gorm.DB {
+	switch f.Sort {
+	case SortEndingSoon:
+		// Campaigns with a deadline still ahead of them come first, soonest
+		// first. Those already past their date, and those with no date at
+		// all, sort to the end rather than being hidden: an expired deadline
+		// is not "ending soon", but the campaign may still be taking money
+		// and a citizen is entitled to find it.
+		return q.Order("(end_date IS NULL OR end_date < NOW()) ASC").
+			Order("end_date ASC").
+			Order("created_at DESC")
+
+	case SortMostFunded:
+		// Absolute amount raised, which is what "most funded" means to a
+		// reader. Note this is inherently self-reinforcing — the campaigns
+		// already carrying money get the most visibility — which is why it
+		// is one option among several rather than the default.
+		return q.Order("raised_minor DESC").Order("created_at DESC")
+
+	case SortEmergency:
+		return q.Order("is_emergency DESC").
+			Order("COALESCE(published_at, created_at) DESC")
+
+	case SortNearMe:
+		// Without a reference point there is no "near", so fall back to
+		// recency rather than inventing an arbitrary order.
+		if f.NearState == "" {
+			return q.Order("created_at DESC")
+		}
+		// Bound as parameters, never interpolated: these come straight from
+		// the query string. Built as a single clause because the tiebreak has
+		// to live inside the same ORDER BY as the CASE.
+		//
+		// Clauses(), not Order(): GORM's Order() switches on the argument
+		// type and accepts only string and clause.OrderByColumn. Passing it a
+		// clause.OrderBy falls through the switch and is DISCARDED — the
+		// query runs happily with no ORDER BY and returns rows in whatever
+		// order Postgres feels like, which reads as a working sort until you
+		// look at the SQL.
+		if f.NearLGA != "" {
+			return q.Clauses(clause.OrderBy{Expression: clause.Expr{
+				SQL:  "CASE WHEN state = ? AND lga = ? THEN 0 WHEN state = ? THEN 1 ELSE 2 END ASC, created_at DESC",
+				Vars: []any{f.NearState, f.NearLGA, f.NearState},
+			}})
+		}
+		return q.Clauses(clause.OrderBy{Expression: clause.Expr{
+			SQL:  "CASE WHEN state = ? THEN 0 ELSE 1 END ASC, created_at DESC",
+			Vars: []any{f.NearState},
+		}})
+
+	default:
+		return q.Order("created_at desc")
+	}
 }
 
 func (r *Repository) FindByID(id string) (*domain.Campaign, error) {

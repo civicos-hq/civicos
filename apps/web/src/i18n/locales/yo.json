@@ -968,6 +968,15 @@
       "attachment": "Wo ìfikún",
       "fullyAccounted": "A ti ṣàlàyé gbogbo náírà tí a kójọ nípasẹ̀ CivicOS.",
       "partiallyAccounted": "A kò tíì ṣàlàyé {{amount}} nínú ohun tí a kójọ nígbà tí a fi ìjábọ̀ yìí sílẹ̀."
+    },
+    "sortLabel": "Ṣàtòjọ",
+    "verifiedOnly": "Àwọn àjọ tí a fọwọ́sí",
+    "sorts": {
+      "RECENT": "Tuntun",
+      "ENDING_SOON": "Yóò parí láìpẹ́",
+      "MOST_FUNDED": "Tí ó gba owó jùlọ",
+      "EMERGENCY": "Pàjáwìrì ní àkọ́kọ́",
+      "NEAR_ME": "Nítòsí mi"
     }
   },
   "orgCampaigns": {

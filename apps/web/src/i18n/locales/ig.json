@@ -968,6 +968,15 @@
       "attachment": "Lee ihe njikọ",
       "fullyAccounted": "A kọwaala naira ọ bụla e chịkọtara site na CivicOS.",
       "partiallyAccounted": "A kọwabeghị {{amount}} nke ego e chịkọtara mgbe e depụtara akụkọ a."
+    },
+    "sortLabel": "Hazie",
+    "verifiedOnly": "Nzukọ e kwadoro",
+    "sorts": {
+      "RECENT": "Nke ọhụrụ",
+      "ENDING_SOON": "Na-agwụ ngwa ngwa",
+      "MOST_FUNDED": "Nke kacha nweta ego",
+      "EMERGENCY": "Ihe mberede na mbụ",
+      "NEAR_ME": "Nso m"
     }
   },
   "orgCampaigns": {
