@@ -20,7 +20,9 @@ infrastructure.
   community (30-day cooldown).
 - **Applications** — the queue where citizens apply to be
   representatives or organizations. Admins review.
-- **Content flags** — citizens report content; moderators resolve.
+- **Content flags** — citizens report content; moderators resolve. Also
+  carries **campaign concerns**, which share the table but not the rules —
+  see below.
 - **Audit log** — the immutable trail of admin actions across every
   service. The schema is owned here; three services INSERT to it.
 - **Admin metrics** — platform-wide snapshot + per-community drill-down.
@@ -39,6 +41,7 @@ services/identity-service/
 │   ├── auth/                              # Register, login, refresh, JWT signing
 │   ├── domain/models.go                   # GORM models + enums
 │   ├── flags/                             # Content flag queue and moderator resolution
+│   │   └── eligibility.go                 # Who may raise a campaign concern
 │   ├── middleware/                        # JWTAuth, RequireVerified, RequireRole
 │   └── users/                             # Admin user administration
 ├── migrations/                            # Optional — AutoMigrate handles most of it
@@ -111,3 +114,53 @@ Optional but strongly recommended:
   `SMTP_FROM` — enables real email. Without these, the mailer prints
   to stdout (development mode).
 - `APP_URL` — used in verification and reset email links.
+
+## Campaign concerns
+
+`contentType: CAMPAIGN` reuses the flags table and the moderator queue, but
+almost none of the moderation rules. The differences are all downstream of one
+fact: a campaign is reviewed by an admin before it publishes and locked
+afterwards (`campaigns/service.go` permits edits only in `DRAFT` and
+`NEEDS_CHANGES`), so a concern is never "this should not have been approved".
+It is a claim about conduct after approval — spending, progress, silence —
+which CivicOS has no way to verify, because donations settle straight to the
+organization's own bank account.
+
+**Who may file one** — `flags/eligibility.go`. Two groups, and no others:
+
+- someone with a **SETTLED** donation to that campaign (PENDING does not
+  count; anyone can open a checkout and walk away), or
+- someone whose community is in the **same LGA**. Same state, different LGA
+  does not qualify — state-wide is too coarse to mean local knowledge.
+
+Everyone else gets `403 NOT_ELIGIBLE_TO_REPORT`. This is the first place in
+the product where a community tag acts as a **gate** rather than an audience
+label, and it is confined to this one decision deliberately. The reason is
+asymmetry: an open report button on a fundraiser is a lever a rival
+organization or a political opponent would be glad to have, and unlike a
+comment flag it points at money that has already moved and cannot be
+recovered.
+
+A campaign with no public page returns `404 CAMPAIGN_NOT_FOUND`, matching
+`organization-service`'s `publicStatuses`, so the endpoint cannot be used to
+probe for draft or rejected campaigns by id.
+
+**Separate vocabularies.** A `CAMPAIGN` takes only `FUNDS_MISUSE`,
+`WORK_NOT_DONE`, `MISREPRESENTED`, `NO_UPDATES`, `OTHER`; everything else
+takes only the moderation reasons. Enforced both ways by `validReasonFor`.
+This is not tidiness — it stops a funding concern arriving in the queue
+labelled `SPAM`, where a moderator would triage it as a nuisance post rather
+than a claim about money. `description` is required, minimum 20 characters.
+
+**Nothing auto-acts.** `HIDDEN` is rejected for campaign flags with
+`USE_PAUSE_INSTEAD`, and `/flags/direct-hide` refuses them outright. There is
+no such thing as hiding a campaign; the real action is **pause**, which stops
+money moving, and it stays a separate deliberate act on the campaign with its
+own reason code and audit trail. If resolving a flag could pause a fundraiser,
+a coordinated set of reports would become a way to shut down a rival — which
+is the specific outcome this design refuses to make possible.
+
+The admin surface is `apps/admin` → **Campaign concerns**, grouped by campaign
+and ordered by how many _distinct_ people raised one. Corroboration between
+unconnected observers is most of the signal available when the platform cannot
+check the books itself.

@@ -6,9 +6,8 @@ import { Button } from '@civicos/ui';
 import { api } from '../../lib/api';
 import { Modal } from '../Modal';
 
-// The seven content types the moderation queue accepts. Kept as a
-// string union so callers get compile-time safety when wiring the
-// button into a particular surface.
+// The content types the moderation queue accepts. Kept as a string union so
+// callers get compile-time safety when wiring the button into a surface.
 export type ReportableType =
   | 'ISSUE'
   | 'ISSUE_COMMENT'
@@ -16,7 +15,8 @@ export type ReportableType =
   | 'PETITION_COMMENT'
   | 'REPRESENTATIVE_COMMENT'
   | 'ANNOUNCEMENT'
-  | 'PROGRESS_UPDATE';
+  | 'PROGRESS_UPDATE'
+  | 'CAMPAIGN';
 
 interface Props {
   contentType: ReportableType;
@@ -24,14 +24,33 @@ interface Props {
   onClose: () => void;
 }
 
-const REASONS = ['SPAM', 'ABUSE', 'MISINFO', 'HATE', 'OTHER'] as const;
-type Reason = (typeof REASONS)[number];
+const MODERATION_REASONS = ['SPAM', 'ABUSE', 'MISINFO', 'HATE', 'OTHER'] as const;
+
+// A campaign gets its own vocabulary. Nobody reports a fundraiser for hate
+// speech — what goes wrong with a campaign goes wrong after it was approved,
+// so these name conduct rather than content. The server enforces the same
+// split; this list only decides what the citizen is offered.
+const FUNDING_REASONS = [
+  'FUNDS_MISUSE',
+  'WORK_NOT_DONE',
+  'MISREPRESENTED',
+  'NO_UPDATES',
+  'OTHER',
+] as const;
+
+type Reason = (typeof MODERATION_REASONS)[number] | (typeof FUNDING_REASONS)[number];
 
 const MAX_DESCRIPTION = 500;
 
+// The server requires at least this much on a funding concern. Mirrored here
+// so the citizen is told before submitting rather than after.
+const MIN_FUNDING_DESCRIPTION = 20;
+
 export function ReportModal({ contentType, contentId, onClose }: Props) {
   const { t } = useTranslation();
-  const [reason, setReason] = useState<Reason>('SPAM');
+  const isCampaign = contentType === 'CAMPAIGN';
+  const reasons: readonly Reason[] = isCampaign ? FUNDING_REASONS : MODERATION_REASONS;
+  const [reason, setReason] = useState<Reason>(isCampaign ? 'WORK_NOT_DONE' : 'SPAM');
   const [description, setDescription] = useState('');
   const [errorCode, setErrorCode] = useState<string | null>(null);
   const [retryAfter, setRetryAfter] = useState<number | null>(null);
@@ -81,13 +100,15 @@ export function ReportModal({ contentType, contentId, onClose }: Props) {
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
-          <p className="text-sm text-slate-600 dark:text-slate-300">{t('report.intro')}</p>
+          <p className="text-sm text-slate-600 dark:text-slate-300">
+            {t(isCampaign ? 'report.campaignIntro' : 'report.intro')}
+          </p>
 
           <fieldset className="space-y-2">
             <legend className="text-sm font-medium text-slate-700 dark:text-slate-300">
               {t('report.reasonLegend')}
             </legend>
-            {REASONS.map((r) => (
+            {reasons.map((r) => (
               <label
                 key={r}
                 className="flex items-start gap-2 rounded-lg border border-slate-200 dark:border-slate-700 p-2 hover:border-civic-300 dark:hover:border-civic-500 cursor-pointer"
@@ -117,14 +138,18 @@ export function ReportModal({ contentType, contentId, onClose }: Props) {
               className="text-sm font-medium text-slate-700 dark:text-slate-300"
               htmlFor="report-description"
             >
-              {t('report.descriptionLabel')}
+              {t(isCampaign ? 'report.campaignDescriptionLabel' : 'report.descriptionLabel')}
             </label>
             <textarea
               id="report-description"
               rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value.slice(0, MAX_DESCRIPTION))}
-              placeholder={t('report.descriptionPlaceholder')}
+              placeholder={t(
+                isCampaign
+                  ? 'report.campaignDescriptionPlaceholder'
+                  : 'report.descriptionPlaceholder',
+              )}
               className="w-full rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-civic-500"
             />
             <p className="text-xs text-slate-500 dark:text-slate-300">
@@ -138,7 +163,14 @@ export function ReportModal({ contentType, contentId, onClose }: Props) {
             <Button type="button" variant="secondary" onClick={onClose}>
               {t('common.cancel')}
             </Button>
-            <Button type="submit" loading={submit.isPending} disabled={submit.isPending}>
+            <Button
+              type="submit"
+              loading={submit.isPending}
+              disabled={
+                submit.isPending ||
+                (isCampaign && description.trim().length < MIN_FUNDING_DESCRIPTION)
+              }
+            >
               <Flag className="h-4 w-4" aria-hidden="true" />
               {t('report.submit')}
             </Button>
@@ -156,6 +188,18 @@ function ErrorPanel({ code, retryAfter }: { code: string; retryAfter: number | n
       return (
         <p className="rounded-lg border border-amber-300 dark:border-amber-500/50 bg-amber-50 dark:bg-amber-500/10 p-3 text-sm text-amber-900 dark:text-amber-100">
           {t('report.errors.alreadyFlagged')}
+        </p>
+      );
+    case 'NOT_ELIGIBLE_TO_REPORT':
+      return (
+        <p className="rounded-lg border border-amber-300 dark:border-amber-500/50 bg-amber-50 dark:bg-amber-500/10 p-3 text-sm text-amber-900 dark:text-amber-100">
+          {t('report.errors.notEligible')}
+        </p>
+      );
+    case 'DESCRIPTION_REQUIRED':
+      return (
+        <p className="rounded-lg border border-amber-300 dark:border-amber-500/50 bg-amber-50 dark:bg-amber-500/10 p-3 text-sm text-amber-900 dark:text-amber-100">
+          {t('report.errors.descriptionRequired')}
         </p>
       );
     case 'EMAIL_NOT_VERIFIED':

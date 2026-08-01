@@ -255,13 +255,25 @@ components:
               REPRESENTATIVE_COMMENT,
               ANNOUNCEMENT,
               PROGRESS_UPDATE,
+              CAMPAIGN,
             ]
         contentId: { type: string, format: uuid }
         reporterId: { type: string, format: uuid }
         reporterName: { type: string }
         reason:
           type: string
-          enum: [SPAM, ABUSE, MISINFO, HATE, OTHER]
+          enum:
+            [
+              SPAM,
+              ABUSE,
+              MISINFO,
+              HATE,
+              OTHER,
+              FUNDS_MISUSE,
+              WORK_NOT_DONE,
+              MISREPRESENTED,
+              NO_UPDATES,
+            ]
         description: { type: string, nullable: true }
         status:
           type: string
@@ -1194,6 +1206,32 @@ paths:
     post:
       tags: [Moderation — Flags]
       summary: File a content flag (verified users)
+      description: |
+        Two different things share this endpoint and follow different rules.
+
+        **Content flags** (everything except `CAMPAIGN`) are open to any
+        verified user, take the moderation reasons `SPAM` / `ABUSE` /
+        `MISINFO` / `HATE` / `OTHER`, and `description` is optional.
+
+        **Campaign concerns** (`contentType: CAMPAIGN`) are narrower, because
+        a campaign is reviewed before it publishes and locked afterwards — a
+        concern is a claim about conduct since approval, not an appeal against
+        it, and money has already moved irreversibly.
+
+        - Only two groups may file one: someone with a **SETTLED donation** to
+          that campaign, or someone whose community is in the **same LGA** as
+          the campaign. Everyone else gets `403 NOT_ELIGIBLE_TO_REPORT`.
+          Same state, different LGA does not qualify.
+        - Reasons are the funding set: `FUNDS_MISUSE`, `WORK_NOT_DONE`,
+          `MISREPRESENTED`, `NO_UPDATES`, `OTHER`. A moderation reason on a
+          campaign is a `400`, and a funding reason on anything else is too.
+        - `description` is **required**, minimum 20 characters
+          (`400 DESCRIPTION_REQUIRED`).
+        - A campaign with no public page returns `404 CAMPAIGN_NOT_FOUND`
+          rather than a distinguishable error, so this cannot be used to probe
+          for draft or rejected campaigns by id.
+
+        Filing a concern never changes the campaign — see `PATCH /flags/{id}`.
       requestBody:
         required: true
         content:
@@ -1213,11 +1251,23 @@ paths:
                       REPRESENTATIVE_COMMENT,
                       ANNOUNCEMENT,
                       PROGRESS_UPDATE,
+                      CAMPAIGN,
                     ]
                 contentId: { type: string, format: uuid }
                 reason:
                   type: string
-                  enum: [SPAM, ABUSE, MISINFO, HATE, OTHER]
+                  enum:
+                    [
+                      SPAM,
+                      ABUSE,
+                      MISINFO,
+                      HATE,
+                      OTHER,
+                      FUNDS_MISUSE,
+                      WORK_NOT_DONE,
+                      MISREPRESENTED,
+                      NO_UPDATES,
+                    ]
                 description: { type: string, nullable: true }
             examples:
               default:
@@ -1300,6 +1350,15 @@ paths:
     patch:
       tags: [Moderation — Flags]
       summary: Resolve a flag (moderator action)
+      description: |
+        `HIDDEN` is rejected for `CAMPAIGN` flags with
+        `400 USE_PAUSE_INSTEAD`. There is no such thing as hiding a campaign:
+        the equivalent action is to **pause** it, which stops money moving and
+        must stay a separate, deliberate act with its own reason code, taken
+        on the campaign itself. If clearing this queue could pause a
+        fundraiser, a coordinated set of reports would become a way to shut
+        down a rival. `/flags/direct-hide` refuses campaigns for the same
+        reason.
       requestBody:
         required: true
         content:

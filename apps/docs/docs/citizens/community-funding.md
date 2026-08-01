@@ -126,10 +126,33 @@ not. A thin report cannot be made to look complete after the fact.
 Be honest with yourself about what CivicOS can undo here, because it is
 less than you might assume.
 
-**There is no report button on a campaign yet.** You can flag an issue, a
-petition, an announcement, a progress update or any comment — but not a
-campaign itself. If you believe a campaign is fraudulent, contact the
-platform directly. This is a known gap.
+**You can raise a concern about a campaign**, from the bottom of the
+campaign page. Two groups can do this, and nobody else:
+
+- **People who donated to it.** You paid for something; you are owed an
+  account of it.
+- **People who live in the LGA the campaign serves.** You can see the
+  site. An admin in another state cannot.
+
+That restriction is deliberate. A campaign was reviewed by CivicOS staff
+before it published and is locked afterwards, so a concern is not an
+appeal against the approval — it is a report about conduct since, from
+someone in a position to know. Leaving it open to anyone in the country
+would make it a convenient tool for a rival organization or a political
+opponent, which is the opposite of the point.
+
+You will be asked to describe what you have actually seen. A reason on
+its own is not enough to send.
+
+**Nothing happens to the campaign automatically.** A concern never pauses
+a fundraiser, never hides anything, and is never counted by a machine
+into an action. A member of CivicOS staff reads every one. If several
+unconnected people report the same campaign, that is treated as a
+stronger signal than one person reporting repeatedly — but it still
+takes a person to act.
+
+You can also report an individual update an organization has posted, if a
+specific claim in it is false. The report control sits under each update.
 
 **There is no refund mechanism.** Once a payment settles it is in the
 organization's bank account. CivicOS never held it and has no power to

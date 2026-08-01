@@ -7227,3 +7227,19 @@ button {
   font-size: 0.95rem;
   line-height: 1.6;
 }
+
+/* Report controls on the campaign page. Both are intentionally understated:
+   the campaign page exists to earn trust, and a loud "report" control on it
+   would read as a warning about the organization rather than a route for a
+   citizen who has genuinely seen something. */
+.fund-update-report {
+  margin-top: 0.5rem;
+}
+.fund-report-concern {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e6ebe7;
+}
+[data-theme='dark'] .fund-report-concern {
+  border-top-color: rgba(148, 163, 184, 0.25);
+}

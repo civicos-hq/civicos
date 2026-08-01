@@ -1060,5 +1060,71 @@
     "connect": "So àkàǹtì pọ̀",
     "connecting": "Ń so pọ̀…",
     "error": "A kò lè so àkàǹtì yẹn pọ̀. Ṣàyẹ̀wò báǹkì àti nọ́mbà àkàǹtì."
+  },
+  "report": {
+    "buttonLabel": "Ròyìn",
+    "buttonAria": "Ròyìn àkóónú yìí fún àwọn alábòójútó",
+    "intro": "Àwọn alábòójútó ń yẹ gbogbo ìròyìn wò. Ìròyìn èké lè fa ìdíwọ́ sí àkàǹtì rẹ.",
+    "reasonLegend": "Kí ni ó ṣe àkóónú yìí?",
+    "descriptionLabel": "Ǹjẹ́ ohunkóhun mìíràn wà tí wọ́n gbọ́dọ̀ mọ̀? (kì í ṣe dandan)",
+    "descriptionPlaceholder": "àpẹẹrẹ: ọ̀rọ̀ yìí dárúkọ ẹnìkọ̀ọ̀kan ó sì ń ṣì ni lọ́nà",
+    "submit": "Fi ìròyìn ránṣẹ́",
+    "reasons": {
+      "SPAM": {
+        "label": "Spam",
+        "hint": "Ìpolówó tí a kò béèrè, ọ̀nà tí kò bá a mu, tàbí ìránṣẹ́ púpọ̀."
+      },
+      "ABUSE": {
+        "label": "Ìlòkulò tàbí ìnilára",
+        "hint": "Ìkọlù sí ẹnìkan, ìhalẹ̀, tàbí ìnilára tí a fojúsùn."
+      },
+      "MISINFO": {
+        "label": "Ìsọfúnni èké",
+        "hint": "Ẹ̀sùn èké nípa àwọn ènìyàn tàbí ìṣẹ̀lẹ̀ tí a lè fi hàn."
+      },
+      "HATE": {
+        "label": "Ọ̀rọ̀ ìkórìíra",
+        "hint": "Ìkọlù sí ìdánimọ̀ — ẹ̀yà, ẹ̀sìn, akọ tàbí abo."
+      },
+      "OTHER": {
+        "label": "Nǹkan mìíràn",
+        "hint": "Kò bá àwọn tí ó wà lókè mu — ṣàlàyé nísàlẹ̀."
+      },
+      "FUNDS_MISUSE": {
+        "label": "Wọ́n lè máa ná owó ní àìtọ́",
+        "hint": "Ìnáwó tí wọ́n sọ kò bá ohun tí ń ṣẹlẹ̀ mu."
+      },
+      "WORK_NOT_DONE": {
+        "label": "Wọn kò ṣe iṣẹ́ náà",
+        "hint": "Ìpolongo sọ pé ó ń lọ síwájú, ṣùgbọ́n kò sí ìyípadà lórí ilẹ̀."
+      },
+      "MISREPRESENTED": {
+        "label": "Ìpolongo náà kò sọ òtítọ́",
+        "hint": "Àìní tí wọ́n ṣàpèjúwe pọ̀ jù, wọ́n ti ṣe é tán, tàbí kò sí ní tòótọ́."
+      },
+      "NO_UPDATES": {
+        "label": "Àjọ náà ti dákẹ́",
+        "hint": "Wọ́n gba owó, wọn kò sì ti ròyìn ohunkóhun."
+      }
+    },
+    "modal": {
+      "title": "Ròyìn fún àwọn alábòójútó"
+    },
+    "success": {
+      "title": "A ti gba ìròyìn",
+      "body": "Alábòójútó yóò yẹ̀ ẹ́ wò láìpẹ́. A dúpẹ́ fún ìrànlọ́wọ́ rẹ láti jẹ́ kí àkọsílẹ̀ jẹ́ òtítọ́.",
+      "close": "Tì í"
+    },
+    "errors": {
+      "alreadyFlagged": "O ti ròyìn èyí tẹ́lẹ̀. Alábòójútó yóò yẹ̀ ẹ́ wò.",
+      "emailNotVerified": "Fọwọ́sí àdírẹ́sì ímeèlì rẹ kí o tó ròyìn. Yẹ àpótí ìwọlé rẹ wò — tàbí lọ sí Profáìlì láti tún un rán.",
+      "rateLimited": "O ti fi ìròyìn púpọ̀ ránṣẹ́ láìpẹ́. Gbìyànjú lẹ́ẹ̀kansi ní ìṣẹ́jú-àáyá {{seconds}}.",
+      "generic": "A kò lè fi ìròyìn náà ránṣẹ́. Jọ̀wọ́ gbìyànjú lẹ́ẹ̀kansi.",
+      "notEligible": "Àwọn tí wọ́n ṣàánú sí ìpolongo yìí, tàbí tí wọ́n ń gbé ní agbègbè tí ó ń sìn, nìkan ló lè sọ àníyàn.",
+      "descriptionRequired": "Jọ̀wọ́ ṣàpèjúwe ohun tí o rí, ó kéré tán gbólóhùn kan."
+    },
+    "campaignIntro": "Sọ àníyàn rẹ nípa bí wọ́n ṣe ń darí ìpolongo ìnáwó yìí. Àwọn òṣìṣẹ́ CivicOS ni yóò gbà á, kì í ṣe àjọ náà. Kò sí ohun tí yóò ṣẹlẹ̀ sí ìpolongo náà fúnra rẹ̀ — ènìyàn ni yóò yẹ gbogbo rẹ̀ wò.",
+    "campaignDescriptionLabel": "Kí ni o rí? (dandan)",
+    "campaignDescriptionPlaceholder": "àpẹẹrẹ: wọn kò tíì fọwọ́ kan ibi kànga náà láti oṣù Kẹrin, ṣùgbọ́n ìròyìn tí ó kẹ́yìn sọ pé wọ́n ti parí ìwalẹ̀"
   }
 }

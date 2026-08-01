@@ -1060,5 +1060,71 @@
     "connect": "Jikọọ akaụntụ",
     "connecting": "Na-ejikọ…",
     "error": "Enweghị ike ijikọ akaụntụ ahụ. Lelee ụlọ akụ na nọmba akaụntụ."
+  },
+  "report": {
+    "buttonLabel": "Kọọ",
+    "buttonAria": "Kọọ ọdịnaya a gaa ndị nlekọta",
+    "intro": "Ndị nlekọta na-enyocha akụkọ ọ bụla. Akụkọ ụgha nwere ike ibute mmachi na akaụntụ gị.",
+    "reasonLegend": "Gịnị na-eme ọdịnaya a?",
+    "descriptionLabel": "Enwere ihe ọzọ ha kwesịrị ịma? (nhọrọ)",
+    "descriptionPlaceholder": "dịka: okwu a kpọrọ aha onye nkịtị ma na-eduhie",
+    "submit": "Zipu akụkọ",
+    "reasons": {
+      "SPAM": {
+        "label": "Spam",
+        "hint": "Mgbasa ozi a na-achọghị, njikọ na-adịghị mkpa, ma ọ bụ ozi ọtụtụ."
+      },
+      "ABUSE": {
+        "label": "Mmegbu ma ọ bụ nsogbu",
+        "hint": "Mwakpo onwe, egwu, ma ọ bụ nsogbu ezubere iche."
+      },
+      "MISINFO": {
+        "label": "Ozi ụgha",
+        "hint": "Nkwupụta ụgha enwere ike igosi banyere ndị mmadụ ma ọ bụ ihe omume."
+      },
+      "HATE": {
+        "label": "Okwu ịkpọ asị",
+        "hint": "Mwakpo na njirimara — agbụrụ, okpukpe, nwoke na nwanyị."
+      },
+      "OTHER": {
+        "label": "Ihe ọzọ",
+        "hint": "Ọ dabaghị na ndị dị n'elu — kọwaa n'okpuru."
+      },
+      "FUNDS_MISUSE": {
+        "label": "Enwere ike na-eji ego eme ihe ọjọọ",
+        "hint": "Ego e kwuru na e mefuru adabaghị na ihe na-eme."
+      },
+      "WORK_NOT_DONE": {
+        "label": "Arụghị ọrụ ahụ",
+        "hint": "Mkpọlite ego kwuru na ọ na-aga n'ihu, mana ọ dịghị ihe gbanwere n'ala."
+      },
+      "MISREPRESENTED": {
+        "label": "Mkpọlite ego a ekwughị eziokwu",
+        "hint": "Mkpa akọwara dị ukwuu karịa, emezuola ya, ma ọ bụ ọ bụghị eziokwu."
+      },
+      "NO_UPDATES": {
+        "label": "Nzukọ ahụ agbachiela nkịtị",
+        "hint": "A kpọtụrụ ego ma ọ dịghị ihe akọọla kemgbe."
+      }
+    },
+    "modal": {
+      "title": "Kọọrọ ndị nlekọta"
+    },
+    "success": {
+      "title": "Anatala akụkọ gị",
+      "body": "Onye nlekọta ga-enyocha ya n'oge na-adịghị anya. Daalụ maka inyere aka ime ka ihe ndekọ bụrụ eziokwu.",
+      "close": "Mechie"
+    },
+    "errors": {
+      "alreadyFlagged": "Ị kọọlarị ihe a. Onye nlekọta ga-enyocha ya.",
+      "emailNotVerified": "Kwadoo adreesị email gị tupu ị kọọ. Lelee igbe ozi gị — ma ọ bụ gaa Profaịlụ ka e zipụghachi ya.",
+      "rateLimited": "Ị zipụla ọtụtụ akụkọ n'oge na-adịbeghị anya. Nwaa ọzọ n'ime sekọnd {{seconds}}.",
+      "generic": "Enweghị ike izipu akụkọ ahụ. Biko nwaa ọzọ.",
+      "notEligible": "Naanị ndị nyere onyinye na mkpọlite ego a, ma ọ bụ ndị bi n'ógbè ọ na-eje ozi, nwere ike ikwu nchegbu.",
+      "descriptionRequired": "Biko kọwaa ihe ị hụrụ, opekempe otu ahịrịokwu."
+    },
+    "campaignIntro": "Kwuo nchegbu gị maka otu esi na-agba mkpọlite ego a. Nchegbu na-aga na ndị ọrụ CivicOS, ọ bụghị nzukọ ahụ. Ọ dịghị ihe ga-eme mkpọlite ego ahụ n'onwe ya — mmadụ na-enyocha nke ọ bụla.",
+    "campaignDescriptionLabel": "Gịnị ka ị hụrụ? (achọrọ ya)",
+    "campaignDescriptionPlaceholder": "dịka: e metụghị ebe olulu mmiri ahụ aka kemgbe Eprel, mana mmelite ikpeazụ kwuru na egwuchaala ya"
   }
 }
