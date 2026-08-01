@@ -425,6 +425,21 @@ func main() {
 	// asks Gemini for a plain-language digest. Cached 15min server-side.
 	r.GET("/api/v1/ai/narrate-metrics", authMiddleware, limitStandard, civicaiProxy)
 
+	// Community Funding surfaces. All six are role-gated inside
+	// civicai-service; the gateway enforces auth and the shared authoring
+	// budget. Every one of them is advisory and none writes anything, so
+	// none needs the tighter create/donation buckets.
+	r.POST("/api/v1/ai/classify-campaign", authMiddleware, limitStandard, civicaiProxy)
+	r.POST("/api/v1/ai/draft-campaign", authMiddleware, limitStandard, civicaiProxy)
+	r.POST("/api/v1/ai/summarize-campaign-impact", authMiddleware, limitStandard, civicaiProxy)
+	r.POST("/api/v1/ai/draft-donor-update", authMiddleware, limitStandard, civicaiProxy)
+	r.POST("/api/v1/ai/draft-completion-report", authMiddleware, limitStandard, civicaiProxy)
+	// Risk assessment is PLATFORM_ADMIN only, enforced in civicai-service.
+	// It fans out to organization-service and then to Gemini, so it is the
+	// most expensive call here — but it is only ever made by a handful of
+	// reviewers working a queue.
+	r.POST("/api/v1/ai/assess-campaign-risk", authMiddleware, limitStandard, civicaiProxy)
+
 	// Notifications
 	notificationsStream := proxy.NewStreamingProxy(cfg.CommunityServiceURL, "/api")
 	r.GET("/api/v1/notifications", authMiddleware, communityProxy)
