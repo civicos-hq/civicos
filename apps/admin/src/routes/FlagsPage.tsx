@@ -139,6 +139,7 @@ export function FlagsPage() {
             <option value="REPRESENTATIVE_COMMENT">Representative comment</option>
             <option value="ANNOUNCEMENT">Announcement</option>
             <option value="PROGRESS_UPDATE">Progress update</option>
+            <option value="CAMPAIGN">Campaign concern</option>
           </select>
           <select
             className="admin-table-search"

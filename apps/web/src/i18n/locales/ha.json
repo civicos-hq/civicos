@@ -178,7 +178,8 @@
     "groups": {
       "issues": "Matsaloli",
       "petitions": "Koƙe-koƙe",
-      "representatives": "Wakilai"
+      "representatives": "Wakilai",
+      "campaigns": "Tallafin al'umma"
     }
   },
   "discoverPage": {
@@ -198,7 +199,8 @@
     "kinds": {
       "all": "Duk nau'i",
       "issue": "Matsaloli",
-      "petition": "Koƙe-koƙe"
+      "petition": "Koƙe-koƙe",
+      "campaign": "Tallafin al'umma"
     },
     "itemCount_one": "Abu {{count}}",
     "itemCount_other": "Abubuwa {{count}}",
@@ -211,7 +213,8 @@
     "loadMore": "Loda ƙari",
     "labels": {
       "issue": "Matsala",
-      "petition": "Koƙe"
+      "petition": "Koƙe",
+      "campaign": "Tallafi"
     },
     "meta": {
       "upvotes_one": "Goyon baya {{count}}",
@@ -1057,5 +1060,71 @@
     "connect": "Haɗa asusu",
     "connecting": "Ana haɗawa…",
     "error": "Ba a iya haɗa wannan asusun ba. Duba banki da lambar asusu."
+  },
+  "report": {
+    "buttonLabel": "Kai rahoto",
+    "buttonAria": "Kai rahoton wannan abun ciki ga masu daidaitawa",
+    "intro": "Masu daidaitawa suna duba kowane rahoto. Rahoton ƙarya na iya haifar da takura kan asusunka.",
+    "reasonLegend": "Me ke damun wannan abun ciki?",
+    "descriptionLabel": "Akwai wani abu da ya kamata su sani? (na zaɓi)",
+    "descriptionPlaceholder": "misali: wannan sharhi ya ambaci sunan wani mutum kuma yana ɓatarwa",
+    "submit": "Aika rahoto",
+    "reasons": {
+      "SPAM": {
+        "label": "Spam",
+        "hint": "Talla mara buƙata, hanyoyin da ba su dace ba, ko saƙonni masu yawa."
+      },
+      "ABUSE": {
+        "label": "Cin zarafi ko tsangwama",
+        "hint": "Kai hari kan mutum, barazana, ko tsangwama kai tsaye."
+      },
+      "MISINFO": {
+        "label": "Bayanan ƙarya",
+        "hint": "Da'awar ƙarya game da mutane ko abubuwan da suka faru."
+      },
+      "HATE": {
+        "label": "Maganar ƙiyayya",
+        "hint": "Kai hari kan asali — kabila, addini, jinsi, yanayin sha'awa."
+      },
+      "OTHER": {
+        "label": "Wani abu dabam",
+        "hint": "Bai dace da waɗanda ke sama ba — bayyana a ƙasa."
+      },
+      "FUNDS_MISUSE": {
+        "label": "Ana iya ɓata kuɗi",
+        "hint": "Kashe kuɗin da aka bayar bai dace da abin da ke faruwa ba."
+      },
+      "WORK_NOT_DONE": {
+        "label": "Ba a yi aikin ba",
+        "hint": "Tallafin ya ce yana ci gaba, amma babu abin da ya canza a ƙasa."
+      },
+      "MISREPRESENTED": {
+        "label": "Tallafin bai faɗi gaskiya ba",
+        "hint": "An ƙara girman buƙatar, an riga an cika ta, ko kuma ba gaskiya ba ce."
+      },
+      "NO_UPDATES": {
+        "label": "Ƙungiyar ta yi shiru",
+        "hint": "An tara kuɗi kuma ba a ba da rahoto ba tun daga lokacin."
+      }
+    },
+    "modal": {
+      "title": "Kai rahoto ga masu daidaitawa"
+    },
+    "success": {
+      "title": "An karɓi rahoto",
+      "body": "Mai daidaitawa zai duba shi nan ba da jimawa ba. Na gode da taimakawa wajen kiyaye gaskiya.",
+      "close": "Rufe"
+    },
+    "errors": {
+      "alreadyFlagged": "Ka riga ka kai rahoton wannan. Mai daidaitawa zai duba shi.",
+      "emailNotVerified": "Tabbatar da adireshin imel ɗinka kafin kai rahoto. Duba akwatin saƙonninka — ko je Bayanan Sirri don sake aikawa.",
+      "rateLimited": "Ka aika rahotanni da yawa kwanan nan. Sake gwadawa cikin daƙiƙa {{seconds}}.",
+      "generic": "Ba a iya aika rahoton ba. Da fatan za a sake gwadawa.",
+      "notEligible": "Mutanen da suka ba da gudummawa ga wannan tallafin, ko waɗanda ke zama a yankin da yake hidima, ne kaɗai za su iya ƙara damuwa.",
+      "descriptionRequired": "Da fatan za a bayyana abin da ka gani, aƙalla jimla ɗaya."
+    },
+    "campaignIntro": "Bayyana damuwarka game da yadda ake gudanar da wannan tallafin. Damuwar tana zuwa ga ma'aikatan CivicOS, ba ga ƙungiyar ba. Ba abin da zai faru da tallafin ta atomatik — mutum yana duba kowanne.",
+    "campaignDescriptionLabel": "Me ka gani? (wajibi)",
+    "campaignDescriptionPlaceholder": "misali: ba a taɓa wurin rijiyar ba tun watan Afrilu, amma sabuntawa ta ƙarshe ta ce an gama haƙa"
   }
 }

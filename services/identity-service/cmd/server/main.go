@@ -43,7 +43,7 @@ func main() {
 	auditor := audit.New(db)
 
 	flagRepo := flags.NewRepository(db)
-	flagSvc := flags.NewService(flagRepo, auditor)
+	flagSvc := flags.NewService(flagRepo, auditor, flags.NewCampaignGate(db))
 	flagHandler := flags.NewHandler(flagSvc, auditor)
 
 	auditRepo := auditlogs.NewRepository(db)

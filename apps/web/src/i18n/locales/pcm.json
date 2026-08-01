@@ -194,7 +194,8 @@
     "groups": {
       "issues": "Issues",
       "petitions": "Petitions",
-      "representatives": "Representatives"
+      "representatives": "Representatives",
+      "campaigns": "Campaigns"
     }
   },
   "discoverPage": {
@@ -214,7 +215,8 @@
     "kinds": {
       "all": "All types",
       "issue": "Issues",
-      "petition": "Petitions"
+      "petition": "Petitions",
+      "campaign": "Campaigns"
     },
     "itemCount_one": "{{count}} item",
     "itemCount_other": "{{count}} items",
@@ -227,7 +229,8 @@
     "loadMore": "Load more",
     "labels": {
       "issue": "Issue",
-      "petition": "Petition"
+      "petition": "Petition",
+      "campaign": "Campaign"
     },
     "meta": {
       "upvotes_one": "{{count}} upvote",
@@ -1286,5 +1289,71 @@
     "connect": "Connect the account",
     "connecting": "Dey connect…",
     "error": "We no fit connect that account. Check the bank and account number."
+  },
+  "report": {
+    "buttonLabel": "Report",
+    "buttonAria": "Report this content give moderators",
+    "intro": "Moderators dey check every report. If you report lie-lie, e fit affect your account.",
+    "reasonLegend": "Wetin do this content?",
+    "descriptionLabel": "Anything else moderators suppose know? (optional)",
+    "descriptionPlaceholder": "e.g. this comment call person name and e dey mislead people",
+    "submit": "Send report",
+    "reasons": {
+      "SPAM": {
+        "label": "Spam",
+        "hint": "Advert wey nobody ask for, link wey no concern am, or bulk message."
+      },
+      "ABUSE": {
+        "label": "Abuse or harassment",
+        "hint": "Insult, threat, or dey target person."
+      },
+      "MISINFO": {
+        "label": "Lie-lie information",
+        "hint": "Claim about people or event wey you fit prove say na lie."
+      },
+      "HATE": {
+        "label": "Hate speech",
+        "hint": "Attack on who person be — tribe, religion, gender, orientation."
+      },
+      "OTHER": {
+        "label": "Something else",
+        "hint": "E no match the ones for up — explain am below."
+      },
+      "FUNDS_MISUSE": {
+        "label": "Dem fit dey misuse the money",
+        "hint": "The money wey dem talk say dem spend no match wetin dey happen."
+      },
+      "WORK_NOT_DONE": {
+        "label": "Dem never do the work",
+        "hint": "Campaign talk say e dey move, but nothing don change for ground."
+      },
+      "MISREPRESENTED": {
+        "label": "The campaign no talk true",
+        "hint": "The need wey dem describe too much, dem don already do am, or e no real."
+      },
+      "NO_UPDATES": {
+        "label": "The organization don keep quiet",
+        "hint": "Dem raise money and dem no report anything since."
+      }
+    },
+    "modal": {
+      "title": "Report give moderators"
+    },
+    "success": {
+      "title": "We don receive your report",
+      "body": "Moderator go check am soon. Thank you for helping make the record correct.",
+      "close": "Close"
+    },
+    "errors": {
+      "alreadyFlagged": "You don already report this content. Moderator go check am.",
+      "emailNotVerified": "Verify your email before you fit report. Check your inbox — or go Profile make dem resend am.",
+      "rateLimited": "You don send plenty report just now. Try again for {{seconds}} seconds.",
+      "generic": "We no fit send the report. Abeg try again small time.",
+      "notEligible": "Na only people wey donate give this campaign, or wey dey live for the area, fit talk say something no correct.",
+      "descriptionRequired": "Abeg describe wetin you see, at least one sentence."
+    },
+    "campaignIntro": "Talk your mind about how dem dey run this campaign. E dey go CivicOS staff, no be the organization. Nothing go happen to the campaign by itself — person go check am.",
+    "campaignDescriptionLabel": "Wetin you see? (you must fill am)",
+    "campaignDescriptionPlaceholder": "e.g. dem never touch the borehole site since April, but the last update talk say dem don finish drilling"
   }
 }

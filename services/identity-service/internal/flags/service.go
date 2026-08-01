@@ -23,10 +23,13 @@ type Store interface {
 type Service struct {
 	repo    Store
 	auditor *audit.Auditor
+	// gate is nil on deployments without campaigns wired up; a nil gate
+	// refuses CAMPAIGN flags rather than waving them through.
+	gate *CampaignGate
 }
 
-func NewService(repo Store, auditor *audit.Auditor) *Service {
-	return &Service{repo: repo, auditor: auditor}
+func NewService(repo Store, auditor *audit.Auditor, gate *CampaignGate) *Service {
+	return &Service{repo: repo, auditor: auditor, gate: gate}
 }
 
 type CreateInput struct {
@@ -73,8 +76,27 @@ func (s *Service) Create(input CreateInput, reporterID, reporterName string) (*d
 		return nil, &AppError{Code: "INVALID_CONTENT_TYPE", Message: "Unknown content type", Status: http.StatusBadRequest}
 	}
 	reason := strings.ToUpper(input.Reason)
-	if !validReason(reason) {
-		return nil, &AppError{Code: "INVALID_REASON", Message: "Unknown flag reason", Status: http.StatusBadRequest}
+	if !validReasonFor(ct, reason) {
+		return nil, &AppError{Code: "INVALID_REASON", Message: "Unknown flag reason for this content type", Status: http.StatusBadRequest}
+	}
+
+	if domain.FlaggableType(ct) == domain.FlaggableCampaign {
+		// A concern about money must come with an account of what was seen.
+		// A reason code alone tells a moderator nothing they can act on, and
+		// the effort is itself a filter against drive-by reporting.
+		if input.Description == nil || len(strings.TrimSpace(*input.Description)) < 20 {
+			return nil, &AppError{
+				Code:    "DESCRIPTION_REQUIRED",
+				Message: "Describe what you have seen, in at least a sentence.",
+				Status:  http.StatusBadRequest,
+			}
+		}
+		if s.gate == nil {
+			return nil, &AppError{Code: "INVALID_CONTENT_TYPE", Message: "Campaign reporting is not enabled", Status: http.StatusBadRequest}
+		}
+		if err := s.gate.Check(input.ContentID, reporterID); err != nil {
+			return nil, err
+		}
 	}
 	f := &domain.ContentFlag{
 		ID:           uuid.New().String(),
@@ -119,6 +141,23 @@ func (s *Service) Resolve(id string, input ResolveInput, actor audit.Actor) (*do
 	if existing.Status != domain.FlagStatusPending {
 		return nil, &AppError{Code: "ALREADY_RESOLVED", Message: "Flag has already been resolved", Status: http.StatusConflict}
 	}
+	// A campaign concern can never be resolved by hiding something.
+	//
+	// HIDDEN is a content action: it takes a comment off a page. The
+	// equivalent action for a campaign is to PAUSE it, which stops money
+	// moving — and that must stay a separate, deliberate decision taken on
+	// the campaign itself, with its own reason code and audit trail. If
+	// clearing the queue could pause a fundraiser, a coordinated set of
+	// reports would become a way to shut down a rival, which is exactly the
+	// lever this design refuses to build.
+	if existing.ContentType == domain.FlaggableCampaign && status == string(domain.FlagStatusHidden) {
+		return nil, &AppError{
+			Code: "USE_PAUSE_INSTEAD",
+			Message: "A campaign concern cannot be resolved by hiding it. Mark it reviewed or dismissed, " +
+				"and pause the campaign separately if that is warranted.",
+			Status: http.StatusBadRequest,
+		}
+	}
 	now := time.Now().UTC()
 	updates := map[string]any{
 		"status":           status,
@@ -144,11 +183,21 @@ func (s *Service) DirectHide(input DirectHideInput, actor domain.User) (*domain.
 	if !validFlaggable(ct) {
 		return nil, &AppError{Code: "INVALID_CONTENT_TYPE", Message: "Unknown content type", Status: http.StatusBadRequest}
 	}
+	// Same rule as Resolve, for the same reason: there is no such thing as
+	// hiding a campaign. Pausing it is the real action and it lives on the
+	// campaign, not in the moderation queue.
+	if domain.FlaggableType(ct) == domain.FlaggableCampaign {
+		return nil, &AppError{
+			Code:    "USE_PAUSE_INSTEAD",
+			Message: "Campaigns cannot be hidden. Pause the campaign instead.",
+			Status:  http.StatusBadRequest,
+		}
+	}
 	if strings.TrimSpace(derefString(input.ResolutionNote)) == "" {
 		return nil, &AppError{Code: "RESOLUTION_NOTE_REQUIRED", Message: "A resolution note is required when hiding content", Status: http.StatusBadRequest}
 	}
 	reason := strings.ToUpper(input.Reason)
-	if !validReason(reason) {
+	if !validReasonFor(ct, reason) {
 		return nil, &AppError{Code: "INVALID_REASON", Message: "Unknown flag reason", Status: http.StatusBadRequest}
 	}
 	now := time.Now().UTC()
@@ -174,7 +223,18 @@ func (s *Service) DirectHide(input DirectHideInput, actor domain.User) (*domain.
 	return f, nil
 }
 
-func validReason(r string) bool {
+// validReasonFor keeps the two reason vocabularies apart. A CAMPAIGN takes
+// only funding reasons; everything else takes only moderation reasons.
+// OTHER is the one both share.
+func validReasonFor(contentType, r string) bool {
+	if domain.FlaggableType(contentType) == domain.FlaggableCampaign {
+		for _, ok := range domain.FundingReasons() {
+			if domain.FlagReason(r) == ok {
+				return true
+			}
+		}
+		return false
+	}
 	switch domain.FlagReason(r) {
 	case domain.FlagReasonSpam, domain.FlagReasonAbuse, domain.FlagReasonMisinfo,
 		domain.FlagReasonHate, domain.FlagReasonOther:
@@ -187,7 +247,8 @@ func validFlaggable(t string) bool {
 	switch domain.FlaggableType(t) {
 	case domain.FlaggableIssue, domain.FlaggableIssueComment, domain.FlaggablePetition,
 		domain.FlaggablePetitionComment, domain.FlaggableRepComment,
-		domain.FlaggableAnnouncement, domain.FlaggableProgressUpdate:
+		domain.FlaggableAnnouncement, domain.FlaggableProgressUpdate,
+		domain.FlaggableCampaign:
 		return true
 	}
 	return false

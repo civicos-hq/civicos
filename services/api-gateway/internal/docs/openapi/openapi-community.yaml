@@ -875,7 +875,7 @@ paths:
     get:
       tags: [Search]
       security: []
-      summary: Global search — 7 buckets across the platform
+      summary: Global search — 8 buckets across the platform
       description: |
         Case-insensitive ILIKE across every citizen-facing entity kind.
         Queries under 2 characters return empty buckets rather than 400.
@@ -887,6 +887,12 @@ paths:
           citizen-facing).
         - **projects**: all statuses (mirrors the citizen browse).
         - **organizations**: no status field; the registry is fully public.
+        - **campaigns**: only statuses that have a public page — PUBLISHED,
+          FUNDED, COMPLETED, REPORTED, mirroring organization-service's
+          `publicStatuses` allow-list. DRAFT, PENDING_REVIEW and REJECTED
+          are excluded because the title alone would reveal that an
+          organization asked for money and was refused. PAUSED is excluded
+          because its public page 404s, so a result would lead nowhere.
       parameters:
         - in: query
           name: q
@@ -894,7 +900,7 @@ paths:
           schema: { type: string, minLength: 2 }
       responses:
         '200':
-          description: Seven buckets, capped at 8 items each.
+          description: Eight buckets, capped at 8 items each.
           content:
             application/json:
               examples:
@@ -909,19 +915,20 @@ paths:
                       consultations: []
                       announcements: []
                       projects: []
+                      campaigns: []
 
   # ──────────────────────── DISCOVER ────────────────────────
   /discover/feed:
     get:
       tags: [Discover]
-      summary: Personalized feed of issues, petitions, announcements, projects, and consultations
+      summary: Personalized feed of issues, petitions, announcements, projects, consultations, and campaigns
       description: |
         Items are labelled with a `tier` based on proximity to the caller's
         community: `COMMUNITY` (same community), `LGA` (same LGA, different
         community), `STATE` (same state, different LGA), `COUNTRY` (same
         country, different state). Pass `tier=` to filter to one tier.
 
-        The feed covers five kinds:
+        The feed covers six kinds:
 
         - **issue** and **petition** are tiered by the item's community.
         - **announcement** is tiered by the publishing org's state/lga
@@ -931,6 +938,18 @@ paths:
         - **consultation** follows the same rule as project: community
           anchor first, then org state/lga. Only PUBLISHED and CLOSED
           consultations are surfaced — drafts stay private.
+        - **campaign** is tiered by `campaign.communityId` when set, else by
+          the campaign's own `state`/`lga`, else by the owning org's. A
+          campaign carries its own location because it is often raised for a
+          specific ward rather than wherever the organization is registered.
+          Only PUBLISHED, FUNDED, COMPLETED and REPORTED are surfaced,
+          matching organization-service's `publicStatuses`. PAUSED is
+          excluded: a campaign stopped while a concern is looked into
+          should not be promoted, and its public page 404s regardless.
+
+        An unrecognised `kind` is treated as no filter and returns the full
+        feed, rather than an empty one that would read as "nothing is
+        happening near you".
       parameters:
         - in: query
           name: communityId
@@ -941,7 +960,8 @@ paths:
           schema: { $ref: '#/components/schemas/DiscoverTier' }
         - in: query
           name: kind
-          schema: { type: string, enum: [issue, petition, announcement, project, consultation] }
+          schema:
+            { type: string, enum: [issue, petition, announcement, project, consultation, campaign] }
         - in: query
           name: limit
           schema: { type: integer, default: 20, maximum: 50 }

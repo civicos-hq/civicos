@@ -47,7 +47,7 @@ func TestResolveHiddenRequiresResolutionNote(t *testing.T) {
 	store := &fakeStore{
 		flag: &domain.ContentFlag{ID: "flag-1", Status: domain.FlagStatusPending},
 	}
-	svc := NewService(store, nil)
+	svc := NewService(store, nil, nil)
 
 	_, err := svc.Resolve("flag-1", ResolveInput{Status: "HIDDEN"}, audit.Actor{ID: "admin-1", Name: "Admin"})
 	if err == nil {
@@ -61,7 +61,7 @@ func TestResolveHiddenRequiresResolutionNote(t *testing.T) {
 
 func TestDirectHideRequiresResolutionNote(t *testing.T) {
 	store := &fakeStore{}
-	svc := NewService(store, nil)
+	svc := NewService(store, nil, nil)
 
 	_, err := svc.DirectHide(DirectHideInput{
 		ContentType: "ISSUE_COMMENT",

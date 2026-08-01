@@ -192,6 +192,16 @@ const (
 	FlagReasonHate    FlagReason = "HATE"
 	FlagReasonOther   FlagReason = "OTHER"
 
+	// Funding concerns. A campaign is reviewed before it publishes and is
+	// locked once it does, so the moderation vocabulary above does not fit:
+	// nobody reports a fundraiser for "hate speech". What goes wrong with a
+	// campaign goes wrong AFTER approval, in conduct nobody reviewed — so
+	// these name conduct, not content.
+	FlagReasonFundsMisuse    FlagReason = "FUNDS_MISUSE"
+	FlagReasonWorkNotDone    FlagReason = "WORK_NOT_DONE"
+	FlagReasonMisrepresented FlagReason = "MISREPRESENTED"
+	FlagReasonNoUpdates      FlagReason = "NO_UPDATES"
+
 	FlagStatusPending   FlagStatus = "PENDING"
 	FlagStatusReviewed  FlagStatus = "REVIEWED"
 	FlagStatusHidden    FlagStatus = "HIDDEN"
@@ -204,7 +214,22 @@ const (
 	FlaggableRepComment      FlaggableType = "REPRESENTATIVE_COMMENT"
 	FlaggableAnnouncement    FlaggableType = "ANNOUNCEMENT"
 	FlaggableProgressUpdate  FlaggableType = "PROGRESS_UPDATE"
+	FlaggableCampaign        FlaggableType = "CAMPAIGN"
 )
+
+// FundingReasons are valid only against a CAMPAIGN, and a CAMPAIGN accepts
+// only these. Keeping the two vocabularies apart is not tidiness: it stops a
+// funding concern arriving in the queue labelled "SPAM", where a moderator
+// would triage it as a nuisance post rather than a claim about money.
+func FundingReasons() []FlagReason {
+	return []FlagReason{
+		FlagReasonFundsMisuse,
+		FlagReasonWorkNotDone,
+		FlagReasonMisrepresented,
+		FlagReasonNoUpdates,
+		FlagReasonOther,
+	}
+}
 
 // ContentFlag is a citizen's report of content that violates the
 // platform's rules. Compound uniqueness ({content_type, content_id,

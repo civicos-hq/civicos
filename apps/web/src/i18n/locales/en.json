@@ -213,6 +213,22 @@
       "OTHER": {
         "label": "Something else",
         "hint": "Doesn't match the above — describe below."
+      },
+      "FUNDS_MISUSE": {
+        "label": "Money may be misused",
+        "hint": "Spending reported here does not match what is happening."
+      },
+      "WORK_NOT_DONE": {
+        "label": "The work has not been done",
+        "hint": "The campaign says it is progressing, but nothing has changed on the ground."
+      },
+      "MISREPRESENTED": {
+        "label": "The campaign misrepresents the situation",
+        "hint": "The need described here is exaggerated, already met, or not real."
+      },
+      "NO_UPDATES": {
+        "label": "The organization has gone silent",
+        "hint": "Money was raised and nothing has been reported since."
       }
     },
     "modal": {
@@ -227,8 +243,13 @@
       "alreadyFlagged": "You've already reported this content. A moderator will review it.",
       "emailNotVerified": "Verify your email address before filing reports. Check your inbox — or go to Profile to resend the verification email.",
       "rateLimited": "You've filed several reports recently. Try again in {{seconds}} seconds.",
-      "generic": "Couldn't send the report. Please try again in a moment."
-    }
+      "generic": "Couldn't send the report. Please try again in a moment.",
+      "notEligible": "Only people who donated to this campaign, or who live in the area it serves, can raise a concern about it.",
+      "descriptionRequired": "Please describe what you have seen, in at least a sentence."
+    },
+    "campaignIntro": "Raise a concern about how this campaign is being run. Concerns go to CivicOS staff, not to the organization. Nothing happens to the campaign automatically — a person reviews every one.",
+    "campaignDescriptionLabel": "What have you seen? (required)",
+    "campaignDescriptionPlaceholder": "e.g. the borehole site has been untouched since April, and the last update said drilling was finished"
   },
   "comments": {
     "heading": "Discussion",
@@ -253,7 +274,8 @@
       "organizations": "Organizations",
       "consultations": "Consultations",
       "announcements": "Announcements",
-      "projects": "Projects"
+      "projects": "Projects",
+      "campaigns": "Campaigns"
     }
   },
   "discoverPage": {
@@ -276,7 +298,8 @@
       "petition": "Petitions",
       "announcement": "Announcements",
       "project": "Projects",
-      "consultation": "Consultations"
+      "consultation": "Consultations",
+      "campaign": "Campaigns"
     },
     "itemCount_one": "{{count}} item",
     "itemCount_other": "{{count}} items",
@@ -292,7 +315,8 @@
       "petition": "Petition",
       "announcement": "Announcement",
       "project": "Project",
-      "consultation": "Consultation"
+      "consultation": "Consultation",
+      "campaign": "Campaign"
     },
     "meta": {
       "upvotes_one": "{{count}} upvote",

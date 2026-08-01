@@ -2,7 +2,15 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { AlertCircle, Briefcase, FileText, MapPin, Megaphone, MessageSquare } from 'lucide-react';
+import {
+  AlertCircle,
+  Briefcase,
+  FileText,
+  HandCoins,
+  MapPin,
+  Megaphone,
+  MessageSquare,
+} from 'lucide-react';
 import { Button } from '@civicos/ui';
 import type {
   Announcement,
@@ -13,6 +21,7 @@ import type {
   Project,
 } from '@civicos/types';
 import { api } from '../lib/api';
+import { categoryKey, formatMoney, progressPercent } from '../hooks/useCampaigns';
 import { useMe } from '../hooks/useMe';
 import { useEnumLabels } from '../hooks/useEnumLabels';
 import { useRelativeTime } from '../hooks/useRelativeTime';
@@ -38,8 +47,31 @@ interface OrgSummary {
   lga?: string;
 }
 
+/**
+ * The campaign shape the feed returns — a subset of PublicCampaign, without
+ * the fields only a detail page needs (description, milestones, fee split).
+ * Declared here rather than reusing PublicCampaign so the card can't quietly
+ * start reading a field the feed does not send.
+ */
+interface FeedCampaign {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string;
+  category: string;
+  status: string;
+  currency: string;
+  goalMinor: number;
+  raisedMinor: number;
+  donorCount: number;
+  coverImageUrl?: string | null;
+  isEmergency: boolean;
+  state?: string | null;
+  lga?: string | null;
+}
+
 interface FeedItem {
-  kind: 'issue' | 'petition' | 'announcement' | 'project' | 'consultation';
+  kind: 'issue' | 'petition' | 'announcement' | 'project' | 'consultation' | 'campaign';
   tier: Tier;
   createdAt: string;
   // communityId is empty for announcements + un-scoped projects and
@@ -53,6 +85,7 @@ interface FeedItem {
   announcement?: Announcement;
   project?: Project;
   consultation?: Consultation;
+  campaign?: FeedCampaign;
 }
 
 interface FeedResponse {
@@ -61,7 +94,8 @@ interface FeedResponse {
 }
 
 type TierFilter = Tier | 'ALL';
-type KindFilter = 'all' | 'issue' | 'petition' | 'announcement' | 'project' | 'consultation';
+type KindFilter =
+  'all' | 'issue' | 'petition' | 'announcement' | 'project' | 'consultation' | 'campaign';
 
 const PAGE_SIZE = 20;
 
@@ -72,6 +106,7 @@ const KIND_KEYS: KindFilter[] = [
   'announcement',
   'project',
   'consultation',
+  'campaign',
 ];
 
 const TIER_TONE: Record<Tier, string> = {
@@ -354,10 +389,20 @@ function FeedCard({ item }: { item: FeedItem }) {
       />
     );
   }
+  if (item.kind === 'campaign' && item.campaign) {
+    return (
+      <CampaignCard
+        campaign={item.campaign}
+        org={item.organization}
+        community={item.community}
+        createdAt={item.createdAt}
+      />
+    );
+  }
   return null;
 }
 
-// itemKey generates a stable react key from the five possible entity
+// itemKey generates a stable react key from the six possible entity
 // pointers. Kept in one place so the .map() key line doesn't grow
 // alongside every new kind.
 function itemKey(item: FeedItem): string {
@@ -367,6 +412,7 @@ function itemKey(item: FeedItem): string {
     item.announcement?.id ??
     item.project?.id ??
     item.consultation?.id ??
+    item.campaign?.id ??
     'unknown';
   return `${item.kind}-${id}`;
 }
@@ -578,6 +624,74 @@ function ConsultationCard({
             <span>
               {t('discoverPage.meta.responsesCount', { count: consultation.responseCount })}
             </span>
+          </CardMeta>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function CampaignCard({
+  campaign,
+  org,
+  community,
+  createdAt,
+}: {
+  campaign: FeedCampaign;
+  org?: OrgSummary;
+  community?: CommunitySummary;
+  createdAt: string;
+}) {
+  const { t, i18n } = useTranslation();
+  const pct = progressPercent(campaign.raisedMinor, campaign.goalMinor);
+  return (
+    <Link
+      to={`/campaigns/${campaign.slug}`}
+      className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
+    >
+      <div className="flex items-start gap-2">
+        <HandCoins className="mt-0.5 h-4 w-4 flex-shrink-0 text-rose-600 dark:text-rose-400" />
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-rose-700 dark:text-rose-300">
+            {t('discoverPage.labels.campaign')}
+          </p>
+          <h3 className="mt-0.5 line-clamp-2 font-semibold text-slate-900 dark:text-slate-100">
+            {campaign.title}
+          </h3>
+          <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-300">
+            {campaign.summary}
+          </p>
+
+          {/* Shown at zero too: "nobody has given yet" is information a
+              citizen is entitled to, and hiding it would flatter the
+              campaigns that need help most. */}
+          <div
+            className="fund-progress fund-progress--feed mt-3"
+            role="progressbar"
+            aria-valuenow={pct}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={t('campaigns.progressLabel', { percent: pct })}
+          >
+            <span className="fund-progress-fill" style={{ width: `${pct}%` }} />
+          </div>
+          <p className="mt-1.5 text-sm text-slate-700 dark:text-slate-200">
+            <strong>{formatMoney(campaign.raisedMinor, campaign.currency, i18n.language)}</strong>{' '}
+            {t('campaigns.ofGoal', {
+              goal: formatMoney(campaign.goalMinor, campaign.currency, i18n.language),
+            })}
+          </p>
+
+          <CardMeta community={community} org={org} createdAt={createdAt}>
+            <span>{t(`campaigns.categories.${categoryKey(campaign.category as never)}`)}</span>
+            {campaign.isEmergency && (
+              <>
+                <span>·</span>
+                <span className="font-semibold text-rose-700 dark:text-rose-300">
+                  {t('campaigns.emergency')}
+                </span>
+              </>
+            )}
           </CardMeta>
         </div>
       </div>

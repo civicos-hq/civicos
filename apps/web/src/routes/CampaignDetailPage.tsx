@@ -20,6 +20,8 @@ import {
 } from '../hooks/useCampaigns';
 import { DonateForm } from '../components/DonateForm';
 import { CampaignConsole } from '../components/CampaignConsole';
+import { ReportButton } from '../components/civic/ReportButton';
+import { useMe } from '../hooks/useMe';
 
 // Public campaign page. Shows the ask, the spend plan, and — since Phase 3 —
 // the donate flow and public donor list. Phase 4 extends it with the full
@@ -224,7 +226,15 @@ function FinalReportSection({
 }
 
 /** The evidence feed: what the organization says it has been doing. */
-function UpdatesSection({ updates, locale }: { updates: FundingUpdate[]; locale: string }) {
+function UpdatesSection({
+  updates,
+  locale,
+  canReport,
+}: {
+  updates: FundingUpdate[];
+  locale: string;
+  canReport: boolean;
+}) {
   const { t } = useTranslation();
   if (updates.length === 0) return null;
 
@@ -252,6 +262,11 @@ function UpdatesSection({ updates, locale }: { updates: FundingUpdate[]; locale:
                 ))}
               </ul>
             )}
+            {canReport && (
+              <div className="fund-update-report">
+                <ReportButton contentType="PROGRESS_UPDATE" contentId={u.id} />
+              </div>
+            )}
           </li>
         ))}
       </ol>
@@ -268,6 +283,12 @@ export function CampaignDetailPage() {
   const spendQuery = useCampaignSpend(c?.id);
   const updatesQuery = useCampaignUpdates(c?.id);
   const canManage = useCanManageCampaign(c?.organizationId);
+  // Signed-in only: the endpoint requires auth, and offering the control to
+  // a signed-out reader would just bounce them. Eligibility itself (donor or
+  // local) is decided server-side — the modal explains a refusal rather than
+  // the page guessing, which would need a second round trip on every view.
+  const { data: me } = useMe();
+  const signedIn = Boolean(me?.id);
 
   useSeo({
     title: c ? `${c.title} — CivicOS` : t('campaigns.detailSeoFallback'),
@@ -383,7 +404,11 @@ export function CampaignDetailPage() {
 
             <FinalReportSection campaign={c} locale={i18n.language} />
 
-            <UpdatesSection updates={updatesQuery.data ?? []} locale={i18n.language} />
+            <UpdatesSection
+              updates={updatesQuery.data ?? []}
+              locale={i18n.language}
+              canReport={signedIn}
+            />
 
             {/* Shown only to admins of the owning organization. Rendering
                 only — every write is authorised again server-side. */}
@@ -406,6 +431,18 @@ export function CampaignDetailPage() {
                   ))}
                 </ul>
               </>
+            )}
+
+            {/* Last thing in the body, and deliberately quiet. Someone who
+                has just read the spend figures and found them hard to believe
+                should not have to hunt for this — but a prominent accusation
+                button on a page whose whole job is to earn trust would poison
+                the well for the many organizations doing this honestly. Only
+                an admin can act on what it produces. */}
+            {signedIn && !canManage && (
+              <div className="fund-report-concern">
+                <ReportButton contentType="CAMPAIGN" contentId={c.id} />
+              </div>
             )}
           </div>
 

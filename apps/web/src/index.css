@@ -6495,6 +6495,21 @@ button {
   transition: width 320ms cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
+/* The colours above were chosen for the public campaign pages, which render
+   on white whatever theme the reader prefers. The discover feed puts the same
+   bar on a dark card, where a pale track and a dark-green fill read as each
+   other's opposite — a campaign that has raised a quarter of its goal looks
+   three-quarters funded, and one that has raised nothing looks complete.
+   Scoped to the feed modifier rather than [data-theme='dark'] alone, because
+   the public page keeps its white card even when the theme is dark and would
+   otherwise lose contrast for no reason. */
+[data-theme='dark'] .fund-progress--feed {
+  background: rgba(148, 163, 184, 0.25);
+}
+[data-theme='dark'] .fund-progress--feed .fund-progress-fill {
+  background: linear-gradient(90deg, #4b9d5c, #7bc98c);
+}
+
 .fund-card-money {
   margin: 0.15rem 0 0;
   font-size: 0.86rem;
@@ -7211,4 +7226,20 @@ button {
   margin: 0 0 10px;
   font-size: 0.95rem;
   line-height: 1.6;
+}
+
+/* Report controls on the campaign page. Both are intentionally understated:
+   the campaign page exists to earn trust, and a loud "report" control on it
+   would read as a warning about the organization rather than a route for a
+   citizen who has genuinely seen something. */
+.fund-update-report {
+  margin-top: 0.5rem;
+}
+.fund-report-concern {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e6ebe7;
+}
+[data-theme='dark'] .fund-report-concern {
+  border-top-color: rgba(148, 163, 184, 0.25);
 }

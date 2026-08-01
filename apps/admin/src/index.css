@@ -811,3 +811,12 @@
   flex: 1;
   min-width: 240px;
 }
+
+/* One citizen's account within a grouped campaign concern. */
+.admin-concern-item {
+  padding: 0.75rem 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
+}
+.admin-concern-item:first-of-type {
+  border-top: none;
+}

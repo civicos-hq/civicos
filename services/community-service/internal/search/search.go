@@ -66,6 +66,30 @@ type Organization struct {
 
 func (Organization) TableName() string { return "organizations" }
 
+// Campaign carries slug, cover image and progress because a search result
+// for a fundraiser is close to useless without them — "how far along is it"
+// is the first thing anyone wants to know.
+type Campaign struct {
+	ID             string    `json:"id" gorm:"type:uuid;primaryKey"`
+	OrganizationID string    `json:"organizationId" gorm:"type:uuid;not null"`
+	Slug           string    `json:"slug"`
+	Title          string    `json:"title"`
+	Summary        string    `json:"summary"`
+	Category       string    `json:"category"`
+	Status         string    `json:"status"`
+	Currency       string    `json:"currency"`
+	GoalMinor      int64     `json:"goalMinor"`
+	RaisedMinor    int64     `json:"raisedMinor"`
+	DonorCount     int       `json:"donorCount"`
+	CoverImageURL  *string   `json:"coverImageUrl,omitempty"`
+	IsEmergency    bool      `json:"isEmergency"`
+	State          *string   `json:"state,omitempty"`
+	LGA            *string   `json:"lga,omitempty"`
+	CreatedAt      time.Time `json:"createdAt"`
+}
+
+func (Campaign) TableName() string { return "campaigns" }
+
 type Service struct{ db *gorm.DB }
 
 func NewService(db *gorm.DB) *Service { return &Service{db: db} }
@@ -88,6 +112,7 @@ type Result struct {
 	Consultations   []Consultation          `json:"consultations"`
 	Announcements   []Announcement          `json:"announcements"`
 	Projects        []Project               `json:"projects"`
+	Campaigns       []Campaign              `json:"campaigns"`
 }
 
 func emptyResult() gin.H {
@@ -99,6 +124,7 @@ func emptyResult() gin.H {
 		"consultations":   []Consultation{},
 		"announcements":   []Announcement{},
 		"projects":        []Project{},
+		"campaigns":       []Campaign{},
 	}
 }
 
@@ -122,10 +148,11 @@ func (h *Handler) search(c *gin.Context) {
 		"consultations":   res.Consultations,
 		"announcements":   res.Announcements,
 		"projects":        res.Projects,
+		"campaigns":       res.Campaigns,
 	})
 }
 
-// Search runs seven case-insensitive LIKE queries. ILIKE is good enough
+// Search runs eight case-insensitive LIKE queries. ILIKE is good enough
 // for the dataset sizes this catalog will see before we need pg_trgm or
 // full-text indexing (tracked on the roadmap as "Full-text search").
 //
@@ -136,6 +163,13 @@ func (h *Handler) search(c *gin.Context) {
 //   - Projects: all statuses render on the citizen browse, so search
 //     matches all statuses too.
 //   - Organizations: no status field; the registry is fully public.
+//   - Campaigns: exactly the statuses organization-service treats as
+//     citizen-visible (its `publicStatuses` allow-list). DRAFT,
+//     PENDING_REVIEW and REJECTED have no public page, and surfacing the
+//     title would leak that an organization asked for money and was
+//     refused. PAUSED is excluded for a different reason: its page 404s
+//     too, so returning it here would be a result that goes nowhere.
+//     If that list ever changes, change it there first — this mirrors it.
 func (s *Service) Search(q string) (*Result, error) {
 	like := "%" + strings.ReplaceAll(strings.ReplaceAll(q, `\`, `\\`), `%`, `\%`) + "%"
 
@@ -202,6 +236,17 @@ func (s *Service) Search(q string) (*Result, error) {
 		return nil, err
 	}
 
+	var campaigns []Campaign
+	if err := s.db.
+		Where("(title ILIKE ? OR summary ILIKE ? OR description ILIKE ?) AND status IN ?",
+			like, like, like,
+			[]string{"PUBLISHED", "FUNDED", "COMPLETED", "REPORTED"}).
+		Order("created_at desc").
+		Limit(perBucketLimit).
+		Find(&campaigns).Error; err != nil {
+		return nil, err
+	}
+
 	return &Result{
 		Issues:          issues,
 		Petitions:       petitions,
@@ -210,5 +255,6 @@ func (s *Service) Search(q string) (*Result, error) {
 		Consultations:   consultations,
 		Announcements:   announcements,
 		Projects:        projects,
+		Campaigns:       campaigns,
 	}, nil
 }
