@@ -28,7 +28,9 @@ demands it.
   official-response notifications to followers.
 - **Notifications** — persisted list plus **realtime SSE** push via an
   in-process hub.
-- **Search** — global search across issues, petitions, representatives.
+- **Search** — global search across issues, petitions, representatives,
+  organizations, consultations, announcements, projects and funding
+  campaigns.
 - **Discover feed** — personalized feed tiered by geographic proximity
   (`COMMUNITY` → `LGA` → `STATE` → `COUNTRY`).
 - **Uploads** — image upload endpoint (5 MB max, JPG/PNG/GIF/WEBP) plus
@@ -113,10 +115,48 @@ caller's active community:
 - `STATE` — same state, different LGA
 - `COUNTRY` — same country, different state
 
-Passing `tier=` filters to one tier. Passing `kind=issue|petition`
-filters the discriminator. Under the hood, it scans up to 1 000 items
-from the DB and filters in-memory — fine at MVP scale, replace with
-`community_id IN (…)` when the dataset grows.
+Passing `tier=` filters to one tier. Passing `kind=` filters the
+discriminator to one of `issue`, `petition`, `announcement`, `project`,
+`consultation` or `campaign`; an unrecognised value is treated as no
+filter, so a client typo shows the whole feed rather than an empty page
+that reads as "nothing is happening near you". Under the hood, it scans
+up to 1 000 items from the DB and filters in-memory — fine at MVP scale,
+replace with `community_id IN (…)` when the dataset grows.
+
+Issues and petitions tier by their own community. Announcements tier by
+the publishing org. Projects, consultations and campaigns prefer their
+`communityId` when set; campaigns then fall back to their **own**
+`state`/`lga` before the org's, because a campaign is often raised for a
+specific ward rather than wherever the organization is registered.
+
+### What discovery will not show
+
+Announcements, consultations, projects and campaigns are owned by
+`organization-service` and read here from the shared database with
+`TableName()` pinned — the same arrangement documented above. For
+campaigns the read is an explicit column allow-list, not the whole
+model: the review trail (`approvalStatus`, `reviewNote`, `reviewedById`)
+is a private conversation between the platform and the organization.
+
+Only campaigns with a public page are surfaced, and the two surfaces
+differ on purpose:
+
+| Status           | In search | In discover feed |
+| ---------------- | --------- | ---------------- |
+| `DRAFT`          | no        | no               |
+| `PENDING_REVIEW` | no        | no               |
+| `REJECTED`       | no        | no               |
+| `PUBLISHED`      | yes       | yes              |
+| `PAUSED`         | yes       | **no**           |
+| `FUNDED`         | yes       | yes              |
+| `COMPLETED`      | yes       | yes              |
+| `REPORTED`       | yes       | yes              |
+
+A rejected campaign is hidden from both because the title alone would
+reveal that an organization asked for money and was refused. `PAUSED`
+splits the two: a campaign stopped while a concern is looked into should
+not be _promoted_ into a feed, but someone holding a link should still
+be able to find it by name.
 
 ## Environment
 

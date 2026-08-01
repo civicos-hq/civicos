@@ -194,7 +194,8 @@
     "groups": {
       "issues": "Issues",
       "petitions": "Petitions",
-      "representatives": "Representatives"
+      "representatives": "Representatives",
+      "campaigns": "Campaigns"
     }
   },
   "discoverPage": {
@@ -214,7 +215,8 @@
     "kinds": {
       "all": "All types",
       "issue": "Issues",
-      "petition": "Petitions"
+      "petition": "Petitions",
+      "campaign": "Campaigns"
     },
     "itemCount_one": "{{count}} item",
     "itemCount_other": "{{count}} items",
@@ -227,7 +229,8 @@
     "loadMore": "Load more",
     "labels": {
       "issue": "Issue",
-      "petition": "Petition"
+      "petition": "Petition",
+      "campaign": "Campaign"
     },
     "meta": {
       "upvotes_one": "{{count}} upvote",

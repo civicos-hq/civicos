@@ -10,11 +10,12 @@ import type {
   Project,
   Representative,
 } from '@civicos/types';
-import { useSearch } from '../../hooks/useSearch';
+import { useSearch, type SearchCampaign } from '../../hooks/useSearch';
+import { formatMoney, progressPercent } from '../../hooks/useCampaigns';
 import { useEnumLabels } from '../../hooks/useEnumLabels';
 
 export function SearchBar() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const enums = useEnumLabels();
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
@@ -46,7 +47,8 @@ export function SearchBar() {
     data.organizations.length +
     data.consultations.length +
     data.announcements.length +
-    data.projects.length;
+    data.projects.length +
+    data.campaigns.length;
   const showDropdown = open && enabled;
   const showEmpty = showDropdown && !isFetching && total === 0 && debouncedQuery.length >= 2;
 
@@ -81,6 +83,26 @@ export function SearchBar() {
             <p className="px-4 py-6 text-center text-sm text-slate-600 dark:text-slate-300">
               {t('search.empty', { query: debouncedQuery })}
             </p>
+          )}
+
+          {/* Campaigns sit above the rest: someone searching a campaign by
+              name is usually holding a link they were sent and wants to give,
+              and a fundraiser is the one result where hunting for it costs
+              the organization money. */}
+          {data.campaigns.length > 0 && (
+            <Section title={t('search.groups.campaigns')}>
+              {data.campaigns.map((c: SearchCampaign) => (
+                <ResultRow
+                  key={c.id}
+                  primary={c.title}
+                  secondary={`${formatMoney(c.raisedMinor, c.currency, i18n.language)} ${t(
+                    'campaigns.ofGoal',
+                    { goal: formatMoney(c.goalMinor, c.currency, i18n.language) },
+                  )} · ${progressPercent(c.raisedMinor, c.goalMinor)}%`}
+                  onClick={() => go(`/campaigns/${c.slug}`)}
+                />
+              ))}
+            </Section>
           )}
 
           {data.issues.length > 0 && (

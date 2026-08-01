@@ -178,7 +178,8 @@
     "groups": {
       "issues": "Okwu",
       "petitions": "Akwụkwọ arịrịọ",
-      "representatives": "Ndị nnọchi anya"
+      "representatives": "Ndị nnọchi anya",
+      "campaigns": "Ego obodo"
     }
   },
   "discoverPage": {
@@ -198,7 +199,8 @@
     "kinds": {
       "all": "Ụdị niile",
       "issue": "Okwu",
-      "petition": "Akwụkwọ arịrịọ"
+      "petition": "Akwụkwọ arịrịọ",
+      "campaign": "Ego obodo"
     },
     "itemCount_one": "Ihe {{count}}",
     "itemCount_other": "Ihe {{count}}",
@@ -211,7 +213,8 @@
     "loadMore": "Bubata karịa",
     "labels": {
       "issue": "Okwu",
-      "petition": "Akwụkwọ arịrịọ"
+      "petition": "Akwụkwọ arịrịọ",
+      "campaign": "Mkpọlite ego"
     },
     "meta": {
       "upvotes_one": "Nkwado {{count}}",

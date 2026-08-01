@@ -253,7 +253,8 @@
       "organizations": "Organizations",
       "consultations": "Consultations",
       "announcements": "Announcements",
-      "projects": "Projects"
+      "projects": "Projects",
+      "campaigns": "Campaigns"
     }
   },
   "discoverPage": {
@@ -276,7 +277,8 @@
       "petition": "Petitions",
       "announcement": "Announcements",
       "project": "Projects",
-      "consultation": "Consultations"
+      "consultation": "Consultations",
+      "campaign": "Campaigns"
     },
     "itemCount_one": "{{count}} item",
     "itemCount_other": "{{count}} items",
@@ -292,7 +294,8 @@
       "petition": "Petition",
       "announcement": "Announcement",
       "project": "Project",
-      "consultation": "Consultation"
+      "consultation": "Consultation",
+      "campaign": "Campaign"
     },
     "meta": {
       "upvotes_one": "{{count}} upvote",

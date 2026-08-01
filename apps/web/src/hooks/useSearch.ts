@@ -12,6 +12,25 @@ import type {
 } from '@civicos/types';
 import { api } from '../lib/api';
 
+/**
+ * A campaign as search returns it — enough to decide whether this is the one
+ * you were looking for. The full shape lives on the campaign page.
+ */
+export interface SearchCampaign {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string;
+  category: string;
+  status: string;
+  currency: string;
+  goalMinor: number;
+  raisedMinor: number;
+  isEmergency: boolean;
+  state?: string | null;
+  lga?: string | null;
+}
+
 export interface SearchResult {
   issues: Issue[];
   petitions: Petition[];
@@ -20,6 +39,7 @@ export interface SearchResult {
   consultations: Consultation[];
   announcements: Announcement[];
   projects: Project[];
+  campaigns: SearchCampaign[];
 }
 
 const empty: SearchResult = {
@@ -30,6 +50,7 @@ const empty: SearchResult = {
   consultations: [],
   announcements: [],
   projects: [],
+  campaigns: [],
 };
 
 // useDebouncedValue returns `value` after `delay` ms of stillness. Avoids

@@ -47,7 +47,7 @@ const (
 // may be empty for announcements + un-scoped projects/consultations
 // (no community anchor).
 type FeedItem struct {
-	Kind         string            `json:"kind"` // "issue" | "petition" | "announcement" | "project" | "consultation"
+	Kind         string            `json:"kind"` // "issue" | "petition" | "announcement" | "project" | "consultation" | "campaign"
 	Tier         Tier              `json:"tier"`
 	CreatedAt    time.Time         `json:"createdAt"`
 	CommunityID  string            `json:"communityId,omitempty"`
@@ -58,6 +58,7 @@ type FeedItem struct {
 	Announcement *Announcement     `json:"announcement,omitempty"`
 	Project      *Project          `json:"project,omitempty"`
 	Consultation *Consultation     `json:"consultation,omitempty"`
+	Campaign     *Campaign         `json:"campaign,omitempty"`
 }
 
 type CommunitySummary struct {
@@ -155,6 +156,38 @@ type organization struct {
 
 func (organization) TableName() string { return "organizations" }
 
+// Campaign is a fundraising campaign, owned by organization-service and read
+// here from the shared database — the same arrangement as Announcement,
+// Project and Consultation above.
+//
+// An explicit allow-list of columns, not the full model: the review trail
+// (approvalStatus, reviewNote, reviewedById) is a private conversation
+// between the platform and the organization, and a discovery feed is the
+// last place it should surface.
+type Campaign struct {
+	ID             string     `json:"id"`
+	Slug           string     `json:"slug"`
+	Title          string     `json:"title"`
+	Summary        string     `json:"summary"`
+	Category       string     `json:"category"`
+	Status         string     `json:"status"`
+	Currency       string     `json:"currency"`
+	GoalMinor      int64      `json:"goalMinor"`
+	RaisedMinor    int64      `json:"raisedMinor"`
+	DonorCount     int        `json:"donorCount"`
+	CoverImageURL  *string    `json:"coverImageUrl,omitempty"`
+	IsEmergency    bool       `json:"isEmergency"`
+	State          *string    `json:"state,omitempty"`
+	LGA            *string    `json:"lga,omitempty"`
+	CommunityID    *string    `json:"communityId,omitempty"`
+	OrganizationID string     `json:"organizationId"`
+	EndDate        *time.Time `json:"endDate,omitempty"`
+	PublishedAt    *time.Time `json:"publishedAt,omitempty"`
+	CreatedAt      time.Time  `json:"createdAt"`
+}
+
+func (Campaign) TableName() string { return "campaigns" }
+
 type Service struct{ db *gorm.DB }
 
 func NewService(db *gorm.DB) *Service { return &Service{db: db} }
@@ -176,7 +209,7 @@ func (h *Handler) feed(c *gin.Context) {
 	// Treat any value outside the known kinds as no filter so a typo on
 	// the client falls back to the full feed rather than silently empty.
 	switch kind {
-	case "issue", "petition", "announcement", "project", "consultation":
+	case "issue", "petition", "announcement", "project", "consultation", "campaign":
 		// known — keep as-is
 	default:
 		kind = ""
@@ -245,6 +278,7 @@ func (s *Service) Feed(userCommunityID string, tierFilter Tier, kindFilter strin
 	wantAnnouncements := kindFilter == "" || kindFilter == "announcement"
 	wantProjects := kindFilter == "" || kindFilter == "project"
 	wantConsultations := kindFilter == "" || kindFilter == "consultation"
+	wantCampaigns := kindFilter == "" || kindFilter == "campaign"
 
 	var issues []domain.Issue
 	if wantIssues {
@@ -282,17 +316,25 @@ func (s *Service) Feed(userCommunityID string, tierFilter Tier, kindFilter strin
 		}
 	}
 
+	var campaigns []Campaign
+	if wantCampaigns {
+		campaigns, err = s.recentCampaigns(scanLimit)
+		if err != nil {
+			return FeedResult{}, err
+		}
+	}
+
 	// Only load orgs if we'll need them for attribution/tiering. Avoids
 	// a needless SELECT when the caller filtered to issue/petition only.
 	var orgs map[string]*organization
-	if wantAnnouncements || wantProjects || wantConsultations {
+	if wantAnnouncements || wantProjects || wantConsultations || wantCampaigns {
 		orgs, err = s.loadOrganizations()
 		if err != nil {
 			return FeedResult{}, err
 		}
 	}
 
-	all := make([]FeedItem, 0, len(issues)+len(petitions)+len(announcements)+len(projects)+len(consultations))
+	all := make([]FeedItem, 0, len(issues)+len(petitions)+len(announcements)+len(projects)+len(consultations)+len(campaigns))
 	for i := range issues {
 		issue := issues[i]
 		comm := communities[issue.CommunityID]
@@ -369,6 +411,33 @@ func (s *Service) Feed(userCommunityID string, tierFilter Tier, kindFilter strin
 			item.CommunityID = *c.CommunityID
 			item.Community = summaryOf(comm)
 		} else {
+			item.Tier = tierForOrg(base, org)
+		}
+		all = append(all, item)
+	}
+
+	// Campaigns — same tier rules as projects: community anchor if set,
+	// otherwise the campaign's own state/lga, falling back to the org's.
+	// A campaign carries its own location because it is often raised for a
+	// specific ward rather than wherever the organization is registered.
+	for i := range campaigns {
+		c := campaigns[i]
+		org := orgs[c.OrganizationID]
+		item := FeedItem{
+			Kind:         "campaign",
+			CreatedAt:    firstNonZero(c.PublishedAt, c.CreatedAt),
+			Organization: summaryOfOrg(org),
+			Campaign:     &c,
+		}
+		switch {
+		case c.CommunityID != nil:
+			comm := communities[*c.CommunityID]
+			item.Tier = tierFor(base, comm)
+			item.CommunityID = *c.CommunityID
+			item.Community = summaryOf(comm)
+		case c.State != nil || c.LGA != nil:
+			item.Tier = tierForPlace(base, c.State, c.LGA)
+		default:
 			item.Tier = tierForOrg(base, org)
 		}
 		all = append(all, item)
@@ -472,6 +541,22 @@ func (s *Service) recentConsultations(limit int) ([]Consultation, error) {
 	return list, err
 }
 
+// recentCampaigns returns campaigns a citizen may see, newest published
+// first.
+//
+// The status allow-list mirrors the one organization-service uses for its
+// public pages. Drafts, campaigns in review, and rejected ones are private;
+// PAUSED is excluded too — a campaign stopped for suspected misuse should not
+// be promoted into a discovery feed while that is being looked at, even
+// though its page stays reachable.
+func (s *Service) recentCampaigns(limit int) ([]Campaign, error) {
+	var list []Campaign
+	err := s.db.Where("status IN ?", []string{"PUBLISHED", "FUNDED", "COMPLETED", "REPORTED"}).
+		Order("COALESCE(published_at, created_at) desc").
+		Limit(limit).Find(&list).Error
+	return list, err
+}
+
 // loadOrganizations loads every org so we can attribute announcements
 // and projects with the org summary + resolve tiering via org state/lga.
 // Same shape as loadCommunities. Small tables at MVP scale.
@@ -513,6 +598,26 @@ func tierForOrg(base *domain.Community, org *organization) Tier {
 	}
 	if *org.State == base.State {
 		if org.LGA != nil && *org.LGA == base.LGA {
+			return TierLGA
+		}
+		return TierState
+	}
+	return TierCountry
+}
+
+// tierForPlace resolves proximity from a bare state/LGA pair rather than a
+// community record.
+//
+// Campaigns need this because they carry their own location: a campaign is
+// often raised for a specific ward, not for wherever the organization happens
+// to be registered, and tiering it by the org would put a Zaria flood appeal
+// in front of the wrong people.
+func tierForPlace(base *domain.Community, state, lga *string) Tier {
+	if base == nil || state == nil {
+		return TierCountry
+	}
+	if *state == base.State {
+		if lga != nil && *lga == base.LGA {
 			return TierLGA
 		}
 		return TierState

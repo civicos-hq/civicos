@@ -178,7 +178,8 @@
     "groups": {
       "issues": "Matsaloli",
       "petitions": "Koƙe-koƙe",
-      "representatives": "Wakilai"
+      "representatives": "Wakilai",
+      "campaigns": "Tallafin al'umma"
     }
   },
   "discoverPage": {
@@ -198,7 +199,8 @@
     "kinds": {
       "all": "Duk nau'i",
       "issue": "Matsaloli",
-      "petition": "Koƙe-koƙe"
+      "petition": "Koƙe-koƙe",
+      "campaign": "Tallafin al'umma"
     },
     "itemCount_one": "Abu {{count}}",
     "itemCount_other": "Abubuwa {{count}}",
@@ -211,7 +213,8 @@
     "loadMore": "Loda ƙari",
     "labels": {
       "issue": "Matsala",
-      "petition": "Koƙe"
+      "petition": "Koƙe",
+      "campaign": "Tallafi"
     },
     "meta": {
       "upvotes_one": "Goyon baya {{count}}",

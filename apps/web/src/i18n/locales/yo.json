@@ -178,7 +178,8 @@
     "groups": {
       "issues": "Àwọn Ìṣòro",
       "petitions": "Àwọn Ẹ̀bẹ̀",
-      "representatives": "Àwọn Aṣojú"
+      "representatives": "Àwọn Aṣojú",
+      "campaigns": "Ìnáwó àdúgbò"
     }
   },
   "discoverPage": {
@@ -198,7 +199,8 @@
     "kinds": {
       "all": "Gbogbo ẹ̀ka",
       "issue": "Àwọn ìṣòro",
-      "petition": "Àwọn ẹ̀bẹ̀"
+      "petition": "Àwọn ẹ̀bẹ̀",
+      "campaign": "Ìnáwó àdúgbò"
     },
     "itemCount_one": "Ohun {{count}}",
     "itemCount_other": "Àwọn ohun {{count}}",
@@ -211,7 +213,8 @@
     "loadMore": "Kó sí i",
     "labels": {
       "issue": "Ìṣòro",
-      "petition": "Ẹ̀bẹ̀"
+      "petition": "Ẹ̀bẹ̀",
+      "campaign": "Ìpolongo ìnáwó"
     },
     "meta": {
       "upvotes_one": "Àtìlẹ́yìn {{count}}",
