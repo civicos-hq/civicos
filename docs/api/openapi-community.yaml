@@ -888,11 +888,11 @@ paths:
         - **projects**: all statuses (mirrors the citizen browse).
         - **organizations**: no status field; the registry is fully public.
         - **campaigns**: only statuses that have a public page — PUBLISHED,
-          PAUSED, FUNDED, COMPLETED, REPORTED. DRAFT, PENDING_REVIEW and
-          REJECTED are excluded: the title alone would reveal that an
-          organization asked for money and was refused. PAUSED *is*
-          searchable, so someone holding a link can still find the campaign
-          by name, even though it is not promoted in the discover feed.
+          FUNDED, COMPLETED, REPORTED, mirroring organization-service's
+          `publicStatuses` allow-list. DRAFT, PENDING_REVIEW and REJECTED
+          are excluded because the title alone would reveal that an
+          organization asked for money and was refused. PAUSED is excluded
+          because its public page 404s, so a result would lead nowhere.
       parameters:
         - in: query
           name: q
@@ -942,10 +942,10 @@ paths:
           the campaign's own `state`/`lga`, else by the owning org's. A
           campaign carries its own location because it is often raised for a
           specific ward rather than wherever the organization is registered.
-          Only PUBLISHED, FUNDED, COMPLETED and REPORTED are surfaced.
-          PAUSED is deliberately excluded — a campaign stopped while a
-          concern is looked into should not be promoted, though its page and
-          search entry stay reachable.
+          Only PUBLISHED, FUNDED, COMPLETED and REPORTED are surfaced,
+          matching organization-service's `publicStatuses`. PAUSED is
+          excluded: a campaign stopped while a concern is looked into
+          should not be promoted, and its public page 404s regardless.
 
         An unrecognised `kind` is treated as no filter and returns the full
         feed, rather than an empty one that would read as "nothing is

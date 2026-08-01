@@ -163,11 +163,13 @@ func (h *Handler) search(c *gin.Context) {
 //   - Projects: all statuses render on the citizen browse, so search
 //     matches all statuses too.
 //   - Organizations: no status field; the registry is fully public.
-//   - Campaigns: only the statuses that have a public page. Someone
-//     searching for a campaign they were sent a link to should find it
-//     whether it is still collecting or long finished — but a draft, a
-//     campaign under review, or a rejected one has no public page at all,
-//     and surfacing the title would leak the fact that it exists.
+//   - Campaigns: exactly the statuses organization-service treats as
+//     citizen-visible (its `publicStatuses` allow-list). DRAFT,
+//     PENDING_REVIEW and REJECTED have no public page, and surfacing the
+//     title would leak that an organization asked for money and was
+//     refused. PAUSED is excluded for a different reason: its page 404s
+//     too, so returning it here would be a result that goes nowhere.
+//     If that list ever changes, change it there first — this mirrors it.
 func (s *Service) Search(q string) (*Result, error) {
 	like := "%" + strings.ReplaceAll(strings.ReplaceAll(q, `\`, `\\`), `%`, `\%`) + "%"
 
@@ -238,7 +240,7 @@ func (s *Service) Search(q string) (*Result, error) {
 	if err := s.db.
 		Where("(title ILIKE ? OR summary ILIKE ? OR description ILIKE ?) AND status IN ?",
 			like, like, like,
-			[]string{"PUBLISHED", "PAUSED", "FUNDED", "COMPLETED", "REPORTED"}).
+			[]string{"PUBLISHED", "FUNDED", "COMPLETED", "REPORTED"}).
 		Order("created_at desc").
 		Limit(perBucketLimit).
 		Find(&campaigns).Error; err != nil {

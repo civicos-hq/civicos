@@ -29,6 +29,7 @@ const sidebars: SidebarsConfig = {
         'citizens/voting',
         'citizens/notifications',
         'citizens/consultations',
+        'citizens/community-funding',
         'citizens/civicai',
       ],
     },

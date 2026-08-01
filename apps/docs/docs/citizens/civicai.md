@@ -1,7 +1,7 @@
 ---
 id: civicai
 title: CivicAI for citizens
-sidebar_position: 5
+sidebar_position: 6
 ---
 
 # CivicAI for citizens

@@ -544,11 +544,11 @@ func (s *Service) recentConsultations(limit int) ([]Consultation, error) {
 // recentCampaigns returns campaigns a citizen may see, newest published
 // first.
 //
-// The status allow-list mirrors the one organization-service uses for its
-// public pages. Drafts, campaigns in review, and rejected ones are private;
-// PAUSED is excluded too — a campaign stopped for suspected misuse should not
-// be promoted into a discovery feed while that is being looked at, even
-// though its page stays reachable.
+// The status allow-list mirrors organization-service's `publicStatuses`.
+// Drafts, campaigns in review and rejected ones are private. PAUSED is
+// excluded for two reasons that happen to agree: a campaign stopped for
+// suspected misuse should not be promoted, and its public page 404s anyway,
+// so a feed card would lead nowhere.
 func (s *Service) recentCampaigns(limit int) ([]Campaign, error) {
 	var list []Campaign
 	err := s.db.Where("status IN ?", []string{"PUBLISHED", "FUNDED", "COMPLETED", "REPORTED"}).

@@ -138,25 +138,31 @@ campaigns the read is an explicit column allow-list, not the whole
 model: the review trail (`approvalStatus`, `reviewNote`, `reviewedById`)
 is a private conversation between the platform and the organization.
 
-Only campaigns with a public page are surfaced, and the two surfaces
-differ on purpose:
+Both surfaces show exactly the statuses that have a public page, and
+that list is owned by `organization-service` — its `publicStatuses`
+allow-list in `internal/campaigns/repository.go`:
 
-| Status           | In search | In discover feed |
-| ---------------- | --------- | ---------------- |
-| `DRAFT`          | no        | no               |
-| `PENDING_REVIEW` | no        | no               |
-| `REJECTED`       | no        | no               |
-| `PUBLISHED`      | yes       | yes              |
-| `PAUSED`         | yes       | **no**           |
-| `FUNDED`         | yes       | yes              |
-| `COMPLETED`      | yes       | yes              |
-| `REPORTED`       | yes       | yes              |
+| Status           | Public page | In search | In discover feed |
+| ---------------- | ----------- | --------- | ---------------- |
+| `DRAFT`          | 404         | no        | no               |
+| `PENDING_REVIEW` | 404         | no        | no               |
+| `REJECTED`       | 404         | no        | no               |
+| `PAUSED`         | 404         | no        | no               |
+| `PUBLISHED`      | yes         | yes       | yes              |
+| `FUNDED`         | yes         | yes       | yes              |
+| `COMPLETED`      | yes         | yes       | yes              |
+| `REPORTED`       | yes         | yes       | yes              |
 
-A rejected campaign is hidden from both because the title alone would
-reveal that an organization asked for money and was refused. `PAUSED`
-splits the two: a campaign stopped while a concern is looked into should
-not be _promoted_ into a feed, but someone holding a link should still
-be able to find it by name.
+A rejected campaign is hidden because the title alone would reveal that
+an organization asked for money and was refused. `PAUSED` is hidden for
+a plainer reason: `GetPublicBySlug` returns 404 for it, so surfacing one
+in search would be a result that goes nowhere.
+
+**If that allow-list changes, change it in `organization-service` first.**
+The two queries here mirror it; they are not independent policy. The
+allow-list is deliberately an allow-list, so a status added later
+defaults to hidden — the safe direction for a surface that asks people
+for money.
 
 ## Environment
 
