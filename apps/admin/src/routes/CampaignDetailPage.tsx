@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiGet, apiPost } from '../lib/api';
+import { RiskPanel } from './RiskPanel';
 
 interface Campaign {
   id: string;
@@ -177,6 +178,11 @@ export function CampaignDetailPage() {
           <p className="mt-3 whitespace-pre-wrap text-slate-700">{campaign.description}</p>
         </div>
       </section>
+
+      {/* After the Ask, never before it: a reviewer should read what the
+          organization actually wrote before reading a machine's opinion of
+          it. */}
+      <RiskPanel campaignId={campaign.id} />
 
       {/* Verification evidence. A reviewer approving a fundraiser needs the
           organization's paperwork in front of them, not one tab away. */}

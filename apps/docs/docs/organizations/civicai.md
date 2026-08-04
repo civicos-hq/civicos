@@ -138,17 +138,19 @@ counters" into "here's what's happening on the platform right now."
 
 ## Campaign surfaces (Community Funding)
 
-Five surfaces for organizations running a fundraising campaign. All of
-them are drafts you edit, and none of them is available yet in the
-interface — the endpoints exist, the buttons do not.
+Surfaces for organizations running a fundraising campaign. All of them
+are drafts you edit — nothing is written into a form, or published,
+until you click **Use this**.
 
-| Surface                | For                                                            |
-| ---------------------- | -------------------------------------------------------------- |
-| **Classify campaign**  | Suggesting a category and whether this is really an emergency. |
-| **Draft campaign**     | Turning a brief into a title, description and milestone plan.  |
-| **Campaign impact**    | A plain summary of where the campaign stands.                  |
-| **Draft donor update** | Writing to the people who gave you money.                      |
-| **Draft final report** | The closing account, when the work is done.                    |
+| Surface                | Where                                        |
+| ---------------------- | -------------------------------------------- |
+| **Draft campaign**     | New campaign page (`/org/:id/campaigns/new`) |
+| **Draft donor update** | The update composer on your campaign page    |
+| **Draft final report** | The "File final report" form                 |
+
+Two more exist as API endpoints without a button yet: **classify
+campaign** (suggesting a category) and **campaign impact** (a plain
+summary of where a campaign stands).
 
 Three things about these are worth knowing, because money makes them
 different from the announcement drafting above.
@@ -160,7 +162,8 @@ your organization _reports_, never as verified fact. It will not write
 that something has been confirmed, because nothing has been.
 
 **It will tell you what is missing.** Campaign drafts come with
-`warnings`: costings a reviewer will ask for, claims your published
+**warnings**, shown above the draft itself: costings a reviewer will ask
+for, claims your published
 record does not support, a goal that does not match the described work.
 Hearing that from a draft is cheaper than hearing it from a rejection
 two days later. The impact summary similarly reports **gaps** — money

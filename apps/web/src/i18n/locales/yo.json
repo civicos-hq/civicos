@@ -1135,5 +1135,32 @@
     "campaignIntro": "Sọ àníyàn rẹ nípa bí wọ́n ṣe ń darí ìpolongo ìnáwó yìí. Àwọn òṣìṣẹ́ CivicOS ni yóò gbà á, kì í ṣe àjọ náà. Kò sí ohun tí yóò ṣẹlẹ̀ sí ìpolongo náà fúnra rẹ̀ — ènìyàn ni yóò yẹ gbogbo rẹ̀ wò.",
     "campaignDescriptionLabel": "Kí ni o rí? (dandan)",
     "campaignDescriptionPlaceholder": "àpẹẹrẹ: wọn kò tíì fọwọ́ kan ibi kànga náà láti oṣù Kẹrin, ṣùgbọ́n ìròyìn tí ó kẹ́yìn sọ pé wọ́n ti parí ìwalẹ̀"
+  },
+  "campaignAi": {
+    "reviewBadge": "AI ló kọ ọ́ · yẹ̀ wò",
+    "warningsHeading": "Kí o tó tẹ̀ ẹ́ jáde",
+    "generate": "Jẹ́ kí AI kọ ọ́",
+    "apply": "Lo èyí",
+    "genericError": "CivicAI kò lè kọ èyí. O ṣì lè kọ ọ́ fúnra rẹ.",
+    "briefTooShort": "Kọ ó kéré tán àmì {{count}} ní àkọ́kọ́.",
+    "draftCampaign": {
+      "title": "Jẹ́ kí CivicAI kọ ọ́",
+      "hint": "Ṣàlàyé ìṣòro náà ní ọ̀rọ̀ ara rẹ. CivicAI yóò sọ ọ́ di ìpolongo tí o lè ṣàtúnṣe.",
+      "placeholder": "àpẹẹrẹ: Kànga wa ní Tudun Wada bàjẹ́ ní oṣù Karùn-ún. Nǹkan bí ilé 90 ni wọ́n ń rìn 3km fún omi. A nílò láti pààrọ̀ ẹ̀rọ omi kí a sì tún ògiri ṣe.",
+      "apply": "Lo àkọsílẹ̀ yìí",
+      "suggestedPlan": "Ètò ìnáwó tí a dábàá",
+      "planNote": "A kò lò ó — fi àwọn ipele kún un fúnra rẹ kí àpapọ̀ jẹ́ tìrẹ."
+    },
+    "donorUpdate": {
+      "title": "Jẹ́ kí CivicAI kọ ọ́",
+      "hint": "Sọ fún CivicAI ohun tí ó ṣẹlẹ̀. Yóò kọ ìròyìn fún àwọn tí wọ́n ṣàánú.",
+      "placeholder": "àpẹẹrẹ: A ti parí ìwádìí ojúlé a sì ti kó ìdọ̀tí kúrò. Àwọn páìpù pẹ́ nítorí olùpèsè kò ní ọjà."
+    },
+    "completionReport": {
+      "title": "Jẹ́ kí CivicAI kọ ọ́",
+      "hint": "Sọ fún CivicAI bí iṣẹ́ náà ṣe parí. Yóò kọ àkọsílẹ̀ ìparí.",
+      "placeholder": "àpẹẹrẹ: A ti tún ọ̀nà omi náà kọ́, àwọn ọkọ̀ sì ń lo ojú ọ̀nà. A ná owó díẹ̀ ju bí a ti gbèrò nítorí àdúgbò ṣe iṣẹ́ ọ̀fẹ́.",
+      "shortfall": "{{amount}} nínú owó tí o gbà ni kò tíì ní ìjìhìn. Fífi í lọ nísinsìnyí máa kọ nọ́mbà náà sí ojú ìwé gbogbo ènìyàn rẹ láéláé, kódà bí o bá ròyìn ìnáwó mìíràn lẹ́yìn náà."
+    }
   }
 }

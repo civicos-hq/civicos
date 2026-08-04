@@ -1135,5 +1135,32 @@
     "campaignIntro": "Bayyana damuwarka game da yadda ake gudanar da wannan tallafin. Damuwar tana zuwa ga ma'aikatan CivicOS, ba ga ƙungiyar ba. Ba abin da zai faru da tallafin ta atomatik — mutum yana duba kowanne.",
     "campaignDescriptionLabel": "Me ka gani? (wajibi)",
     "campaignDescriptionPlaceholder": "misali: ba a taɓa wurin rijiyar ba tun watan Afrilu, amma sabuntawa ta ƙarshe ta ce an gama haƙa"
+  },
+  "campaignAi": {
+    "reviewBadge": "AI ne ya rubuta · duba",
+    "warningsHeading": "Kafin ka wallafa wannan",
+    "generate": "Bari AI ya tsara",
+    "apply": "Yi amfani da wannan",
+    "genericError": "CivicAI bai iya rubuta wannan ba. Har yanzu kana iya rubuta shi da kanka.",
+    "briefTooShort": "Rubuta aƙalla haruffa {{count}} da farko.",
+    "draftCampaign": {
+      "title": "Bari CivicAI ya tsara",
+      "hint": "Bayyana matsalar da kalmominka. CivicAI zai mai da ita tallafin da za ka iya gyarawa.",
+      "placeholder": "misali: Rijiyarmu a Tudun Wada ta lalace a watan Mayu. Kimanin gidaje 90 yanzu suna tafiya kilomita 3 don ruwa. Muna buƙatar sauya famfo da gyara bango.",
+      "apply": "Yi amfani da wannan tsari",
+      "suggestedPlan": "Shirin kashe kuɗi da aka ba da shawara",
+      "planNote": "Ba a aiwatar ba — ƙara matakai da kanka domin jimillar ta zama taka."
+    },
+    "donorUpdate": {
+      "title": "Bari CivicAI ya tsara",
+      "hint": "Faɗa wa CivicAI abin da ya faru. Zai rubuta sabuntawa ga waɗanda suka ba da gudummawa.",
+      "placeholder": "misali: Mun gama binciken wurin mun kuma share tarkace. Bututun sun jinkirta saboda mai kaya ya ƙare."
+    },
+    "completionReport": {
+      "title": "Bari CivicAI ya tsara",
+      "hint": "Faɗa wa CivicAI yadda aikin ya ƙare. Zai tsara rahoton rufewa.",
+      "placeholder": "misali: An sake gina magudanar ruwa kuma motoci suna amfani da hanya. Mun kashe ƙasa da yadda aka shirya saboda al’umma sun ba da aiki kyauta.",
+      "shortfall": "{{amount}} na abin da ka tara har yanzu ba a bayyana ba. Shigar da rahoto yanzu zai adana wannan adadin har abada a shafinka na jama’a, ko da ka ba da rahoton ƙarin kashe kuɗi daga baya."
+    }
   }
 }

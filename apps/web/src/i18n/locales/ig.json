@@ -1135,5 +1135,32 @@
     "campaignIntro": "Kwuo nchegbu gị maka otu esi na-agba mkpọlite ego a. Nchegbu na-aga na ndị ọrụ CivicOS, ọ bụghị nzukọ ahụ. Ọ dịghị ihe ga-eme mkpọlite ego ahụ n'onwe ya — mmadụ na-enyocha nke ọ bụla.",
     "campaignDescriptionLabel": "Gịnị ka ị hụrụ? (achọrọ ya)",
     "campaignDescriptionPlaceholder": "dịka: e metụghị ebe olulu mmiri ahụ aka kemgbe Eprel, mana mmelite ikpeazụ kwuru na egwuchaala ya"
+  },
+  "campaignAi": {
+    "reviewBadge": "AI dere ya · nyochaa",
+    "warningsHeading": "Tupu ị bipụta nke a",
+    "generate": "Ka AI dee ya",
+    "apply": "Jiri nke a",
+    "genericError": "CivicAI enweghị ike ide nke a. Ị ka nwere ike ide ya n’onwe gị.",
+    "briefTooShort": "Dee opekempe mkpụrụedemede {{count}} buru ụzọ.",
+    "draftCampaign": {
+      "title": "Ka CivicAI dee ya",
+      "hint": "Kọwaa nsogbu ahụ n’okwu gị. CivicAI ga-eme ya mkpọlite ego ị nwere ike idezi.",
+      "placeholder": "dịka: Olulu mmiri anyị na Tudun Wada mebiri na Mee. Ihe dịka ezinụlọ 90 na-eje ije kilomita 3 maka mmiri. Anyị chọrọ dochie nchụmmiri ma rụzie mgbidi.",
+      "apply": "Jiri ihe odide a",
+      "suggestedPlan": "Atụmatụ mmefu e nyere",
+      "planNote": "Etinyeghị ya — tinye ihe mgbaru ọsọ n’onwe gị ka mkpokọta bụrụ nke gị."
+    },
+    "donorUpdate": {
+      "title": "Ka CivicAI dee ya",
+      "hint": "Gwa CivicAI ihe merenụ. Ọ ga-edere ndị nyere onyinye mmelite.",
+      "placeholder": "dịka: Anyị agwụchaala nyocha ebe ahụ ma kpochapụ unyi. Ọkpọkọ dara azụ n’ihi na onye na-ere ya enweghị ngwongwo."
+    },
+    "completionReport": {
+      "title": "Ka CivicAI dee ya",
+      "hint": "Gwa CivicAI otu ọrụ ahụ si gwụcha. Ọ ga-edepụta akụkọ mmechi.",
+      "placeholder": "dịka: E wughariala olulu mmiri ahụ, ụgbọala na-agafekwa ụzọ ọzọ. Anyị mefuru ihe dị ntakịrị karịa atụmatụ n’ihi na obodo nyere aka n’ọrụ.",
+      "shortfall": "{{amount}} n’ime ego ị kpọtara ka akọwaghị. Ịnyefe ya ugbu a na-edekọ ọnụọgụ ahụ kpamkpam na peeji ọha gị, ọ bụrụgodị na ị kọọ mmefu ọzọ ma emesịa."
+    }
   }
 }

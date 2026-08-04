@@ -820,3 +820,35 @@
 .admin-concern-item:first-of-type {
   border-top: none;
 }
+
+/* CivicAI review notes on a campaign. Amber, never red: red is reserved for
+   reconciliation drift, where money has demonstrably gone somewhere it should
+   not have. Nothing an AI observes here is demonstrated. */
+.admin-risk-signal {
+  border-left: 3px solid #f59e0b;
+  padding: 0.5rem 0 0.5rem 0.75rem;
+}
+.admin-risk-concern {
+  font-weight: 600;
+  color: #92400e;
+}
+.admin-risk-evidence,
+.admin-risk-innocent {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #475569;
+}
+.admin-risk-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+}
+.admin-risk-disclaimer {
+  border-radius: 0.5rem;
+  background: #f1f5f9;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.8rem;
+  color: #475569;
+}

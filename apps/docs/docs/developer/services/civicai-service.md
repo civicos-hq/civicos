@@ -251,3 +251,36 @@ about someone's flood relief."_
 
 The honest description of what it is for: a reviewer with forty campaigns in a
 queue wants to know which three to open first.
+
+### Where the campaign surfaces appear
+
+| Endpoint                    | Surface                                                                       |
+| --------------------------- | ----------------------------------------------------------------------------- |
+| `draft-campaign`            | `apps/web` → `OrgCampaignCreatePage` (and the legacy modal in `OrgCampaigns`) |
+| `draft-donor-update`        | `apps/web` → `CampaignConsole` update composer                                |
+| `draft-completion-report`   | `apps/web` → `FinalReportForm`                                                |
+| `assess-campaign-risk`      | `apps/admin` → `RiskPanel` on the campaign review page                        |
+| `classify-campaign`         | client function only, no UI yet                                               |
+| `summarize-campaign-impact` | client function only, no UI yet                                               |
+
+The org-facing panels share `components/civicai/CampaignAIPanel.tsx`,
+which is where three guarantees live so they cannot drift apart per
+surface:
+
+- **Generating never applies.** The draft renders in its own box and a
+  separate **Use this** click writes it into the form. A distracted admin
+  cannot publish words they have not read.
+- **Every rendered draft carries its provenance badge**, naming the model.
+  The badge takes provenance as a prop rather than rendering a bare
+  "AI-generated" label — a badge that does not name the model only tells
+  the reader that _something_ generated the text.
+- **Warnings render above the draft**, styled as caution rather than
+  error. They block nothing; they are what a reviewer would have asked
+  for two days later.
+
+`RiskPanel` in `apps/admin` is deliberately different in three ways:
+it does **not** run on page load (a reviewer asks for it), every signal
+shows the innocent explanation beside the concern at equal weight, and
+even `REVIEW_CLOSELY` is styled amber rather than red — red belongs to
+reconciliation drift, where money has demonstrably gone somewhere it
+should not have.

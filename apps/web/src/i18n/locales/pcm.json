@@ -1364,5 +1364,32 @@
     "campaignIntro": "Talk your mind about how dem dey run this campaign. E dey go CivicOS staff, no be the organization. Nothing go happen to the campaign by itself — person go check am.",
     "campaignDescriptionLabel": "Wetin you see? (you must fill am)",
     "campaignDescriptionPlaceholder": "e.g. dem never touch the borehole site since April, but the last update talk say dem don finish drilling"
+  },
+  "campaignAi": {
+    "reviewBadge": "AI write am · check am",
+    "warningsHeading": "Before you publish this",
+    "generate": "Make AI draft am",
+    "apply": "Use this one",
+    "genericError": "CivicAI no fit write am. You still fit write am yourself.",
+    "briefTooShort": "Write at least {{count}} characters first.",
+    "draftCampaign": {
+      "title": "Make CivicAI draft am",
+      "hint": "Talk the problem for your own words. CivicAI go turn am to campaign wey you fit edit.",
+      "placeholder": "e.g. Our borehole for Tudun Wada spoil for May. Like 90 households dey waka 3km find water. We need change the pump and repair the casing.",
+      "apply": "Use this draft",
+      "suggestedPlan": "Spend plan wey e suggest",
+      "planNote": "We never apply am — add milestones yourself so the totals na your own."
+    },
+    "donorUpdate": {
+      "title": "Make CivicAI draft am",
+      "hint": "Tell CivicAI wetin happen. E go write the update for people wey donate.",
+      "placeholder": "e.g. We don finish the survey and clear the debris. The pipes delay because supplier no get stock."
+    },
+    "completionReport": {
+      "title": "Make CivicAI draft am",
+      "hint": "Tell CivicAI how the work take finish. E go draft the closing report.",
+      "placeholder": "e.g. The culvert don rebuild and motor dey pass road again. We spend less than we plan because community help with labour.",
+      "shortfall": "{{amount}} of the money wey you raise never get account. If you file am now, that figure go stay for your public page forever, even if you report more spending later."
+    }
   }
 }
