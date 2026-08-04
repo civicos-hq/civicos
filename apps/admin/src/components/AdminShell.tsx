@@ -13,6 +13,7 @@ import {
   HandCoins,
   AlertTriangle,
   MessageSquareWarning,
+  BarChart3,
 } from 'lucide-react';
 import { clearSession, getSession } from '../lib/api';
 
@@ -46,6 +47,7 @@ export function AdminShell() {
         <NavLinkItem to="/campaigns" icon={HandCoins} label="Campaign review" />
         <NavLinkItem to="/drift" icon={AlertTriangle} label="Reconciliation drift" />
         <NavLinkItem to="/concerns" icon={MessageSquareWarning} label="Campaign concerns" />
+        <NavLinkItem to="/funding-analytics" icon={BarChart3} label="Funding analytics" />
         <NavLinkItem to="/flags" icon={Flag} label="Moderation queue" />
         <NavLinkItem to="/moderation/direct-hide" icon={EyeOff} label="Direct hide" />
         <NavLinkItem to="/audit" icon={ClipboardList} label="Audit log" />

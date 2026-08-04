@@ -371,6 +371,7 @@ func main() {
 	// Unresolved reconciliation drift. PLATFORM_ADMIN only (enforced in
 	// organization-service): these are the donations that did not reconcile.
 	r.GET("/api/v1/admin/donations/drift", authMiddleware, orgProxy)
+	r.GET("/api/v1/admin/funding-analytics", authMiddleware, orgProxy)
 	r.POST("/api/v1/admin/donations/drift/:findingId/resolve", authMiddleware, limitStandard, orgProxy)
 
 	// Org connects its payout destination (org admin).
@@ -383,6 +384,10 @@ func main() {
 	r.GET("/api/v1/organizations/:id/funding-eligibility", authMiddleware, orgProxy)
 
 	r.GET("/api/v1/organizations/:id/campaigns", authMiddleware, orgProxy)
+	// Funding analytics. Read-only aggregates; both are role-gated inside
+	// organization-service — the org-scoped one by CanReadInternal against
+	// the owning org, the platform one by PLATFORM_ADMIN.
+	r.GET("/api/v1/organizations/:id/funding-analytics", authMiddleware, orgProxy)
 	r.POST("/api/v1/organizations/:id/campaigns", authMiddleware, limitStandard, orgProxy)
 	r.GET("/api/v1/campaigns/:campaignId", authMiddleware, orgProxy)
 	r.PATCH("/api/v1/campaigns/:campaignId", authMiddleware, limitStandard, orgProxy)
