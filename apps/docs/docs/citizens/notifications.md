@@ -7,7 +7,8 @@ sidebar_position: 3
 # Notifications
 
 CivicOS keeps you in the loop when something happens that concerns you —
-a response to your issue, a milestone on your petition, or an update
+a response to your issue, a milestone on your petition, an update on a
+campaign you funded, or an update
 from a representative you follow.
 
 ## Where to find them
@@ -44,10 +45,16 @@ You'll get notified when:
 | An organization publishes a new consultation                | "New consultation: &lt;title&gt;"                                |
 | A consultation you responded to closes                      | "Consultation closed: &lt;title&gt;"                             |
 | A consultation you responded to has its outcome published   | "Outcome published: &lt;title&gt;"                               |
+| A campaign you donated to reaches its goal                  | "Goal reached: &lt;title&gt;"                                    |
+| A campaign you donated to posts an update                   | The organization's update, with a link to the campaign           |
 
 ## What doesn't notify you
 
 To keep the noise down, CivicOS **doesn't** notify you when:
+
+- **You make a donation.** You already have the receipt by email, and
+  telling every previous donor about every new gift would make a busy
+  campaign's notification tray unusable.
 
 - Random citizens comment on a representative's page you also follow —
   only **official responses** trigger a notification.
@@ -74,3 +81,12 @@ representative's response section. Click and go straight there.
 ---
 
 Next: [Responding to a consultation →](./consultations.md)
+
+## One thing to know about campaign updates
+
+Updates from a campaign only reach you if you were **signed in when you
+donated**. A donation made while signed out is still recorded and still
+gets a receipt, but it carries no account for CivicOS to notify — so
+you will not hear what happened next.
+
+If you want to follow the work you funded, sign in before you give.

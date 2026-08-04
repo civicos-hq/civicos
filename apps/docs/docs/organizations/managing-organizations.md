@@ -163,12 +163,84 @@ either an **assigned issue** or a **project**.
 Public updates are readable by anyone. Internal notes are only visible
 to org members.
 
----
+## Running a fundraising campaign
 
-Related:
+Community Funding lets a verified organization raise money for a
+specific piece of work. Before you start, one thing is worth being
+clear about, because it shapes everything else:
 
-- [Running consultations →](./running-consultations.md)
-- [Representative dashboard →](../representatives/dashboard.md)
+**CivicOS never holds your money.** Donations settle straight into your
+own bank account through a Paystack sub-account. The platform cannot
+release funds, cannot hold them back, and cannot see what you spend.
+What it provides is a public record — and it will hold you to it.
+
+### Before you can take a single naira
+
+Two things must be true:
+
+1. Your organization is **verified**.
+2. You have **connected a payout account** — bank and account number,
+   confirmed with Paystack. You enter these once; CivicOS passes them
+   to Paystack and does not store the account number.
+
+Until both are done, campaigns can be drafted but not published.
+
+### The lifecycle
+
+1. **Draft.** Create the campaign with a title, summary, description,
+   category, goal and location. Edit freely.
+2. **Spend plan.** Add milestones — the stages the money will be spent
+   in. Their totals cannot exceed the goal. You cannot submit for
+   review without one.
+3. **Submit for review.** A platform admin reads it.
+4. **Approved, or sent back.** An admin either approves, rejects, or
+   returns it with **needs changes** and a note saying what to fix.
+5. **Publish.** Approval does not publish — you choose when.
+6. **Funded / Completed.** Mark it complete when the work is done.
+7. **File a final report.** The closing account.
+
+**Once you publish, the content is locked.** Title, description and
+goal can no longer be edited. A campaign is a promise people gave money
+against, so it stops being a document you can revise.
+
+### While it is live
+
+- **Publish spending** as you go, itemised against your milestones. The
+  campaign page shows what came in, what you say you spent, and what
+  has not been accounted for.
+- **Post updates** for the people who donated. Lead with what has been
+  done, and say what has gone wrong or been delayed — donors find out
+  eventually, and hearing it from you is better.
+- CivicAI can draft both. See [CivicAI for organizations](./civicai.md).
+
+Everything you publish here is a **claim by you**. CivicOS cannot check
+it, and every page says so. That is not a slight on your organization —
+it is the honest description of a platform that never touched the money.
+
+### The final report
+
+When the work is finished, file a closing account: what was achieved,
+what the money went on, and what was not achieved.
+
+If money you raised is still unaccounted for when you file, **the page
+will say so and name the amount — permanently.** That figure is frozen
+at the moment you file. Publishing more spending afterwards updates the
+live accounting, but it does not change the verdict on the report. A
+thin report cannot be fixed later, so file it when you can account for
+the work.
+
+### If a concern is raised
+
+Donors, and people who live in the LGA your campaign serves, can raise
+a concern about it. Concerns go to CivicOS staff, not to you, and
+**nothing happens to your campaign automatically** — a person reads
+every one. Only a platform admin can pause a campaign, which stops new
+donations and takes the page down.
+
+The most common cause of a concern is silence. An organization that
+raises money and then publishes nothing for months looks the same from
+outside as one that has taken the money. Regular updates are the
+cheapest protection you have.
 
 ## Funding analytics
 
@@ -195,3 +267,11 @@ Three things to keep in mind reading them:
 - **"People helped" is not shown**, on purpose. Nothing in the record measures
   it, and a number you typed in would be a claim sitting among figures taken
   from a ledger.
+
+---
+
+Related:
+
+- [Running consultations →](./running-consultations.md)
+- [CivicAI for organizations →](./civicai.md)
+- [Representative dashboard →](../representatives/dashboard.md)

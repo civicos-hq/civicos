@@ -43,6 +43,21 @@ else about you is sent. The suggestion appears client-side; if the
 suggestion service is down or slow, the form still works exactly the
 same.
 
+### Text an organization drafted with CivicAI
+
+Organizations can use CivicAI to draft announcements, campaign
+descriptions, updates to donors, and closing reports. When you read one
+of those, you are reading words a person at that organization reviewed
+and chose to publish — CivicAI cannot publish anything itself, and the
+organization is accountable for what it says either way.
+
+What CivicAI is told, every time, is not to invent facts: no beneficiary
+counts, no amounts, no outcomes that were not in what the organization
+supplied. Where an organization reports spending, the drafting tools are
+required to describe it as what that organization _says_ it spent, never
+as something CivicOS has checked. CivicOS never held the money and
+cannot check it.
+
 ## What CivicAI does _not_ do
 
 - **It doesn't file your issue.** You still click **Post issue**.

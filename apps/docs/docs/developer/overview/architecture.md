@@ -44,14 +44,15 @@ proxies to the appropriate service. The browser never talks to
 `identity-service`, `community-service`, or `organization-service`
 directly.
 
-## The four Go services
+## The five Go services
 
-| Service                  | Port | Responsibilities                                                                                                              |
-| ------------------------ | ---- | ----------------------------------------------------------------------------------------------------------------------------- |
-| **api-gateway**          | 3000 | Reverse proxy, JWT validation, per-action rate limiting, `/health` aggregation, Swagger UI at `/docs`                         |
-| **identity-service**     | 3001 | Auth (register / login / refresh with family rotation), users, applications, content flags, audit log, admin metrics          |
-| **community-service**    | 3002 | Communities, issues, petitions, representatives, comments, notifications (with SSE hub), search, discover feed, image uploads |
-| **organization-service** | 3003 | Organizations, membership, announcements, projects, issue assignments, progress updates                                       |
+| Service                  | Port | Responsibilities                                                                                                                                                                               |
+| ------------------------ | ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **api-gateway**          | 3000 | Reverse proxy, JWT validation, per-action rate limiting, `/health` aggregation, Swagger UI at `/docs`                                                                                          |
+| **identity-service**     | 3001 | Auth (register / login / refresh with family rotation), users, applications, content flags (incl. campaign concerns), audit log, admin metrics, DB migrations                                  |
+| **community-service**    | 3002 | Communities, issues, petitions, representatives, comments, notifications (with SSE hub), search, discover feed, image uploads                                                                  |
+| **organization-service** | 3003 | Organizations, membership, announcements, projects, issue assignments, progress updates, consultations, **Community Funding** (campaigns, donations, spend, reconciliation), funding analytics |
+| **civicai-service**      | 3004 | Gemini-backed advisory endpoints — classification, summarization, drafting, community insights, campaign risk. Every response is a suggestion; nothing auto-acts                               |
 
 Notifications and search were spec'd as future standalone services in
 the Engineering Playbook but live inside community-service for the MVP
@@ -61,9 +62,16 @@ stays in-process. Extract when scale demands it, not before.
 ## Two React apps
 
 - **`apps/web`** — the citizen-facing app on port 5173. Homepage, feeds,
-  issue and petition detail, representative pages, notifications, profile.
+  issue and petition detail, representative pages, consultations,
+  community funding (browse, campaign pages, donate), org dashboard
+  including campaign management and funding analytics, notifications,
+  profile.
 - **`apps/admin`** — the admin console on port 5174. Metrics, moderation
-  queue, audit log, user administration, applications review.
+  queue, audit log, user administration, applications review, campaign
+  review, reconciliation drift, campaign concerns, funding analytics.
+- **`apps/docs`** — this Docusaurus site on port 5175. Not a React app in
+  the same sense, but it lives in the same workspace and ships with the
+  monorepo.
 
 Both apps consume the API through the gateway. There's a shared UI
 package (`@civicos/ui`) and a shared types package (`@civicos/types`)

@@ -68,7 +68,9 @@ destructive schema change, apply the SQL migration _first_ (via
 Set on **every backend service**:
 
 - `DATABASE_URL` — the Render Postgres string (Blueprint wires this).
-- `JWT_SECRET` — 32+ chars, same across all four services.
+- `JWT_SECRET` — 32+ chars, identical across the gateway and every
+  service that validates a token (identity, community, organization,
+  civicai). A mismatch anywhere shows up as 401s on that service alone.
 - `PORT` — Render sets this; don't override.
 
 Set on the **gateway**:

@@ -8,8 +8,9 @@ slug: /
 # Welcome to CivicOS
 
 CivicOS is a public platform that lets citizens raise problems, sign
-petitions, follow their elected representatives, and see what actually
-gets done — between elections, not just during them.
+petitions, follow their elected representatives, answer consultations,
+fund local work, and see what actually gets done — between elections,
+not just during them.
 
 This documentation covers everything you can do inside CivicOS.
 Whether you're a citizen filing your first report, an organization
@@ -29,6 +30,11 @@ comment publicly on what's happening in your community.
 - Learn how to [report an issue](./citizens/report-issue.md), how
   [voting works](./citizens/voting.md), and how to manage your
   [notifications](./citizens/notifications.md).
+- Have your say on a [consultation](./citizens/consultations.md), or
+  [donate to a campaign](./citizens/community-funding.md) an
+  organization is running near you.
+- See what [CivicAI](./citizens/civicai.md) does — and, more usefully,
+  what it is not allowed to do.
 
 ### For organization admins
 
@@ -37,8 +43,12 @@ You want to post announcements, run projects, take responsibility for
 citizen-reported issues, and post progress updates publicly.
 
 - Read [Managing organizations](./organizations/managing-organizations.md) — one
-  page covering members, announcements, projects, assignments, and
-  progress updates.
+  page covering members, announcements, projects, assignments, progress
+  updates, fundraising campaigns, and your funding analytics.
+- Read [Running consultations](./organizations/running-consultations.md)
+  if you need structured input before making a decision.
+- Read [CivicAI for organizations](./organizations/civicai.md) for the
+  drafting tools, and what they will and will not write for you.
 
 ### For representatives
 
@@ -76,8 +86,12 @@ deciding whether CivicOS fits your community.
 
 - **Not a replacement for the ballot box.** Elections still matter —
   CivicOS is what happens between them.
-- **Not anonymous.** Comments, upvotes, signatures, and reports are all
-  tied to a verified account. Anonymity works against accountability.
+- **Not anonymous — except when you give.** Comments, upvotes,
+  signatures and reports all carry your name. Donations do not have to:
+  you can give to a campaign without appearing publicly.
+- **Not holding your donation.** Money you give goes straight to the
+  organization's own bank account. CivicOS records what happened; it
+  does not hold, release, or guarantee the funds.
 - **Not a complaint hotline.** Issues you report are public and go on
   the record, so they can be tracked and resolved openly.
 

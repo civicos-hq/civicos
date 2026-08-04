@@ -81,15 +81,27 @@ comments, no throwaway signatures.
 limiter with per-action budgets, `RequireVerified` middleware, bcrypt
 cost 12.
 
-## 7. Anonymity is not a feature here
+## 7. Anonymity is not a feature here — with one exception
 
-Every action is tied to a verified account. This is a deliberate
-tradeoff — anonymous participation is a well-studied problem in civic
-tech, and the answer for accountability platforms is: don't. Signatures,
+Every civic action is tied to a verified account. This is a deliberate
+tradeoff: anonymous participation is a well-studied problem in civic
+tech, and the answer for accountability platforms is don't. Signatures,
 upvotes, comments, and reports all carry a citizen's name.
 
-**In practice:** verified-email gate on all write actions. The audit
-trail is real names, not user IDs.
+**Donations are the exception, and the reason is the same principle
+read the other way.** A donor can give without their name appearing
+anywhere public. Accountability on CivicOS runs from the citizen
+towards power — it asks organizations and representatives to account
+for themselves. Publishing the name of someone who gave ₦2,000 to a
+flood appeal does not hold anyone to account; it just exposes them.
+The donation is still recorded, still reconciled, and still attached
+to a real payment — "anonymous" means anonymous to other citizens, not
+unrecorded.
+
+**In practice:** verified-email gate on all write actions; the audit
+trail is real names, not user IDs. On the donation path, `isAnonymous`
+suppresses the donor's name from every public surface while the ledger
+row keeps everything reconciliation needs.
 
 ## 8. Errors have codes, not messages
 
@@ -133,7 +145,16 @@ Principles are as much about no as yes.
   hid it and why. The placeholder is public.
 - **No pay-to-be-verified.** Verification is either "email verified"
   (automatic) or "org/rep application approved by a platform admin"
-  (auditable). There is no money path.
+  (auditable). Money cannot buy a badge, move an application up a
+  queue, or change what a reviewer sees.
+
+  CivicOS _does_ move money — organizations raise funds through
+  Community Funding, and the platform takes a disclosed cut of each
+  donation (currently 2.5%, set per deployment and shown to the donor
+  in naira before they confirm). That is a fee on a transaction, not a price on standing.
+  No amount of it changes an organization's verification state or how
+  its campaign is reviewed.
+
 - **No selling data.** The whole platform is open source. There's no
   private analytics pipeline.
 
