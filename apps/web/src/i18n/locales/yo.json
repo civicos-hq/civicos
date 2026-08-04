@@ -1035,7 +1035,8 @@
   },
   "orgDashboard": {
     "tabs": {
-      "campaigns": "Ìpolongo"
+      "campaigns": "Ìpolongo",
+      "analytics": "Ìtúpalẹ̀"
     }
   },
   "orgCampaignCreate": {
@@ -1162,5 +1163,27 @@
       "placeholder": "àpẹẹrẹ: A ti tún ọ̀nà omi náà kọ́, àwọn ọkọ̀ sì ń lo ojú ọ̀nà. A ná owó díẹ̀ ju bí a ti gbèrò nítorí àdúgbò ṣe iṣẹ́ ọ̀fẹ́.",
       "shortfall": "{{amount}} nínú owó tí o gbà ni kò tíì ní ìjìhìn. Fífi í lọ nísinsìnyí máa kọ nọ́mbà náà sí ojú ìwé gbogbo ènìyàn rẹ láéláé, kódà bí o bá ròyìn ìnáwó mìíràn lẹ́yìn náà."
     }
+  },
+  "orgAnalytics": {
+    "heading": "Ìtúpalẹ̀ ìnáwó",
+    "lede": "Bí àwọn ìpolongo rẹ ṣe ń lọ. Gbogbo ohun tí ó wà níbí ni owó tí ó gba CivicOS kọjá — àwọn ẹ̀bùn ń lọ tààrà sí àkàǹtì báǹkì rẹ, nítorí náà kì í ṣe ìwọ̀n owó tí ó kù.",
+    "raised": "Tí a gbà",
+    "donations": "Àwọn ẹ̀bùn",
+    "average": "Ààrín ẹ̀bùn",
+    "repeatDonors": "Àwọn tí ó ṣàánú lẹ́ẹ̀kejì",
+    "donorFloor": "Nínú ẹ̀bùn {{total}}, {{attributable}} ni a lè so mọ́ ènìyàn. Wọ́n fi àwọn yòókù sílẹ̀ láìwọlé, nítorí náà iye àwọn olùṣàánú jẹ́ ìkéré jùlọ, kì í ṣe àpapọ̀.",
+    "trend": "Ìṣàánú lóri àkókò",
+    "window": "Àkókò",
+    "weeks": "Ọ̀sẹ̀ {{count}} sẹ́yìn",
+    "trendCaption": "Lọ́sọ̀ọ̀sẹ̀, àtijọ́ ní àkọ́kọ́. Ọ̀sẹ̀ tí ó dára jùlọ {{peak}}.",
+    "completionRate": "Ìwọ̀n ìparí",
+    "completionHint": "Nínú ìpolongo {{published}} tí o tẹ̀ jáde, {{completed}} ti parí.",
+    "reportingRate": "Àwọn ìròyìn ìparí tí a fi lọ",
+    "reportingHint": "Nínú {{completed}} tí ó parí, {{reported}} wá pẹ̀lú àlàyé owó náà.",
+    "byCampaign": "Nípa ìpolongo",
+    "notesHeading": "Bí a ṣe ń kà wọ́n",
+    "loadError": "A kò lè ṣí ìtúpalẹ̀ nísinsìnyí.",
+    "emptyTitle": "Kò sí ohun tí a lè wọ̀n síbẹ̀",
+    "emptyBody": "Ní kété tí o bá tẹ ìpolongo jáde tí àwọn ẹ̀bùn sì bẹ̀rẹ̀ sí wọlé, níbí ni wàá ti rí bí ó ṣe ń lọ."
   }
 }

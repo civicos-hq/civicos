@@ -169,3 +169,29 @@ Related:
 
 - [Running consultations →](./running-consultations.md)
 - [Representative dashboard →](../representatives/dashboard.md)
+
+## Funding analytics
+
+The **Analytics** tab on your dashboard shows how your campaigns are doing:
+what you have raised, giving over time, repeat donors, average donation, and
+a per-campaign breakdown.
+
+Two rates sit below the chart, and each states its denominator on screen
+because neither means anything without it:
+
+- **Completion rate** — how many of the campaigns you published are finished.
+- **Final reports filed** — how many of your _finished_ campaigns came with an
+  account of the money. This is the one worth watching. It is, in effect, the
+  question a donor deciding whether to give to you again is asking.
+
+Three things to keep in mind reading them:
+
+- **None of it is a balance.** Every figure is money that settled through
+  CivicOS. Donations go straight to your own bank account, so CivicOS has no
+  idea what you hold or have spent.
+- **Donor counts are a floor.** Someone who gave while signed out cannot be
+  linked to any other donation, so your unique and repeat donor numbers are a
+  lower bound. The page tells you how many of your donations can be attributed.
+- **"People helped" is not shown**, on purpose. Nothing in the record measures
+  it, and a number you typed in would be a claim sitting among figures taken
+  from a ledger.

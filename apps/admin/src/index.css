@@ -852,3 +852,79 @@
   font-size: 0.8rem;
   color: #475569;
 }
+
+/* Funding analytics. */
+.admin-metric-hint {
+  margin-top: 0.35rem;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: #64748b;
+}
+.admin-kv {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.45rem 1rem;
+  font-size: 0.875rem;
+}
+.admin-kv dt {
+  color: #475569;
+}
+.admin-kv dd {
+  font-weight: 600;
+  color: #0f172a;
+  text-align: right;
+}
+.admin-kv-hint {
+  display: block;
+  font-size: 0.72rem;
+  color: #64748b;
+}
+/* Bars, not a line: empty weeks come back as zeros, and a line joining the
+   weeks either side of a silence draws giving that did not happen. */
+.admin-trend {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 120px;
+  padding: 0 0.25rem;
+}
+.admin-trend-bar {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  background: #f1f5f9;
+  border-radius: 2px;
+}
+.admin-trend-bar span {
+  display: block;
+  width: 100%;
+  min-height: 2px;
+  background: #4b9d5c;
+  border-radius: 2px;
+}
+.admin-trend-caption {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+.admin-caveat {
+  margin-top: 0.75rem;
+  border-radius: 0.5rem;
+  background: #f1f5f9;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: #475569;
+}
+.admin-notes {
+  margin: 0;
+  padding: 1rem 1rem 1rem 2.25rem;
+  list-style: disc;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: #475569;
+}
+.admin-notes li + li {
+  margin-top: 0.5rem;
+}

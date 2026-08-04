@@ -1035,7 +1035,8 @@
   },
   "orgDashboard": {
     "tabs": {
-      "campaigns": "Mkpọsa"
+      "campaigns": "Mkpọsa",
+      "analytics": "Nyocha"
     }
   },
   "orgCampaignCreate": {
@@ -1162,5 +1163,27 @@
       "placeholder": "dịka: E wughariala olulu mmiri ahụ, ụgbọala na-agafekwa ụzọ ọzọ. Anyị mefuru ihe dị ntakịrị karịa atụmatụ n’ihi na obodo nyere aka n’ọrụ.",
       "shortfall": "{{amount}} n’ime ego ị kpọtara ka akọwaghị. Ịnyefe ya ugbu a na-edekọ ọnụọgụ ahụ kpamkpam na peeji ọha gị, ọ bụrụgodị na ị kọọ mmefu ọzọ ma emesịa."
     }
+  },
+  "orgAnalytics": {
+    "heading": "Nyocha ego",
+    "lede": "Otu mkpọlite ego gị si aga. Ihe niile ebe a bụ ego batara site na CivicOS — onyinye na-aga ozugbo n'akaụntụ bank gị, ya mere nke a abụghị nguzozi.",
+    "raised": "Enwetara",
+    "donations": "Onyinye",
+    "average": "Nkezi onyinye",
+    "repeatDonors": "Ndị na-enye ugboro ugboro",
+    "donorFloor": "N'ime onyinye {{total}}, {{attributable}} ka enwere ike ijikọ na mmadụ. E nyere ndị ọzọ mgbe ha abanyeghị, ya mere ọnụọgụ ndị nyere bụ ala kacha nta, ọ bụghị mkpokọta.",
+    "trend": "Inye n’ime oge",
+    "window": "Oge",
+    "weeks": "Izu {{count}} gara aga",
+    "trendCaption": "Kwa izu, nke ochie buru ụzọ. Izu kacha mma {{peak}}.",
+    "completionRate": "Ọnụọgụ mmecha",
+    "completionHint": "N'ime mkpọlite ego {{published}} ị bipụtara, {{completed}} agwụchaala.",
+    "reportingRate": "Akụkọ ikpeazụ e nyefere",
+    "reportingHint": "N'ime {{completed}} gwụchara, {{reported}} wetara akụkọ maka ego ahụ.",
+    "byCampaign": "Site na mkpọlite ego",
+    "notesHeading": "Otu esi agụ ndị a",
+    "loadError": "Enweghị ike ibudata nyocha ugbu a.",
+    "emptyTitle": "O nweghị ihe a ga-atụ ugbu a",
+    "emptyBody": "Ozugbo ị bipụtara mkpọlite ego ma onyinye malite ịbata, ebe a ka ị ga-ahụ otu ọ si aga."
   }
 }

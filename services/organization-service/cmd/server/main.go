@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/civicos/organization-service/internal/analytics"
 	"github.com/civicos/organization-service/internal/announcements"
 	"github.com/civicos/organization-service/internal/assignments"
 	"github.com/civicos/organization-service/internal/audience"
@@ -70,6 +71,13 @@ func main() {
 	orgRepo := organizations.NewRepository(db)
 	orgSvc := organizations.NewService(orgRepo)
 	orgHandler := organizations.NewHandler(orgSvc, auditor)
+
+	// Funding analytics — read-only aggregates over campaigns and the
+	// donation ledger. Lives here because this service owns both; the
+	// org-scoped read reuses orgSvc's CanReadInternal so an organization
+	// cannot see another's numbers.
+	analyticsSvc := analytics.NewService(analytics.NewRepository(db))
+	analyticsHandler := analytics.NewHandler(analyticsSvc, orgSvc)
 
 	// Shared notification writer — INSERTs directly into the community-
 	// service-owned notifications table (same shared-DB pattern as audit).
@@ -217,6 +225,7 @@ func main() {
 	progHandler.RegisterRoutes(v1, authMiddleware)
 	consultHandler.RegisterRoutes(v1, authMiddleware, requireVerified)
 	campHandler.RegisterRoutes(v1, authMiddleware)
+	analyticsHandler.RegisterRoutes(v1, authMiddleware)
 	msHandler.RegisterRoutes(v1, authMiddleware)
 	donHandler.RegisterRoutes(v1, authMiddleware, optionalAuth)
 	spendHandler.RegisterRoutes(v1, authMiddleware)

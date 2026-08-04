@@ -42,6 +42,11 @@ servers:
 tags:
   - name: Organizations
     description: Registry and membership.
+  - name: Funding Analytics
+    description: >
+      Read-only aggregates over campaigns and the donation ledger. Money shown
+      is what settled THROUGH CivicOS, which is not what an organization holds,
+      has spent, or has left.
   - name: Members
     description: Organization member management.
   - name: Announcements
@@ -3270,3 +3275,98 @@ paths:
                       },
                   }
         '500': { description: Server-side failure — Paystack should retry. }
+
+  # ─────────────────────── FUNDING ANALYTICS ───────────────────────
+  #
+  # Two read-only endpoints. Nothing here writes, and nothing is cached — the
+  # queries are cheap aggregates and a stale money figure is worse than a
+  # slightly slower page.
+  #
+  # Every response carries a `notes` array. The caveats are in the PAYLOAD, not
+  # only in this document, because these numbers get lifted into board packs
+  # and funding applications, and the qualification has to travel with them.
+  #
+  # Two metrics from the product spec are deliberately absent rather than
+  # approximated:
+  #
+  #   - "People helped" / "Beneficiaries reached" — nothing in the schema
+  #     measures it. It could only be a number an organization typed in, which
+  #     is a claim, and placing it beside ledger-derived figures would lend it
+  #     a precision it has not earned.
+  #   - "Funds withdrawn" / "Remaining balance" — CivicOS is not the merchant
+  #     of record and never holds the money, so neither is knowable.
+
+  /organizations/{id}/funding-analytics:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Funding Analytics]
+      summary: Funding analytics for one organization.
+      description: |
+        Authorised by the same `CanReadInternal` gate as the organization's own
+        campaign list, so an organization sees its own numbers and no one
+        else's. Platform admins may read any.
+
+        Covers the spec's Organisation Analytics list: funds raised, donation
+        trends, repeat donors, average donation, campaign performance and
+        completion rate.
+
+        **Donor counts are a floor.** A donation made while signed out carries
+        no user, so it cannot be tied to any other donation.
+        `attributableDonations` is returned beside `uniqueDonors` and
+        `repeatDonors` for exactly that reason — without it the counts read as
+        complete when they are a lower bound.
+
+        **`completionRate` is over campaigns that ever published**, not over
+        all campaigns. A draft that never opened for donations cannot have
+        failed to complete. **`reportingRate`** is over completed campaigns:
+        the share of finished work that came with an account of the money.
+      operationId: orgFundingAnalytics
+      parameters:
+        - in: query
+          name: weeks
+          description: Trend window. Clamped to 1–52; an unparseable value falls back to 12 rather than erroring.
+          schema: { type: integer, default: 12, minimum: 1, maximum: 52 }
+      responses:
+        '200': { description: Analytics for the organization. }
+        '403': { description: Caller may not read this organization. }
+
+  /admin/funding-analytics:
+    get:
+      tags: [Funding Analytics]
+      summary: Platform-wide funding analytics. Admin only.
+      description: |
+        `PLATFORM_ADMIN` only — this is money across every organization.
+
+        Covers the spec's Platform Analytics list (total campaigns, total funds
+        raised, verified organisations, countries, categories, emergency
+        response metrics) and most of its Success Metrics.
+
+        Notes on individual figures:
+
+        - **`organizations.fundingEligible`** is stricter than `verified`: it
+          also requires a connected payout account. The gap between the two is
+          the onboarding drop-off.
+        - **`emergency.medianHoursToFirstDonation`** is a median, not a mean —
+          one appeal that sat unfunded for a month would drag an average far
+          from the typical experience.
+        - **`review.oldestWaitingHours`** is the number worth watching. An
+          average wait stays comfortable while a single campaign sits for a
+          fortnight.
+        - **`trend`** includes empty weeks as zeros. A series that skipped them
+          would let a chart draw a line straight through a silence.
+        - Money is grouped **by currency**. Everything is NGN today and a
+          campaign's currency is immutable after creation, so this is one entry
+          in practice — but summing across currencies would be a defect the
+          moment a second appears.
+      operationId: platformFundingAnalytics
+      parameters:
+        - in: query
+          name: weeks
+          schema: { type: integer, default: 12, minimum: 1, maximum: 52 }
+      responses:
+        '200': { description: Platform-wide analytics. }
+        '403': { description: Caller is not `PLATFORM_ADMIN`. }

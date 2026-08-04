@@ -434,3 +434,66 @@ still starts and serves campaigns; donation endpoints return `503`):
 - `RECONCILE_INTERVAL_MINUTES` — default `60`, `0` disables the sweep
 - `NATS_URL` — realtime notification bus. Optional: without it,
   notifications still persist and appear on the user's next fetch.
+
+## Funding analytics
+
+Two read-only endpoints in `internal/analytics/`:
+`GET /organizations/:id/funding-analytics` (gated by `CanReadInternal` on the
+owning org) and `GET /admin/funding-analytics` (`PLATFORM_ADMIN`). Nothing
+writes, and nothing is cached — the queries are cheap aggregates and a stale
+money figure is worse than a slightly slower page.
+
+### What these numbers are not
+
+Every money figure is what settled **through CivicOS**. It is not what an
+organization holds, has spent, or has left; donations settle straight into its
+own bank account and CivicOS has no view of it afterwards.
+
+Two metrics the product spec asks for are **deliberately absent rather than
+approximated**:
+
+- **People helped / Beneficiaries reached.** Nothing in the schema records a
+  beneficiary count. It could only be a number an organization typed in, which
+  is a claim — and placing it beside figures derived from a ledger would lend
+  it a precision it has not earned. Adding a self-reported field is a product
+  decision, not a reporting one.
+- **Funds withdrawn / Remaining balance.** CivicOS is not the merchant of
+  record, so neither is knowable. Already recorded in the funding plan.
+
+### Choices that would be easy to get wrong
+
+- **`completionRate` divides by campaigns that EVER published**, tracked via
+  `published_at IS NOT NULL` rather than `status = 'PUBLISHED'`. Using the
+  current status would make the rate climb as work finishes, since a completed
+  campaign leaves the PUBLISHED state.
+- **`reportingRate`** is reported-over-completed — the share of finished work
+  that came with an account of the money. The single most telling number here.
+- **Donor counts are a floor.** A donation made while signed out carries no
+  `donor_user_id`, so it cannot be tied to any other donation.
+  `attributableDonations` is returned beside the counts; without it they read
+  as totals. The `notes` array in every response says so in words.
+- **Averages are over all settled donations**, attributable or not — an
+  average does not need to know who gave.
+- **Emergency response uses a median**, not a mean. One appeal that sat
+  unfunded for a month would drag an average away from the typical experience.
+- **`review.oldestWaitingHours`** exists because an average wait stays
+  comfortable while one campaign sits for a fortnight.
+- **Trend buckets include empty weeks**, via `generate_series`. A series that
+  skipped them would let a chart draw a line straight through a silence.
+- **Money is grouped by currency.** One entry in practice today, but summing
+  across currencies would be a defect the moment a second appears.
+
+### Where these surface
+
+- `apps/admin` → **Funding analytics** (platform-wide, under Money).
+- `apps/web` → the **Analytics** tab on the org dashboard (`/org/:id?tab=analytics`).
+
+Both render the `notes` array rather than hard-coding their own copy, and both
+show each rate's denominator on screen.
+
+### The `notes` array
+
+Every response carries its caveats in the payload, not only in the docs. These
+figures get lifted into board packs and funding applications, where they
+arrive without whatever qualification was on the screen — so the qualification
+travels with the data.

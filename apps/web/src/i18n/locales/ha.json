@@ -1035,7 +1035,8 @@
   },
   "orgDashboard": {
     "tabs": {
-      "campaigns": "Kamfen"
+      "campaigns": "Kamfen",
+      "analytics": "Nazari"
     }
   },
   "orgCampaignCreate": {
@@ -1162,5 +1163,27 @@
       "placeholder": "misali: An sake gina magudanar ruwa kuma motoci suna amfani da hanya. Mun kashe ƙasa da yadda aka shirya saboda al’umma sun ba da aiki kyauta.",
       "shortfall": "{{amount}} na abin da ka tara har yanzu ba a bayyana ba. Shigar da rahoto yanzu zai adana wannan adadin har abada a shafinka na jama’a, ko da ka ba da rahoton ƙarin kashe kuɗi daga baya."
     }
+  },
+  "orgAnalytics": {
+    "heading": "Nazarin tallafi",
+    "lede": "Yadda tallafinka ke tafiya. Duk abin da ke nan kuɗi ne da ya shigo ta CivicOS — gudummawa tana zuwa asusunka kai tsaye, don haka wannan ba ma'auni ba ne.",
+    "raised": "An tara",
+    "donations": "Gudummawa",
+    "average": "Matsakaicin gudummawa",
+    "repeatDonors": "Masu ba da gudummawa akai-akai",
+    "donorFloor": "Daga cikin gudummawa {{total}}, {{attributable}} ne za a iya danganta su da mutum. An ba da sauran ba tare da shiga ba, don haka adadin masu bayarwa mafi ƙaranci ne, ba jimilla ba.",
+    "trend": "Bayarwa cikin lokaci",
+    "window": "Tazarar lokaci",
+    "weeks": "Makonni {{count}} da suka wuce",
+    "trendCaption": "Kowane mako, tsofaffi da farko. Mako mafi kyau {{peak}}.",
+    "completionRate": "Adadin kammalawa",
+    "completionHint": "Daga cikin tallafi {{published}} da ka wallafa, {{completed}} sun kammala.",
+    "reportingRate": "Rahotannin ƙarshe da aka gabatar",
+    "reportingHint": "Daga cikin {{completed}} da suka ƙare, {{reported}} sun zo da bayanin kuɗin.",
+    "byCampaign": "Bisa ga tallafi",
+    "notesHeading": "Yadda ake karanta waɗannan",
+    "loadError": "Ba a iya loda nazari a yanzu ba.",
+    "emptyTitle": "Babu abin aunawa tukuna",
+    "emptyBody": "Da zarar ka wallafa tallafi kuma gudummawa ta fara shigowa, nan za ka ga yadda yake tafiya."
   }
 }

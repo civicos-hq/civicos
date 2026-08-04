@@ -1,5 +1,6 @@
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { OrgFundingAnalytics } from '../components/OrgFundingAnalytics';
 import { Button } from '@civicos/ui';
 import {
   AnnouncementStatus,
@@ -30,7 +31,8 @@ import { MessageSquare, Megaphone, Briefcase, Inbox } from 'lucide-react';
 
 // Tab type mirrors the sub-sections on the dashboard. Adding a tab is
 // low-effort: add to this union, add a case in the switch, add an i18n key.
-type Tab = 'consultations' | 'announcements' | 'projects' | 'assignments' | 'campaigns';
+type Tab =
+  'consultations' | 'announcements' | 'projects' | 'assignments' | 'campaigns' | 'analytics';
 
 const TABS: Array<{ id: Tab; i18n: string }> = [
   { id: 'consultations', i18n: 'orgDashboard.tabs.consultations' },
@@ -38,6 +40,7 @@ const TABS: Array<{ id: Tab; i18n: string }> = [
   { id: 'projects', i18n: 'orgDashboard.tabs.projects' },
   { id: 'assignments', i18n: 'orgDashboard.tabs.assignments' },
   { id: 'campaigns', i18n: 'orgDashboard.tabs.campaigns' },
+  { id: 'analytics', i18n: 'orgDashboard.tabs.analytics' },
 ];
 
 const CONSULTATION_TONE: Record<ConsultationStatus, string> = {
@@ -166,6 +169,14 @@ export function OrgDashboardPage() {
       {activeTab === 'announcements' && <AnnouncementsSection orgId={orgId} canAdmin={canAdmin} />}
       {activeTab === 'projects' && <ProjectsSection orgId={orgId} canAdmin={canAdmin} />}
       {activeTab === 'assignments' && <AssignmentsSection orgId={orgId} canAdmin={canAdmin} />}
+      {activeTab === 'analytics' && orgId && (
+        <div className="space-y-3">
+          <h2 className="font-fraunces text-lg font-semibold text-slate-900 dark:text-slate-100">
+            {t('orgAnalytics.heading')}
+          </h2>
+          <OrgFundingAnalytics orgId={orgId} />
+        </div>
+      )}
       {activeTab === 'campaigns' && orgId && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">

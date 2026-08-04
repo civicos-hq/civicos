@@ -1292,7 +1292,8 @@
       "announcements": "Announcements",
       "projects": "Projects",
       "assignments": "Assignments",
-      "campaigns": "Campaigns"
+      "campaigns": "Campaigns",
+      "analytics": "Analytics"
     },
     "newConsultation": "New consultation",
     "newAnnouncement": "New announcement",
@@ -2016,5 +2017,27 @@
       "placeholder": "e.g. The culvert is rebuilt and vehicles are using the road again. We spent less than planned because the community donated labour.",
       "shortfall": "{{amount}} of what you raised is still unaccounted for. Filing records that figure permanently on your public page, even if you report more spending later."
     }
+  },
+  "orgAnalytics": {
+    "heading": "Funding analytics",
+    "lede": "How your campaigns are doing. Everything here is money that settled through CivicOS — donations go straight to your bank account, so none of this is a balance.",
+    "raised": "Raised",
+    "donations": "Donations",
+    "average": "Average donation",
+    "repeatDonors": "Repeat donors",
+    "donorFloor": "{{attributable}} of {{total}} donations can be tied to a person. The rest were given while signed out, so donor counts are a floor, not a total.",
+    "trend": "Giving over time",
+    "window": "Time window",
+    "weeks": "Last {{count}} weeks",
+    "trendCaption": "Weekly, oldest first. Best week {{peak}}.",
+    "completionRate": "Completion rate",
+    "completionHint": "{{completed}} of {{published}} campaigns you published are finished.",
+    "reportingRate": "Final reports filed",
+    "reportingHint": "{{reported}} of {{completed}} finished campaigns came with an account of the money.",
+    "byCampaign": "By campaign",
+    "notesHeading": "How to read these",
+    "loadError": "Could not load analytics right now.",
+    "emptyTitle": "Nothing to measure yet",
+    "emptyBody": "Once you publish a campaign and it starts receiving donations, this is where you will see how it is going."
   }
 }

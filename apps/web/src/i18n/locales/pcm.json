@@ -1264,7 +1264,8 @@
   },
   "orgDashboard": {
     "tabs": {
-      "campaigns": "Campaigns"
+      "campaigns": "Campaigns",
+      "analytics": "Analytics"
     }
   },
   "orgCampaignCreate": {
@@ -1391,5 +1392,27 @@
       "placeholder": "e.g. The culvert don rebuild and motor dey pass road again. We spend less than we plan because community help with labour.",
       "shortfall": "{{amount}} of the money wey you raise never get account. If you file am now, that figure go stay for your public page forever, even if you report more spending later."
     }
+  },
+  "orgAnalytics": {
+    "heading": "Funding analytics",
+    "lede": "How your campaigns dey do. Everything here na money wey settle through CivicOS — donation dey go straight to your bank account, so this no be balance.",
+    "raised": "Wetin you raise",
+    "donations": "Donations",
+    "average": "Average donation",
+    "repeatDonors": "People wey donate again",
+    "donorFloor": "{{attributable}} out of {{total}} donations na person we fit identify. The rest dem give while dem no sign in, so donor number na the least, no be the total.",
+    "trend": "Giving as time dey go",
+    "window": "Time window",
+    "weeks": "Last {{count}} weeks",
+    "trendCaption": "Every week, old ones first. Best week {{peak}}.",
+    "completionRate": "Completion rate",
+    "completionHint": "{{completed}} out of {{published}} campaigns wey you publish don finish.",
+    "reportingRate": "Final report wey you file",
+    "reportingHint": "{{reported}} out of {{completed}} campaigns wey finish get report about the money.",
+    "byCampaign": "By campaign",
+    "notesHeading": "How to read am",
+    "loadError": "We no fit load analytics now.",
+    "emptyTitle": "Nothing to measure yet",
+    "emptyBody": "Once you publish campaign and donation start enter, na here you go see how e dey go."
   }
 }
