@@ -71,6 +71,17 @@ on the gateway. Summary:
 | GET    | `/v1/ai/narrate-metrics`    | Plain-language read on platform metrics            | `PLATFORM_ADMIN`  |
 | GET    | `/health`                   | Liveness                                           | Public            |
 
+Community Funding surfaces (`internal/campaignai/`):
+
+| Method | Path                               | Purpose                                       | Role gate        |
+| ------ | ---------------------------------- | --------------------------------------------- | ---------------- |
+| POST   | `/v1/ai/classify-campaign`         | Suggest category, emergency flag, tags        | Staff roles      |
+| POST   | `/v1/ai/draft-campaign`            | Draft title, summary, description, milestones | Staff roles      |
+| POST   | `/v1/ai/summarize-campaign-impact` | Public read on what a campaign has achieved   | Staff roles      |
+| POST   | `/v1/ai/draft-donor-update`        | Draft an update for people who donated        | Staff roles      |
+| POST   | `/v1/ai/draft-completion-report`   | Draft the closing account                     | Staff roles      |
+| POST   | `/v1/ai/assess-campaign-risk`      | Review-priority signals for a queue           | `PLATFORM_ADMIN` |
+
 Staff roles = `REPRESENTATIVE`, `GOVERNMENT_ADMIN`, `PLATFORM_ADMIN`,
 `NGO`, `MODERATOR`. Enforced inside civicai-service, not the gateway.
 
@@ -181,3 +192,95 @@ Enforced in code across every subpackage:
 - Full capabilities catalog: [`docs/product/civicai-capabilities.md`](https://github.com/civicos-hq/civicos/blob/main/docs/product/civicai-capabilities.md).
 - User-facing overviews:
   [Citizens](/citizens/civicai) · [Organizations & Staff](/organizations/civicai).
+
+## Community Funding surfaces
+
+Six endpoints in `internal/campaignai/`. They differ from the rest of this
+service in one respect that shapes all of them: they write about money other
+people gave, from claims CivicOS cannot verify. Donations settle straight to
+the organization's bank account, so reported spending is the organization's
+assertion, not an observed fact.
+
+Three consequences are enforced in code rather than left to the prompt:
+
+**The fact sheet says whose claim it is.** `factSheet()` introduces spend
+records under "WHAT THE ORGANIZATION SAYS IT HAS SPENT", followed by an
+explicit line that CivicOS never held the money and cannot verify it. A model
+handed a list of expenses under a neutral heading will summarise them as
+established fact, and that summary is shown to donors.
+
+**Arithmetic about unexplained money is computed, never generated.**
+`CompletionReport` returns `unaccountedMinor` from `Context.UnaccountedMinor()`.
+That figure is frozen into the public record when the report is filed, and a
+hallucinated one would be indistinguishable from a true one.
+`UnaccountedMinor()` is also allowed to go negative — an organization reporting
+more spending than it raised here is normal, and clamping it to zero would hand
+the prompt a tidier picture than the truth.
+
+**Authorization cascades rather than being re-implemented.** `SourceClient`
+forwards the caller's own Bearer token to organization-service, where
+`CanReadInternal` applies. There is deliberately no service-to-service
+credential: adding one would silently widen who can have a campaign assessed.
+
+### assess-campaign-risk
+
+The one that needed the most care. It produces fraud signals about a named
+organization asking the public for money, and the funding plan is explicit
+about the stakes: _"an AI that can block fundraising is an AI that can be wrong
+about someone's flood relief."_
+
+- **`PLATFORM_ADMIN` only.** Not `NGO` — an organization must never be able to
+  run a fraud probe on a rival's appeal.
+- **It never writes.** Nothing sets `Campaign.RiskScore`, changes a status, or
+  notifies anyone. A reviewer acts through the ordinary review and pause
+  endpoints, which carry their own audit trails.
+- **Observations, not verdicts.** The system instruction tells the model it is
+  not deciding anything. A model asked to judge produces judgments, and a
+  reviewer who reads "LIKELY FRAUD" is anchored before opening the campaign.
+  The bands are review priorities — `ROUTINE`, `WORTH_A_LOOK`,
+  `REVIEW_CLOSELY` — and there is no "FRAUDULENT" band, because the word would
+  follow the organization around the admin console.
+- **Every signal must cite evidence and offer the innocent reading of the same
+  fact.** Both are schema-required, and signals arriving with an empty evidence
+  string are dropped server-side — "required" only means present, and a model
+  can satisfy it with `""`. If no signal survives, the band is forced back to
+  `ROUTINE`.
+- The prompt also names what is **not** a signal on its own: a small or new
+  organization, simple writing, a large goal for genuinely expensive work, or
+  no spending reported by a campaign that has only just published.
+
+The honest description of what it is for: a reviewer with forty campaigns in a
+queue wants to know which three to open first.
+
+### Where the campaign surfaces appear
+
+| Endpoint                    | Surface                                                                       |
+| --------------------------- | ----------------------------------------------------------------------------- |
+| `draft-campaign`            | `apps/web` → `OrgCampaignCreatePage` (and the legacy modal in `OrgCampaigns`) |
+| `draft-donor-update`        | `apps/web` → `CampaignConsole` update composer                                |
+| `draft-completion-report`   | `apps/web` → `FinalReportForm`                                                |
+| `assess-campaign-risk`      | `apps/admin` → `RiskPanel` on the campaign review page                        |
+| `classify-campaign`         | client function only, no UI yet                                               |
+| `summarize-campaign-impact` | client function only, no UI yet                                               |
+
+The org-facing panels share `components/civicai/CampaignAIPanel.tsx`,
+which is where three guarantees live so they cannot drift apart per
+surface:
+
+- **Generating never applies.** The draft renders in its own box and a
+  separate **Use this** click writes it into the form. A distracted admin
+  cannot publish words they have not read.
+- **Every rendered draft carries its provenance badge**, naming the model.
+  The badge takes provenance as a prop rather than rendering a bare
+  "AI-generated" label — a badge that does not name the model only tells
+  the reader that _something_ generated the text.
+- **Warnings render above the draft**, styled as caution rather than
+  error. They block nothing; they are what a reviewer would have asked
+  for two days later.
+
+`RiskPanel` in `apps/admin` is deliberately different in three ways:
+it does **not** run on page load (a reviewer asks for it), every signal
+shows the innocent explanation beside the concern at equal weight, and
+even `REVIEW_CLOSELY` is styled amber rather than red — red belongs to
+reconciliation drift, where money has demonstrably gone somewhere it
+should not have.

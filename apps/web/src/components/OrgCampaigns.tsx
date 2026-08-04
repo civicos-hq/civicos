@@ -1,5 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
+import { CampaignDraftAssist } from './civicai/CampaignDraftAssist';
+import { CompletionReportAssist } from './civicai/UpdateDraftAssist';
 import { Link } from 'react-router-dom';
 import { Button, Input } from '@civicos/ui';
 import { Modal } from './Modal';
@@ -248,13 +250,31 @@ const INPUT_CLASS =
 function CampaignFieldSet({
   f,
   set,
+  showAssist = false,
 }: {
   f: CampaignFields;
   set: <K extends keyof CampaignFields>(k: K, v: CampaignFields[K]) => void;
+  showAssist?: boolean;
 }) {
   const { t } = useTranslation();
   return (
     <>
+      {/* Create only. An edit is a correction to something a reviewer may
+          already have read, not a rewrite. */}
+      {showAssist && (
+        <CampaignDraftAssist
+          goalMinor={toMinor(f.goalMajor)}
+          currency="NGN"
+          state={f.state}
+          lga={f.lga}
+          isEmergency={f.isEmergency}
+          onApply={(d) => {
+            set('title', d.title);
+            set('summary', d.summary);
+            set('description', d.description);
+          }}
+        />
+      )}
       <Input
         label={t('orgCampaigns.titleLabel')}
         name="title"
@@ -641,6 +661,8 @@ function FinalReportForm({ campaign, orgId }: { campaign: OrgCampaign; orgId: st
   return (
     <Modal title={t('orgCampaigns.fileReport')} onClose={() => setOpen(false)} size="xl">
       <form className="space-y-3" onSubmit={onSubmit}>
+        <CompletionReportAssist campaignId={campaign.id} onApply={setBody} />
+
         <Field label={t('orgCampaigns.reportBodyLabel')} hint={t('orgCampaigns.reportBodyHint')}>
           <textarea
             className={INPUT_CLASS}
@@ -760,7 +782,7 @@ function NewCampaignModal({ orgId, onClose }: { orgId: string; onClose: () => vo
   return (
     <Modal title={t('orgCampaigns.newCampaign')} onClose={onClose} size="xl">
       <form className="space-y-3" onSubmit={onSubmit}>
-        <CampaignFieldSet f={f} set={set} />
+        <CampaignFieldSet f={f} set={set} showAssist />
 
         {/* Asked for at creation on purpose: a campaign with a goal and no
             spend plan is the vague ask this feature exists to prevent, and

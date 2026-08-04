@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/civicos/civicai-service/internal/campaignai"
 	"github.com/civicos/civicai-service/internal/classify"
 	"github.com/civicos/civicai-service/internal/draft"
 	"github.com/civicos/civicai-service/internal/gemini"
@@ -78,6 +79,13 @@ func main() {
 	narrateSvc := narrate.NewService(aiClient, cfg.IdentityServiceURL, rdb)
 	narrateHandler := narrate.NewHandler(narrateSvc)
 
+	// Community Funding surfaces. All six are advisory and none writes
+	// anything: they read a campaign through organization-service with the
+	// caller's own token, so authorization cascades rather than being
+	// re-implemented here.
+	campaignAISvc := campaignai.NewService(aiClient, campaignai.NewSourceClient(cfg.OrganizationServiceURL), campaignai.NewCache(rdb))
+	campaignAIHandler := campaignai.NewHandler(campaignAISvc)
+
 	authMiddleware := middleware.JWTAuth(cfg)
 
 	r := gin.New()
@@ -100,6 +108,7 @@ func main() {
 	draftHandler.RegisterRoutes(ai)
 	insightsHandler.RegisterRoutes(ai)
 	narrateHandler.RegisterRoutes(ai)
+	campaignAIHandler.RegisterRoutes(ai)
 
 	addr := ":" + cfg.Port
 	log.Printf("civicai-service listening on %s", addr)

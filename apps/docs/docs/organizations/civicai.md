@@ -136,6 +136,49 @@ communities, issues, petitions, moderation queue) and returns:
 Cached for **15 minutes**. This is the surface that turns "here are 40
 counters" into "here's what's happening on the platform right now."
 
+## Campaign surfaces (Community Funding)
+
+Surfaces for organizations running a fundraising campaign. All of them
+are drafts you edit — nothing is written into a form, or published,
+until you click **Use this**.
+
+| Surface                | Where                                        |
+| ---------------------- | -------------------------------------------- |
+| **Draft campaign**     | New campaign page (`/org/:id/campaigns/new`) |
+| **Draft donor update** | The update composer on your campaign page    |
+| **Draft final report** | The "File final report" form                 |
+
+Two more exist as API endpoints without a button yet: **classify
+campaign** (suggesting a category) and **campaign impact** (a plain
+summary of where a campaign stands).
+
+Three things about these are worth knowing, because money makes them
+different from the announcement drafting above.
+
+**CivicAI knows what you reported, not what you spent.** Donations settle
+straight into your bank account — CivicOS never holds the money and
+cannot check any of it. So every draft describes your spending as what
+your organization _reports_, never as verified fact. It will not write
+that something has been confirmed, because nothing has been.
+
+**It will tell you what is missing.** Campaign drafts come with
+**warnings**, shown above the draft itself: costings a reviewer will ask
+for, claims your published
+record does not support, a goal that does not match the described work.
+Hearing that from a draft is cheaper than hearing it from a rejection
+two days later. The impact summary similarly reports **gaps** — money
+raised but not accounted for, milestones with no progress, long
+silences. That is deliberate. A summary that flattered a campaign which
+had gone quiet would be worth nothing to a donor deciding whether to
+give again.
+
+**It never does the arithmetic on unexplained money.** In a final report
+draft, the amount still unaccounted for is calculated from the ledger,
+not written by the AI. That figure is frozen onto your public campaign
+page the moment you file, and it does not change afterwards even if you
+publish more spending later — so it is not a number anyone should be
+generating.
+
 ## What CivicAI does _not_ do
 
 - **It doesn't auto-publish.** Every draft, summary, insight, and
@@ -146,6 +189,12 @@ counters" into "here's what's happening on the platform right now."
   behalf of the org.
 - **It doesn't remember previous chats.** Each call is independent — no
   conversation history, no personalization, no user profile.
+- **It doesn't decide anything about money.** No campaign is approved,
+  rejected, paused, or prioritised by CivicAI. Platform admins have an
+  advisory tool that flags campaigns worth opening first in a review
+  queue; it cites the evidence behind every observation, offers the
+  innocent explanation alongside it, and changes nothing. A person makes
+  every decision.
 
 ## Trust and audit
 

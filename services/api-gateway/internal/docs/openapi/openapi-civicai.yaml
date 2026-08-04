@@ -82,6 +82,10 @@ tags:
     description: Community-wide aggregate — themes, sentiment, top asks, recommended actions.
   - name: Narration
     description: Plain-language digest of admin metrics.
+  - name: Community Funding
+    description: >
+      Advisory surfaces for fundraising campaigns. All six are suggestions,
+      none writes anything, and none is on the path of a donation.
 
 security:
   - bearerAuth: []
@@ -599,3 +603,274 @@ paths:
         '502':
           description: Gemini failure or identity-service unavailable.
           content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+
+  # ─────────────────────── COMMUNITY FUNDING ───────────────────────
+  #
+  # Six advisory surfaces. Two things are true of every one of them and are
+  # enforced in code, not just intended:
+  #
+  #   - Nothing is written. No status changes, no risk score persisted, no
+  #     notification sent. Every response is a draft a person edits or a
+  #     reading a person acts on.
+  #   - Reported spending is the ORGANIZATION'S claim. Donations settle
+  #     straight to its bank account, so CivicOS never held the money and
+  #     cannot verify it. Prompts are built to say so; responses never assert
+  #     spending as verified fact.
+  #
+  # The campaign read forwards the caller's own token to organization-service,
+  # so authorization cascades: a caller who cannot read the campaign cannot
+  # have CivicAI read it for them.
+
+  /ai/classify-campaign:
+    post:
+      tags: [Community Funding]
+      summary: Suggest a category, emergency flag and tags for a draft campaign.
+      description: |
+        Pure classification — reads no stored campaign. `isEmergency` is a
+        suggestion only: emergency appeals get extra prominence in discovery,
+        so a human ticks that box.
+      operationId: classifyCampaign
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, description]
+              properties:
+                title: { type: string, minLength: 3 }
+                description: { type: string, minLength: 10 }
+      responses:
+        '200':
+          description: Suggested classification.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      classification:
+                        type: object
+                        properties:
+                          category:
+                            type: string
+                            enum:
+                              [
+                                EMERGENCY_RELIEF,
+                                COMMUNITY_DEVELOPMENT,
+                                EDUCATION,
+                                HEALTHCARE,
+                                ENVIRONMENT,
+                                AGRICULTURE,
+                                OTHER,
+                              ]
+                          isEmergency: { type: boolean }
+                          suggestedTags: { type: array, items: { type: string } }
+                          reasoning: { type: string }
+                          confidence: { type: number }
+                          model: { type: string }
+                          generatedAt: { type: string, format: date-time }
+                          advisory: { type: boolean, example: true }
+        '403':
+          description: Caller is not staff.
+          content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        '502':
+          description: Gemini failure. The caller can still pick a category by hand.
+          content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+
+  /ai/draft-campaign:
+    post:
+      tags: [Community Funding]
+      summary: Draft a campaign from the organization's brief.
+      description: |
+        Returns a title, summary, description and a suggested milestone
+        breakdown, plus `warnings` — things a reviewer will ask for that the
+        brief does not yet supply.
+
+        Milestone targets are a starting point, not a plan: if they do not sum
+        to the stated goal, the response says so in `warnings` rather than
+        silently rewriting the numbers. How the money is split is the
+        organization's decision about its own campaign.
+      operationId: draftCampaign
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [brief]
+              properties:
+                brief: { type: string, minLength: 20 }
+                category: { type: string }
+                goalMinor: { type: integer, format: int64 }
+                currency: { type: string, default: NGN }
+                state: { type: string }
+                lga: { type: string }
+                organizationName: { type: string }
+                isEmergency: { type: boolean }
+      responses:
+        '200': { description: Draft campaign. }
+        '403': { description: Caller is not staff. }
+        '502': { description: Gemini failure. The organization can still write it by hand. }
+
+  /ai/summarize-campaign-impact:
+    post:
+      tags: [Community Funding]
+      summary: Plain-language read on what a campaign has achieved so far.
+      description: |
+        Returns `summary`, `highlights` (what has happened) and `gaps` (what a
+        reader cannot tell from what has been published — money raised but not
+        accounted for, milestones with no progress, long silences).
+
+        `gaps` is not decoration. A campaign that raised money and reported
+        nothing should read as exactly that.
+      operationId: summarizeCampaignImpact
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [campaignId]
+              properties:
+                campaignId: { type: string, format: uuid }
+      responses:
+        '200': { description: Impact summary. }
+        '403': { description: Caller cannot read this campaign. }
+        '404': { description: Campaign not found. }
+        '502': { description: Gemini or organization-service unavailable. }
+
+  /ai/draft-donor-update:
+    post:
+      tags: [Community Funding]
+      summary: Draft an update for the people who donated.
+      description: |
+        `brief` is required. An update generated purely from the ledger would
+        be the platform speaking in the organization's voice about work only
+        the organization witnessed.
+
+        `warnings` flags claims in the brief that the published record does not
+        support — the people reading this gave real money and cannot check it.
+      operationId: draftDonorUpdate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [campaignId, brief]
+              properties:
+                campaignId: { type: string, format: uuid }
+                brief: { type: string, minLength: 10 }
+      responses:
+        '200': { description: Draft donor update. }
+        '403': { description: Caller cannot read this campaign. }
+        '502': { description: Gemini unavailable. }
+
+  /ai/draft-completion-report:
+    post:
+      tags: [Community Funding]
+      summary: Draft the closing account for a finished campaign.
+      description: |
+        `unaccountedMinor` is computed server-side from the ledger, **not**
+        generated by the model. That figure is frozen into the public record
+        when the report is filed and never changes afterwards, so a
+        hallucinated one would be indistinguishable from a true one.
+
+        When money is unaccounted for, `mustExplain` is true and the prompt
+        requires the body to address it directly rather than bury it.
+      operationId: draftCompletionReport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [campaignId, brief]
+              properties:
+                campaignId: { type: string, format: uuid }
+                brief: { type: string, minLength: 20 }
+      responses:
+        '200': { description: Draft completion report. }
+        '403': { description: Caller cannot read this campaign. }
+        '502': { description: Gemini unavailable. }
+
+  /ai/assess-campaign-risk:
+    post:
+      tags: [Community Funding]
+      summary: Review-priority signals for a campaign. Advisory, admin-only.
+      description: |
+        **`PLATFORM_ADMIN` only, and it never acts.** Nothing here changes a
+        campaign: no risk score is persisted, no status changes, nobody is
+        notified. A reviewer reads it and decides, using the ordinary review
+        and pause endpoints which carry their own audit trails.
+
+        Org roles are excluded deliberately — an organization able to point a
+        fraud probe at a rival's flood appeal would have been handed a weapon.
+
+        `band` is a review priority, not a verdict: `ROUTINE`, `WORTH_A_LOOK`,
+        `REVIEW_CLOSELY`. There is no "fraudulent" band; the model is in no
+        position to conclude that.
+
+        Every signal carries the `evidence` it rests on and the most likely
+        `innocentExplanation` for that same evidence. Both are required, and
+        signals arriving with empty evidence are dropped server-side. Most
+        campaigns that look odd are run by people who are bad at paperwork,
+        and a false alarm costs a genuine organization donations while
+        somebody investigates it.
+
+        The honest description of what this is for: a reviewer with forty
+        campaigns in a queue wants to know which three to open first.
+      operationId: assessCampaignRisk
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [campaignId]
+              properties:
+                campaignId: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Advisory assessment.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      assessment:
+                        type: object
+                        properties:
+                          band:
+                            type: string
+                            enum: [ROUTINE, WORTH_A_LOOK, REVIEW_CLOSELY]
+                          signals:
+                            type: array
+                            items:
+                              type: object
+                              required: [concern, evidence, innocentExplanation]
+                              properties:
+                                concern: { type: string }
+                                evidence: { type: string }
+                                innocentExplanation: { type: string }
+                          whatToCheck: { type: array, items: { type: string } }
+                          confidence: { type: number }
+                          disclaimer:
+                            type: string
+                            description: Travels with the payload so a client rendering only some fields cannot drop it.
+                          model: { type: string }
+                          generatedAt: { type: string, format: date-time }
+                          advisory: { type: boolean, example: true }
+        '403':
+          description: Caller is not `PLATFORM_ADMIN`.
+          content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+        '404': { description: Campaign not found. }
+        '502': { description: Gemini or organization-service unavailable. }

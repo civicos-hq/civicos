@@ -1899,6 +1899,15 @@
       "attachment": "View attachment",
       "fullyAccounted": "Every naira raised through CivicOS has been accounted for.",
       "partiallyAccounted": "{{amount}} of what was raised had not been accounted for when this report was filed."
+    },
+    "sortLabel": "Sort",
+    "verifiedOnly": "Verified organizations",
+    "sorts": {
+      "RECENT": "Recently added",
+      "ENDING_SOON": "Ending soon",
+      "MOST_FUNDED": "Most funded",
+      "EMERGENCY": "Emergency first",
+      "NEAR_ME": "Near me"
     }
   },
   "orgCampaigns": {
@@ -1980,5 +1989,32 @@
     "connect": "Connect account",
     "connecting": "Connecting…",
     "error": "Could not connect that account. Check the bank and account number."
+  },
+  "campaignAi": {
+    "reviewBadge": "AI-generated · review",
+    "warningsHeading": "Before you publish this",
+    "generate": "Draft with AI",
+    "apply": "Use this",
+    "genericError": "CivicAI could not write this. You can still write it yourself.",
+    "briefTooShort": "Write at least {{count}} characters first.",
+    "draftCampaign": {
+      "title": "Draft with CivicAI",
+      "hint": "Describe the problem in your own words. CivicAI turns it into a campaign you can edit.",
+      "placeholder": "e.g. Our borehole at Tudun Wada broke down in May. About 90 households now walk 3km for water. We need to replace the pump and repair the casing.",
+      "apply": "Use this draft",
+      "suggestedPlan": "Suggested spend plan",
+      "planNote": "Not applied — add milestones yourself so the totals are yours."
+    },
+    "donorUpdate": {
+      "title": "Draft with CivicAI",
+      "hint": "Tell CivicAI what happened. It writes the update for the people who donated.",
+      "placeholder": "e.g. We finished the survey and cleared the debris. The pipes are delayed because the supplier ran out of stock."
+    },
+    "completionReport": {
+      "title": "Draft with CivicAI",
+      "hint": "Tell CivicAI how the work finished. It drafts the closing account.",
+      "placeholder": "e.g. The culvert is rebuilt and vehicles are using the road again. We spent less than planned because the community donated labour.",
+      "shortfall": "{{amount}} of what you raised is still unaccounted for. Filing records that figure permanently on your public page, even if you report more spending later."
+    }
   }
 }

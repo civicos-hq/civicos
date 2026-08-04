@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
+import { DonorUpdateAssist } from './civicai/UpdateDraftAssist';
 import { Loader2, Trash2 } from 'lucide-react';
 import {
   formatMoneyExact,
@@ -298,6 +299,15 @@ function UpdateForm({ campaign }: { campaign: PublicCampaignDetail }) {
         <span>{t('campaigns.console.bodyLabel')}</span>
         <textarea rows={3} value={body} onChange={(e) => setBody(e.target.value)} required />
       </label>
+
+      {/* Fills the fields above on Use; the org still has to submit. */}
+      <DonorUpdateAssist
+        campaignId={campaign.id}
+        onApply={(d) => {
+          setTitle(d.title);
+          setBody(d.body);
+        }}
+      />
 
       <label className="fund-field">
         <span>{t('campaigns.console.attachmentsLabel')}</span>

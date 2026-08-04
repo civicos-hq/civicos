@@ -2506,6 +2506,43 @@ paths:
         - in: query
           name: emergency
           schema: { type: boolean }
+        - in: query
+          name: verified
+          description: Restrict to campaigns run by a verified organization. Filters on the owning org, not the campaign.
+          schema: { type: boolean }
+        - in: query
+          name: country
+          description: Country of the owning organization. Matched case-insensitively.
+          schema: { type: string }
+        - in: query
+          name: sort
+          description: |
+            `RECENT` (default) — newest first.
+            `ENDING_SOON` — campaigns whose deadline is still ahead, soonest
+            first. Ones already past their date, and ones with no date, sort to
+            the END rather than being hidden: an expired deadline is not
+            "ending soon", but the campaign may still be taking money.
+            `MOST_FUNDED` — by amount raised, descending.
+            `EMERGENCY` — emergency appeals first.
+            `NEAR_ME` — closest first, using `nearState` / `nearLga`.
+
+            An unrecognised value falls back to `RECENT` rather than erroring,
+            so a typo cannot hand a citizen an empty page.
+          schema:
+            type: string
+            enum: [RECENT, ENDING_SOON, MOST_FUNDED, EMERGENCY, NEAR_ME]
+        - in: query
+          name: nearState
+          description: |
+            Reference point for `sort=NEAR_ME`. Deliberately separate from the
+            `state` filter: near-me ORDERS the whole list by closeness, it does
+            not narrow it. Without a reference point NEAR_ME falls back to
+            recency.
+          schema: { type: string }
+        - in: query
+          name: nearLga
+          description: Reference LGA for `sort=NEAR_ME`. Same-LGA campaigns rank above same-state.
+          schema: { type: string }
       responses:
         '200': { description: Public campaign summaries. }
 

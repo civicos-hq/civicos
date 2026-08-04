@@ -73,12 +73,28 @@ export interface PublicCampaignDetail extends PublicCampaign {
   spend?: SpendSummary;
 }
 
+/** The browse sorts from the funding spec. */
+export type CampaignSort = 'RECENT' | 'ENDING_SOON' | 'MOST_FUNDED' | 'EMERGENCY' | 'NEAR_ME';
+
 export interface CampaignFilters {
   category?: CampaignCategory | '';
   state?: string;
   lga?: string;
   organizationId?: string;
+  communityId?: string;
   emergency?: boolean;
+  /** Restrict to campaigns run by a verified organization. */
+  verified?: boolean;
+  /** ISO country of the owning organization. */
+  country?: string;
+  sort?: CampaignSort;
+  /**
+   * Reference point for `sort: 'NEAR_ME'`. Separate from `state` / `lga`,
+   * which narrow the list — near-me reorders the whole country rather than
+   * filtering it, so a citizen still sees everything, closest first.
+   */
+  nearState?: string;
+  nearLga?: string;
 }
 
 export function usePublicCampaigns(filters: CampaignFilters = {}) {
@@ -90,7 +106,13 @@ export function usePublicCampaigns(filters: CampaignFilters = {}) {
       if (filters.state) params.state = filters.state;
       if (filters.lga) params.lga = filters.lga;
       if (filters.organizationId) params.organizationId = filters.organizationId;
+      if (filters.communityId) params.communityId = filters.communityId;
       if (filters.emergency) params.emergency = 'true';
+      if (filters.verified) params.verified = 'true';
+      if (filters.country) params.country = filters.country;
+      if (filters.sort) params.sort = filters.sort;
+      if (filters.nearState) params.nearState = filters.nearState;
+      if (filters.nearLga) params.nearLga = filters.nearLga;
       const res = await api.get<ApiResponse<{ campaigns: PublicCampaign[] }>>('/api/v1/campaigns', {
         params,
       });

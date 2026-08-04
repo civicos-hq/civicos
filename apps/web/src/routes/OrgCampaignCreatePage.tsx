@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@civicos/ui';
 import { PageHeader } from '../components/PageHeader';
+import { CampaignDraftAssist } from '../components/civicai/CampaignDraftAssist';
 import { getApiError } from '../lib/api';
 import {
   categoryKey,
@@ -107,6 +108,21 @@ export function OrgCampaignCreatePage() {
       />
 
       <form onSubmit={onSubmit} className="max-w-3xl space-y-4">
+        {/* Above the fields, because it is a way of filling them in — but
+            nothing lands in the form until the organization clicks Use. */}
+        <CampaignDraftAssist
+          goalMinor={goalMinor}
+          currency="NGN"
+          state={state}
+          lga={lga}
+          isEmergency={isEmergency}
+          onApply={(d) => {
+            setTitle(d.title);
+            setSummary(d.summary);
+            setDescription(d.description);
+          }}
+        />
+
         <div>
           <label
             htmlFor="campaign-title"
