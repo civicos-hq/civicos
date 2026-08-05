@@ -40,6 +40,19 @@ export interface SearchResult {
   announcements: Announcement[];
   projects: Project[];
   campaigns: SearchCampaign[];
+  repAnnouncements: SearchRepAnnouncement[];
+}
+
+/** A representative's public statement, as search returns it. */
+export interface SearchRepAnnouncement {
+  id: string;
+  representativeId: string;
+  representativeName: string;
+  title: string;
+  body: string;
+  communityId: string;
+  commentCount: number;
+  publishedAt?: string | null;
 }
 
 const empty: SearchResult = {
@@ -51,6 +64,7 @@ const empty: SearchResult = {
   announcements: [],
   projects: [],
   campaigns: [],
+  repAnnouncements: [],
 };
 
 // useDebouncedValue returns `value` after `delay` ms of stillness. Avoids

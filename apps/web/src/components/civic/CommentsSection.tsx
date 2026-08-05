@@ -16,7 +16,7 @@ import { MessageSquare } from 'lucide-react';
 import { ReportButton } from './ReportButton';
 import type { ReportableType } from './ReportModal';
 
-type EntityType = 'issues' | 'petitions' | 'representatives';
+type EntityType = 'issues' | 'petitions' | 'representatives' | 'repAnnouncements';
 type AnyComment = IssueComment | PetitionComment | RepresentativeComment;
 
 // Maps the CommentsSection entityType to the moderation flag content
@@ -25,6 +25,7 @@ const REPORTABLE_BY_ENTITY: Record<EntityType, ReportableType> = {
   issues: 'ISSUE_COMMENT',
   petitions: 'PETITION_COMMENT',
   representatives: 'REPRESENTATIVE_COMMENT',
+  repAnnouncements: 'REPRESENTATIVE_ANNOUNCEMENT_COMMENT',
 };
 
 const COMMENT_MAX = 2000;
@@ -43,9 +44,17 @@ function initials(name: string): string {
 export function CommentsSection({
   entityType,
   entityId,
+  basePath,
 }: {
   entityType: EntityType;
   entityId: string;
+  /**
+   * Override the derived URL. Most threads hang off `/{entityType}/{id}`,
+   * but a representative announcement nests under its representative, so the
+   * caller supplies the path rather than this component learning every
+   * possible shape.
+   */
+  basePath?: string;
 }) {
   const { t } = useTranslation();
   const enums = useEnumLabels();
@@ -58,7 +67,7 @@ export function CommentsSection({
     queryKey: ['comments', entityType, entityId],
     queryFn: async () => {
       const res = await api.get<ApiResponse<{ comments: AnyComment[] }>>(
-        `/api/v1/${entityType}/${entityId}/comments`,
+        basePath ?? `/api/v1/${entityType}/${entityId}/comments`,
       );
       return res.data.data.comments;
     },
@@ -66,7 +75,7 @@ export function CommentsSection({
 
   const addMutation = useMutation({
     mutationFn: async () => {
-      await api.post(`/api/v1/${entityType}/${entityId}/comments`, { content });
+      await api.post(basePath ?? `/api/v1/${entityType}/${entityId}/comments`, { content });
     },
     onSuccess: () => {
       setContent('');

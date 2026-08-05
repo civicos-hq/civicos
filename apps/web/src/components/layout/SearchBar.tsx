@@ -10,7 +10,7 @@ import type {
   Project,
   Representative,
 } from '@civicos/types';
-import { useSearch, type SearchCampaign } from '../../hooks/useSearch';
+import { useSearch, type SearchCampaign, type SearchRepAnnouncement } from '../../hooks/useSearch';
 import { formatMoney, progressPercent } from '../../hooks/useCampaigns';
 import { useEnumLabels } from '../../hooks/useEnumLabels';
 
@@ -48,7 +48,8 @@ export function SearchBar() {
     data.consultations.length +
     data.announcements.length +
     data.projects.length +
-    data.campaigns.length;
+    data.campaigns.length +
+    data.repAnnouncements.length;
   const showDropdown = open && enabled;
   const showEmpty = showDropdown && !isFetching && total === 0 && debouncedQuery.length >= 2;
 
@@ -100,6 +101,19 @@ export function SearchBar() {
                     { goal: formatMoney(c.goalMinor, c.currency, i18n.language) },
                   )} · ${progressPercent(c.raisedMinor, c.goalMinor)}%`}
                   onClick={() => go(`/campaigns/${c.slug}`)}
+                />
+              ))}
+            </Section>
+          )}
+
+          {data.repAnnouncements.length > 0 && (
+            <Section title={t('search.groups.repAnnouncements')}>
+              {data.repAnnouncements.map((a: SearchRepAnnouncement) => (
+                <ResultRow
+                  key={a.id}
+                  primary={a.title}
+                  secondary={a.representativeName}
+                  onClick={() => go(`/representatives/${a.representativeId}`)}
                 />
               ))}
             </Section>

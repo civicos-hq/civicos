@@ -207,6 +207,8 @@ func main() {
 	r.POST("/api/v1/representatives/:id/announcements/:annId/publish", authMiddleware, limitStandard, communityProxy)
 	r.POST("/api/v1/representatives/:id/announcements/:annId/archive", authMiddleware, limitStandard, communityProxy)
 	r.DELETE("/api/v1/representatives/:id/announcements/:annId", authMiddleware, limitStandard, communityProxy)
+	r.GET("/api/v1/representatives/:id/announcements/:annId/comments", communityProxy)
+	r.POST("/api/v1/representatives/:id/announcements/:annId/comments", authMiddleware, limitStrict, communityProxy)
 	r.POST("/api/v1/representatives/:id/comments", authMiddleware, limitCommentMin, limitCommentHr, communityProxy)
 	r.GET("/api/v1/me/follows/representatives", authMiddleware, communityProxy)
 	r.GET("/api/v1/me/upvotes/issues", authMiddleware, communityProxy)

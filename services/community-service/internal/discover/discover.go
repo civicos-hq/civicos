@@ -47,7 +47,7 @@ const (
 // may be empty for announcements + un-scoped projects/consultations
 // (no community anchor).
 type FeedItem struct {
-	Kind         string            `json:"kind"` // "issue" | "petition" | "announcement" | "project" | "consultation" | "campaign"
+	Kind         string            `json:"kind"` // "issue" | "petition" | "announcement" | "project" | "consultation" | "campaign" | "repAnnouncement"
 	Tier         Tier              `json:"tier"`
 	CreatedAt    time.Time         `json:"createdAt"`
 	CommunityID  string            `json:"communityId,omitempty"`
@@ -59,6 +59,26 @@ type FeedItem struct {
 	Project      *Project          `json:"project,omitempty"`
 	Consultation *Consultation     `json:"consultation,omitempty"`
 	Campaign     *Campaign         `json:"campaign,omitempty"`
+	// RepAnnouncement is a representative speaking to their constituents.
+	// Tiered by the announcement's own community, which is copied from the
+	// representative at creation — so it reaches the constituency it was
+	// made in, not wherever the profile is later moved.
+	RepAnnouncement *RepAnnouncement `json:"repAnnouncement,omitempty"`
+}
+
+// RepAnnouncement is a read-only view of representative_announcements, which
+// this service also owns — declared separately so the feed carries only what
+// a card needs.
+type RepAnnouncement struct {
+	ID                 string     `json:"id"`
+	RepresentativeID   string     `json:"representativeId"`
+	RepresentativeName string     `json:"representativeName"`
+	Title              string     `json:"title"`
+	Body               string     `json:"body"`
+	CommunityID        string     `json:"communityId"`
+	CommentCount       int        `json:"commentCount"`
+	PublishedAt        *time.Time `json:"publishedAt,omitempty"`
+	CreatedAt          time.Time  `json:"createdAt"`
 }
 
 type CommunitySummary struct {
@@ -209,7 +229,7 @@ func (h *Handler) feed(c *gin.Context) {
 	// Treat any value outside the known kinds as no filter so a typo on
 	// the client falls back to the full feed rather than silently empty.
 	switch kind {
-	case "issue", "petition", "announcement", "project", "consultation", "campaign":
+	case "issue", "petition", "announcement", "project", "consultation", "campaign", "repannouncement":
 		// known — keep as-is
 	default:
 		kind = ""
@@ -279,6 +299,7 @@ func (s *Service) Feed(userCommunityID string, tierFilter Tier, kindFilter strin
 	wantProjects := kindFilter == "" || kindFilter == "project"
 	wantConsultations := kindFilter == "" || kindFilter == "consultation"
 	wantCampaigns := kindFilter == "" || kindFilter == "campaign"
+	wantRepAnnouncements := kindFilter == "" || kindFilter == "repannouncement"
 
 	var issues []domain.Issue
 	if wantIssues {
@@ -324,6 +345,14 @@ func (s *Service) Feed(userCommunityID string, tierFilter Tier, kindFilter strin
 		}
 	}
 
+	var repAnns []RepAnnouncement
+	if wantRepAnnouncements {
+		repAnns, err = s.recentRepAnnouncements(scanLimit)
+		if err != nil {
+			return FeedResult{}, err
+		}
+	}
+
 	// Only load orgs if we'll need them for attribution/tiering. Avoids
 	// a needless SELECT when the caller filtered to issue/petition only.
 	var orgs map[string]*organization
@@ -334,7 +363,7 @@ func (s *Service) Feed(userCommunityID string, tierFilter Tier, kindFilter strin
 		}
 	}
 
-	all := make([]FeedItem, 0, len(issues)+len(petitions)+len(announcements)+len(projects)+len(consultations)+len(campaigns))
+	all := make([]FeedItem, 0, len(issues)+len(petitions)+len(announcements)+len(projects)+len(consultations)+len(campaigns)+len(repAnns))
 	for i := range issues {
 		issue := issues[i]
 		comm := communities[issue.CommunityID]
@@ -441,6 +470,21 @@ func (s *Service) Feed(userCommunityID string, tierFilter Tier, kindFilter strin
 			item.Tier = tierForOrg(base, org)
 		}
 		all = append(all, item)
+	}
+
+	// Representative announcements tier by their own community, which is the
+	// constituency the statement was made in.
+	for i := range repAnns {
+		ra := repAnns[i]
+		comm := communities[ra.CommunityID]
+		all = append(all, FeedItem{
+			Kind:            "repAnnouncement",
+			CreatedAt:       firstNonZero(ra.PublishedAt, ra.CreatedAt),
+			Tier:            tierFor(base, comm),
+			CommunityID:     ra.CommunityID,
+			Community:       summaryOf(comm),
+			RepAnnouncement: &ra,
+		})
 	}
 
 	// Sort: tier rank ascending, then newest first within each tier.
@@ -555,6 +599,23 @@ func (s *Service) recentCampaigns(limit int) ([]Campaign, error) {
 		Order("COALESCE(published_at, created_at) desc").
 		Limit(limit).Find(&list).Error
 	return list, err
+}
+
+// recentRepAnnouncements returns published representative announcements,
+// newest first, with the representative's name joined in so a card can
+// attribute it without a second round trip.
+//
+// PUBLISHED only: a draft was never public and an archived one has been
+// withdrawn. Same allow-list reasoning as campaigns.
+func (s *Service) recentRepAnnouncements(limit int) ([]RepAnnouncement, error) {
+	out := []RepAnnouncement{}
+	err := s.db.Table("representative_announcements AS ra").
+		Select("ra.id, ra.representative_id, r.name AS representative_name, ra.title, ra.body, ra.community_id, ra.comment_count, ra.published_at, ra.created_at").
+		Joins("JOIN representatives r ON r.id = ra.representative_id").
+		Where("ra.status = ?", "PUBLISHED").
+		Order("COALESCE(ra.published_at, ra.created_at) desc").
+		Limit(limit).Scan(&out).Error
+	return out, err
 }
 
 // loadOrganizations loads every org so we can attribute announcements

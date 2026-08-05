@@ -10,6 +10,7 @@ import { useMe } from '../hooks/useMe';
 import { useFollowedReps } from '../hooks/useFollowedReps';
 import { Avatar, FollowButton, stripTitleFromName } from './RepresentativesPage';
 import { CommentsSection } from '../components/civic/CommentsSection';
+import { RepAnnouncements } from '../components/civic/RepAnnouncements';
 import { Modal } from '../components/Modal';
 
 const ADMIN_ROLES = new Set<UserRole>([
@@ -189,6 +190,12 @@ export function RepresentativeDetailPage() {
           </p>
         )}
       </article>
+
+      <RepAnnouncements
+        repId={rep.id}
+        repName={stripTitleFromName(rep.title, rep.name)}
+        couldOwn={meQuery.data?.role === UserRole.REPRESENTATIVE}
+      />
 
       <CommentsSection entityType="representatives" entityId={rep.id} />
 

@@ -148,9 +148,34 @@ type RepresentativeAnnouncement struct {
 	AuthorName string `gorm:"not null" json:"authorName"`
 	// IsHidden is set by the moderation queue, never persisted here — the
 	// flag lives in identity-service. Same arrangement as comments.
-	IsHidden  bool      `gorm:"-" json:"isHidden"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	IsHidden     bool      `gorm:"-" json:"isHidden"`
+	CommentCount int       `gorm:"default:0" json:"commentCount"`
+	CreatedAt    time.Time `json:"createdAt"`
+	UpdatedAt    time.Time `json:"updatedAt"`
+}
+
+// RepresentativeAnnouncementComment is a constituent replying to a specific
+// announcement.
+//
+// Attached to the announcement rather than to the representative, which the
+// profile-level thread already covers. Without this, someone answering "Road
+// works start Monday" would have to post into a general thread that may be
+// about something else entirely — which makes an announcement a broadcast
+// rather than a conversation, and broadcasting is what CivicOS exists to
+// improve on.
+type RepresentativeAnnouncementComment struct {
+	ID             string `gorm:"type:uuid;primaryKey" json:"id"`
+	AnnouncementID string `gorm:"type:uuid;not null;index" json:"announcementId"`
+	Content        string `gorm:"not null" json:"content"`
+	AuthorID       string `gorm:"type:uuid;not null" json:"authorId"`
+	AuthorName     string `gorm:"not null" json:"authorName"`
+	AuthorRole     string `gorm:"not null" json:"authorRole"`
+	// IsOfficialResponse marks the representative answering on their own
+	// announcement — the same badge citizens already read on issues and
+	// petitions.
+	IsOfficialResponse bool      `gorm:"default:false" json:"isOfficialResponse"`
+	IsHidden           bool      `gorm:"-" json:"isHidden"`
+	CreatedAt          time.Time `json:"createdAt"`
 }
 
 // AnnouncementStatus is shared with the organization announcement lifecycle

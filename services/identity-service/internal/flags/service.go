@@ -248,7 +248,8 @@ func validFlaggable(t string) bool {
 	case domain.FlaggableIssue, domain.FlaggableIssueComment, domain.FlaggablePetition,
 		domain.FlaggablePetitionComment, domain.FlaggableRepComment,
 		domain.FlaggableAnnouncement, domain.FlaggableProgressUpdate,
-		domain.FlaggableCampaign:
+		domain.FlaggableCampaign,
+		domain.FlaggableRepAnnouncement, domain.FlaggableRepAnnouncementComment:
 		return true
 	}
 	return false

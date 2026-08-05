@@ -179,7 +179,8 @@
       "issues": "Okwu",
       "petitions": "Akwụkwọ arịrịọ",
       "representatives": "Ndị nnọchi anya",
-      "campaigns": "Ego obodo"
+      "campaigns": "Ego obodo",
+      "repAnnouncements": "Ọkwa ndị nnọchi anya"
     }
   },
   "discoverPage": {
@@ -200,7 +201,8 @@
       "all": "Ụdị niile",
       "issue": "Okwu",
       "petition": "Akwụkwọ arịrịọ",
-      "campaign": "Ego obodo"
+      "campaign": "Ego obodo",
+      "repAnnouncement": "Site n’aka ndị nnọchi anya"
     },
     "itemCount_one": "Ihe {{count}}",
     "itemCount_other": "Ihe {{count}}",
@@ -214,12 +216,15 @@
     "labels": {
       "issue": "Okwu",
       "petition": "Akwụkwọ arịrịọ",
-      "campaign": "Mkpọlite ego"
+      "campaign": "Mkpọlite ego",
+      "repAnnouncement": "Site n’aka onye nnọchi anya gị"
     },
     "meta": {
       "upvotes_one": "Nkwado {{count}}",
       "upvotes_other": "Nkwado {{count}}",
-      "signaturesOf": "Aha {{signatures}}/{{goal}}"
+      "signaturesOf": "Aha {{signatures}}/{{goal}}",
+      "repliesCount": "Azịza {{count}}",
+      "repliesCount_other": "Azịza {{count}}"
     }
   },
   "representativesPage": {
@@ -1185,5 +1190,29 @@
     "loadError": "Enweghị ike ibudata nyocha ugbu a.",
     "emptyTitle": "O nweghị ihe a ga-atụ ugbu a",
     "emptyBody": "Ozugbo ị bipụtara mkpọlite ego ma onyinye malite ịbata, ebe a ka ị ga-ahụ otu ọ si aga."
+  },
+  "repAnnouncements": {
+    "heading": "Ọkwa",
+    "new": "Ọkwa ọhụrụ",
+    "saveDraft": "Chekwaa nzụzụ",
+    "publish": "Bipụta nye ndị na-eso",
+    "archive": "Chekwaa",
+    "ownerHint": "Nke a bụ ibe gị. Nzụzụ bụ nzuzo ruo mgbe ị bipụtara ya; ịbipụta na-agwa ndị niile na-eso gị.",
+    "notPublished": "E bipụtabeghị ya",
+    "saveError": "Enweghị ike ịchekwa ọkwa a.",
+    "draftNote": "Ịchekwa na-eme ka ọ bụrụ nzuzo. Ịbipụta bụ ihe dị iche.",
+    "titlePlaceholder": "Gịnị ka ị chọrọ ịgwa ndị gị?",
+    "bodyPlaceholder": "Dee ya n'ụzọ doro anya. Ndị mmadụ ga-agụ ya na ekwentị.",
+    "emptyTitle": "{{name}} edepụtabeghị ihe ọ bụla",
+    "emptyBody": "Mgbe ha mere, ọ ga-egosi ebe a — a ga-agwakwa gị ma ọ bụrụ na ị na-eso ha.",
+    "emptyOwnerTitle": "Ị depụtabeghị ihe ọ bụla",
+    "emptyOwnerBody": "Dee ọkwa gwa ndị ị na-anọchi anya ihe ị na-eme.",
+    "status": {
+      "DRAFT": "Nzụzụ",
+      "PUBLISHED": "E bipụtara",
+      "ARCHIVED": "E chekwara"
+    },
+    "showReplies": "Azịza ({{count}})",
+    "hideReplies": "Zoo azịza"
   }
 }

@@ -47,7 +47,7 @@ Built for Nigeria first (36 states + FCT, 774 LGAs), designed to work in any dem
 
 - Community-scoped filters — status, category, date, upvotes
 - Discover feed — cross-community browsing sorted by tier + kind, covering issues, petitions, announcements, projects, consultations, and funding campaigns
-- Global search — 8 buckets: issues, petitions, representatives, organizations, consultations, announcements, projects, campaigns
+- Global search — 9 buckets: issues, petitions, representatives, organizations, consultations, announcements, projects, campaigns, representative announcements
 - Notifications — in-app + Server-Sent-Events realtime push
 
 **Consultations, Announcements & Projects**

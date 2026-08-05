@@ -179,7 +179,8 @@
       "issues": "Matsaloli",
       "petitions": "Koƙe-koƙe",
       "representatives": "Wakilai",
-      "campaigns": "Tallafin al'umma"
+      "campaigns": "Tallafin al'umma",
+      "repAnnouncements": "Sanarwar wakilai"
     }
   },
   "discoverPage": {
@@ -200,7 +201,8 @@
       "all": "Duk nau'i",
       "issue": "Matsaloli",
       "petition": "Koƙe-koƙe",
-      "campaign": "Tallafin al'umma"
+      "campaign": "Tallafin al'umma",
+      "repAnnouncement": "Daga wakilai"
     },
     "itemCount_one": "Abu {{count}}",
     "itemCount_other": "Abubuwa {{count}}",
@@ -214,12 +216,15 @@
     "labels": {
       "issue": "Matsala",
       "petition": "Koƙe",
-      "campaign": "Tallafi"
+      "campaign": "Tallafi",
+      "repAnnouncement": "Daga wakilinka"
     },
     "meta": {
       "upvotes_one": "Goyon baya {{count}}",
       "upvotes_other": "Goyon baya {{count}}",
-      "signaturesOf": "Sa hannu {{signatures}}/{{goal}}"
+      "signaturesOf": "Sa hannu {{signatures}}/{{goal}}",
+      "repliesCount": "Amsa {{count}}",
+      "repliesCount_other": "Amsoshi {{count}}"
     }
   },
   "representativesPage": {
@@ -1185,5 +1190,29 @@
     "loadError": "Ba a iya loda nazari a yanzu ba.",
     "emptyTitle": "Babu abin aunawa tukuna",
     "emptyBody": "Da zarar ka wallafa tallafi kuma gudummawa ta fara shigowa, nan za ka ga yadda yake tafiya."
+  },
+  "repAnnouncements": {
+    "heading": "Sanarwa",
+    "new": "Sabuwar sanarwa",
+    "saveDraft": "Ajiye daftari",
+    "publish": "Wallafa ga mabiya",
+    "archive": "Adana",
+    "ownerHint": "Wannan shafinka ne. Daftari yana sirri har sai ka wallafa; wallafawa yana sanar da duk wanda ke bin ka.",
+    "notPublished": "Ba a wallafa ba tukuna",
+    "saveError": "Ba a iya ajiye wannan sanarwa ba.",
+    "draftNote": "Ajiyewa yana sa ta zama sirri. Wallafawa aiki ne daban.",
+    "titlePlaceholder": "Me kake son gaya wa mutanenka?",
+    "bodyPlaceholder": "Rubuta a sarari. Mutane za su karanta a waya.",
+    "emptyTitle": "{{name}} bai wallafa komai ba tukuna",
+    "emptyBody": "Idan ya yi, zai bayyana a nan — kuma za a sanar da kai idan kana bin sa.",
+    "emptyOwnerTitle": "Ba ka wallafa komai ba tukuna",
+    "emptyOwnerBody": "Rubuta sanarwa ka gaya wa mutanen da kake wakilta abin da kake yi.",
+    "status": {
+      "DRAFT": "Daftari",
+      "PUBLISHED": "An wallafa",
+      "ARCHIVED": "An adana"
+    },
+    "showReplies": "Amsoshi ({{count}})",
+    "hideReplies": "Ɓoye amsoshi"
   }
 }

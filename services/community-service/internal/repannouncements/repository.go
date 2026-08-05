@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/civicos/community-service/internal/domain"
+	"github.com/civicos/community-service/internal/moderation"
 	"gorm.io/gorm"
 )
 
@@ -74,4 +75,48 @@ func (r *Repository) FollowerIDs(repID string) ([]string, error) {
 		Where("representative_id = ?", repID).
 		Pluck("user_id", &out).Error
 	return out, err
+}
+
+// ─── Comments ───────────────────────────────────────────────────────────
+
+// ListComments returns the thread oldest-first, with hidden comments replaced
+// by a placeholder rather than removed.
+//
+// Same choice as every other thread on CivicOS: a gap where a comment was
+// reads as censorship, while a visible placeholder says something was hidden
+// and leaves the moderation decision reviewable.
+func (r *Repository) ListComments(annID string) ([]domain.RepresentativeAnnouncementComment, error) {
+	list := []domain.RepresentativeAnnouncementComment{}
+	if err := r.db.
+		Where("announcement_id = ?", annID).
+		Order("created_at asc").
+		Find(&list).Error; err != nil {
+		return nil, err
+	}
+	ids := make([]string, len(list))
+	for i, c := range list {
+		ids[i] = c.ID
+	}
+	hidden := moderation.HiddenSet(r.db, "REPRESENTATIVE_ANNOUNCEMENT_COMMENT", ids)
+	for i := range list {
+		if _, ok := hidden[list[i].ID]; ok {
+			list[i].IsHidden = true
+			list[i].Content = moderation.PlaceholderContent
+			list[i].AuthorName = moderation.PlaceholderAuthorName
+		}
+	}
+	return list, nil
+}
+
+// AddComment writes the comment and bumps the announcement's counter in one
+// transaction, so a list can never show a count the thread does not support.
+func (r *Repository) AddComment(c *domain.RepresentativeAnnouncementComment) error {
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(c).Error; err != nil {
+			return err
+		}
+		return tx.Model(&domain.RepresentativeAnnouncement{}).
+			Where("id = ?", c.AnnouncementID).
+			UpdateColumn("comment_count", gorm.Expr("comment_count + 1")).Error
+	})
 }

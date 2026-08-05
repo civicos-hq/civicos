@@ -40,6 +40,7 @@ func main() {
 		&domain.RepresentativeFollower{},
 		&domain.RepresentativeComment{},
 		&domain.RepresentativeAnnouncement{},
+		&domain.RepresentativeAnnouncementComment{},
 		&domain.Notification{},
 	); err != nil {
 		log.Fatalf("migration failed: %v", err)
@@ -122,7 +123,7 @@ func main() {
 	issueHandler.RegisterMeRoutes(v1.Group("/me"), authMiddleware)
 	petitionHandler.RegisterRoutes(v1.Group("/petitions"), authMiddleware, requireVerified)
 	repHandler.RegisterRoutes(v1.Group("/representatives"), authMiddleware, requireVerified, requireAdminRole)
-	repAnnHandler.RegisterRoutes(v1.Group("/representatives"), authMiddleware)
+	repAnnHandler.RegisterRoutes(v1.Group("/representatives"), authMiddleware, requireVerified)
 	repHandler.RegisterMeRoutes(v1.Group("/me"), authMiddleware)
 	notificationHandler.RegisterRoutes(v1.Group("/notifications"), authMiddleware)
 	searchHandler.RegisterRoutes(v1.Group("/search"))

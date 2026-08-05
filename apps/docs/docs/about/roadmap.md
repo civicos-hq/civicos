@@ -82,9 +82,9 @@ and documented in the User + Developer Guides.
 
 ### Discover + search
 
-- Global search across eight kinds — issues, petitions, representatives,
-  organizations, consultations, announcements, projects, and funding
-  campaigns (drafts, non-published announcements, and campaigns with no
+- Global search across nine kinds — issues, petitions, representatives,
+  organizations, consultations, announcements, projects, funding campaigns,
+  and representative announcements (drafts, non-published announcements, and campaigns with no
   public page are hidden)
 - Discover feed tiered by geographic proximity
   (COMMUNITY → LGA → STATE → COUNTRY), covering issues, petitions,

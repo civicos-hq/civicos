@@ -275,7 +275,8 @@
       "consultations": "Consultations",
       "announcements": "Announcements",
       "projects": "Projects",
-      "campaigns": "Campaigns"
+      "campaigns": "Campaigns",
+      "repAnnouncements": "Representative announcements"
     }
   },
   "discoverPage": {
@@ -299,7 +300,8 @@
       "announcement": "Announcements",
       "project": "Projects",
       "consultation": "Consultations",
-      "campaign": "Campaigns"
+      "campaign": "Campaigns",
+      "repAnnouncement": "From representatives"
     },
     "itemCount_one": "{{count}} item",
     "itemCount_other": "{{count}} items",
@@ -316,14 +318,17 @@
       "announcement": "Announcement",
       "project": "Project",
       "consultation": "Consultation",
-      "campaign": "Campaign"
+      "campaign": "Campaign",
+      "repAnnouncement": "From your representative"
     },
     "meta": {
       "upvotes_one": "{{count}} upvote",
       "upvotes_other": "{{count}} upvotes",
       "signaturesOf": "{{signatures}}/{{goal}} signatures",
       "responsesCount_one": "{{count}} response",
-      "responsesCount_other": "{{count}} responses"
+      "responsesCount_other": "{{count}} responses",
+      "repliesCount": "{{count}} reply",
+      "repliesCount_other": "{{count}} replies"
     }
   },
   "representativesPage": {
@@ -2039,5 +2044,29 @@
     "loadError": "Could not load analytics right now.",
     "emptyTitle": "Nothing to measure yet",
     "emptyBody": "Once you publish a campaign and it starts receiving donations, this is where you will see how it is going."
+  },
+  "repAnnouncements": {
+    "heading": "Announcements",
+    "new": "New announcement",
+    "saveDraft": "Save draft",
+    "publish": "Publish to followers",
+    "archive": "Archive",
+    "ownerHint": "This is your page. Drafts are private until you publish; publishing notifies everyone following you.",
+    "notPublished": "Not published yet",
+    "saveError": "Could not save this announcement.",
+    "draftNote": "Saving keeps this private. You publish it separately.",
+    "titlePlaceholder": "What do you want to tell your constituents?",
+    "bodyPlaceholder": "Write it plainly. People will read this on a phone.",
+    "emptyTitle": "{{name}} has not posted anything yet",
+    "emptyBody": "When they do, it will appear here — and you will be notified if you follow them.",
+    "emptyOwnerTitle": "You have not posted anything yet",
+    "emptyOwnerBody": "Write an announcement to tell the people you represent what you are doing.",
+    "status": {
+      "DRAFT": "Draft",
+      "PUBLISHED": "Published",
+      "ARCHIVED": "Archived"
+    },
+    "showReplies": "Replies ({{count}})",
+    "hideReplies": "Hide replies"
   }
 }

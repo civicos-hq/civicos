@@ -46,6 +46,8 @@ type Store interface {
 	ListAll(repID string) ([]domain.RepresentativeAnnouncement, error)
 	// FollowerIDs is the fan-out audience on publish.
 	FollowerIDs(repID string) ([]string, error)
+	ListComments(annID string) ([]domain.RepresentativeAnnouncementComment, error)
+	AddComment(c *domain.RepresentativeAnnouncementComment) error
 }
 
 // Notifier is the subset of the notification service this package needs.
@@ -270,4 +272,68 @@ func truncate(s string, n int) string {
 		return string(r)
 	}
 	return strings.TrimSpace(string(r[:n])) + "…"
+}
+
+// ─── Comments ───────────────────────────────────────────────────────────
+
+// OfficialRoles mirrors the set used on issues, petitions and representative
+// profiles, so the "official response" badge means the same thing wherever a
+// citizen sees it.
+var OfficialRoles = map[string]bool{
+	"REPRESENTATIVE":   true,
+	"GOVERNMENT_ADMIN": true,
+	"PLATFORM_ADMIN":   true,
+	"NGO":              true,
+	"MODERATOR":        true,
+}
+
+type CommentInput struct {
+	Content string `json:"content" binding:"required,min=2,max=2000"`
+}
+
+// ListComments is public: the thread under a published announcement is part
+// of the public record, readable by anyone who can read the announcement.
+func (s *Service) ListComments(repID, annID string) ([]domain.RepresentativeAnnouncementComment, error) {
+	a, err := s.owned(repID, annID)
+	if err != nil {
+		return nil, err
+	}
+	// A draft has no public thread — it has never been visible, so there is
+	// nothing anyone could have replied to.
+	if a.Status == domain.AnnouncementDraft {
+		return []domain.RepresentativeAnnouncementComment{}, nil
+	}
+	return s.repo.ListComments(annID)
+}
+
+// AddComment lets a verified citizen reply.
+//
+// Only on a PUBLISHED announcement: a draft is not public, and an archived one
+// has been withdrawn — reopening a thread on something the representative has
+// taken down would put words under a statement they have retracted.
+func (s *Service) AddComment(repID, annID, authorID, authorName, authorRole, content string) (*domain.RepresentativeAnnouncementComment, error) {
+	a, err := s.owned(repID, annID)
+	if err != nil {
+		return nil, err
+	}
+	if a.Status != domain.AnnouncementPublished {
+		return nil, &AppError{
+			Code:    "NOT_OPEN_FOR_COMMENT",
+			Message: "This announcement is not open for comments",
+			Status:  http.StatusConflict,
+		}
+	}
+	c := &domain.RepresentativeAnnouncementComment{
+		ID:                 uuid.New().String(),
+		AnnouncementID:     annID,
+		Content:            strings.TrimSpace(content),
+		AuthorID:           authorID,
+		AuthorName:         authorName,
+		AuthorRole:         authorRole,
+		IsOfficialResponse: OfficialRoles[authorRole],
+	}
+	if err := s.repo.AddComment(c); err != nil {
+		return nil, err
+	}
+	return c, nil
 }

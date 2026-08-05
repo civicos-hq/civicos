@@ -17,7 +17,7 @@ func NewHandler(svc *Service) *Handler { return &Handler{svc: svc} }
 // The public list is unauthenticated: a constituent should be able to read
 // what their representative said without an account, the same as every other
 // public record on CivicOS.
-func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth gin.HandlerFunc) {
+func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth, verified gin.HandlerFunc) {
 	rg.GET("/:id/announcements", h.listPublic)
 	rg.GET("/:id/announcements/manage", auth, h.listMine)
 	rg.POST("/:id/announcements", auth, h.create)
@@ -25,6 +25,11 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth gin.HandlerFunc) {
 	rg.POST("/:id/announcements/:annId/publish", auth, h.publish)
 	rg.POST("/:id/announcements/:annId/archive", auth, h.archive)
 	rg.DELETE("/:id/announcements/:annId", auth, h.remove)
+	// The thread under a published announcement. Reading is open to anyone
+	// who can read the announcement; posting needs a verified account, the
+	// same bar as every other thread on CivicOS.
+	rg.GET("/:id/announcements/:annId/comments", h.listComments)
+	rg.POST("/:id/announcements/:annId/comments", auth, verified, h.addComment)
 }
 
 func fail(c *gin.Context, err error, fallback string) {
@@ -120,4 +125,33 @@ func (h *Handler) remove(c *gin.Context) {
 		return
 	}
 	response.Success(c, http.StatusOK, gin.H{"ok": true})
+}
+
+func (h *Handler) listComments(c *gin.Context) {
+	items, err := h.svc.ListComments(c.Param("id"), c.Param("annId"))
+	if err != nil {
+		fail(c, err, "Failed to load comments")
+		return
+	}
+	response.Success(c, http.StatusOK, gin.H{"comments": items})
+}
+
+func (h *Handler) addComment(c *gin.Context) {
+	var in CommentInput
+	if err := c.ShouldBindJSON(&in); err != nil {
+		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", err.Error())
+		return
+	}
+	uid, uname := actor(c)
+	role, _ := c.Get("userRole")
+	roleStr, _ := role.(string)
+	if uname == "" {
+		uname = "Anonymous"
+	}
+	item, err := h.svc.AddComment(c.Param("id"), c.Param("annId"), uid, uname, roleStr, in.Content)
+	if err != nil {
+		fail(c, err, "Failed to post comment")
+		return
+	}
+	response.Success(c, http.StatusCreated, gin.H{"comment": item})
 }
