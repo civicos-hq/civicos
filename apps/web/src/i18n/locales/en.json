@@ -613,12 +613,12 @@
   "nav": {
     "brandSubtitle": "The Open Civic Operating System",
     "links": {
-      "docket": "Live activity",
       "whatItDoes": "What it does",
       "howItWorks": "How it works",
       "faq": "FAQ",
       "docs": "Docs",
-      "github": "GitHub"
+      "github": "GitHub",
+      "fund": "Fund a project"
     },
     "signIn": "Sign in",
     "register": "Register"
@@ -719,6 +719,16 @@
       "title": "Nothing quietly disappears",
       "body": "Every report, signature, and official response is timestamped and kept on the public log. Your contact details and home address stay private."
     }
+  },
+  "funding": {
+    "marker": "SECTION — COMMUNITY FUNDING",
+    "title": "Communities raising money in the open",
+    "lede": "Verified organizations publish what they are raising for, what they have received, and what they spent it on. Every figure below is live.",
+    "browseAll": "Browse all campaigns",
+    "note": "Donations are processed by Paystack and settle directly to the organization.",
+    "loading": "Loading campaigns…",
+    "empty": "No campaigns are open right now. Verified organizations can publish one at any time.",
+    "unavailable": "Campaigns are unavailable right now."
   },
   "principles": {
     "marker": "What we hold ourselves to",
@@ -857,6 +867,11 @@
   "footer": {
     "mission": "Strengthening democratic participation through secure, transparent, accessible digital infrastructure.",
     "meta": "© {{year}} CivicOS — Open civic infrastructure",
+    "explore": {
+      "label": "Explore",
+      "campaigns": "Fund a project",
+      "join": "Create an account"
+    },
     "legal": {
       "label": "Legal",
       "privacy": "Privacy",

@@ -456,10 +456,10 @@
   "nav": {
     "brandSubtitle": "Àkọsílẹ̀ Gbangba · Tì bẹ̀rẹ̀ 2026",
     "links": {
-      "docket": "Àkọsílẹ̀",
       "whatItDoes": "Ohun tó ń ṣe",
       "howItWorks": "Bí ó ṣe ń ṣiṣẹ́",
-      "faq": "Àwọn Ìbéèrè"
+      "faq": "Àwọn Ìbéèrè",
+      "fund": "Ṣe àtìlẹ́yìn"
     },
     "signIn": "Wọlé",
     "register": "Forúkọsílẹ̀"
@@ -553,6 +553,16 @@
       "title": "Kò sí ohun tí ó ń parẹ́ ní ìdákẹ́",
       "body": "Gbogbo ìròyìn, ìfowọ́sí, àti ìdáhùn aláṣẹ ní àkókò àkọsílẹ̀ tí a sì tọ́jú sí àkọsílẹ̀ gbangba. Ìròyìn ìbánisọ̀rọ̀ rẹ àti àdírẹ́sì ilé rẹ wà ní ìkọ̀kọ̀."
     }
+  },
+  "funding": {
+    "marker": "ÌPÍN — ÌNÁWÓ ÀDÚGBÒ",
+    "title": "Àwọn àdúgbò tí ń kówó jọ ní gbangba",
+    "lede": "Àwọn àjọ tí a ti fọwọ́sí ń tẹ ohun tí wọ́n ń kówó fún jáde, ohun tí wọ́n ti gbà, àti ibi tí wọ́n ná an sí. Gbogbo nọ́ḿbà tó wà nísàlẹ̀ jẹ́ ti gidi.",
+    "browseAll": "Wo gbogbo ìpolongo",
+    "note": "Paystack ló ń ṣàkóso ẹ̀bùn, ó sì ń wọ àkáǹtì àjọ náà tààrà.",
+    "loading": "Ń ṣàgbéwọlé ìpolongo…",
+    "empty": "Kò sí ìpolongo tó ṣí sílẹ̀ nísinsìnyí. Àwọn àjọ tí a fọwọ́sí lè tẹ ọ̀kan jáde nígbàkúgbà.",
+    "unavailable": "Ìpolongo kò sí lọ́wọ́lọ́wọ́."
   },
   "principles": {
     "marker": "Ohun tí a fi mú ara wa ṣe ojúṣe",
@@ -691,6 +701,11 @@
   "footer": {
     "mission": "Mímú ìkópa ìṣàkóso ènìyàn lágbára nípasẹ̀ àkójọpọ̀ dijítà tó nírẹ̀wẹ̀sì, gbangba, àti ráyètó.",
     "meta": "© {{year}} CivicOS — Àkójọpọ̀ ìjọba gbangba",
+    "explore": {
+      "label": "Ṣàwárí",
+      "campaigns": "Ṣe àtìlẹ́yìn",
+      "join": "Ṣí àkáǹtì"
+    },
     "legal": {
       "label": "Òfin",
       "privacy": "Àṣírí",

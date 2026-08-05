@@ -507,10 +507,10 @@
   "nav": {
     "brandSubtitle": "The Open Civic Operating System",
     "links": {
-      "docket": "Docket",
       "whatItDoes": "Wetin e dey do",
       "howItWorks": "How e dey work",
-      "faq": "Question dem"
+      "faq": "Question dem",
+      "fund": "Fund project"
     },
     "signIn": "Sign in",
     "register": "Register"
@@ -604,6 +604,16 @@
       "title": "Nothing dey disappear quietly",
       "body": "Every report, signature, and official response get timestamp and e stay for the public log. Your contact details and house address dey private."
     }
+  },
+  "funding": {
+    "marker": "SECTION — COMMUNITY FUNDING",
+    "title": "Communities wey dey raise money for open",
+    "lede": "Verified organizations dey publish wetin dem dey raise money for, wetin dem don collect, and wetin dem spend am on. Every figure wey you see na live.",
+    "browseAll": "See all campaigns",
+    "note": "Na Paystack dey process donation, and e dey enter the organization account direct.",
+    "loading": "We dey load campaigns…",
+    "empty": "No campaign dey open now. Verified organizations fit publish one anytime.",
+    "unavailable": "We no fit show campaigns now."
   },
   "principles": {
     "marker": "Wetin we hold ourself to",
@@ -742,6 +752,11 @@
   "footer": {
     "mission": "Dey strengthen democratic participation through secure, transparent, accessible digital infrastructure.",
     "meta": "© {{year}} CivicOS — Open civic infrastructure",
+    "explore": {
+      "label": "Check am",
+      "campaigns": "Fund project",
+      "join": "Open account"
+    },
     "legal": {
       "label": "Legal",
       "privacy": "Privacy",
