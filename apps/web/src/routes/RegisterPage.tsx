@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { RequestedAccountType, type ApiResponse, type Community } from '@civicos/types';
 import { api } from '../lib/api';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { PasswordInput } from '../components/PasswordInput';
 import { NIGERIAN_STATES } from '../data/nigeria';
 import { useSeo } from '../hooks/useSeo';
 
@@ -297,10 +298,8 @@ export function RegisterPage() {
                 <label className="auth-label" htmlFor="password">
                   {t('auth.fields.password')}
                 </label>
-                <input
+                <PasswordInput
                   id="password"
-                  type="password"
-                  className="auth-input"
                   placeholder={t('auth.fields.passwordPlaceholder')}
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}

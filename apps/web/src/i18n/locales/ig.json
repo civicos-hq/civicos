@@ -709,7 +709,9 @@
       "password": "Okwuntughe",
       "namePlaceholder": "Ada Okonkwo",
       "emailPlaceholder": "gị@omumaatu.com",
-      "passwordPlaceholder": "Opekata mpe mkpụrụedemede 8"
+      "passwordPlaceholder": "Opekata mpe mkpụrụedemede 8",
+      "showPassword": "Gosi okwuntughe",
+      "hidePassword": "Zoo okwuntughe"
     },
     "login": {
       "eyebrow": "Nbanye CivicOS",

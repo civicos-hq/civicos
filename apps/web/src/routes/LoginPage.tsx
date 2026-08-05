@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { PasswordInput } from '../components/PasswordInput';
 import { useSeo } from '../hooks/useSeo';
 
 export function LoginPage() {
@@ -97,10 +98,8 @@ export function LoginPage() {
           <label className="auth-label" htmlFor="password">
             {t('auth.fields.password')}
           </label>
-          <input
+          <PasswordInput
             id="password"
-            type="password"
-            className="auth-input"
             placeholder={t('auth.fields.passwordPlaceholder')}
             value={password}
             onChange={(event) => setPassword(event.target.value)}

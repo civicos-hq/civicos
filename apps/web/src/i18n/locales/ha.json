@@ -709,7 +709,9 @@
       "password": "Kalmar shiga",
       "namePlaceholder": "Ada Okonkwo",
       "emailPlaceholder": "kai@misali.com",
-      "passwordPlaceholder": "Aƙalla haruffa 8"
+      "passwordPlaceholder": "Aƙalla haruffa 8",
+      "showPassword": "Nuna kalmar shiga",
+      "hidePassword": "Ɓoye kalmar shiga"
     },
     "login": {
       "eyebrow": "Shiga CivicOS",

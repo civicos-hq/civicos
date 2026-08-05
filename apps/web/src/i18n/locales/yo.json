@@ -709,7 +709,9 @@
       "password": "Ọ̀rọ̀ ìkọ̀kọ̀",
       "namePlaceholder": "Ada Okonkwo",
       "emailPlaceholder": "ìwọ@àpẹẹrẹ.com",
-      "passwordPlaceholder": "Lẹ́tà mẹ́jọ tàbí ju bẹ́ẹ̀ lọ"
+      "passwordPlaceholder": "Lẹ́tà mẹ́jọ tàbí ju bẹ́ẹ̀ lọ",
+      "showPassword": "Fi ọ̀rọ̀ ìkọ̀kọ̀ hàn",
+      "hidePassword": "Fi ọ̀rọ̀ ìkọ̀kọ̀ pamọ́"
     },
     "login": {
       "eyebrow": "Wíwọlé CivicOS",

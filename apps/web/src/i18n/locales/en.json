@@ -999,7 +999,9 @@
       "password": "Password",
       "namePlaceholder": "Ada Okonkwo",
       "emailPlaceholder": "you@example.com",
-      "passwordPlaceholder": "At least 8 characters"
+      "passwordPlaceholder": "At least 8 characters",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password"
     },
     "login": {
       "eyebrow": "CivicOS Access",

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { CheckCircle2, KeyRound, XCircle } from 'lucide-react';
 import { api } from '../lib/api';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { PasswordInput } from '../components/PasswordInput';
 
 type State =
   | { kind: 'form' }
@@ -96,10 +97,8 @@ export function ResetPasswordPage() {
             <label className="auth-label" htmlFor="new-password">
               {t('auth.reset.newPassword')}
             </label>
-            <input
+            <PasswordInput
               id="new-password"
-              type="password"
-              className="auth-input"
               placeholder={t('auth.reset.placeholder')}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -111,10 +110,8 @@ export function ResetPasswordPage() {
             <label className="auth-label" htmlFor="confirm-password">
               {t('auth.reset.confirmPassword')}
             </label>
-            <input
+            <PasswordInput
               id="confirm-password"
-              type="password"
-              className="auth-input"
               placeholder={t('auth.reset.placeholder')}
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
