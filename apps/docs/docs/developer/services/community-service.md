@@ -29,8 +29,8 @@ demands it.
 - **Notifications** — persisted list plus **realtime SSE** push via an
   in-process hub.
 - **Search** — global search across issues, petitions, representatives,
-  organizations, consultations, announcements, projects and funding
-  campaigns.
+  organizations, consultations, announcements, projects, funding campaigns
+  and representative announcements.
 - **Discover feed** — personalized feed tiered by geographic proximity
   (`COMMUNITY` → `LGA` → `STATE` → `COUNTRY`).
 - **Uploads** — image upload endpoint (5 MB max, JPG/PNG/GIF/WEBP) plus

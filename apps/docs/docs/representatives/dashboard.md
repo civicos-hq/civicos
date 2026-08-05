@@ -45,6 +45,52 @@ constituency and community. It shows:
 Keep your bio and contact info fresh — a stale page reads as
 disengaged. Any admin in your community can also edit your profile.
 
+## Announcements — speaking to your constituents
+
+Everything else on this page is you _replying_ to something a citizen
+started. Announcements are the one place you raise something yourself.
+
+They appear on your public page, and **publishing notifies everyone
+following you**.
+
+**To post one:**
+
+1. Open your own representative page. You will see an **Announcements**
+   section with a **New announcement** button — it appears only on your
+   own page.
+2. Write a title and body, then **Save draft**. Saving does not publish
+   anything and nobody is notified.
+3. When you are ready, click **Publish to followers**.
+
+**Three things to know:**
+
+- **A draft is private.** Nobody sees it until you publish — not
+  citizens, not other representatives, not admins.
+- **Published words cannot be edited.** Your constituents were notified
+  about specific words; quietly changing them afterwards would make a
+  public statement into something nobody can rely on having read. If you
+  need to correct something, archive it and publish a new one.
+- **Archiving is not deleting.** It takes the announcement off your
+  public page, but the record that you made the statement remains. Only
+  an unpublished draft can be deleted outright.
+
+**Where it goes.** A published announcement reaches your constituents
+three ways: everyone following you is notified, it appears in the
+**Discover feed** for your community, and it is findable in search.
+Drafts and archived announcements appear in none of those.
+
+**People can reply.** Each published announcement has its own thread, so
+a constituent answering _this_ announcement is not posting into a
+general discussion about something else. Your own replies there carry
+the **official response** badge, the same as on issues and petitions.
+Replies are moderated like any other comment, and your announcement can
+be reported.
+
+**Only you can post as you.** Not another representative, not a platform
+admin. The profile is linked to your account when your application is
+approved, and that link is what the check is against — so nobody can put
+words in your mouth.
+
 ## Reading what citizens are saying
 
 Three feeds are relevant to you:
@@ -103,12 +149,13 @@ public profile. It's the share of issues (in your community) that
 received either an official comment from you or a public progress update
 from an assigned organization.
 
-The rate is calculated automatically — you don't need to do anything
-special. Post official responses and encourage the orgs in your
-constituency to post progress updates, and your rate rises.
+:::warning Not yet calculated
 
-Citizens use this number when deciding who to follow, back, and vote
-for. It's the platform's most direct accountability signal.
+This metric is **not currently computed**. The field exists and shows 0%
+on every profile. Nothing in the platform updates it yet, so it should
+not be read as a signal about any representative.
+
+:::
 
 ## Etiquette
 

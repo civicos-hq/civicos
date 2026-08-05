@@ -16,7 +16,9 @@ export type ReportableType =
   | 'REPRESENTATIVE_COMMENT'
   | 'ANNOUNCEMENT'
   | 'PROGRESS_UPDATE'
-  | 'CAMPAIGN';
+  | 'CAMPAIGN'
+  | 'REPRESENTATIVE_ANNOUNCEMENT'
+  | 'REPRESENTATIVE_ANNOUNCEMENT_COMMENT';
 
 interface Props {
   contentType: ReportableType;

@@ -12,6 +12,7 @@ import (
 	"github.com/civicos/community-service/internal/middleware"
 	"github.com/civicos/community-service/internal/notifications"
 	"github.com/civicos/community-service/internal/petitions"
+	"github.com/civicos/community-service/internal/repannouncements"
 	"github.com/civicos/community-service/internal/representatives"
 	"github.com/civicos/community-service/internal/search"
 	"github.com/civicos/community-service/internal/uploads"
@@ -38,6 +39,8 @@ func main() {
 		&domain.Representative{},
 		&domain.RepresentativeFollower{},
 		&domain.RepresentativeComment{},
+		&domain.RepresentativeAnnouncement{},
+		&domain.RepresentativeAnnouncementComment{},
 		&domain.Notification{},
 	); err != nil {
 		log.Fatalf("migration failed: %v", err)
@@ -75,6 +78,11 @@ func main() {
 
 	repRepo := representatives.NewRepository(db)
 	repSvc := representatives.NewService(repRepo)
+
+	// A representative speaking to their constituents. Owner-only writes —
+	// see the package comment for why this is not a role check.
+	repAnnSvc := repannouncements.NewService(repannouncements.NewRepository(db), notificationSvc)
+	repAnnHandler := repannouncements.NewHandler(repAnnSvc)
 	repHandler := representatives.NewHandler(repSvc, notificationSvc)
 
 	searchSvc := search.NewService(db)
@@ -115,6 +123,7 @@ func main() {
 	issueHandler.RegisterMeRoutes(v1.Group("/me"), authMiddleware)
 	petitionHandler.RegisterRoutes(v1.Group("/petitions"), authMiddleware, requireVerified)
 	repHandler.RegisterRoutes(v1.Group("/representatives"), authMiddleware, requireVerified, requireAdminRole)
+	repAnnHandler.RegisterRoutes(v1.Group("/representatives"), authMiddleware, requireVerified)
 	repHandler.RegisterMeRoutes(v1.Group("/me"), authMiddleware)
 	notificationHandler.RegisterRoutes(v1.Group("/notifications"), authMiddleware)
 	searchHandler.RegisterRoutes(v1.Group("/search"))

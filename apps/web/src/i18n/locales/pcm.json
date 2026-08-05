@@ -195,7 +195,8 @@
       "issues": "Issues",
       "petitions": "Petitions",
       "representatives": "Representatives",
-      "campaigns": "Campaigns"
+      "campaigns": "Campaigns",
+      "repAnnouncements": "Representative announcements"
     }
   },
   "discoverPage": {
@@ -216,7 +217,8 @@
       "all": "All types",
       "issue": "Issues",
       "petition": "Petitions",
-      "campaign": "Campaigns"
+      "campaign": "Campaigns",
+      "repAnnouncement": "From representatives"
     },
     "itemCount_one": "{{count}} item",
     "itemCount_other": "{{count}} items",
@@ -230,12 +232,15 @@
     "labels": {
       "issue": "Issue",
       "petition": "Petition",
-      "campaign": "Campaign"
+      "campaign": "Campaign",
+      "repAnnouncement": "From your representative"
     },
     "meta": {
       "upvotes_one": "{{count}} upvote",
       "upvotes_other": "{{count}} upvotes",
-      "signaturesOf": "{{signatures}}/{{goal}} signatures"
+      "signaturesOf": "{{signatures}}/{{goal}} signatures",
+      "repliesCount": "{{count}} reply",
+      "repliesCount_other": "{{count}} replies"
     }
   },
   "representativesPage": {
@@ -1415,5 +1420,29 @@
     "loadError": "We no fit load analytics now.",
     "emptyTitle": "Nothing to measure yet",
     "emptyBody": "Once you publish campaign and donation start enter, na here you go see how e dey go."
+  },
+  "repAnnouncements": {
+    "heading": "Announcements",
+    "new": "New announcement",
+    "saveDraft": "Save draft",
+    "publish": "Publish give followers",
+    "archive": "Archive",
+    "ownerHint": "Na your page be this. Draft dey private until you publish; when you publish, everybody wey dey follow you go hear.",
+    "notPublished": "You never publish am",
+    "saveError": "We no fit save this announcement.",
+    "draftNote": "When you save, e still dey private. Na separate thing to publish am.",
+    "titlePlaceholder": "Wetin you wan tell your people?",
+    "bodyPlaceholder": "Write am plain. People go read am for phone.",
+    "emptyTitle": "{{name}} never post anything",
+    "emptyBody": "When dem post, e go show here — and you go hear if you dey follow dem.",
+    "emptyOwnerTitle": "You never post anything",
+    "emptyOwnerBody": "Write announcement tell the people wey you dey represent wetin you dey do.",
+    "status": {
+      "DRAFT": "Draft",
+      "PUBLISHED": "Published",
+      "ARCHIVED": "Archived"
+    },
+    "showReplies": "Replies ({{count}})",
+    "hideReplies": "Hide replies"
   }
 }

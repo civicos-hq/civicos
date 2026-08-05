@@ -179,7 +179,8 @@
       "issues": "Àwọn Ìṣòro",
       "petitions": "Àwọn Ẹ̀bẹ̀",
       "representatives": "Àwọn Aṣojú",
-      "campaigns": "Ìnáwó àdúgbò"
+      "campaigns": "Ìnáwó àdúgbò",
+      "repAnnouncements": "Ìkéde àwọn aṣojú"
     }
   },
   "discoverPage": {
@@ -200,7 +201,8 @@
       "all": "Gbogbo ẹ̀ka",
       "issue": "Àwọn ìṣòro",
       "petition": "Àwọn ẹ̀bẹ̀",
-      "campaign": "Ìnáwó àdúgbò"
+      "campaign": "Ìnáwó àdúgbò",
+      "repAnnouncement": "Láti ọ̀dọ̀ àwọn aṣojú"
     },
     "itemCount_one": "Ohun {{count}}",
     "itemCount_other": "Àwọn ohun {{count}}",
@@ -214,12 +216,15 @@
     "labels": {
       "issue": "Ìṣòro",
       "petition": "Ẹ̀bẹ̀",
-      "campaign": "Ìpolongo ìnáwó"
+      "campaign": "Ìpolongo ìnáwó",
+      "repAnnouncement": "Láti ọ̀dọ̀ aṣojú rẹ"
     },
     "meta": {
       "upvotes_one": "Àtìlẹ́yìn {{count}}",
       "upvotes_other": "Àwọn àtìlẹ́yìn {{count}}",
-      "signaturesOf": "Àwọn ìfowọ́sí {{signatures}}/{{goal}}"
+      "signaturesOf": "Àwọn ìfowọ́sí {{signatures}}/{{goal}}",
+      "repliesCount": "Ìdáhùn {{count}}",
+      "repliesCount_other": "Ìdáhùn {{count}}"
     }
   },
   "representativesPage": {
@@ -1186,5 +1191,29 @@
     "loadError": "A kò lè ṣí ìtúpalẹ̀ nísinsìnyí.",
     "emptyTitle": "Kò sí ohun tí a lè wọ̀n síbẹ̀",
     "emptyBody": "Ní kété tí o bá tẹ ìpolongo jáde tí àwọn ẹ̀bùn sì bẹ̀rẹ̀ sí wọlé, níbí ni wàá ti rí bí ó ṣe ń lọ."
+  },
+  "repAnnouncements": {
+    "heading": "Ìkéde",
+    "new": "Ìkéde tuntun",
+    "saveDraft": "Fi àkọsílẹ̀ pamọ́",
+    "publish": "Tẹ̀ jáde fún àwọn olùtẹ̀lé",
+    "archive": "Fi pamọ́",
+    "ownerHint": "Ojú ìwé rẹ ni èyí. Àkọsílẹ̀ jẹ́ àṣírí títí o fi tẹ̀ ẹ́ jáde; tí o bá tẹ̀ ẹ́ jáde, gbogbo àwọn tí ń tẹ̀lé ọ yóò gbọ́.",
+    "notPublished": "Kò tíì jáde",
+    "saveError": "A kò lè fi ìkéde yìí pamọ́.",
+    "draftNote": "Fífi pamọ́ jẹ́ kí ó wà ní àṣírí. Títẹ̀ jáde jẹ́ ohun mìíràn.",
+    "titlePlaceholder": "Kí ni o fẹ́ sọ fún àwọn ènìyàn rẹ?",
+    "bodyPlaceholder": "Kọ ọ́ ní kedere. Àwọn ènìyàn yóò kà á lórí fóònù.",
+    "emptyTitle": "{{name}} kò tíì kọ ohunkóhun",
+    "emptyBody": "Nígbà tí wọ́n bá ṣe, yóò farahàn níbí — a ó sì sọ fún ọ tí o bá ń tẹ̀lé wọn.",
+    "emptyOwnerTitle": "O kò tíì kọ ohunkóhun",
+    "emptyOwnerBody": "Kọ ìkéde láti sọ fún àwọn tí o ń ṣojú fún ohun tí o ń ṣe.",
+    "status": {
+      "DRAFT": "Àkọsílẹ̀",
+      "PUBLISHED": "Ti jáde",
+      "ARCHIVED": "Ti pamọ́"
+    },
+    "showReplies": "Ìdáhùn ({{count}})",
+    "hideReplies": "Fi ìdáhùn pamọ́"
   }
 }

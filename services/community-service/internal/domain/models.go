@@ -31,10 +31,15 @@ const (
 	NotificationIssueUpdate            NotificationType = "ISSUE_UPDATE"
 	NotificationPetitionUpdate         NotificationType = "PETITION_UPDATE"
 	NotificationRepresentativeResponse NotificationType = "REPRESENTATIVE_RESPONSE"
-	NotificationCommunityUpdate        NotificationType = "COMMUNITY_UPDATE"
-	NotificationConsultationUpdate     NotificationType = "CONSULTATION_UPDATE"
-	NotificationAnnouncementUpdate     NotificationType = "ANNOUNCEMENT_UPDATE"
-	NotificationSystem                 NotificationType = "SYSTEM"
+	// A representative published an announcement to their constituents.
+	// Distinct from REPRESENTATIVE_RESPONSE, which is them replying to
+	// something a citizen raised — a follower should be able to tell the
+	// difference between "they answered you" and "they announced something".
+	NotificationRepresentativeAnnouncement NotificationType = "REPRESENTATIVE_ANNOUNCEMENT"
+	NotificationCommunityUpdate            NotificationType = "COMMUNITY_UPDATE"
+	NotificationConsultationUpdate         NotificationType = "CONSULTATION_UPDATE"
+	NotificationAnnouncementUpdate         NotificationType = "ANNOUNCEMENT_UPDATE"
+	NotificationSystem                     NotificationType = "SYSTEM"
 
 	// ─── Community Funding (Phase 4) ───
 	//
@@ -112,6 +117,77 @@ type IssueComment struct {
 	CreatedAt time.Time `json:"createdAt"`
 }
 
+// RepresentativeAnnouncement is a representative speaking to their
+// constituents directly.
+//
+// Until this existed, an elected official's only voice on CivicOS was a
+// comment on somebody else's issue or petition — they could answer, but never
+// raise something themselves. The Experience Architecture lists "public
+// announcement capabilities" among what representatives need; this is that.
+//
+// It deliberately mirrors the organization announcement lifecycle
+// (DRAFT → PUBLISHED → ARCHIVED) rather than inventing a second shape for the
+// same idea. A representative should be able to prepare a statement before it
+// is visible, and take one down without deleting the record that it was made.
+type RepresentativeAnnouncement struct {
+	ID               string `gorm:"type:uuid;primaryKey" json:"id"`
+	RepresentativeID string `gorm:"type:uuid;not null;index" json:"representativeId"`
+	// CommunityID is copied from the representative at creation so the
+	// announcement can be scoped and searched without a join, and so it stays
+	// attached to the constituency it was made in even if the profile is
+	// later corrected.
+	CommunityID string             `gorm:"type:uuid;not null;index" json:"communityId"`
+	Title       string             `gorm:"not null" json:"title"`
+	Body        string             `gorm:"not null" json:"body"`
+	Status      AnnouncementStatus `gorm:"type:varchar(20);default:'DRAFT';index" json:"status"`
+	PublishedAt *time.Time         `json:"publishedAt,omitempty"`
+	// AuthorID is the user who wrote it — the representative's own account.
+	// Stored alongside RepresentativeID because a profile outlives an
+	// account, and "who actually said this" must survive that.
+	AuthorID   string `gorm:"type:uuid;not null" json:"authorId"`
+	AuthorName string `gorm:"not null" json:"authorName"`
+	// IsHidden is set by the moderation queue, never persisted here — the
+	// flag lives in identity-service. Same arrangement as comments.
+	IsHidden     bool      `gorm:"-" json:"isHidden"`
+	CommentCount int       `gorm:"default:0" json:"commentCount"`
+	CreatedAt    time.Time `json:"createdAt"`
+	UpdatedAt    time.Time `json:"updatedAt"`
+}
+
+// RepresentativeAnnouncementComment is a constituent replying to a specific
+// announcement.
+//
+// Attached to the announcement rather than to the representative, which the
+// profile-level thread already covers. Without this, someone answering "Road
+// works start Monday" would have to post into a general thread that may be
+// about something else entirely — which makes an announcement a broadcast
+// rather than a conversation, and broadcasting is what CivicOS exists to
+// improve on.
+type RepresentativeAnnouncementComment struct {
+	ID             string `gorm:"type:uuid;primaryKey" json:"id"`
+	AnnouncementID string `gorm:"type:uuid;not null;index" json:"announcementId"`
+	Content        string `gorm:"not null" json:"content"`
+	AuthorID       string `gorm:"type:uuid;not null" json:"authorId"`
+	AuthorName     string `gorm:"not null" json:"authorName"`
+	AuthorRole     string `gorm:"not null" json:"authorRole"`
+	// IsOfficialResponse marks the representative answering on their own
+	// announcement — the same badge citizens already read on issues and
+	// petitions.
+	IsOfficialResponse bool      `gorm:"default:false" json:"isOfficialResponse"`
+	IsHidden           bool      `gorm:"-" json:"isHidden"`
+	CreatedAt          time.Time `json:"createdAt"`
+}
+
+// AnnouncementStatus is shared with the organization announcement lifecycle
+// in organization-service. Same words, same meanings, deliberately.
+type AnnouncementStatus string
+
+const (
+	AnnouncementDraft     AnnouncementStatus = "DRAFT"
+	AnnouncementPublished AnnouncementStatus = "PUBLISHED"
+	AnnouncementArchived  AnnouncementStatus = "ARCHIVED"
+)
+
 type RepresentativeComment struct {
 	ID                 string    `gorm:"type:uuid;primaryKey" json:"id"`
 	Content            string    `gorm:"not null" json:"content"`
@@ -177,18 +253,24 @@ type RepresentativeFollower struct {
 }
 
 type Representative struct {
-	ID            string    `gorm:"type:uuid;primaryKey" json:"id"`
-	Name          string    `gorm:"not null" json:"name"`
-	Title         string    `gorm:"not null" json:"title"`
-	Position      string    `gorm:"not null" json:"position"`
-	Constituency  string    `gorm:"not null" json:"constituency"`
-	Party         *string   `json:"party,omitempty"`
-	Bio           *string   `json:"bio,omitempty"`
-	AvatarURL     *string   `json:"avatarUrl,omitempty"`
-	Email         *string   `json:"email,omitempty"`
-	Phone         *string   `json:"phone,omitempty"`
-	Website       *string   `json:"website,omitempty"`
-	CommunityID   string    `gorm:"type:uuid;not null;index" json:"communityId"`
+	ID           string  `gorm:"type:uuid;primaryKey" json:"id"`
+	Name         string  `gorm:"not null" json:"name"`
+	Title        string  `gorm:"not null" json:"title"`
+	Position     string  `gorm:"not null" json:"position"`
+	Constituency string  `gorm:"not null" json:"constituency"`
+	Party        *string `json:"party,omitempty"`
+	Bio          *string `json:"bio,omitempty"`
+	AvatarURL    *string `json:"avatarUrl,omitempty"`
+	Email        *string `json:"email,omitempty"`
+	Phone        *string `json:"phone,omitempty"`
+	Website      *string `json:"website,omitempty"`
+	CommunityID  string  `gorm:"type:uuid;not null;index" json:"communityId"`
+	// UserID is the account this profile belongs to, set when the person's
+	// application is approved. Nullable: an admin-created or seeded profile
+	// is unclaimed, and nobody may publish as it until it is linked.
+	//
+	// Not the same as CreatedByID, which records who inserted the row.
+	UserID        *string   `gorm:"type:uuid" json:"-"`
 	ResponseRate  int       `gorm:"default:0" json:"responseRate"`
 	FollowerCount int       `gorm:"default:0" json:"followerCount"`
 	CommentCount  int       `gorm:"default:0" json:"commentCount"`

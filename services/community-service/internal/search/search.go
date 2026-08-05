@@ -90,6 +90,20 @@ type Campaign struct {
 
 func (Campaign) TableName() string { return "campaigns" }
 
+// RepAnnouncement carries the representative's name so a result is
+// attributable without a second lookup — "who said this" is most of what
+// makes it worth finding.
+type RepAnnouncement struct {
+	ID                 string     `json:"id"`
+	RepresentativeID   string     `json:"representativeId"`
+	RepresentativeName string     `json:"representativeName"`
+	Title              string     `json:"title"`
+	Body               string     `json:"body"`
+	CommunityID        string     `json:"communityId"`
+	CommentCount       int        `json:"commentCount"`
+	PublishedAt        *time.Time `json:"publishedAt,omitempty"`
+}
+
 type Service struct{ db *gorm.DB }
 
 func NewService(db *gorm.DB) *Service { return &Service{db: db} }
@@ -105,26 +119,28 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 // Result is a flat per-entity search payload. Frontend renders one lane
 // per bucket by the map key without needing entity-specific shapes.
 type Result struct {
-	Issues          []domain.Issue          `json:"issues"`
-	Petitions       []domain.Petition       `json:"petitions"`
-	Representatives []domain.Representative `json:"representatives"`
-	Organizations   []Organization          `json:"organizations"`
-	Consultations   []Consultation          `json:"consultations"`
-	Announcements   []Announcement          `json:"announcements"`
-	Projects        []Project               `json:"projects"`
-	Campaigns       []Campaign              `json:"campaigns"`
+	Issues           []domain.Issue          `json:"issues"`
+	Petitions        []domain.Petition       `json:"petitions"`
+	Representatives  []domain.Representative `json:"representatives"`
+	Organizations    []Organization          `json:"organizations"`
+	Consultations    []Consultation          `json:"consultations"`
+	Announcements    []Announcement          `json:"announcements"`
+	Projects         []Project               `json:"projects"`
+	Campaigns        []Campaign              `json:"campaigns"`
+	RepAnnouncements []RepAnnouncement       `json:"repAnnouncements"`
 }
 
 func emptyResult() gin.H {
 	return gin.H{
-		"issues":          []domain.Issue{},
-		"petitions":       []domain.Petition{},
-		"representatives": []domain.Representative{},
-		"organizations":   []Organization{},
-		"consultations":   []Consultation{},
-		"announcements":   []Announcement{},
-		"projects":        []Project{},
-		"campaigns":       []Campaign{},
+		"issues":           []domain.Issue{},
+		"petitions":        []domain.Petition{},
+		"representatives":  []domain.Representative{},
+		"organizations":    []Organization{},
+		"consultations":    []Consultation{},
+		"announcements":    []Announcement{},
+		"projects":         []Project{},
+		"campaigns":        []Campaign{},
+		"repAnnouncements": []RepAnnouncement{},
 	}
 }
 
@@ -141,18 +157,19 @@ func (h *Handler) search(c *gin.Context) {
 		return
 	}
 	response.Success(c, http.StatusOK, gin.H{
-		"issues":          res.Issues,
-		"petitions":       res.Petitions,
-		"representatives": res.Representatives,
-		"organizations":   res.Organizations,
-		"consultations":   res.Consultations,
-		"announcements":   res.Announcements,
-		"projects":        res.Projects,
-		"campaigns":       res.Campaigns,
+		"issues":           res.Issues,
+		"petitions":        res.Petitions,
+		"representatives":  res.Representatives,
+		"organizations":    res.Organizations,
+		"consultations":    res.Consultations,
+		"announcements":    res.Announcements,
+		"projects":         res.Projects,
+		"campaigns":        res.Campaigns,
+		"repAnnouncements": res.RepAnnouncements,
 	})
 }
 
-// Search runs eight case-insensitive LIKE queries. ILIKE is good enough
+// Search runs nine case-insensitive LIKE queries. ILIKE is good enough
 // for the dataset sizes this catalog will see before we need pg_trgm or
 // full-text indexing (tracked on the roadmap as "Full-text search").
 //
@@ -170,6 +187,10 @@ func (h *Handler) search(c *gin.Context) {
 //     refused. PAUSED is excluded for a different reason: its page 404s
 //     too, so returning it here would be a result that goes nowhere.
 //     If that list ever changes, change it there first — this mirrors it.
+//   - Representative announcements: PUBLISHED only. A draft was never public
+//     and an archived one has been withdrawn by the person who said it —
+//     surfacing either would put words back in front of people that the
+//     representative has not, or no longer has, stood behind.
 func (s *Service) Search(q string) (*Result, error) {
 	like := "%" + strings.ReplaceAll(strings.ReplaceAll(q, `\`, `\\`), `%`, `\%`) + "%"
 
@@ -247,14 +268,26 @@ func (s *Service) Search(q string) (*Result, error) {
 		return nil, err
 	}
 
+	repAnns := []RepAnnouncement{}
+	if err := s.db.Table("representative_announcements AS ra").
+		Select("ra.id, ra.representative_id, r.name AS representative_name, ra.title, ra.body, ra.community_id, ra.comment_count, ra.published_at").
+		Joins("JOIN representatives r ON r.id = ra.representative_id").
+		Where("(ra.title ILIKE ? OR ra.body ILIKE ?) AND ra.status = ?", like, like, "PUBLISHED").
+		Order("ra.published_at desc").
+		Limit(perBucketLimit).
+		Scan(&repAnns).Error; err != nil {
+		return nil, err
+	}
+
 	return &Result{
-		Issues:          issues,
-		Petitions:       petitions,
-		Representatives: reps,
-		Organizations:   orgs,
-		Consultations:   consultations,
-		Announcements:   announcements,
-		Projects:        projects,
-		Campaigns:       campaigns,
+		Issues:           issues,
+		Petitions:        petitions,
+		Representatives:  reps,
+		Organizations:    orgs,
+		Consultations:    consultations,
+		Announcements:    announcements,
+		Projects:         projects,
+		Campaigns:        campaigns,
+		RepAnnouncements: repAnns,
 	}, nil
 }

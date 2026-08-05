@@ -8,6 +8,7 @@ import {
   FileText,
   HandCoins,
   MapPin,
+  Landmark,
   Megaphone,
   MessageSquare,
 } from 'lucide-react';
@@ -70,8 +71,27 @@ interface FeedCampaign {
   lga?: string | null;
 }
 
+/** A representative speaking to their constituents. */
+interface FeedRepAnnouncement {
+  id: string;
+  representativeId: string;
+  representativeName: string;
+  title: string;
+  body: string;
+  communityId: string;
+  commentCount: number;
+  publishedAt?: string | null;
+}
+
 interface FeedItem {
-  kind: 'issue' | 'petition' | 'announcement' | 'project' | 'consultation' | 'campaign';
+  kind:
+    | 'issue'
+    | 'petition'
+    | 'announcement'
+    | 'project'
+    | 'consultation'
+    | 'campaign'
+    | 'repAnnouncement';
   tier: Tier;
   createdAt: string;
   // communityId is empty for announcements + un-scoped projects and
@@ -86,6 +106,7 @@ interface FeedItem {
   project?: Project;
   consultation?: Consultation;
   campaign?: FeedCampaign;
+  repAnnouncement?: FeedRepAnnouncement;
 }
 
 interface FeedResponse {
@@ -95,7 +116,14 @@ interface FeedResponse {
 
 type TierFilter = Tier | 'ALL';
 type KindFilter =
-  'all' | 'issue' | 'petition' | 'announcement' | 'project' | 'consultation' | 'campaign';
+  | 'all'
+  | 'issue'
+  | 'petition'
+  | 'announcement'
+  | 'project'
+  | 'consultation'
+  | 'campaign'
+  | 'repAnnouncement';
 
 const PAGE_SIZE = 20;
 
@@ -107,6 +135,7 @@ const KIND_KEYS: KindFilter[] = [
   'project',
   'consultation',
   'campaign',
+  'repAnnouncement',
 ];
 
 const TIER_TONE: Record<Tier, string> = {
@@ -389,6 +418,15 @@ function FeedCard({ item }: { item: FeedItem }) {
       />
     );
   }
+  if (item.kind === 'repAnnouncement' && item.repAnnouncement) {
+    return (
+      <RepAnnouncementCard
+        a={item.repAnnouncement}
+        community={item.community}
+        createdAt={item.createdAt}
+      />
+    );
+  }
   if (item.kind === 'campaign' && item.campaign) {
     return (
       <CampaignCard
@@ -413,6 +451,7 @@ function itemKey(item: FeedItem): string {
     item.project?.id ??
     item.consultation?.id ??
     item.campaign?.id ??
+    item.repAnnouncement?.id ??
     'unknown';
   return `${item.kind}-${id}`;
 }
@@ -690,6 +729,50 @@ function CampaignCard({
                 <span className="font-semibold text-rose-700 dark:text-rose-300">
                   {t('campaigns.emergency')}
                 </span>
+              </>
+            )}
+          </CardMeta>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function RepAnnouncementCard({
+  a,
+  community,
+  createdAt,
+}: {
+  a: FeedRepAnnouncement;
+  community?: CommunitySummary;
+  createdAt: string;
+}) {
+  const { t } = useTranslation();
+  return (
+    <Link
+      to={`/representatives/${a.representativeId}`}
+      className="block rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-5 shadow-sm transition hover:border-civic-300 dark:hover:border-civic-500"
+    >
+      <div className="flex items-start gap-2">
+        <Landmark
+          className="mt-0.5 h-4 w-4 flex-shrink-0 text-indigo-600 dark:text-indigo-400"
+          aria-hidden="true"
+        />
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-bold uppercase tracking-wide text-indigo-700 dark:text-indigo-300">
+            {t('discoverPage.labels.repAnnouncement')}
+          </p>
+          <h3 className="mt-0.5 line-clamp-2 font-semibold text-slate-900 dark:text-slate-100">
+            {a.title}
+          </h3>
+          <p className="mt-1 line-clamp-2 text-sm text-slate-600 dark:text-slate-300">{a.body}</p>
+          {/* Who said it matters more than what it is — attribution first. */}
+          <CardMeta community={community} createdAt={createdAt}>
+            <span className="font-semibold">{a.representativeName}</span>
+            {a.commentCount > 0 && (
+              <>
+                <span>·</span>
+                <span>{t('discoverPage.meta.repliesCount', { count: a.commentCount })}</span>
               </>
             )}
           </CardMeta>

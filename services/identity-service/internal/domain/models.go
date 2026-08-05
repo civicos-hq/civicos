@@ -215,6 +215,11 @@ const (
 	FlaggableAnnouncement    FlaggableType = "ANNOUNCEMENT"
 	FlaggableProgressUpdate  FlaggableType = "PROGRESS_UPDATE"
 	FlaggableCampaign        FlaggableType = "CAMPAIGN"
+	// A representative speaking publicly, and constituents replying. Public
+	// speech by an elected official is exactly the kind of thing that must be
+	// reportable — more so than an ordinary comment, not less.
+	FlaggableRepAnnouncement        FlaggableType = "REPRESENTATIVE_ANNOUNCEMENT"
+	FlaggableRepAnnouncementComment FlaggableType = "REPRESENTATIVE_ANNOUNCEMENT_COMMENT"
 )
 
 // FundingReasons are valid only against a CAMPAIGN, and a CAMPAIGN accepts

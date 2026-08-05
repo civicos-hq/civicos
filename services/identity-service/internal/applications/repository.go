@@ -43,7 +43,8 @@ type representativeRecord struct {
 	Email         *string
 	Phone         *string
 	Website       *string
-	CommunityID   string `gorm:"type:uuid"`
+	CommunityID   string  `gorm:"type:uuid"`
+	UserID        *string `gorm:"type:uuid"`
 	ResponseRate  int
 	FollowerCount int
 	CommentCount  int
@@ -355,8 +356,13 @@ func (r *Repository) ApproveRepresentativeApplication(id, reviewerID string, not
 				Website:      app.Website,
 				CommunityID:  app.CommunityID,
 				CreatedByID:  app.UserID,
-				CreatedAt:    now,
-				UpdatedAt:    now,
+				// The applicant owns the profile their own application
+				// created. CreatedByID happens to match here, but they mean
+				// different things — an admin fixing this row later would be
+				// the creator of nothing and the owner of nothing.
+				UserID:    &app.UserID,
+				CreatedAt: now,
+				UpdatedAt: now,
 			}
 			if err := tx.Create(rep).Error; err != nil {
 				return err
