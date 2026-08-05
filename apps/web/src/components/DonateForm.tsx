@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Loader2 } from 'lucide-react';
 import {
   formatMoney,
+  formatMoneyExact,
   previewSplit,
   useCreateDonationIntent,
   type PublicCampaignDetail,
@@ -94,13 +95,22 @@ export function DonateForm({ campaign }: { campaign: PublicCampaignDetail }) {
       <p id="fund-split" className="fund-split">
         {campaign.platformFeeBps > 0 ? (
           <>
-            <strong>{formatMoney(split.netMinor, campaign.currency, i18n.language)}</strong>{' '}
+            <strong>
+              {formatMoneyExact(split.organizationMinor, campaign.currency, i18n.language)}
+            </strong>{' '}
             {t('campaigns.donate.reachesOrg', { org: campaign.organizationName ?? '' })}
             <br />
+            {/* Both deductions, itemised. The form used to show only the
+                CivicOS fee, which overstated what the organization received
+                on every single donation. */}
             <span className="fund-split-fee">
               {t('campaigns.donate.platformFee', {
-                fee: formatMoney(split.platformFeeMinor, campaign.currency, i18n.language),
+                fee: formatMoneyExact(split.platformFeeMinor, campaign.currency, i18n.language),
                 percent: (campaign.platformFeeBps / 100).toString(),
+              })}
+              {' · '}
+              {t('campaigns.donate.pspFee', {
+                fee: formatMoneyExact(split.pspFeeMinor, campaign.currency, i18n.language),
               })}
             </span>
           </>

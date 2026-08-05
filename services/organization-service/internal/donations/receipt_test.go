@@ -216,9 +216,11 @@ func TestReceipt_DisclosesTheSplitAndIsNotATaxReceipt(t *testing.T) {
 	body := m.sent[0].text
 	for _, want := range []string{
 		"₦2,500.00", // gross
-		"₦62.50",    // platform fee — see the rounding test below
-		"₦2,437.50", // reached the org
-		"2.5%",      // the rate
+		"₦62.50",    // CivicOS platform fee
+		"₦15.00",    // Paystack's fee, borne by the organization
+		"₦2,422.50", // what actually reached the org: 2500 - 62.50 - 15
+		"Paystack processing fee",
+		"2.5%", // the rate
 		"Zaria Relief Trust",
 		"Flood relief for Sabon Gari",
 		d.ProviderRef,
@@ -226,6 +228,18 @@ func TestReceipt_DisclosesTheSplitAndIsNotATaxReceipt(t *testing.T) {
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("receipt is missing %q\n---\n%s", want, body)
+		}
+	}
+
+	// The three deductions must reconcile against the gross. A receipt whose
+	// own figures do not add up is worse than no receipt — this is the one
+	// document where a donor is asked to trust our arithmetic.
+	{
+		gross, plat, psp := int64(250_000), int64(6_250), int64(1_500)
+		reached := gross - plat - psp
+		if !strings.Contains(body, mailer.FormatMoney(reached, "NGN")) {
+			t.Errorf("receipt does not show gross-platform-psp = %s\n---\n%s",
+				mailer.FormatMoney(reached, "NGN"), body)
 		}
 	}
 

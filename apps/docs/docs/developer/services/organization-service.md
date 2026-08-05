@@ -497,3 +497,35 @@ Every response carries its caveats in the payload, not only in the docs. These
 figures get lifted into board packs and funding applications, where they
 arrive without whatever qualification was on the screen — so the qualification
 travels with the data.
+
+### Who pays Paystack's fee
+
+`bearer: "subaccount"` — the organization does.
+
+This was `"account"` (CivicOS) until it was measured. Paystack's Nigerian
+fee is 1.5% + ₦100, which exceeds the 2.5% platform cut on most donations:
+in the sandbox a ₦10,000 gift left CivicOS with exactly **₦0.00**. Worse, when
+the platform share was too small to cover the fee Paystack charged the
+organization instead, so which party paid depended on the amount.
+
+Verified with `fees_split`, which Paystack returns on any initialised
+transaction — no payment has to complete:
+
+| Donation | Organization | CivicOS | Paystack |
+| -------- | ------------ | ------- | -------- |
+| ₦1,000   | ₦960.00      | ₦25.00  | ₦15.00   |
+| ₦2,500   | ₦2,300.00    | ₦62.50  | ₦137.50  |
+| ₦10,000  | ₦9,500.00    | ₦250.00 | ₦250.00  |
+
+The same probe settled a second question Paystack's own documentation
+contradicts itself on: `percentage_charge` names the **platform's** cut, not
+the sub-account's share. `percentage_charge: 2.5` returns
+`fees_split.subaccount = 975000` on ₦10,000.
+
+**`net_minor` is the split allocation, not what arrived.** Paystack allocates
+`gross - platform_fee` to the sub-account and _then_ charges its fee to it, so
+what the organization actually received is `net_minor - psp_fee_minor`. The
+receipt and the donate form both compute it that way. Reconciliation compares
+the **gross** only, so it would not catch a mistake here — which is why the
+sandbox probe exists rather than a unit test asserting our own arithmetic back
+to us.

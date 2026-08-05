@@ -1114,12 +1114,13 @@
       "anonymous": "Give am anonymous",
       "messageLabel": "Message (optional)",
       "reachesOrg": "go reach {{org}}",
-      "platformFee": "e include {{percent}}% CivicOS platform fee wey be {{fee}}",
+      "platformFee": "minus {{percent}}% CivicOS fee wey be {{fee}}",
       "noFee": "Every naira go reach the organization — CivicOS no dey collect fee.",
       "submit": "Donate {{amount}}",
       "submitting": "We dey open secure checkout…",
       "paystackNote": "You go finish for Paystack secure checkout. CivicOS no dey see your card details.",
-      "genericError": "We no fit start the payment. Abeg try again."
+      "genericError": "We no fit start the payment. Abeg try again.",
+      "pspFee": "minus Paystack fee wey be {{fee}}"
     },
     "complete": {
       "seoTitle": "Thank you — CivicOS",

@@ -885,12 +885,13 @@
       "anonymous": "Ṣe ìrànlọ́wọ́ láìsí orúkọ",
       "messageLabel": "Ọ̀rọ̀ (àṣàyàn)",
       "reachesOrg": "yóò dé ọwọ́ {{org}}",
-      "platformFee": "ó ní owó ìdíyelé CivicOS tí ó jẹ́ {{percent}}%, èyí tí í ṣe {{fee}}",
+      "platformFee": "yọ owó CivicOS {{percent}}% tí í ṣe {{fee}}",
       "noFee": "Gbogbo náírà yóò dé ọwọ́ àjọ náà — CivicOS kò gba owó kankan.",
       "submit": "Ṣe ìrànlọ́wọ́ {{amount}}",
       "submitting": "À ń ṣí ojú-ìwé ìsanwó tí ó ní ààbò…",
       "paystackNote": "Wàá parí rẹ̀ ní ojú-ìwé ìsanwó Paystack. CivicOS kì í rí àwọn àlàyé káàdì rẹ.",
-      "genericError": "A kò lè bẹ̀rẹ̀ ìsanwó. Jọ̀wọ́ gbìyànjú lẹ́ẹ̀kansí."
+      "genericError": "A kò lè bẹ̀rẹ̀ ìsanwó. Jọ̀wọ́ gbìyànjú lẹ́ẹ̀kansí.",
+      "pspFee": "yọ owó Paystack tí í ṣe {{fee}}"
     },
     "complete": {
       "seoTitle": "A dúpẹ́ — CivicOS",
