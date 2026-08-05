@@ -641,24 +641,31 @@
   },
   "docket": {
     "title": "Today's docket",
-    "live": "Live · Updated {{time}} WAT",
-    "paused": "Paused · Hover off to resume",
-    "types": {
-      "issue": "Issue",
-      "petition": "Petition",
-      "response": "Response",
-      "resolved": "Resolved"
-    },
     "chromeUrl": "civicos.ng · My Community",
     "eyebrow": "Live activity",
     "district": "Communities across Nigeria",
     "liveLabel": "Live",
-    "reportedAt": "Reported at {{time}}",
+    "loading": "Loading recent activity…",
+    "empty": "No public activity yet. The first report, petition or campaign published on CivicOS will appear here.",
+    "emptyCta": "Be the first",
+    "unavailable": "Activity is unavailable right now.",
+    "ago": {
+      "now": "Just now",
+      "minutes_one": "{{count}} minute ago",
+      "minutes_other": "{{count}} minutes ago",
+      "hours_one": "{{count}} hour ago",
+      "hours_other": "{{count}} hours ago",
+      "days_one": "{{count}} day ago",
+      "days_other": "{{count}} days ago"
+    },
     "pill": {
-      "issue": "Under review",
-      "petition": "Petition open",
-      "response": "Official response",
-      "resolved": "Resolved"
+      "issue": "Issue",
+      "petition": "Petition",
+      "response": "Representative",
+      "resolved": "Resolved",
+      "campaign": "Funding campaign",
+      "consultation": "Consultation",
+      "announcement": "Announcement"
     }
   },
   "parties": {

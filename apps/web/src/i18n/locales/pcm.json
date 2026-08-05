@@ -526,24 +526,31 @@
   },
   "docket": {
     "title": "Today docket",
-    "live": "Live · We update am for {{time}} WAT",
-    "paused": "E pause · Comot mouse make e continue",
-    "types": {
-      "issue": "Issue",
-      "petition": "Petition",
-      "response": "Reply",
-      "resolved": "Resolved"
-    },
     "chromeUrl": "civicos.ng · My Community",
     "eyebrow": "Wetin dey happen",
     "district": "Communities for Naija",
     "liveLabel": "Live",
-    "reportedAt": "Reported for {{time}}",
+    "loading": "We dey load wetin happen…",
+    "empty": "Nothing dey here yet. The first report, petition or campaign wey person publish for CivicOS go show here.",
+    "emptyCta": "Make you be the first",
+    "unavailable": "We no fit show activity now.",
+    "ago": {
+      "now": "Just now",
+      "minutes_one": "{{count}} minute ago",
+      "minutes_other": "{{count}} minutes ago",
+      "hours_one": "{{count}} hour ago",
+      "hours_other": "{{count}} hours ago",
+      "days_one": "{{count}} day ago",
+      "days_other": "{{count}} days ago"
+    },
     "pill": {
-      "issue": "Dey review am",
-      "petition": "Petition open",
-      "response": "Official response",
-      "resolved": "Don resolve"
+      "issue": "Issue",
+      "petition": "Petition",
+      "response": "Representative",
+      "resolved": "Don resolve",
+      "campaign": "Funding campaign",
+      "consultation": "Consultation",
+      "announcement": "Announcement"
     }
   },
   "parties": {

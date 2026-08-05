@@ -1883,6 +1883,59 @@ button {
   background: var(--dk-progress-done);
   color: var(--dk-paper);
 }
+/* Kinds the panel gained when it started reading real platform records.
+   Each pair is at least 6.4:1 against its own background. */
+.docket-pill--campaign {
+  background: #dbe6f4;
+  color: #26456b;
+}
+.docket-pill--consultation {
+  background: #e8e0f1;
+  color: #4a3a6b;
+}
+.docket-pill--announcement {
+  background: #ece6d6;
+  color: #55503c;
+}
+
+/* Shown when the platform genuinely has no public records yet — or while the
+   first fetch is in flight. The panel keeps its height so the hero does not
+   jump when data arrives. */
+.docket-blank {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 0.85rem;
+  min-height: 12rem;
+  padding: 1rem 0;
+}
+
+.docket-blank-line {
+  margin: 0;
+  max-width: 34ch;
+  font-family: var(--pr-sans);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--dk-ink-soft);
+}
+
+.docket-blank-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--pr-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--dk-open-ink);
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 1px;
+}
+
+.docket-blank-cta:hover {
+  color: var(--dk-progress-done);
+}
 
 .docket-progress {
   display: grid;

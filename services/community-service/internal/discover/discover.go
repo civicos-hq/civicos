@@ -218,6 +218,11 @@ func NewHandler(svc *Service) *Handler { return &Handler{svc: svc} }
 
 func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth gin.HandlerFunc) {
 	rg.GET("/feed", auth, h.feed)
+	// Public and unauthenticated: the marketing homepage reads this, and a
+	// visitor who has not signed up must still be able to see that the
+	// platform is in use. Returns far less than the feed — see
+	// public_activity.go.
+	rg.GET("/public-activity", h.publicActivity)
 }
 
 func (h *Handler) feed(c *gin.Context) {

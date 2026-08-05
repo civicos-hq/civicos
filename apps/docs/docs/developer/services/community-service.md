@@ -129,6 +129,34 @@ the publishing org. Projects, consultations and campaigns prefer their
 `state`/`lga` before the org's, because a campaign is often raised for a
 specific ward rather than wherever the organization is registered.
 
+### Public activity (unauthenticated)
+
+`GET /discover/public-activity` backs the activity panel on the marketing
+homepage. It is the **only unauthenticated aggregate on the platform** —
+anyone on the internet can call it without an account — so it returns the
+smallest thing that can honestly be shown: kind, title, status, state/LGA,
+timestamp.
+
+Deliberately absent: **author names and user ids** (a ticker does not need to
+name the citizen who reported a broken transformer, and a public homepage is
+a different audience from a signed-in page), **bodies**, and anything not
+already public.
+
+It is a separate endpoint rather than a mode of the feed because the feed is
+authenticated, personalised, and hydrates whole entities plus their
+organizations — none of which is wanted, and all of which would be a larger
+surface to get wrong.
+
+Implementation is one query per kind then a merge, not a `UNION`: the six
+kinds live in tables owned by two services with different shapes, and a
+`UNION` would force a lowest-common-denominator projection that breaks the
+moment one of them gains a column. `internal/discover/public_activity_test.go`
+seeds every kind in every status against a real Postgres and asserts that no
+draft, pending, rejected or archived record is reachable.
+
+An empty list is a valid answer. The homepage renders a real empty state
+rather than filling the space, and does not claim "Live" over an empty panel.
+
 ### What discovery will not show
 
 Announcements, consultations, projects and campaigns are owned by

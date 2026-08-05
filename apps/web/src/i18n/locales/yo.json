@@ -475,24 +475,31 @@
   },
   "docket": {
     "title": "Àkọsílẹ̀ òní",
-    "live": "Ó ń ṣiṣẹ́ · Sí gégé ní {{time}} WAT",
-    "paused": "Ó dúró · Yọ kúrò láti tẹ̀síwájú",
-    "types": {
-      "issue": "Ìṣòro",
-      "petition": "Ẹ̀bẹ̀",
-      "response": "Ìdáhùn",
-      "resolved": "Tún ṣe"
-    },
     "chromeUrl": "civicos.ng · Àdúgbò Mi",
     "eyebrow": "Ìṣẹ̀lẹ̀ ààyè",
     "district": "Àwọn àdúgbò káàkiri Nàìjíríà",
     "liveLabel": "Ààyè",
-    "reportedAt": "Ròyìn ní {{time}}",
+    "loading": "Ń ṣàgbéwọlé ìṣẹ̀lẹ̀ tuntun…",
+    "empty": "Kò sí ìṣẹ̀lẹ̀ gbogbogbò síbẹ̀. Ìròyìn, ẹ̀bẹ̀ tàbí ìpolongo àkọ́kọ́ tí a bá tẹ̀ jáde lórí CivicOS yóò farahàn níbí.",
+    "emptyCta": "Jẹ́ ẹni àkọ́kọ́",
+    "unavailable": "Ìṣẹ̀lẹ̀ kò sí lọ́wọ́lọ́wọ́.",
+    "ago": {
+      "now": "Ṣẹ̀ṣẹ̀ ni",
+      "minutes_one": "Ìṣẹ́jú {{count}} sẹ́yìn",
+      "minutes_other": "Ìṣẹ́jú {{count}} sẹ́yìn",
+      "hours_one": "Wákàtí {{count}} sẹ́yìn",
+      "hours_other": "Wákàtí {{count}} sẹ́yìn",
+      "days_one": "Ọjọ́ {{count}} sẹ́yìn",
+      "days_other": "Ọjọ́ {{count}} sẹ́yìn"
+    },
     "pill": {
-      "issue": "Ń wo",
-      "petition": "Ẹ̀bẹ̀ ṣí",
-      "response": "Ìdáhùn aláṣẹ",
-      "resolved": "Yanjú"
+      "issue": "Ìṣòro",
+      "petition": "Ẹ̀bẹ̀",
+      "response": "Aṣojú",
+      "resolved": "Yanjú",
+      "campaign": "Ìpolongo ìnáwó",
+      "consultation": "Ìjíròrò",
+      "announcement": "Ìkéde"
     }
   },
   "parties": {

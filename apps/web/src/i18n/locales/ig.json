@@ -475,24 +475,31 @@
   },
   "docket": {
     "title": "Akwụkwọ taa",
-    "live": "Dị ndụ · Emelitere n'elekere {{time}} WAT",
-    "paused": "Akwụsịtụrụ · Wepụ aka iji bido ọzọ",
-    "types": {
-      "issue": "Okwu",
-      "petition": "Akwụkwọ Arịrịọ",
-      "response": "Azịza",
-      "resolved": "Edozigharịrị"
-    },
     "chromeUrl": "civicos.ng · Obodo M",
     "eyebrow": "Ihe na-eme ugbu a",
     "district": "Obodo dị iche iche na Naịjirịa",
     "liveLabel": "Ndụ",
-    "reportedAt": "Kọrọ na {{time}}",
+    "loading": "Na-ebugo ihe na-eme…",
+    "empty": "Ọ dịghị ihe ọha na-eme ugbu a. Akụkọ, akwụkwọ arịrịọ ma ọ bụ mkpọsa mbụ e bipụtara na CivicOS ga-apụta ebe a.",
+    "emptyCta": "Bụrụ onye mbụ",
+    "unavailable": "Ihe na-eme adịghị ugbu a.",
+    "ago": {
+      "now": "Ugbu a",
+      "minutes_one": "Nkeji {{count}} gara aga",
+      "minutes_other": "Nkeji {{count}} gara aga",
+      "hours_one": "Awa {{count}} gara aga",
+      "hours_other": "Awa {{count}} gara aga",
+      "days_one": "Ụbọchị {{count}} gara aga",
+      "days_other": "Ụbọchị {{count}} gara aga"
+    },
     "pill": {
-      "issue": "Na-enyocha",
-      "petition": "Akwụkwọ arịrịọ emepere",
-      "response": "Azịza ọchịchị",
-      "resolved": "Dozieziri"
+      "issue": "Okwu",
+      "petition": "Akwụkwọ arịrịọ",
+      "response": "Onye nnọchiteanya",
+      "resolved": "Edoziri",
+      "campaign": "Mkpọsa ego",
+      "consultation": "Ndụmọdụ",
+      "announcement": "Ọkwa"
     }
   },
   "parties": {
