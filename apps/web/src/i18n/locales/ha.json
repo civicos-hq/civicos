@@ -475,24 +475,31 @@
   },
   "docket": {
     "title": "Jadawalin yau",
-    "live": "Kai tsaye · An sabunta da ƙarfe {{time}} WAT",
-    "paused": "An dakatar · Cire linzami don ci gaba",
-    "types": {
-      "issue": "Matsala",
-      "petition": "Koƙe",
-      "response": "Amsa",
-      "resolved": "An warware"
-    },
     "chromeUrl": "civicos.ng · Ƙauyena",
     "eyebrow": "Ayyuka kai tsaye",
     "district": "Al'ummomi a faɗin Najeriya",
     "liveLabel": "Kai tsaye",
-    "reportedAt": "An bayar da rahoto {{time}}",
+    "loading": "Ana loda ayyukan kwanan nan…",
+    "empty": "Babu wani aiki a bainar jama'a tukuna. Rahoto, koƙe ko yaƙin neman tallafi na farko da aka buga a CivicOS zai bayyana anan.",
+    "emptyCta": "Ka zama na farko",
+    "unavailable": "Ba a samun ayyuka a yanzu.",
+    "ago": {
+      "now": "Yanzu-yanzu",
+      "minutes_one": "Minti {{count}} da ya wuce",
+      "minutes_other": "Minti {{count}} da suka wuce",
+      "hours_one": "Awa {{count}} da ya wuce",
+      "hours_other": "Awanni {{count}} da suka wuce",
+      "days_one": "Kwana {{count}} da ya wuce",
+      "days_other": "Kwanaki {{count}} da suka wuce"
+    },
     "pill": {
-      "issue": "Ana bincike",
-      "petition": "Koƙe a buɗe",
-      "response": "Amsar hukuma",
-      "resolved": "An warware"
+      "issue": "Matsala",
+      "petition": "Koƙe",
+      "response": "Wakili",
+      "resolved": "An warware",
+      "campaign": "Yaƙin neman tallafi",
+      "consultation": "Tuntuɓa",
+      "announcement": "Sanarwa"
     }
   },
   "parties": {

@@ -993,6 +993,64 @@ paths:
                               category: UTILITIES,
                             }
 
+  /discover/public-activity:
+    get:
+      tags: [Discover]
+      security: [] # genuinely public — the homepage calls this signed out
+      summary: Recent public records across every kind — no authentication
+      description: |
+        Powers the activity panel on the marketing homepage, which is read by
+        visitors who have no account.
+
+        **This is the only unauthenticated aggregate on the platform**, so it
+        returns the smallest thing that can honestly be shown: what kind of
+        record it is, its title, roughly where, and when. Deliberately absent:
+
+        - **Author names and user ids.** A ticker does not need to name the
+          citizen who reported a broken transformer, and putting that name on
+          a public homepage is a different decision from putting it on a page
+          you must sign in to read.
+        - **Bodies and descriptions.** A title is enough.
+        - **Anything not already public.** Drafts, pending review, rejected
+          and archived records never appear, in any kind.
+
+        Unlike `/discover/feed` there is no tiering or personalization — there
+        is no caller to personalize for.
+
+        An empty `activity` array is a valid answer, not an error: a platform
+        with no public records yet should say so rather than have the caller
+        invent something to fill the space.
+      parameters:
+        - in: query
+          name: limit
+          schema: { type: integer, default: 8, maximum: 20 }
+      responses:
+        '200':
+          description: Public records, newest first.
+          content:
+            application/json:
+              examples:
+                default:
+                  value:
+                    success: true
+                    data:
+                      activity:
+                        - kind: campaign
+                          title: Boreholes for Sabon Gari
+                          status: PUBLISHED
+                          state: Kaduna
+                          lga: Zaria
+                          at: 2026-07-31T17:57:57Z
+                        - kind: petition
+                          title: Restore weekly waste collection in Aguda
+                          status: ACTIVE
+                          state: Lagos
+                          lga: Eti-Osa
+                          at: 2026-07-25T02:15:39Z
+                empty:
+                  summary: A platform with no public records yet
+                  value: { success: true, data: { activity: [] } }
+
   # ───────────────────────── UPLOADS ─────────────────────────
   /uploads:
     post:

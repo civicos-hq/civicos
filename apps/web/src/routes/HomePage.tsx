@@ -18,6 +18,7 @@ import {
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { useSeo } from '../hooks/useSeo';
+import { usePublicActivity, type PublicActivityItem } from '../hooks/usePublicActivity';
 import { hasAccessToken } from '../App';
 
 export function HomePage() {
@@ -453,137 +454,136 @@ function Hero() {
   );
 }
 
-type DocketType = 'issue' | 'petition' | 'response' | 'resolved';
-type DocketEntry = {
-  key: number;
-  time: string;
-  /** Human-readable ward + LGA, e.g. "Sabon Gari, Zaria LGA". */
-  location: string;
-  type: DocketType;
-  title: string;
-};
+// The live-activity panel reads real records from
+// GET /api/v1/discover/public-activity — issues, petitions, consultations,
+// announcements, campaigns and representative statements that are already
+// public on the platform.
+//
+// It used to cycle two hardcoded arrays of invented records under a "Live"
+// label and a wall-clock timestamp generated at render. Every part of that was
+// a claim: that the platform had activity, that these were it, and that it had
+// just happened. A visitor deciding whether to trust a civic accountability
+// platform is exactly the wrong person to show fabricated civic records to.
+//
+// The honest consequence is that the panel can be empty, so it has a real
+// empty state rather than a fallback to fiction.
 
-// Sample records for the live-activity panel. Deliberately written as
-// things a resident would actually recognise — a named street, a real
-// ward, an LGA that exists in data/nigeria.ts — rather than reference
-// codes. Opaque identifiers (IKY-W4, ABJ-CTR) read as placeholder
-// fixture data and undercut the panel's whole job, which is to show a
-// visitor what their own feed will look like.
-const DOCKET_SEED: Omit<DocketEntry, 'key' | 'time'>[] = [
-  {
-    location: 'Sabon Gari, Zaria LGA',
-    type: 'issue',
-    title: 'Transformer repair requested on Commercial Avenue',
-  },
-  {
-    location: 'Otukpo LGA, Benue',
-    type: 'petition',
-    title: 'Solar streetlights for Otukpo market road — 840 of 1,500 signatures',
-  },
-  {
-    location: 'Ikeja Ward 2, Lagos',
-    type: 'response',
-    title: 'Hon. Amina Yusuf: “Contractor mobilised for the Q3 road grading.”',
-  },
-  {
-    location: 'Municipal Area Council, Abuja',
-    type: 'resolved',
-    title: 'Drainage cleared along 12th Avenue after 4 days',
-  },
-];
+type DocketPill =
+  'issue' | 'petition' | 'response' | 'resolved' | 'campaign' | 'consultation' | 'announcement';
 
-const DOCKET_POOL: Omit<DocketEntry, 'key' | 'time'>[] = [
-  {
-    location: 'Lagos Island LGA, Lagos',
-    type: 'issue',
-    title: 'Blocked drainage flooding the Marina–Idumota junction',
-  },
-  {
-    location: 'Kaduna North LGA, Kaduna',
-    type: 'petition',
-    title: 'Free bus passes for seniors — 2,104 of 3,000 signatures',
-  },
-  {
-    location: 'Port Harcourt LGA, Rivers',
-    type: 'response',
-    title: 'Works department: “Repair tender awarded, crews start Monday.”',
-  },
-  {
-    location: 'Fagge LGA, Kano',
-    type: 'resolved',
-    title: 'Power restored to Sabon Gari market after an 11-day outage',
-  },
-  {
-    location: 'Enugu North LGA, Enugu',
-    type: 'issue',
-    title: 'Collapsed bus shelter on Old Park Road',
-  },
-  {
-    location: 'Ibadan North LGA, Oyo',
-    type: 'petition',
-    title: 'Reopen the public library on Adeoyo Street — 412 of 1,000 signatures',
-  },
-  {
-    location: 'Calabar Municipal, Cross River',
-    type: 'response',
-    title: 'Hon. Ekanem: “Walkway repairs scheduled to start on the 8th.”',
-  },
-  {
-    location: 'Jos North LGA, Plateau',
-    type: 'resolved',
-    title: 'Pothole on Tafawa Balewa Road filled 4 days after filing',
-  },
-  {
-    location: 'Oredo LGA, Edo',
-    type: 'issue',
-    title: 'Water main leaking outside Ekiosa market',
-  },
-  {
-    location: 'Bwari LGA, Abuja',
-    type: 'response',
-    title: 'Ministry of Works: “Bridge inspection report published in full.”',
-  },
-];
-
-function nowWAT(): string {
-  const d = new Date();
-  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+/**
+ * Which pill a record wears. An issue's status is the one case where the kind
+ * alone is not enough — a resolved issue is the strongest thing this panel can
+ * show and must not be labelled "under review".
+ */
+function pillFor(item: PublicActivityItem): DocketPill {
+  switch (item.kind) {
+    case 'issue':
+      return item.status === 'RESOLVED' || item.status === 'CLOSED' ? 'resolved' : 'issue';
+    case 'petition':
+      return 'petition';
+    case 'campaign':
+      return 'campaign';
+    case 'consultation':
+      return 'consultation';
+    case 'announcement':
+      return 'announcement';
+    case 'repAnnouncement':
+      return 'response';
+  }
 }
+
+/**
+ * How far an issue has actually moved through its lifecycle, as filled
+ * segments out of four. The bar previously rendered two filled segments on
+ * every issue and petition regardless of state — a progress claim about
+ * records that did not exist.
+ *
+ * Returns 0 for kinds with no comparable lifecycle; the bar is then not
+ * rendered at all rather than rendered empty.
+ */
+function progressSegments(item: PublicActivityItem): number {
+  if (item.kind !== 'issue') return 0;
+  switch (item.status) {
+    case 'OPEN':
+      return 1;
+    case 'UNDER_REVIEW':
+      return 2;
+    case 'IN_PROGRESS':
+      return 3;
+    case 'RESOLVED':
+    case 'CLOSED':
+      return 4;
+    default:
+      return 0;
+  }
+}
+
+/** "Zaria, Kaduna". Empty when the record is not tied to a place. */
+function placeOf(item: PublicActivityItem): string {
+  return [item.lga, item.state].filter(Boolean).join(', ');
+}
+
+/**
+ * Relative age, not a wall clock. The old panel printed the current time next
+ * to every record, which said "just now" about everything. A real record can
+ * be four days old and should say so.
+ */
+function agoLabel(iso: string, t: (key: string, opts?: Record<string, unknown>) => string): string {
+  const then = new Date(iso).getTime();
+  if (Number.isNaN(then)) return '';
+  const mins = Math.max(0, Math.round((Date.now() - then) / 60_000));
+  if (mins < 1) return t('docket.ago.now');
+  if (mins < 60) return t('docket.ago.minutes', { count: mins });
+  const hours = Math.round(mins / 60);
+  if (hours < 24) return t('docket.ago.hours', { count: hours });
+  return t('docket.ago.days', { count: Math.round(hours / 24) });
+}
+
+const DOCKET_VISIBLE = 4;
 
 function Docket() {
   const { t } = useTranslation();
-  const initial = useRef<DocketEntry[]>(
-    DOCKET_SEED.map((e, i) => ({
-      ...e,
-      key: -i - 1,
-      time: ['10:42', '09:18', '08:55', '07:30'][i] ?? '07:00',
-    })),
-  );
-  const [entries, setEntries] = useState<DocketEntry[]>(initial.current);
+  const { data, isLoading, isError } = usePublicActivity();
+  const items = useMemo(() => data ?? [], [data]);
+
+  // Index of the record shown at the top. The panel holds four at a time and
+  // steps backwards through the list so each new record slides in at the top,
+  // which is the direction the existing animation runs. Every record still
+  // carries its own real age, so a rotation never implies recency.
+  const [offset, setOffset] = useState(0);
+  const [rotations, setRotations] = useState(0);
   const [paused, setPaused] = useState(false);
-  const [newKey, setNewKey] = useState<number | null>(null);
   const pausedRef = useRef(paused);
   pausedRef.current = paused;
 
-  useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  // Nothing to rotate through when the platform has four records or fewer —
+  // cycling four records among four positions would just shuffle them.
+  const canRotate = items.length > DOCKET_VISIBLE;
 
-    let poolIdx = 0;
+  useEffect(() => {
+    setOffset(0);
+    setRotations(0);
+  }, [items.length]);
+
+  useEffect(() => {
+    if (!canRotate) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const id = window.setInterval(() => {
       if (pausedRef.current) return;
-      const next = DOCKET_POOL[poolIdx % DOCKET_POOL.length];
-      poolIdx += 1;
-      const key = Date.now();
-      const time = nowWAT();
-      // Keep 4 records — panel now spans the hero column and needs enough
-      // to feel alive without scrolling.
-      setEntries((prev) => [{ ...next, key, time }, ...prev.slice(0, 3)]);
-      setNewKey(key);
+      setOffset((o) => (o - 1 + items.length) % items.length);
+      setRotations((r) => r + 1);
     }, 8000);
     return () => window.clearInterval(id);
-  }, []);
+  }, [canRotate, items.length]);
 
-  const visible = entries.slice(0, 4);
+  const visible = useMemo(() => {
+    if (items.length === 0) return [];
+    return Array.from({ length: Math.min(DOCKET_VISIBLE, items.length) }, (_, i) => {
+      const item = items[(offset + i) % items.length];
+      return { item, key: `${item.kind}-${item.at}-${item.title}` };
+    });
+  }, [items, offset]);
 
   return (
     <aside
@@ -603,41 +603,76 @@ function Docket() {
       <div className="docket-body">
         <div className="docket-meta">
           <span className="docket-eyebrow">{t('docket.eyebrow')}</span>
-          <span className="docket-live">
-            <span className="docket-live-dot" aria-hidden="true" />
-            {t('docket.liveLabel')}
-          </span>
+          {/* The "Live" dot is only shown when there is live data behind it.
+              The query refetches every 60s, so with records on screen the
+              claim is true; with none it would be decorating an empty box. */}
+          {visible.length > 0 && (
+            <span className="docket-live">
+              <span className="docket-live-dot" aria-hidden="true" />
+              {t('docket.liveLabel')}
+            </span>
+          )}
         </div>
 
         <h2 className="docket-district">{t('docket.district')}</h2>
 
-        <div className="docket-records">
-          {visible.map((e) => (
-            <article key={e.key} className={`docket-record${e.key === newKey ? ' is-new' : ''}`}>
-              <div className="docket-record-head">
-                <h3 className="docket-record-title">{e.title}</h3>
-                <span className={`docket-pill docket-pill--${e.type}`}>
-                  {t(`docket.pill.${e.type}`)}
-                </span>
-              </div>
-              {(e.type === 'issue' || e.type === 'petition') && (
-                <div className="docket-progress" aria-hidden="true">
-                  <span className="docket-progress-seg is-done" />
-                  <span className="docket-progress-seg is-done" />
-                  <span className="docket-progress-seg" />
-                  <span className="docket-progress-seg" />
-                </div>
-              )}
-              <p className="docket-record-meta">
-                <span>{t('docket.reportedAt', { time: e.time })}</span>
-                <span className="docket-record-place">
-                  <MapPin className="h-3 w-3" aria-hidden="true" />
-                  {e.location}
-                </span>
-              </p>
-            </article>
-          ))}
-        </div>
+        {visible.length > 0 ? (
+          <div className="docket-records" aria-live="polite">
+            {visible.map(({ item, key }, i) => {
+              const pill = pillFor(item);
+              const segments = progressSegments(item);
+              const place = placeOf(item);
+              return (
+                <article
+                  key={key}
+                  className={`docket-record${i === 0 && rotations > 0 ? ' is-new' : ''}`}
+                >
+                  <div className="docket-record-head">
+                    <h3 className="docket-record-title">{item.title}</h3>
+                    <span className={`docket-pill docket-pill--${pill}`}>
+                      {t(`docket.pill.${pill}`)}
+                    </span>
+                  </div>
+                  {segments > 0 && (
+                    <div className="docket-progress" aria-hidden="true">
+                      {[0, 1, 2, 3].map((s) => (
+                        <span
+                          key={s}
+                          className={`docket-progress-seg${s < segments ? ' is-done' : ''}`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                  <p className="docket-record-meta">
+                    <span>{agoLabel(item.at, t)}</span>
+                    {place && (
+                      <span className="docket-record-place">
+                        <MapPin className="h-3 w-3" aria-hidden="true" />
+                        {place}
+                      </span>
+                    )}
+                  </p>
+                </article>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="docket-blank">
+            <p className="docket-blank-line">
+              {isLoading
+                ? t('docket.loading')
+                : isError
+                  ? t('docket.unavailable')
+                  : t('docket.empty')}
+            </p>
+            {!isLoading && !isError && (
+              <Link className="docket-blank-cta" to="/register">
+                {t('docket.emptyCta')}
+                <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+              </Link>
+            )}
+          </div>
+        )}
       </div>
     </aside>
   );

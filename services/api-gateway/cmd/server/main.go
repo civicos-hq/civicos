@@ -222,6 +222,11 @@ func main() {
 
 	// Discover
 	r.GET("/api/v1/discover/feed", authMiddleware, communityProxy)
+	// Public activity ticker for the marketing homepage. Unauthenticated by
+	// design — a visitor who has not signed up still needs to see the
+	// platform is in use. Lenient limit: it is the most-hit page and the
+	// payload is small and read-only.
+	r.GET("/api/v1/discover/public-activity", limitLenient, communityProxy)
 
 	// --- Organization Service ---
 	orgProxy := proxy.NewReverseProxy(cfg.OrganizationServiceURL, "/api")
