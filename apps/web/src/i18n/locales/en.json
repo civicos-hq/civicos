@@ -1817,12 +1817,13 @@
       "anonymous": "Give anonymously",
       "messageLabel": "Message (optional)",
       "reachesOrg": "reaches {{org}}",
-      "platformFee": "includes a {{percent}}% CivicOS platform fee of {{fee}}",
+      "platformFee": "less {{percent}}% CivicOS fee of {{fee}}",
       "noFee": "Every naira reaches the organization — CivicOS takes no fee.",
       "submit": "Donate {{amount}}",
       "submitting": "Opening secure checkout…",
       "paystackNote": "You'll finish on Paystack's secure checkout. CivicOS never sees your card details.",
-      "genericError": "Could not start the payment. Please try again."
+      "genericError": "Could not start the payment. Please try again.",
+      "pspFee": "less Paystack fee of {{fee}}"
     },
     "complete": {
       "seoTitle": "Thank you — CivicOS",

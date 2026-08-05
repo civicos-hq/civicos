@@ -27,9 +27,13 @@ type Receipt struct {
 	Currency         string
 	GrossMinor       int64
 	PlatformFeeMinor int64
-	NetMinor         int64
-	PlatformFeeBps   int64
-	SettledAt        time.Time
+	// PSPFeeMinor is Paystack's own charge, as reported on settlement.
+	// Since bearer=subaccount it comes out of the ORGANIZATION's share, so
+	// what actually reached them is NetMinor - PSPFeeMinor.
+	PSPFeeMinor    int64
+	NetMinor       int64
+	PlatformFeeBps int64
+	SettledAt      time.Time
 }
 
 // DonationReceiptEmail renders the subject/HTML/text triple for a settled
@@ -48,7 +52,11 @@ func DonationReceiptEmail(r Receipt) (subject, html, text string) {
 	}
 	gross := FormatMoney(r.GrossMinor, r.Currency)
 	fee := FormatMoney(r.PlatformFeeMinor, r.Currency)
-	net := FormatMoney(r.NetMinor, r.Currency)
+	psp := FormatMoney(r.PSPFeeMinor, r.Currency)
+	// What the organization actually received. NetMinor is the split
+	// allocation; Paystack then charges its fee to the sub-account, so the
+	// receipt must subtract it or it names a figure nobody ever got.
+	net := FormatMoney(r.NetMinor-r.PSPFeeMinor, r.Currency)
 	when := r.SettledAt.In(wat).Format("2 January 2006 at 15:04 WAT")
 	rate := formatBps(r.PlatformFeeBps)
 
@@ -72,7 +80,7 @@ func DonationReceiptEmail(r Receipt) (subject, html, text string) {
 			"documentation would come from them.\n\n"+
 			"— CivicOS",
 		name, gross, r.OrganizationName, r.CampaignTitle, when, r.Reference,
-		splitTable(gross, rate, fee, r.OrganizationName, net),
+		splitTable(gross, rate, fee, psp, r.OrganizationName, net),
 		r.OrganizationName, r.CampaignURL, r.OrganizationName,
 	)
 
@@ -124,6 +132,7 @@ func DonationReceiptEmail(r Receipt) (subject, html, text string) {
                 <table role="presentation" width="100%%" cellpadding="0" cellspacing="0" style="font-size:14px;color:#334155;">
                   <tr><td style="padding:6px 0;">You gave</td><td align="right" style="padding:6px 0;">%s</td></tr>
                   <tr><td style="padding:6px 0;color:#64748b;">CivicOS platform fee (%s)</td><td align="right" style="padding:6px 0;color:#64748b;">&minus;%s</td></tr>
+                  <tr><td style="padding:6px 0;color:#64748b;">Paystack processing fee</td><td align="right" style="padding:6px 0;color:#64748b;">&minus;%s</td></tr>
                   <tr><td style="padding:10px 0 0;border-top:1px solid #e2e8f0;font-weight:600;">Reached %s</td><td align="right" style="padding:10px 0 0;border-top:1px solid #e2e8f0;font-weight:600;">%s</td></tr>
                 </table>
               </td>
@@ -152,7 +161,7 @@ func DonationReceiptEmail(r Receipt) (subject, html, text string) {
 		htmlEscape(name), htmlEscape(r.OrganizationName),
 		gross, when,
 		htmlEscape(r.CampaignTitle), htmlEscape(r.Reference),
-		gross, rate, fee, htmlEscape(r.OrganizationName), net,
+		gross, rate, fee, psp, htmlEscape(r.OrganizationName), net,
 		htmlEscape(r.OrganizationName),
 		htmlEscape(r.CampaignURL),
 		htmlEscape(r.OrganizationName),
@@ -165,10 +174,11 @@ func DonationReceiptEmail(r Receipt) (subject, html, text string) {
 // computed rather than baked into the format string — a receipt with a
 // money column that staggers about looks careless, and this is the one
 // document where a donor is being asked to trust our arithmetic.
-func splitTable(gross, rate, fee, orgName, net string) string {
+func splitTable(gross, rate, fee, psp, orgName, net string) string {
 	rows := [][2]string{
 		{"You gave", gross},
 		{fmt.Sprintf("CivicOS platform fee (%s)", rate), "-" + fee},
+		{"Paystack processing fee", "-" + psp},
 		{fmt.Sprintf("Reached %s", orgName), net},
 	}
 

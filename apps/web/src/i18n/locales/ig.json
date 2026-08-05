@@ -885,12 +885,13 @@
       "anonymous": "Nye na-akpọghị aha",
       "messageLabel": "Ozi (nhọrọ)",
       "reachesOrg": "ga-eru {{org}}",
-      "platformFee": "ọ gụnyere ụgwọ ikpo okwu CivicOS nke {{percent}}% bụ {{fee}}",
+      "platformFee": "wepụrụ ụgwọ CivicOS nke {{percent}}% bụ {{fee}}",
       "noFee": "Naira ọ bụla ga-eru nzukọ ahụ — CivicOS anaghị ewere ụgwọ.",
       "submit": "Nye {{amount}}",
       "submitting": "Na-emeghe ebe ịkwụ ụgwọ echedoro…",
       "paystackNote": "Ị ga-emecha na Paystack ebe ịkwụ ụgwọ echedoro. CivicOS anaghị ahụ nkọwa kaadị gị.",
-      "genericError": "Enweghị ike ịmalite ịkwụ ụgwọ. Biko nwaa ọzọ."
+      "genericError": "Enweghị ike ịmalite ịkwụ ụgwọ. Biko nwaa ọzọ.",
+      "pspFee": "wepụrụ ụgwọ Paystack bụ {{fee}}"
     },
     "complete": {
       "seoTitle": "Daalụ — CivicOS",

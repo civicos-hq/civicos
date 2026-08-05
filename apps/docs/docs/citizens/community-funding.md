@@ -63,7 +63,7 @@ had open stops loading, that is usually why.
 3. Optionally add your **name** and a **message**, or tick **Give
    anonymously**.
 4. Before you confirm, the page shows you the split — exactly how much
-   reaches the organization and how much CivicOS takes.
+   reaches the organization, and both fees deducted from it.
 5. You finish on **Paystack's** secure checkout. CivicOS never sees your
    card details.
 
@@ -71,12 +71,21 @@ Only campaigns that are **published** or already **funded** accept
 donations, and only organizations that have completed verification and
 connected a payout account can receive them.
 
-### The fee
+### The fees
 
-CivicOS takes **2.5%** of each donation. It is shown to you on the
-donate form before you pay, as a figure in naira rather than a
-percentage you have to work out. On a ₦2,500 gift, ₦2,438 reaches the
-organization and ₦63 is the platform fee.
+Two amounts are deducted before money reaches the organization, and the
+donate form shows you both in naira before you confirm:
+
+- **CivicOS takes 2.5%** — the platform fee.
+- **Paystack takes its processing fee** — currently 1.5% plus ₦100,
+  with the ₦100 waived on gifts under ₦2,500.
+
+Both come out of the organization's share. On a **₦2,500** gift, ₦62.50
+goes to CivicOS, ₦137.50 to Paystack, and **₦2,300 reaches the
+organization**. On **₦10,000** it is ₦250, ₦250 and **₦9,500**.
+
+Amounts are shown to the kobo, so the figures on screen add up. If they
+did not, you would be right not to trust them.
 
 ### Giving anonymously
 

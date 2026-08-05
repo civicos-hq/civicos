@@ -237,10 +237,45 @@ export function usePublicDonations(campaignId: string | undefined) {
  * recomputes authoritatively — but it must not disagree, or the donor sees
  * one number here and another on their receipt.
  */
+/**
+ * Paystack's published Nigerian card rate: 1.5% + ₦100, with the ₦100 waived
+ * on transactions under ₦2,500 and the total capped at ₦2,000.
+ *
+ * Verified against Paystack's sandbox, which returns `fees_split` on any
+ * initialised transaction: ₦1,000 → ₦15, ₦2,500 → ₦137.50, ₦10,000 → ₦250.
+ *
+ * This is a THIRD PARTY's pricing living in our code, which means it can go
+ * stale without anything failing. It is here because the alternative is worse:
+ * the donate form previously showed only CivicOS's cut and told donors a
+ * figure the organization never received. If Paystack changes its rate, this
+ * is the one place to change.
+ */
+export function paystackFeeMinor(grossMinor: number): number {
+  if (grossMinor <= 0) return 0;
+  const flat = grossMinor < 250_000 ? 0 : 10_000; // ₦100, waived under ₦2,500
+  const fee = Math.round(grossMinor * 0.015) + flat;
+  return Math.min(fee, 200_000); // capped at ₦2,000
+}
+
+/**
+ * What each party gets from a donation, for the pre-payment disclosure.
+ *
+ * `netMinor` is Paystack's split allocation to the organization's sub-account.
+ * Paystack then charges its own fee to that sub-account (`bearer:
+ * "subaccount"`), so what the organization actually receives is
+ * `organizationMinor` — and that is the number a donor cares about.
+ */
 export function previewSplit(amountMinor: number, platformFeeBps: number) {
   const gross = Math.max(0, Math.floor(amountMinor));
   const fee = Math.floor((gross * platformFeeBps) / 10_000);
-  return { grossMinor: gross, platformFeeMinor: fee, netMinor: gross - fee };
+  const psp = paystackFeeMinor(gross);
+  return {
+    grossMinor: gross,
+    platformFeeMinor: fee,
+    pspFeeMinor: psp,
+    netMinor: gross - fee,
+    organizationMinor: Math.max(0, gross - fee - psp),
+  };
 }
 
 // ─── Transparency dashboard (Phase 4) ───────────────────────────────────

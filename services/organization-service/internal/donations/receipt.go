@@ -69,6 +69,7 @@ func (s *Service) sendReceipt(d *domain.Donation) bool {
 		Currency:         d.Currency,
 		GrossMinor:       d.GrossMinor,
 		PlatformFeeMinor: d.PlatformFeeMinor,
+		PSPFeeMinor:      d.PSPFeeMinor,
 		NetMinor:         d.NetMinor,
 		PlatformFeeBps:   d.PlatformFeeBps,
 		SettledAt:        settled,

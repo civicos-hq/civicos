@@ -167,11 +167,27 @@ func (p *Paystack) InitializeTransaction(ctx context.Context, in InitializeInput
 		"amount":    in.AmountMinor,
 		"currency":  in.Currency,
 		"email":     in.Email,
-		// subaccount + bearer: the sub-account receives the money and
-		// Paystack takes its charge from CivicOS's share, so the
-		// organization's net is not eroded by the transaction fee twice.
+		// The split allocates (100 - percentage_charge)% to the sub-account
+		// and the rest to the CivicOS main account. Verified in Paystack's
+		// sandbox: percentage_charge 2.5 on ₦10,000 returns
+		// fees_split {subaccount: 975000, integration: ...} — the parameter
+		// names the PLATFORM's cut, not the sub-account's share. Their own
+		// docs contradict each other on this, so the sandbox is the source
+		// of truth.
 		"subaccount": in.SubaccountCode,
-		"bearer":     "account",
+		// bearer=subaccount: Paystack's own transaction fee is charged to
+		// the organization, not to CivicOS.
+		//
+		// This is not cosmetic. With bearer=account the fee comes out of the
+		// platform's 2.5%, and Paystack's Nigerian fee (1.5% + ₦100) exceeds
+		// that on most donations — a ₦10,000 gift left CivicOS with exactly
+		// ₦0.00, measured in the sandbox. Worse, when the platform share was
+		// too small to cover the fee Paystack silently charged the
+		// organization instead, so which party paid depended on the amount.
+		//
+		// The organization now bears it predictably, and the donate form
+		// shows the donor the real figure that reaches them.
+		"bearer": "subaccount",
 	}
 	if in.CallbackURL != "" {
 		payload["callback_url"] = in.CallbackURL

@@ -885,12 +885,13 @@
       "anonymous": "Bayar ba tare da suna ba",
       "messageLabel": "Saƙo (na zaɓi)",
       "reachesOrg": "zai isa ga {{org}}",
-      "platformFee": "ya haɗa da kuɗin dandalin CivicOS na kashi {{percent}}% wato {{fee}}",
+      "platformFee": "ban da kuɗin CivicOS na {{percent}}% wato {{fee}}",
       "noFee": "Kowace naira za ta isa ga ƙungiyar — CivicOS ba ya karɓar kuɗi.",
       "submit": "Bayar da {{amount}}",
       "submitting": "Ana buɗe tsarin biyan kuɗi mai aminci…",
       "paystackNote": "Za ka kammala a shafin biyan kuɗi mai aminci na Paystack. CivicOS ba ya ganin bayanan katinka.",
-      "genericError": "Ba a iya fara biyan kuɗin ba. Da fatan za a sake gwadawa."
+      "genericError": "Ba a iya fara biyan kuɗin ba. Da fatan za a sake gwadawa.",
+      "pspFee": "ban da kuɗin Paystack wato {{fee}}"
     },
     "complete": {
       "seoTitle": "Na gode — CivicOS",
