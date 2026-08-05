@@ -1691,16 +1691,6 @@ button {
   .home-trust-strip {
     margin-top: 0.75rem;
   }
-
-  /* The masthead (tagline + today's date) and the signature flourish are
-     atmosphere, not navigation or action. On a 768px-tall laptop they
-     cost ~40px and ~68px respectively, in exactly the band where the CTA
-     is fighting for the fold. Decoration yields before the illustration
-     does — shrinking the band is what produced the decapitated sliver
-     this replaced, and before the headline, which is the value prop. */
-  .home-hero-masthead {
-    display: none;
-  }
 }
 
 .home-hero-art {
@@ -3816,19 +3806,6 @@ button {
   color: var(--pr-ink-mute);
   opacity: 0;
   animation: pr-rise 480ms 2680ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
-}
-
-/* Short-viewport trade, declared here rather than with the other
-   max-height rules further up: both signature elements set `display:
-   block` at this point in the file, and a media query carries no extra
-   specificity — an earlier `display: none` loses on source order.
-   Together these cost ~68px at 1366×768, which is the difference between
-   the CTA sitting on the fold and clearing it. */
-@media (max-height: 820px) {
-  .hero-signature,
-  .hero-signature-caption {
-    display: none;
-  }
 }
 
 @keyframes pr-sign-draw {
@@ -6630,38 +6607,24 @@ button {
      separate them without butting flush. */
   margin-top: 1rem;
   margin-bottom: 1.75rem;
-  /* Slightly wider aspect than the source (2.5:1) — crops ~5% off
-     top+bottom via object-fit: cover, keeps feet/heads intact. */
-  aspect-ratio: 2.85 / 1;
-  /* …but aspect-ratio alone scales with WIDTH, so on a 1440px viewport
-     the band grew to ~505px and pushed the headline, sub and both CTAs
-     entirely below the fold (measured: primary CTA at 1120px against a
-     960px viewport — nobody saw "Register" without scrolling). Capping
-     against viewport HEIGHT keeps the illustration generous on tall
-     screens and lets it yield on short ones, so the value proposition
-     and the action always share the first screen. */
-  /* The floor matters more than the cap. Source is 2.5:1, so a 1440px-wide
-     band under ~200px tall is an 11:1 slot and `cover` reduces the frame to
-     a strip that decapitates the characters. 220px is the measured point
-     where faces and torsos still read whole. */
-  max-height: clamp(220px, 26vh, 320px);
+  /* Container ratio matches the source exactly (1672×668 = 2.5:1), so
+     `cover` fills the band with ZERO crop — the whole illustration is
+     visible, edge to edge, at every width.
+     No max-height: capping the height while the width stays at 100vw
+     turns the band into a 6–11:1 slot, and since cover preserves the
+     source ratio it answers by discarding most of the frame — which is
+     what sliced the characters' heads off. Height follows width alone.
+     The cost is that the headline and CTAs sit lower on short screens;
+     that's the accepted trade for showing the art whole. */
+  /* NOTE: each PNG is drawn as a *card* — a 4px slate edge down both
+     sides and a white margin with rounded corners along the bottom. Run
+     full-bleed those corners read as a stray radius on the green. It is
+     baked into the assets, not CSS (computed border-radius is 0), and
+     cropping it away costs real artwork, so the fix is to re-export the
+     PNGs without the card frame. Until then the container matches the
+     source exactly and the whole illustration is shown. */
+  aspect-ratio: 2.5 / 1;
   overflow: hidden;
-  /* Short laptop screens (1280×800, 1440×900) are where the fold bites
-     hardest: same content, ~150px less room. Yield further there rather
-     than taxing tall displays, which can afford the full band. */
-  /* Short laptops still yield some height, but never below the floor —
-     they tighten the surrounding margins instead (see the max-height
-     rules further down). Squeezing the band itself was what produced the
-     sliver. */
-  @media (max-height: 900px) {
-    max-height: clamp(210px, 24vh, 260px);
-    margin-bottom: 1.25rem;
-  }
-
-  @media (max-height: 800px) {
-    margin-top: 0.6rem;
-    margin-bottom: 1rem;
-  }
   animation: pr-rise 640ms 100ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 .home-hero-visual-frame {
@@ -6675,13 +6638,9 @@ button {
      shorter than the source, so cover has to drop something: bias the
      crop downward, since the sky is the expendable part and the
      characters + ground carry the meaning. */
+  /* Container and source share the same 2.5:1 ratio, so cover scales
+     without discarding anything — no object-position needed. */
   object-fit: cover;
-  /* The cap makes the band roughly 5:1 against a 2.5:1 source, so cover
-     discards about half the image height — the focal point decides what
-     survives. Biasing low (68%) kept the ground and beheaded everyone;
-     biasing to the upper-middle keeps faces, which are the whole reason
-     the illustration is here. Ground is the expendable half. */
-  object-position: 50% 38%;
   opacity: 0;
   transition: opacity 900ms ease;
 }
