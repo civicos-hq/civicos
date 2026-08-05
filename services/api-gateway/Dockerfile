@@ -4,7 +4,7 @@
 # Pin Go 1.25 explicitly — api-gateway declares go 1.25.0 in go.mod.
 # The other three services build on 1.22; each service's Dockerfile
 # pins its own version so the four images stay independent.
-FROM golang:1.25-alpine AS builder
+FROM golang:1.26-alpine AS builder
 
 WORKDIR /src
 

@@ -82,13 +82,20 @@ and documented in the User + Developer Guides.
 
 ### Discover + search
 
-- Global search across seven kinds — issues, petitions, representatives,
-  organizations, consultations, announcements, projects (draft
-  consultations and non-published announcements are hidden)
+- Global search across eight kinds — issues, petitions, representatives,
+  organizations, consultations, announcements, projects, and funding
+  campaigns (drafts, non-published announcements, and campaigns with no
+  public page are hidden)
 - Discover feed tiered by geographic proximity
   (COMMUNITY → LGA → STATE → COUNTRY), covering issues, petitions,
-  announcements, projects, and consultations — announcements and
-  un-scoped projects/consultations tier by the publishing org's state/lga
+  announcements, projects, consultations, and campaigns — announcements
+  and un-scoped projects/consultations tier by the publishing org's
+  state/lga; campaigns tier by their own state/lga first, because a
+  campaign is often raised for a specific ward rather than wherever the
+  organization is registered
+- Campaign browse with category, emergency and verified-organization
+  filters, and five sorts: recently added, ending soon, most funded,
+  emergency first, near me
 
 ### Consultations
 
@@ -110,12 +117,73 @@ and documented in the User + Developer Guides.
 - Issue assignments: dashboard tab + "Take responsibility" flow on the citizen issue page + inline status control + drop
 - Progress updates: post from issue detail (assigned orgs) or project detail (org admins), visible on the issue and project pages
 
+### Community Funding
+
+Six phases. The governing constraint: **CivicOS is not the merchant of
+record.** Donations settle straight into each organization's own bank
+account via a Paystack sub-account, so the platform never holds the
+money. Everything below follows from that.
+
+- Campaigns with a goal, a spend plan of milestones, and a
+  DRAFT → PENDING_REVIEW → PUBLISHED → FUNDED → COMPLETED → REPORTED
+  lifecycle, plus REJECTED / NEEDS_CHANGES / PAUSED
+- Admin review before a campaign can publish; content is locked once it
+  does
+- Donations via Paystack — card, bank transfer, mobile money — with a
+  disclosed 2.5% platform fee shown in naira before the donor confirms
+- **Anonymous giving.** A donor's name never appears publicly if they
+  ask; the ledger row still carries everything reconciliation needs
+- Email receipts on settlement, explicitly not tax receipts — the
+  organization received the gift, not CivicOS
+- Public transparency dashboard: goal, raised, milestones, reported
+  spend, and what has _not_ been accounted for
+- Final reports, with the unaccounted shortfall **frozen at filing
+  time** so a thin report cannot be made to look complete later
+- Reconciliation sweep against Paystack with a drift queue for admins
+- Payout account connection and funding-eligibility gating
+- Citizen-raised **campaign concerns** — restricted to donors and people
+  in the campaign's LGA, evidence required, and they never auto-act
+
+Two figures from the product spec are **deliberately not shown**:
+"funds withdrawn" and "remaining balance" (CivicOS never holds the
+money, so it cannot know either), and "people helped" (nothing in the
+record measures it, and a self-reported number would be a claim sitting
+among figures taken from a ledger).
+
+### CivicAI
+
+Eleven task-shaped endpoints wrapping Google Gemini. Every output is a
+draft or a suggestion; nothing auto-publishes, auto-assigns, or
+auto-decides, and every response is provenance-tagged with the model
+and timestamp.
+
+- Civic engagement: classify issue, summarize discussion, draft
+  announcement, community insights, analytics narrator
+- Community Funding: draft campaign, draft donor update, draft
+  completion report, assess campaign risk, classify campaign,
+  summarize campaign impact
+- **AI never gates money.** Risk assessment is admin-only, cites the
+  evidence behind every signal alongside the innocent reading of that
+  same evidence, and writes nothing — a person makes every decision
+
+### Funding analytics
+
+- Per-organization: funds raised, giving over time, repeat donors,
+  average donation, per-campaign performance, completion and reporting
+  rates
+- Platform-wide: totals, campaigns by category and country, verified
+  and funding-eligible organizations, emergency response times, review
+  queue latency
+- Caveats travel in the API payload, not only in the UI, because these
+  figures get lifted into board packs without whatever qualification was
+  on the screen
+
 ### Moderation infrastructure
 
 - Content flags with 5 reason categories
 - Moderator queue with hide / dismiss actions
 - Direct-hide admin shortcut
-- Shared audit log across all four services
+- Shared audit log across every service that changes state
 
 ### Admin tooling
 
@@ -126,7 +194,10 @@ and documented in the User + Developer Guides.
 
 ### Platform
 
-- Four Go microservices behind an API gateway
+- Four Go microservices behind an API gateway (identity, community,
+  organization, CivicAI)
+- Schema migrations run in-process at identity-service boot, behind a
+  Postgres advisory lock so concurrent deploys cannot race
 - Per-action rate limiting via Redis
 - Interactive Swagger UI at `/docs`
 - CI check that keeps the embedded gateway copies of the OpenAPI specs
@@ -148,6 +219,10 @@ Features we intend to build in the next phase. Not in the codebase yet
   Postgres `pg_trgm` or Meilisearch as the dataset grows.
 - **Uploads on durable storage** — move from local disk to S3-compatible
   object storage before scaling out.
+- **Crypto donations via LinkiSwap** — designed behind the same
+  `PaymentProvider` port as Paystack, but **blocked**: no API spec yet,
+  and it needs decisions on custody, volatility accounting and
+  sanctions screening before any code is written.
 
 ---
 
@@ -156,17 +231,12 @@ Features we intend to build in the next phase. Not in the codebase yet
 Ideas that fit the mission but haven't been scoped in detail. Some
 require significant infrastructure or new engineering primitives.
 
-- **CivicAI** — LLM assistance for summarizing long consultation
-  threads, drafting official responses, and improving search recall.
-  Assist-not-replace.
 - **Plugin architecture** — a way for organizations to extend the
   platform without forking. Non-trivial security surface; will only
   happen with a clear sandbox model.
 - **Multi-country deployment** — CivicOS is Nigeria-first by design.
   Second-country deploys require rethinking the primary-community
   cooldown and the state/LGA seed data.
-- **Richer analytics** — engagement metrics per representative and
-  organization, exposed publicly. Needs privacy review.
 - **Managed CivicOS Cloud** — a hosted deployment path for
   organizations that don't want to run their own. Not committed to.
 
@@ -178,10 +248,16 @@ Things we're deliberately not building.
 
 - **Algorithmic engagement feed.** The Discover feed is time-ordered
   and tier-labelled — no engagement optimization.
-- **Anonymous participation.** Accountability requires verified
-  identities.
+- **Anonymous civic participation.** Issues, petitions, comments,
+  upvotes and signatures all carry a real name; accountability requires
+  verified identities. **Donating is the deliberate exception** — a
+  donor may give without their name appearing publicly, because naming
+  someone who gave ₦2,000 to a flood appeal holds nobody to account.
+  See [Core Principles](./core-principles.md#7-anonymity-is-not-a-feature-here--with-one-exception).
 - **Paid verification.** Verification is either automatic (email) or
-  admin-reviewed (rep / org applications). No money path.
+  admin-reviewed (rep / org applications). Money cannot buy a badge or
+  move an application up a queue. The 2.5% fee on donations is a
+  transaction fee, not a price on standing.
 - **Ads.** The platform is open source; there is no revenue model that
   depends on user attention.
 

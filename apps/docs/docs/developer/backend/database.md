@@ -6,7 +6,7 @@ sidebar_position: 1
 
 # Database
 
-Postgres 16, single instance shared by all four Go services.
+Postgres 16, single instance shared by every Go service that stores data (identity, community and organization; civicai-service holds no tables of its own).
 
 ## Why one DB, not one per service?
 

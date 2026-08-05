@@ -7,9 +7,9 @@ sidebar_position: 2
 # What is CivicOS?
 
 CivicOS is an **open-source civic engagement platform** where citizens
-report issues, sign petitions, follow their representatives, and see
-what actually gets done — with everything on a public record scoped to
-the community it affects.
+report issues, sign petitions, follow their representatives, answer
+consultations, fund local work, and see what actually gets done — with
+everything on a public record scoped to the community it affects.
 
 Today (MVP release) it runs as one deployment covering Nigeria's 36
 states + FCT and 774 LGAs.
@@ -18,13 +18,16 @@ states + FCT and 774 LGAs.
 
 - **Citizens** — the majority of users. Verified email accounts.
   They report issues in their primary community, sign petitions,
-  comment, upvote, and follow representatives.
+  comment, upvote, follow representatives, respond to consultations,
+  and donate to community funding campaigns.
 - **Representatives** — elected officials whose applications have been
   approved by a platform admin. Their public profile carries a
   response-rate metric that's visible to voters.
 - **Organizations** — public bodies, agencies, NGOs, or utilities with
   approved applications. They take responsibility for issues, run
-  projects, post announcements, and log progress updates.
+  projects, post announcements, log progress updates, run
+  consultations, and — once verified and with a payout account
+  connected — raise money through Community Funding.
 
 Behind them, **platform admins** review applications, verify
 organizations, and moderate content — every action they take goes on
@@ -50,17 +53,36 @@ Community scoping does two things:
 - **Not a social network.** No follows-for-follows, no algorithmic feed
   optimized for engagement. Content is community-scoped and time-ordered
   with an explicit tier system (community → LGA → state → country).
-- **Not anonymous.** Comments, upvotes, signatures, and reports are all
-  tied to a verified account. Anonymity works against accountability.
+- **Not anonymous, with one exception.** Comments, upvotes, signatures
+  and reports all carry a verified account's name — anonymity works
+  against accountability. **Donations are the exception:** a donor can
+  give without appearing publicly, because naming someone who gave
+  ₦2,000 to a flood appeal holds nobody to account. The donation is
+  still recorded and reconciled.
 - **Not a replacement for the ballot box.** Elections still matter.
   CivicOS is what happens between them.
 - **Not a hotline.** Reports are public. They go on the record, not
   into a private queue.
 
+## Money, and what CivicOS is not doing with it
+
+Organizations can raise funds for specific pieces of work — a borehole,
+a culvert, relief after a flood. One fact shapes the whole feature:
+**CivicOS is not the merchant of record.** Donations settle straight
+into the organization's own bank account. The platform never holds the
+money, cannot withdraw it, and cannot verify how it was spent.
+
+What CivicOS provides instead is a durable public record: what was
+asked for, what came in, what the organization says it did with it, and
+what it has not accounted for. That record is real and permanent. It is
+not the same thing as a guarantee, and the product says so everywhere
+it shows a number.
+
 ## The shape of the platform
 
-CivicOS is four Go microservices behind a single API gateway, plus two
-React apps (citizen web, admin console). The whole platform is described
+CivicOS is four Go microservices behind a single API gateway — identity,
+community, organization and CivicAI — plus two React apps (citizen web,
+admin console) and this documentation site. The whole platform is described
 declaratively in a single `render.yaml` — one Blueprint deploy brings
 it all up.
 

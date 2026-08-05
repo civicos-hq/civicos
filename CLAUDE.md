@@ -64,13 +64,29 @@ service/
 ## Tech stack
 
 - **Frontend**: React 18, Vite, TypeScript, Tailwind CSS, TanStack Query, React Router v6
-- **Backend**: Go 1.22 — Gin (HTTP), GORM (ORM), golang-jwt/jwt/v5 (auth)
+- **Backend**: Go 1.26 — Gin (HTTP), GORM (ORM), goose (migrations), golang-jwt/jwt/v5 (auth). Every service pins the same version; see the note below
 - **Database**: PostgreSQL 16 (GORM AutoMigrate)
 - **Cache**: Redis 7
 - **Messaging**: NATS
 - **Hot reload**: Air (`air` CLI, `.air.toml` per service)
 - **Monorepo**: pnpm workspaces + Turborepo (frontend/packages only)
 - **Package manager**: pnpm (frontend), Go modules (backend)
+
+### One Go version, everywhere
+
+All five services declare `go 1.26.0`, build from `golang:1.26-alpine`, and CI
+uses 1.26 for both the per-service matrix and the gofmt check.
+
+This was not always true, and the drift was instructive: versions crept apart
+one dependency at a time (a gateway dep needing 1.25, the Gemini SDK needing
+1.24), until `civicai-service` had a Dockerfile on 1.23 building a module that
+required 1.24 — a build that only worked because Go silently downloaded a
+toolchain mid-build. The CI gofmt job meanwhile pinned 1.22, so it was checking
+formatting with a compiler none of the services used.
+
+If a dependency ever demands a newer Go, raise it **everywhere** in the same
+change. A split is not a smaller change than a bump; it is the same change plus
+a trap for whoever comes next.
 
 ### Stack note — Go vs the playbook
 

@@ -6,8 +6,8 @@ sidebar_position: 1
 
 # Deployment
 
-Production runs on **Render**. The whole stack (4 Go services + 2
-static frontends + managed Postgres + managed Redis) is described
+Production runs on **Render**. The whole stack (5 Go services + 3
+static sites + managed Postgres + managed Redis) is described
 declaratively in `render.yaml` at the repo root — one Blueprint apply
 brings it all up.
 
@@ -21,6 +21,8 @@ This page is the tour, not the replacement.
 - `civicos-identity` — identity-service Private Service.
 - `civicos-community` — community-service Private Service.
 - `civicos-organization` — organization-service Private Service.
+- `civicos-civicai` — civicai-service Private Service. Holds no database
+  of its own; it reads from the other services with the caller's token.
 - `civicos-web` — citizen web Static Site (`apps/web` build output).
 - `civicos-admin` — admin console Static Site (`apps/admin` build
   output).
@@ -42,7 +44,20 @@ network from the gateway but never from the public internet.
 4. Set the following env vars in the Render dashboard on each service
    (Blueprint provides defaults for most, but some are secrets):
    - `JWT_SECRET` (32+ chars) — must be **the same** on gateway,
-     identity, community, organization.
+     identity, community, organization and civicai. The Blueprint mints
+     one into the shared `civicos-secrets` group, so this is only manual
+     if you override it.
+   - `GEMINI_API_KEY` on civicai — from
+     [Google AI Studio](https://aistudio.google.com/apikey). The service
+     **refuses to boot without it**, which surfaces as a failed deploy
+     rather than a service that 500s on every AI call.
+
+     ⚠️ The free tier allows **20 requests per day** across the whole
+     project, shared by all eleven CivicAI endpoints. Put the key on a
+     paid plan before opening the platform to real users.
+
+   - `PAYSTACK_SECRET_KEY` / `PAYSTACK_PUBLIC_KEY` on organization —
+     donations are disabled without them.
    - `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASSWORD` /
      `SMTP_FROM` on identity (once you have a Resend / Postmark
      account).
@@ -68,14 +83,24 @@ destructive schema change, apply the SQL migration _first_ (via
 Set on **every backend service**:
 
 - `DATABASE_URL` — the Render Postgres string (Blueprint wires this).
-- `JWT_SECRET` — 32+ chars, same across all four services.
+  Not set on civicai — it owns no tables.
+- `JWT_SECRET` — 32+ chars, identical across the gateway and every
+  service that validates a token (identity, community, organization,
+  civicai). A mismatch anywhere shows up as 401s on that service alone.
 - `PORT` — Render sets this; don't override.
 
 Set on the **gateway**:
 
 - `IDENTITY_SERVICE_URL`, `COMMUNITY_SERVICE_URL`,
-  `ORGANIZATION_SERVICE_URL` — Blueprint wires these to the private
-  URLs.
+  `ORGANIZATION_SERVICE_URL`, `CIVICAI_SERVICE_URL` — Blueprint wires
+  these to the private URLs.
+
+  Each has a `localhost` fallback for local development, which is a trap
+  in production: an unset variable does not fail loudly, it silently
+  routes to a port where nothing is listening. If one family of routes
+  returns connection errors and everything else is fine, check this
+  first.
+
 - `REDIS_URL` — Render Redis (Blueprint wires this).
 
 Set on **identity**:

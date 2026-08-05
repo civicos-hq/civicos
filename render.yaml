@@ -116,6 +116,14 @@ services:
           type: web
           name: civicos-organization
           property: hostport
+      # Without this the gateway falls back to http://localhost:3004, where
+      # nothing is listening in production — every /api/v1/ai/* call would
+      # fail with a connection error rather than a clean refusal.
+      - key: CIVICAI_SERVICE_URL
+        fromService:
+          type: web
+          name: civicos-civicai
+          property: hostport
       - key: REDIS_URL
         fromService:
           type: keyvalue
@@ -209,6 +217,72 @@ services:
       # identity-service.
       - key: APP_URL
         value: https://civicos.ng
+
+  # ── CivicAI service ────────────────────────────────────────────────
+  # Gemini-backed advisory endpoints: issue classification, thread
+  # summarization, announcement drafting, community insights, analytics
+  # narration, and the six Community Funding surfaces.
+  #
+  # Holds NO database of its own — it reads what it needs from the other
+  # services using the CALLER'S forwarded token, so authorization cascades
+  # rather than being re-implemented here. That is why there is no
+  # DATABASE_URL below and no fromDatabase block.
+  #
+  # Every endpoint is advisory. If this service is down, nothing else
+  # breaks: the citizen still files the issue, the organization still
+  # publishes the campaign. Failing open is the design, not a fallback.
+  - type: web
+    name: civicos-civicai
+    runtime: docker
+    plan: starter # private-network capable, so the gateway reaches it by hostport
+    branch: main
+    dockerfilePath: ./services/civicai-service/Dockerfile
+    dockerContext: ./services/civicai-service
+    healthCheckPath: /health
+    envVars:
+      - fromGroup: civicos-secrets
+      # Gemini credentials live on THIS service rather than in the shared
+      # secrets group: no other service calls Gemini, and a key in the group
+      # would be injected into every backend that never needs it.
+      #
+      # sync: false — set in the Render dashboard, never committed.
+      # Get one at https://aistudio.google.com/apikey
+      #
+      # ⚠️ The free tier allows 20 requests PER DAY across the whole project,
+      # shared by all eleven CivicAI endpoints. That is not enough for real
+      # use — put this key on a paid plan before opening the platform up.
+      - key: GEMINI_API_KEY
+        sync: false
+      # A floating tag: Google moves it when a newer flash tier ships, which
+      # can change model behaviour with no deploy on our side. Pin a dated
+      # version here if you need reproducible output.
+      - key: GEMINI_MODEL
+        value: gemini-flash-latest
+      # Private-network addresses. CivicAI reads campaigns, threads and
+      # metrics from these to build its prompts.
+      - key: COMMUNITY_SERVICE_URL
+        fromService:
+          type: web
+          name: civicos-community
+          property: hostport
+      - key: ORGANIZATION_SERVICE_URL
+        fromService:
+          type: web
+          name: civicos-organization
+          property: hostport
+      - key: IDENTITY_SERVICE_URL
+        fromService:
+          type: web
+          name: civicos-identity
+          property: hostport
+      # Optional but wanted: caches summaries, community insights, campaign
+      # impact and risk assessments. Without it every read is a fresh Gemini
+      # call, and Gemini calls are the scarce resource here.
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: civicos-redis
+          property: connectionString
 
   # ── Citizen web (static site) ──────────────────────────────────────
   # Built by turbo which builds shared packages first, then the app.
