@@ -197,6 +197,16 @@ func main() {
 	r.POST("/api/v1/representatives/:id/follow", authMiddleware, limitStandard, communityProxy)
 	r.DELETE("/api/v1/representatives/:id/follow", authMiddleware, limitStandard, communityProxy)
 	r.GET("/api/v1/representatives/:id/comments", communityProxy)
+	// A representative's own announcements. The public list needs no auth —
+	// a constituent should be able to read what their representative said
+	// without an account. Every write is owner-gated in community-service.
+	r.GET("/api/v1/representatives/:id/announcements", communityProxy)
+	r.GET("/api/v1/representatives/:id/announcements/manage", authMiddleware, communityProxy)
+	r.POST("/api/v1/representatives/:id/announcements", authMiddleware, limitStandard, communityProxy)
+	r.PATCH("/api/v1/representatives/:id/announcements/:annId", authMiddleware, limitStandard, communityProxy)
+	r.POST("/api/v1/representatives/:id/announcements/:annId/publish", authMiddleware, limitStandard, communityProxy)
+	r.POST("/api/v1/representatives/:id/announcements/:annId/archive", authMiddleware, limitStandard, communityProxy)
+	r.DELETE("/api/v1/representatives/:id/announcements/:annId", authMiddleware, limitStandard, communityProxy)
 	r.POST("/api/v1/representatives/:id/comments", authMiddleware, limitCommentMin, limitCommentHr, communityProxy)
 	r.GET("/api/v1/me/follows/representatives", authMiddleware, communityProxy)
 	r.GET("/api/v1/me/upvotes/issues", authMiddleware, communityProxy)
