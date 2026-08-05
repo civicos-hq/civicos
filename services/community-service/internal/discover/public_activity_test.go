@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net"
+	"os"
 	"testing"
 	"time"
 
@@ -22,58 +23,117 @@ import (
 // A fake repository would prove nothing here — the entire behaviour under test
 // lives in six SQL WHERE clauses.
 
-func freePort(t *testing.T) uint32 {
-	t.Helper()
-	l, err := net.Listen("tcp", "127.0.0.1:0")
-	if err != nil {
-		t.Fatalf("listen: %v", err)
-	}
-	defer l.Close()
-	return uint32(l.Addr().(*net.TCPAddr).Port)
+// Only the columns PublicActivity reads. Deliberately not the full domain
+// schema: if the query starts selecting something else, this test should fail
+// loudly rather than quietly widen.
+var testTables = []struct{ name, cols string }{
+	{"communities", "id text primary key, state text, lga text"},
+	{"organizations", "id text primary key, state text, lga text"},
+	{"issues", "id text primary key, title text, status text, community_id text, created_at timestamptz"},
+	{"petitions", "id text primary key, title text, status text, community_id text, created_at timestamptz"},
+	{"consultations", "id text primary key, title text, status text, community_id text, published_at timestamptz, created_at timestamptz"},
+	{"announcements", "id text primary key, title text, status text, organization_id text, published_at timestamptz, created_at timestamptz"},
+	{"campaigns", "id text primary key, title text, status text, state text, lga text, published_at timestamptz, created_at timestamptz"},
+	{"representative_announcements", "id text primary key, title text, status text, community_id text, published_at timestamptz, created_at timestamptz"},
 }
 
+var (
+	testDB     *gorm.DB
+	testDBSkip string // non-empty when Postgres could not be started
+)
+
+func freePort() (uint32, error) {
+	l, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		return 0, err
+	}
+	defer l.Close()
+	return uint32(l.Addr().(*net.TCPAddr).Port), nil
+}
+
+// TestMain runs ONE Postgres for the whole package.
+//
+// # Two things here are not incidental
+//
+// **The runtime path must be unique to this package.** embedded-postgres
+// defaults to a single shared directory (~/.embedded-postgres-go/extracted)
+// and calls os.RemoveAll on it at the start of every Start(). `go test ./...`
+// runs package test binaries in parallel, so once a second package in this
+// service used embedded-postgres, one package's Start() would delete the
+// binaries out from under the other's running initdb — which is exactly how
+// this broke petitions in CI ("could not access file dict_snowball"). A
+// private runtime path means the two never see each other's files.
+//
+// **One instance, not one per test.** Each Start() re-extracts the whole
+// distribution; four tests meant four extractions and ~80s. Tests get a clean
+// database by truncation instead.
+func TestMain(m *testing.M) {
+	os.Exit(func() int {
+		// Short base name on purpose: the postgres unix socket lives under the
+		// data directory and the path has a ~107 character limit.
+		runtimeDir, err := os.MkdirTemp("", "cvpg")
+		if err != nil {
+			testDBSkip = fmt.Sprintf("temp dir: %v", err)
+			return m.Run()
+		}
+		defer os.RemoveAll(runtimeDir)
+
+		port, err := freePort()
+		if err != nil {
+			testDBSkip = fmt.Sprintf("free port: %v", err)
+			return m.Run()
+		}
+
+		pg := embeddedpostgres.NewDatabase(
+			embeddedpostgres.DefaultConfig().Port(port).RuntimePath(runtimeDir),
+		)
+		if err := pg.Start(); err != nil {
+			// Not a hard failure: a machine without the ability to run the
+			// embedded distribution should not fail the suite. CI does run it,
+			// so the coverage is real where it counts.
+			testDBSkip = fmt.Sprintf("embedded postgres unavailable: %v", err)
+			return m.Run()
+		}
+		defer func() { _ = pg.Stop() }()
+
+		dsn := fmt.Sprintf("host=127.0.0.1 port=%d user=postgres password=postgres dbname=postgres sslmode=disable", port)
+		raw, err := sql.Open("pgx", dsn)
+		if err != nil {
+			testDBSkip = fmt.Sprintf("open: %v", err)
+			return m.Run()
+		}
+		for _, tbl := range testTables {
+			if _, err := raw.Exec(fmt.Sprintf("CREATE TABLE %s (%s)", tbl.name, tbl.cols)); err != nil {
+				raw.Close()
+				testDBSkip = fmt.Sprintf("schema %s: %v", tbl.name, err)
+				return m.Run()
+			}
+		}
+		raw.Close()
+
+		testDB, err = gorm.Open(postgres.New(postgres.Config{DSN: dsn}), &gorm.Config{
+			Logger: logger.Default.LogMode(logger.Silent),
+		})
+		if err != nil {
+			testDBSkip = fmt.Sprintf("gorm open: %v", err)
+		}
+		return m.Run()
+	}())
+}
+
+// newTestDB hands back the shared database, emptied. Tests must not depend on
+// each other's rows — CI runs with -shuffle=on.
 func newTestDB(t *testing.T) *gorm.DB {
 	t.Helper()
-	port := freePort(t)
-	pg := embeddedpostgres.NewDatabase(embeddedpostgres.DefaultConfig().Port(port))
-	if err := pg.Start(); err != nil {
-		t.Skipf("embedded postgres unavailable: %v", err)
+	if testDBSkip != "" {
+		t.Skip(testDBSkip)
 	}
-	t.Cleanup(func() { _ = pg.Stop() })
-
-	dsn := fmt.Sprintf("host=127.0.0.1 port=%d user=postgres password=postgres dbname=postgres sslmode=disable", port)
-	raw, err := sql.Open("pgx", dsn)
-	if err != nil {
-		t.Fatalf("open: %v", err)
-	}
-	defer raw.Close()
-
-	// Only the columns PublicActivity reads. Deliberately not the full domain
-	// schema: if the query starts selecting something else, this test should
-	// fail loudly rather than quietly widen.
-	schema := []string{
-		`CREATE TABLE communities (id text primary key, state text, lga text)`,
-		`CREATE TABLE organizations (id text primary key, state text, lga text)`,
-		`CREATE TABLE issues (id text primary key, title text, status text, community_id text, created_at timestamptz)`,
-		`CREATE TABLE petitions (id text primary key, title text, status text, community_id text, created_at timestamptz)`,
-		`CREATE TABLE consultations (id text primary key, title text, status text, community_id text, published_at timestamptz, created_at timestamptz)`,
-		`CREATE TABLE announcements (id text primary key, title text, status text, organization_id text, published_at timestamptz, created_at timestamptz)`,
-		`CREATE TABLE campaigns (id text primary key, title text, status text, state text, lga text, published_at timestamptz, created_at timestamptz)`,
-		`CREATE TABLE representative_announcements (id text primary key, title text, status text, community_id text, published_at timestamptz, created_at timestamptz)`,
-	}
-	for _, stmt := range schema {
-		if _, err := raw.Exec(stmt); err != nil {
-			t.Fatalf("schema %q: %v", stmt, err)
+	for _, tbl := range testTables {
+		if err := testDB.Exec("TRUNCATE TABLE " + tbl.name).Error; err != nil {
+			t.Fatalf("truncate %s: %v", tbl.name, err)
 		}
 	}
-
-	db, err := gorm.Open(postgres.New(postgres.Config{DSN: dsn}), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Silent),
-	})
-	if err != nil {
-		t.Fatalf("gorm open: %v", err)
-	}
-	return db
+	return testDB
 }
 
 // seed inserts one record of every kind in every status we care about, each at

@@ -54,7 +54,23 @@ func TestIntegration_PetitionConcurrentSign(t *testing.T) {
 	port := ln.Addr().(*net.TCPAddr).Port
 	ln.Close()
 
-	cfgPg := embeddedpostgres.DefaultConfig().Port(uint32(port))
+	// A runtime path private to this test, for the same reason as in
+	// internal/discover: embedded-postgres defaults to one shared directory
+	// (~/.embedded-postgres-go/extracted) and os.RemoveAll's it at the start of
+	// every Start(). `go test ./...` runs package test binaries in parallel, so
+	// with two packages on the default path one deletes the binaries out from
+	// under the other's running initdb. That failed in CI as "could not access
+	// file dict_snowball" — in THIS test, though the second user caused it.
+	//
+	// Short base name: the postgres unix socket lives under the data directory
+	// and the path has a ~107 character limit.
+	runtimeDir, err := os.MkdirTemp("", "cvpg")
+	if err != nil {
+		t.Fatalf("temp runtime dir: %v", err)
+	}
+	defer os.RemoveAll(runtimeDir)
+
+	cfgPg := embeddedpostgres.DefaultConfig().Port(uint32(port)).RuntimePath(runtimeDir)
 	pg := embeddedpostgres.NewDatabase(cfgPg)
 	if err := pg.Start(); err != nil {
 		t.Fatalf("start embedded postgres: %v", err)
