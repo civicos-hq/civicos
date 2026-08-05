@@ -1344,6 +1344,18 @@ button {
   text-transform: uppercase;
   letter-spacing: 0.16em;
   color: var(--pr-ink-soft);
+  /* Hidden on phones. At 390px this wrapped to four lines ("THE OPEN /
+     CIVIC / OPERATING / SYSTEM"), pushing the header to ~90px tall and
+     squeezing "Sign in" onto two lines. It's a descriptor, not a
+     wayfinding element, so it yields first. Returns at 560px where the
+     line fits. */
+  display: none;
+}
+
+@media (min-width: 560px) {
+  .home-brand-subtitle {
+    display: block;
+  }
 }
 
 .home-nav-links {
@@ -1503,7 +1515,14 @@ button {
 
 /* ── Hero ── */
 .home-hero {
-  padding: clamp(2.5rem, 6vw, 5rem) var(--pr-pad) clamp(2rem, 4vw, 3rem);
+  /* Top padding trimmed (was clamp(2.5rem, 6vw, 5rem)) — it scaled on
+     width, so the widest screens spent the most vertical budget on empty
+     space above the masthead, right where the fold is tightest.
+     Held in a variable because .home-hero-masthead cancels it with a
+     negative margin: when the two were written out separately, editing
+     one silently pulled the masthead up under the sticky nav. */
+  --home-hero-pad-top: clamp(1.5rem, 3vw, 2.5rem);
+  padding: var(--home-hero-pad-top) var(--pr-pad) clamp(2rem, 4vw, 3rem);
   max-width: var(--pr-max);
   margin: 0 auto;
   width: 100%;
@@ -1522,10 +1541,10 @@ button {
   color: var(--pr-ink-soft);
   padding-bottom: 0.8rem;
   border-bottom: 1px solid var(--pr-rule);
-  /* Negative top margin cancels .home-hero's top padding
-     (clamp(2.5rem, 6vw, 5rem)) so the masthead sits flush against
-     the top nav — no dead space between them. */
-  margin-top: calc(-1 * clamp(2.5rem, 6vw, 5rem));
+  /* Cancels .home-hero's top padding so the masthead sits flush against
+     the top nav — no dead space between them. Reads the same variable
+     the padding uses, so the two can never disagree. */
+  margin-top: calc(-1 * var(--home-hero-pad-top));
   padding-top: 0.6rem;
 }
 
@@ -1591,7 +1610,7 @@ button {
   top: 0;
   left: 0;
   white-space: nowrap;
-  background: linear-gradient(110deg, #2563eb, #93c5fd, #38bdf8, #7dd3fc, #38bdf8, #2563eb);
+  background: var(--pr-em-gradient);
   background-size: 300% 300%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -1637,6 +1656,51 @@ button {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--pr-ink-soft);
+}
+
+/* Short-viewport rhythm. On a 1280×800 laptop the hero spends ~4.6rem of
+   pure vertical margin between headline, signature, sub and CTAs — fine
+   at 1080p, but exactly what pushed the button past the fold once the
+   masthead reclaimed its space. Compress the gaps rather than shrinking
+   the illustration into a letterbox sliver. Declared after the base
+   rules above: a media query adds no specificity, so the plain `margin`
+   shorthands would otherwise win on source order. */
+@media (max-height: 900px) {
+  .home-hero-title {
+    margin-top: 1rem;
+  }
+
+  .home-hero-sub {
+    margin-top: 1rem;
+  }
+
+  .home-trust-strip {
+    margin-top: 1rem;
+  }
+}
+
+@media (max-height: 820px) {
+  .home-hero-title {
+    margin-top: 0.75rem;
+  }
+
+  .home-hero-sub {
+    margin-top: 0.75rem;
+  }
+
+  .home-trust-strip {
+    margin-top: 0.75rem;
+  }
+
+  /* The masthead (tagline + today's date) and the signature flourish are
+     atmosphere, not navigation or action. On a 768px-tall laptop they
+     cost ~40px and ~68px respectively, in exactly the band where the CTA
+     is fighting for the fold. Decoration yields before the illustration
+     does — shrinking the band is what produced the decapitated sliver
+     this replaced, and before the headline, which is the value prop. */
+  .home-hero-masthead {
+    display: none;
+  }
 }
 
 .home-hero-art {
@@ -2130,7 +2194,7 @@ button {
 .home-manifesto-title em {
   font-style: normal;
   font-weight: 500;
-  background: linear-gradient(110deg, #2563eb, #93c5fd, #38bdf8, #7dd3fc, #38bdf8, #2563eb);
+  background: var(--pr-em-gradient);
   background-size: 300% 300%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -2241,17 +2305,23 @@ button {
 .reveal.in-view .home-manifesto-actor {
   animation: pr-actor-in 480ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
+/* Stagger was 620ms → 980ms in 120ms steps, so the last actor landed
+   ~1.4s after the section scrolled into view — long enough that the row
+   reads as loading rather than arriving, and the first item alone sat
+   invisible for over half a second. Start almost immediately and keep
+   the steps inside the 30–80ms band where a cascade still reads as one
+   gesture. */
 .reveal.in-view .home-manifesto-actor:nth-child(1) {
-  animation-delay: 620ms;
+  animation-delay: 120ms;
 }
 .reveal.in-view .home-manifesto-actor:nth-child(2) {
-  animation-delay: 740ms;
+  animation-delay: 190ms;
 }
 .reveal.in-view .home-manifesto-actor:nth-child(3) {
-  animation-delay: 860ms;
+  animation-delay: 260ms;
 }
 .reveal.in-view .home-manifesto-actor:nth-child(4) {
-  animation-delay: 980ms;
+  animation-delay: 330ms;
 }
 @keyframes pr-actor-in {
   from {
@@ -3003,7 +3073,7 @@ button {
 .home-cta-title em {
   font-style: italic;
   font-weight: 400;
-  background: linear-gradient(110deg, #2563eb, #93c5fd, #38bdf8, #7dd3fc, #38bdf8, #2563eb);
+  background: var(--pr-em-gradient);
   background-size: 300% 300%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -3747,6 +3817,20 @@ button {
   opacity: 0;
   animation: pr-rise 480ms 2680ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
+
+/* Short-viewport trade, declared here rather than with the other
+   max-height rules further up: both signature elements set `display:
+   block` at this point in the file, and a media query carries no extra
+   specificity — an earlier `display: none` loses on source order.
+   Together these cost ~68px at 1366×768, which is the difference between
+   the CTA sitting on the fold and clearing it. */
+@media (max-height: 820px) {
+  .hero-signature,
+  .hero-signature-caption {
+    display: none;
+  }
+}
+
 @keyframes pr-sign-draw {
   to {
     stroke-dashoffset: 0;
@@ -3814,6 +3898,16 @@ button {
   --pr-cta-from: #ffffff;
   --pr-cta-to: #d7ecd6;
   --pr-cta-ink: #234f2c;
+
+  /* Shimmer behind every emphasized headline word (hero rotator,
+     manifesto, closing CTA). These three were still running the
+     pre-rebrand Civic Blue ramp (#2563eb → #38bdf8) — the loudest
+     colour on the page, sitting on the focal word of each headline and
+     reading as a leftover from another design. Mint is the accent the
+     rest of this palette already uses, so the word now separates from
+     the white headline by warmth rather than by hue clash. One token so
+     the three can never drift apart again. */
+  --pr-em-gradient: linear-gradient(110deg, #d7ecd6, #ffffff, #a7d3a4, #ffffff, #d7ecd6);
 
   --pr-border: rgba(255, 255, 255, 0.16);
   --pr-border-cy: rgba(215, 236, 214, 0.35);
@@ -4557,6 +4651,299 @@ button {
 [data-theme='dark'] .auth-shell .auth-mark {
   background: #ffffff;
   box-shadow: 0 10px 28px rgba(11, 32, 18, 0.35);
+}
+
+/* ─────────────── Auth — motion + polish pass ──────────────────────
+   Craft layer over the forest palette above. Nothing here changes
+   layout or colour intent; it fixes the details that decide whether
+   the form feels considered or generic.
+
+   The built-in CSS easings are too weak to read as intentional —
+   these two curves are the strong variants used everywhere below.
+   Declared on the shell so every descendant inherits them. */
+.auth-shell {
+  --auth-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --auth-ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+/* Autofill. Chrome repaints saved fields with its own blue-grey wash,
+   which fought the white card and made "Full name"/"Email" look like a
+   different control than "Password". There is no property to disable
+   it — the fix is an inset box-shadow thick enough to cover the field,
+   plus -webkit-text-fill-color (autofill ignores `color`). The absurd
+   background-color transition delay is the standard trick to outrun
+   Chrome repainting the wash after our styles land. */
+[data-theme='light'] .auth-shell .auth-input:-webkit-autofill,
+[data-theme='dark'] .auth-shell .auth-input:-webkit-autofill,
+[data-theme='light'] .auth-shell .auth-input:-webkit-autofill:hover,
+[data-theme='dark'] .auth-shell .auth-input:-webkit-autofill:hover {
+  -webkit-text-fill-color: #102818;
+  -webkit-box-shadow: inset 0 0 0 100px #ffffff;
+  box-shadow: inset 0 0 0 100px #ffffff;
+  border-color: rgba(16, 40, 24, 0.14);
+  caret-color: #102818;
+  transition: background-color 100000s ease 0s;
+}
+
+/* Autofilled + focused still earns the green ring — the inset fill is
+   layered under it so both survive. */
+[data-theme='light'] .auth-shell .auth-input:-webkit-autofill:focus,
+[data-theme='dark'] .auth-shell .auth-input:-webkit-autofill:focus {
+  -webkit-box-shadow:
+    inset 0 0 0 100px #ffffff,
+    0 0 0 3px rgba(35, 79, 44, 0.18);
+  box-shadow:
+    inset 0 0 0 100px #ffffff,
+    0 0 0 3px rgba(35, 79, 44, 0.18);
+  border-color: #234f2c;
+}
+
+/* Inputs — same ring, stronger curve. */
+[data-theme='light'] .auth-shell .auth-input,
+[data-theme='dark'] .auth-shell .auth-input,
+[data-theme='light'] .auth-shell .auth-textarea,
+[data-theme='dark'] .auth-shell .auth-textarea {
+  transition:
+    border-color 150ms var(--auth-ease-out),
+    box-shadow 150ms var(--auth-ease-out);
+}
+
+/* Primary CTA. A button with no pressed state doesn't feel like it
+   heard you. scale(0.97) is the smallest change that reads as physical;
+   the press is faster than the release so the response feels immediate
+   and the settle feels calm. */
+[data-theme='light'] .auth-shell .auth-submit,
+[data-theme='dark'] .auth-shell .auth-submit {
+  transition:
+    transform 160ms var(--auth-ease-out),
+    filter 160ms ease,
+    box-shadow 200ms var(--auth-ease-out);
+}
+
+[data-theme='light'] .auth-shell .auth-submit:active:not(:disabled),
+[data-theme='dark'] .auth-shell .auth-submit:active:not(:disabled) {
+  transform: scale(0.97);
+  transition-duration: 100ms;
+}
+
+/* Touch devices fire :hover on tap, so the lift would fight the press.
+   Hover belongs to pointers that can actually hover. */
+@media (hover: none) {
+  [data-theme='light'] .auth-shell .auth-submit:hover:not(:disabled),
+  [data-theme='dark'] .auth-shell .auth-submit:hover:not(:disabled) {
+    transform: none;
+    filter: none;
+  }
+}
+
+/* Submitting — the label swap is the only signal the form is working,
+   so let the button recede slightly rather than just dimming. */
+[data-theme='light'] .auth-shell .auth-submit:disabled,
+[data-theme='dark'] .auth-shell .auth-submit:disabled {
+  opacity: 0.72;
+  filter: saturate(0.9);
+}
+
+/* Role cards on /register are large tap targets that currently only
+   respond on hover — a press with no feedback feels dead on touch. */
+[data-theme='light'] .auth-shell .auth-choice-card,
+[data-theme='dark'] .auth-shell .auth-choice-card {
+  transition:
+    border-color 150ms var(--auth-ease-out),
+    box-shadow 150ms var(--auth-ease-out),
+    background 150ms var(--auth-ease-out),
+    transform 150ms var(--auth-ease-out);
+}
+
+[data-theme='light'] .auth-shell .auth-choice-card:active,
+[data-theme='dark'] .auth-shell .auth-choice-card:active {
+  transform: scale(0.985);
+  transition-duration: 100ms;
+}
+
+@media (hover: none) {
+  [data-theme='light'] .auth-shell .auth-choice-card:hover,
+  [data-theme='dark'] .auth-shell .auth-choice-card:hover {
+    border-color: rgba(16, 40, 24, 0.12);
+    background: rgba(255, 255, 255, 0.94);
+  }
+}
+
+/* Page entrance. Both columns used to rise at once over 520/620ms,
+   which reads as one slow slab. Staggering by 60ms lets the eye land
+   on the headline first, then the form — and both are quicker now, so
+   the page feels ready sooner. `both` holds the pre-animation state
+   through the delay so the card can't flash before it starts. */
+.auth-shell .auth-copy {
+  animation: rise-in 420ms var(--auth-ease-out) both;
+}
+
+.auth-shell .auth-card {
+  animation: rise-in 480ms var(--auth-ease-out) 60ms both;
+}
+
+/* Errors. A message that blinks into existence reads as a glitch; a
+   short rise reads as an answer to what you just did. Exit isn't
+   animated — React unmounts it, and a lingering error is worse than
+   an abrupt one. */
+.auth-shell .auth-error {
+  animation: auth-error-in 200ms var(--auth-ease-out) both;
+}
+
+@keyframes auth-error-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Forgot-password success. The card is replaced wholesale on send, so
+   it re-enters via .auth-card above; the confirmation mark gets its own
+   beat just after, which is the one moment on these pages that earns a
+   flourish. Starts at 0.94 rather than 0 — nothing real appears from
+   nothing. */
+.auth-shell .verify-icon {
+  animation: auth-pop-in 320ms var(--auth-ease-out) 140ms both;
+}
+
+@keyframes auth-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Submit buttons that carry an icon (verify-sent "Resend", forgot-password
+   "Send reset link", reset-password "Set new password") were rendering the
+   icon on its own line, flush left, with the label centred underneath —
+   Tailwind's preflight sets `svg { display: block }`, so the icon stopped
+   being inline content and the button grew to two lines. Flex puts the
+   pair back on one centred row and makes the gap explicit. */
+[data-theme='light'] .auth-shell .auth-submit,
+[data-theme='dark'] .auth-shell .auth-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* Status icons on the verify / reset confirmation screens. The info
+   variant was still pre-rebrand Civic Blue (rgba(37,99,235,.12) on
+   --brand-700), which put a lavender disc at the top of an otherwise
+   forest-green page. Success and error keep their own hues — those carry
+   meaning — but "info" is brand-coloured, so it follows the brand. */
+[data-theme='light'] .auth-shell .verify-icon--info,
+[data-theme='dark'] .auth-shell .verify-icon--info {
+  background: rgba(35, 79, 44, 0.12);
+  color: #234f2c;
+}
+
+/* Contrast fix. The green block above paints .auth-footer / .auth-legal
+   white, which is right for copy sitting on the green shell — but both
+   also appear INSIDE the white card ("No account yet?", the Privacy ·
+   Terms row), where white-on-white made them invisible. Scoping to the
+   card wins on specificity and restores the card's ink. */
+[data-theme='light'] .auth-shell .auth-card .auth-footer,
+[data-theme='dark'] .auth-shell .auth-card .auth-footer,
+[data-theme='light'] .auth-shell .auth-card .auth-legal,
+[data-theme='dark'] .auth-shell .auth-card .auth-legal {
+  color: #1f4231;
+}
+
+/* Password reveal. The toggle sits inside the field rather than beside
+   it so the control reads as part of the input, not a second decision.
+   Padding-right on the input reserves its lane so long passwords never
+   run under the icon. */
+.auth-password {
+  position: relative;
+  display: block;
+  min-width: 0;
+}
+
+.auth-password .auth-password-input {
+  padding-right: 3rem;
+}
+
+.auth-password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.4rem;
+  display: inline-grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0.6rem;
+  background: transparent;
+  color: #4d6b58;
+  cursor: pointer;
+  /* translateY carries the vertical centring, so every transform below
+     has to restate it or the icon jumps to the top of the field. */
+  transform: translateY(-50%);
+  transition:
+    color 150ms var(--auth-ease-out),
+    background-color 150ms var(--auth-ease-out),
+    transform 150ms var(--auth-ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .auth-password-toggle:hover {
+    color: #234f2c;
+    background-color: rgba(35, 79, 44, 0.08);
+  }
+}
+
+.auth-password-toggle:active {
+  transform: translateY(-50%) scale(0.92);
+  transition-duration: 100ms;
+}
+
+/* Keyboard users get the ring; mouse users don't (:focus-visible), so
+   clicking the toggle doesn't leave a ring stuck behind. */
+.auth-password-toggle:focus-visible {
+  outline: none;
+  color: #234f2c;
+  box-shadow: 0 0 0 3px rgba(35, 79, 44, 0.22);
+}
+
+/* Eye and EyeOff are different elements, so React remounts on toggle —
+   the icon animates in on its own. Short and small: this fires on every
+   press, and anything longer would feel like lag. */
+.auth-password-toggle svg {
+  animation: auth-icon-swap 160ms var(--auth-ease-out) both;
+}
+
+@keyframes auth-icon-swap {
+  from {
+    opacity: 0;
+    transform: scale(0.86);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Back-to-home chip — same press language as everything else. */
+.auth-shell .auth-home {
+  transition:
+    color 150ms var(--auth-ease-out),
+    background-color 150ms var(--auth-ease-out),
+    transform 150ms var(--auth-ease-out);
+}
+
+.auth-shell .auth-home:active {
+  transform: scale(0.97);
+  transition-duration: 100ms;
 }
 
 /* ─────────────── Dashboard — Green experiment ─────────────────────
@@ -6242,12 +6629,39 @@ button {
      (tagline + date) sits above it now, so we let a bit of space
      separate them without butting flush. */
   margin-top: 1rem;
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.75rem;
   /* Slightly wider aspect than the source (2.5:1) — crops ~5% off
-     top+bottom via object-fit: cover, keeps feet/heads intact.
-     Container is ~450px tall on a 1400px viewport vs 560px before. */
+     top+bottom via object-fit: cover, keeps feet/heads intact. */
   aspect-ratio: 2.85 / 1;
+  /* …but aspect-ratio alone scales with WIDTH, so on a 1440px viewport
+     the band grew to ~505px and pushed the headline, sub and both CTAs
+     entirely below the fold (measured: primary CTA at 1120px against a
+     960px viewport — nobody saw "Register" without scrolling). Capping
+     against viewport HEIGHT keeps the illustration generous on tall
+     screens and lets it yield on short ones, so the value proposition
+     and the action always share the first screen. */
+  /* The floor matters more than the cap. Source is 2.5:1, so a 1440px-wide
+     band under ~200px tall is an 11:1 slot and `cover` reduces the frame to
+     a strip that decapitates the characters. 220px is the measured point
+     where faces and torsos still read whole. */
+  max-height: clamp(220px, 26vh, 320px);
   overflow: hidden;
+  /* Short laptop screens (1280×800, 1440×900) are where the fold bites
+     hardest: same content, ~150px less room. Yield further there rather
+     than taxing tall displays, which can afford the full band. */
+  /* Short laptops still yield some height, but never below the floor —
+     they tighten the surrounding margins instead (see the max-height
+     rules further down). Squeezing the band itself was what produced the
+     sliver. */
+  @media (max-height: 900px) {
+    max-height: clamp(210px, 24vh, 260px);
+    margin-bottom: 1.25rem;
+  }
+
+  @media (max-height: 800px) {
+    margin-top: 0.6rem;
+    margin-bottom: 1rem;
+  }
   animation: pr-rise 640ms 100ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 .home-hero-visual-frame {
@@ -6256,10 +6670,18 @@ button {
   display: block;
   width: 100%;
   height: 100%;
-  /* Images are pre-cropped to match the container's 2.5:1 aspect,
-     so `cover` fills the container edge-to-edge with no cropping
-     and no letterbox — both dimensions align perfectly. */
+  /* Images are pre-cropped to match the container's 2.5:1 aspect, so
+     `cover` fills it edge-to-edge. Once max-height engages the frame is
+     shorter than the source, so cover has to drop something: bias the
+     crop downward, since the sky is the expendable part and the
+     characters + ground carry the meaning. */
   object-fit: cover;
+  /* The cap makes the band roughly 5:1 against a 2.5:1 source, so cover
+     discards about half the image height — the focal point decides what
+     survives. Biasing low (68%) kept the ground and beheaded everyone;
+     biasing to the upper-middle keeps faces, which are the whole reason
+     the illustration is here. Ground is the expendable half. */
+  object-position: 50% 38%;
   opacity: 0;
   transition: opacity 900ms ease;
 }

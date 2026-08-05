@@ -62,8 +62,14 @@ envVarGroups:
         sync: false
       - key: SMTP_PASSWORD
         sync: false
+      # Must be an address on a domain verified in Resend, or every send
+      # 403s with "The <domain> domain is not verified". This was the
+      # placeholder civicos.example, and because the value is declared
+      # here (not sync:false), each blueprint sync overwrote the correct
+      # value set in the dashboard — so verification emails silently
+      # stopped again after every deploy.
       - key: SMTP_FROM
-        value: 'CivicOS <no-reply@civicos.example>'
+        value: 'CivicOS <no-reply@civicos.ng>'
       # ── Community Funding · Paystack ──
       # CivicOS is not the merchant of record: each organization connects
       # its own Paystack sub-account and Paystack settles directly to it.
