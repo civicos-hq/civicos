@@ -23,6 +23,15 @@
 // counts are the important case: a donation made while signed out carries no
 // user, so it cannot be tied to any other donation. The count is real but it
 // is a floor, and `attributableDonations` is returned next to it.
+// Every slice returned from this package is initialised empty rather than
+// declared nil.
+//
+// A nil slice marshals to JSON `null`, not `[]`. That is invisible in
+// development, where there is always demo data, and breaks on precisely the
+// dataset a fresh deployment has: no campaigns, no donations. A client that
+// iterates the field without guarding gets a TypeError and, in React, a blank
+// page. Returning `[]` makes the empty case indistinguishable from the
+// populated one for anyone consuming this.
 package analytics
 
 import (
@@ -121,7 +130,7 @@ type CampaignPerformance struct {
 }
 
 func (r *Repository) OrgFundsRaised(orgID string) ([]MoneyByCurrency, error) {
-	var out []MoneyByCurrency
+	out := []MoneyByCurrency{}
 	err := r.db.Raw(`
 		SELECT currency,
 		       COALESCE(SUM(gross_minor), 0) AS amount_minor,
@@ -159,7 +168,7 @@ func (r *Repository) OrgDonorStats(orgID string) (DonorStats, error) {
 	s.UniqueDonors, s.RepeatDonors = row.Unique, row.Repeat
 	s.AttributableDonations, s.TotalDonations = row.Attributable, row.TotalDonation
 
-	var avg []MoneyByCurrency
+	avg := []MoneyByCurrency{}
 	err = r.db.Raw(`
 		SELECT currency,
 		       COALESCE(AVG(gross_minor), 0)::bigint AS amount_minor,
@@ -216,7 +225,7 @@ func (r *Repository) campaignStats(where string, args ...any) (CampaignStats, er
 // generate_series fills empty weeks with zeros. Without it a chart would join
 // the two weeks either side of a silence and draw a line straight through it.
 func (r *Repository) OrgTrend(orgID string, weeks int) ([]TrendPoint, error) {
-	var out []TrendPoint
+	out := []TrendPoint{}
 	err := r.db.Raw(`
 		WITH buckets AS (
 		  SELECT generate_series(
@@ -237,7 +246,7 @@ func (r *Repository) OrgTrend(orgID string, weeks int) ([]TrendPoint, error) {
 }
 
 func (r *Repository) OrgTopCampaigns(orgID string, limit int) ([]CampaignPerformance, error) {
-	var out []CampaignPerformance
+	out := []CampaignPerformance{}
 	err := r.db.Raw(`
 		SELECT id, title, slug, status, currency, goal_minor, raised_minor, donor_count
 		FROM campaigns

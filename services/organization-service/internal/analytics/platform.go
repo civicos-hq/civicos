@@ -73,7 +73,7 @@ type ReviewStats struct {
 }
 
 func (r *Repository) PlatformFundsRaised() ([]MoneyByCurrency, error) {
-	var out []MoneyByCurrency
+	out := []MoneyByCurrency{}
 	err := r.db.Raw(`
 		SELECT currency,
 		       COALESCE(SUM(gross_minor), 0) AS amount_minor,
@@ -107,7 +107,7 @@ func (r *Repository) PlatformDonorStats() (DonorStats, error) {
 	s.UniqueDonors, s.RepeatDonors = row.Unique, row.Repeat
 	s.AttributableDonations, s.TotalDonations = row.Attributable, row.TotalDonation
 
-	var avg []MoneyByCurrency
+	avg := []MoneyByCurrency{}
 	err = r.db.Raw(`
 		SELECT currency, COALESCE(AVG(gross_minor), 0)::bigint AS amount_minor, COUNT(*) AS donation_count
 		FROM donations WHERE status = 'SETTLED' GROUP BY currency`).Scan(&avg).Error
@@ -139,7 +139,7 @@ func (r *Repository) OrgCounts() (OrgCounts, error) {
 }
 
 func (r *Repository) Countries() ([]CountryCount, error) {
-	var out []CountryCount
+	out := []CountryCount{}
 	err := r.db.Raw(`
 		SELECT COALESCE(NULLIF(TRIM(country), ''), 'Unspecified') AS country,
 		       COUNT(*) AS organizations
@@ -151,7 +151,7 @@ func (r *Repository) Countries() ([]CountryCount, error) {
 // Categories counts only campaigns that reached the public, so the breakdown
 // describes what citizens could actually give to rather than what was drafted.
 func (r *Repository) Categories() ([]CategoryCount, error) {
-	var out []CategoryCount
+	out := []CategoryCount{}
 	err := r.db.Raw(`
 		SELECT category,
 		       COUNT(*)                        AS campaigns,
@@ -242,7 +242,7 @@ func (r *Repository) Review() (ReviewStats, error) {
 }
 
 func (r *Repository) PlatformTrend(weeks int) ([]TrendPoint, error) {
-	var out []TrendPoint
+	out := []TrendPoint{}
 	err := r.db.Raw(`
 		WITH buckets AS (
 		  SELECT generate_series(

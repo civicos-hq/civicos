@@ -87,6 +87,19 @@ function primary(list: Money[]): Money {
   return list?.[0] ?? { currency: 'NGN', amountMinor: 0, donationCount: 0 };
 }
 
+/**
+ * Coerce a possibly-absent array to an empty one.
+ *
+ * A Go nil slice marshals to `null`, not `[]` — invisible in development,
+ * where there is always data, and the normal state of a freshly deployed
+ * platform with no campaigns yet. The server no longer does this, but calling
+ * `.map()` straight onto a response field is how this page went blank in
+ * production, and one guard is cheaper than finding out again.
+ */
+function arr<T>(v: T[] | null | undefined): T[] {
+  return Array.isArray(v) ? v : [];
+}
+
 function hours(h: number | null) {
   if (h === null || h === undefined) return '—';
   if (h < 1) return `${Math.round(h * 60)} min`;
@@ -103,9 +116,9 @@ export function FundingAnalyticsPage() {
   });
 
   const a = query.data?.analytics;
-  const raised = primary(a?.fundsRaised ?? []);
-  const avg = primary(a?.donors?.averageDonation ?? []);
-  const peakTrend = Math.max(1, ...(a?.trend ?? []).map((p) => p.amountMinor));
+  const raised = primary(arr(a?.fundsRaised));
+  const avg = primary(arr(a?.donors?.averageDonation));
+  const peakTrend = Math.max(1, ...arr(a?.trend).map((p) => p.amountMinor));
 
   return (
     <>
@@ -168,7 +181,7 @@ export function FundingAnalyticsPage() {
                 a line drawn through them would imply giving that did not
                 happen. */}
             <div className="admin-trend">
-              {a.trend.map((p) => (
+              {arr(a.trend).map((p) => (
                 <div
                   key={p.periodStart}
                   className="admin-trend-bar"
@@ -236,7 +249,7 @@ export function FundingAnalyticsPage() {
                 <Row k="Published" v={a.emergency.campaigns.toLocaleString()} />
                 <Row
                   k="Raised"
-                  v={money(primary(a.emergency.fundsRaised).amountMinor, raised.currency)}
+                  v={money(primary(arr(a.emergency.fundsRaised)).amountMinor, raised.currency)}
                 />
                 <Row
                   k="Median time to first donation"
@@ -260,14 +273,14 @@ export function FundingAnalyticsPage() {
                 </tr>
               </thead>
               <tbody>
-                {a.categories.map((c) => (
+                {arr(a.categories).map((c) => (
                   <tr key={c.category}>
                     <td>{c.category.replace(/_/g, ' ').toLowerCase()}</td>
                     <td>{c.campaigns}</td>
                     <td>{money(c.raisedMinor, c.currency)}</td>
                   </tr>
                 ))}
-                {a.categories.length === 0 && (
+                {arr(a.categories).length === 0 && (
                   <tr>
                     <td colSpan={3}>No published campaigns yet.</td>
                   </tr>
@@ -278,7 +291,7 @@ export function FundingAnalyticsPage() {
 
           <Panel title="Countries">
             <dl className="admin-kv">
-              {a.countries.map((c) => (
+              {arr(a.countries).map((c) => (
                 <Row key={c.country} k={c.country} v={c.organizations.toLocaleString()} />
               ))}
             </dl>
@@ -291,7 +304,7 @@ export function FundingAnalyticsPage() {
               <strong className="text-sm">How to read these</strong>
             </div>
             <ul className="admin-notes">
-              {a.notes.map((n, i) => (
+              {arr(a.notes).map((n, i) => (
                 <li key={i}>{n}</li>
               ))}
               <li>

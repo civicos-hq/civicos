@@ -1,4 +1,5 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { ErrorBoundary } from './ErrorBoundary';
 import {
   Building2,
   ClipboardList,
@@ -20,6 +21,7 @@ import { clearSession, getSession } from '../lib/api';
 export function AdminShell() {
   const session = getSession();
   const navigate = useNavigate();
+  const location = useLocation();
 
   function handleSignOut() {
     clearSession();
@@ -70,7 +72,13 @@ export function AdminShell() {
         </header>
 
         <main className="admin-content">
-          <Outlet />
+          {/* Keyed on the path so navigating away clears a caught error —
+              otherwise the boundary latches and every later route looks
+              broken too. Inside <main>, so the sidebar and sign-out survive
+              a crash and the operator can still get somewhere else. */}
+          <ErrorBoundary key={location.pathname}>
+            <Outlet />
+          </ErrorBoundary>
         </main>
       </div>
     </div>

@@ -24,6 +24,15 @@ import { EmptyState } from './EmptyState';
  * campaigns that came with an account of the money, and it is the number a
  * donor deciding whether to give again is effectively asking about.
  */
+/**
+ * Coerce a possibly-absent array to an empty one. A Go nil slice marshals to
+ * `null`, which is the normal shape for an organization that has not run a
+ * campaign yet — the exact case a new organization is in.
+ */
+function arr<T>(v: T[] | null | undefined): T[] {
+  return Array.isArray(v) ? v : [];
+}
+
 export function OrgFundingAnalytics({ orgId }: { orgId: string }) {
   const { t, i18n } = useTranslation();
   const [weeks, setWeeks] = useState(12);
@@ -39,8 +48,8 @@ export function OrgFundingAnalytics({ orgId }: { orgId: string }) {
     );
   }
 
-  const raised = primaryMoney(a.fundsRaised);
-  const avg = primaryMoney(a.donors.averageDonation);
+  const raised = primaryMoney(arr(a.fundsRaised));
+  const avg = primaryMoney(arr(a.donors.averageDonation));
   const money = (minor: number, cur = raised.currency) => formatMoney(minor, cur, i18n.language);
 
   // Nothing has been raised and nothing published: an empty state reads better
@@ -98,7 +107,7 @@ export function OrgFundingAnalytics({ orgId }: { orgId: string }) {
             <option value={52}>{t('orgAnalytics.weeks', { count: 52 })}</option>
           </select>
         </div>
-        <TrendBars points={a.trend} format={money} />
+        <TrendBars points={arr(a.trend)} format={money} />
       </section>
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -122,13 +131,13 @@ export function OrgFundingAnalytics({ orgId }: { orgId: string }) {
         />
       </div>
 
-      {a.topCampaigns.length > 0 && (
+      {arr(a.topCampaigns).length > 0 && (
         <section className="rounded-2xl border border-slate-200 dark:border-slate-700 p-4">
           <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
             {t('orgAnalytics.byCampaign')}
           </h3>
           <ul className="mt-3 space-y-3">
-            {a.topCampaigns.map((c) => (
+            {arr(a.topCampaigns).map((c) => (
               <li key={c.id}>
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <Link
@@ -172,7 +181,7 @@ export function OrgFundingAnalytics({ orgId }: { orgId: string }) {
           {t('orgAnalytics.notesHeading')}
         </h3>
         <ul className="mt-2 list-disc space-y-1.5 pl-5 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
-          {a.notes.map((n, i) => (
+          {arr(a.notes).map((n, i) => (
             <li key={i}>{n}</li>
           ))}
         </ul>
