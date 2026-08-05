@@ -11,38 +11,49 @@ The 10-minute mental model.
 ## High-level shape
 
 ```
-┌────────────────┐    ┌────────────────┐
-│  Citizen web   │    │ Admin console  │
-│  React :5173   │    │  React :5174   │
-└───────┬────────┘    └────────┬───────┘
-        │                      │
-        └──────────┬───────────┘
-                   ▼
-         ┌──────────────────┐
-         │   API Gateway    │  :3000
-         │  (Go / Gin)      │  JWT + rate limit + reverse proxy
-         └───┬──────────┬───┘
-             │          │
-   ┌─────────┼──────────┼──────────┐
-   ▼         ▼          ▼          ▼
-┌───────┐ ┌──────────┐ ┌──────────┐ ┌────────┐
-│Identity│ │Community│ │Organization│ │Uploads│ (served by community)
-│ :3001 │ │  :3002  │ │   :3003   │ │ (disk)│
-└───┬───┘ └────┬─────┘ └────┬──────┘ └────────┘
-    │          │            │
-    └──────────┼────────────┘
-               ▼
-         ┌──────────┐   ┌────────┐   ┌────────┐
-         │ Postgres │   │ Redis  │   │  NATS  │
-         │   :5433  │   │ :6379  │   │ :4222  │
-         └──────────┘   └────────┘   └────────┘
+┌────────────────┐   ┌────────────────┐   ┌─────────────────┐
+│  Citizen web   │   │ Admin console  │   │    Docs site    │
+│  React  :5173  │   │  React  :5174  │   │ Docusaurus :5175│
+└───────┬────────┘   └───────┬────────┘   └─────────────────┘
+        │                    │
+        └─────────┬──────────┘
+                  ▼
+    ┌───────────────────────────────────────────┐
+    │             API Gateway  :3000            │
+    │   JWT · per-action rate limit · proxy     │
+    │   Swagger UI /docs · /health aggregation  │
+    └───┬───────────┬─────────────┬──────────┬──┘
+        ▼           ▼             ▼          ▼
+  ┌──────────┐ ┌──────────┐ ┌────────────┐ ┌──────────┐
+  │ Identity │ │Community │ │Organization│ │ CivicAI  │
+  │  :3001   │ │  :3002   │ │   :3003    │ │  :3004   │
+  │          │ │ + uploads│ │            │ │  no DB   │
+  │          │ │ from disk│ │            │ │          │
+  └──────────┘ └──────────┘ └────────────┘ └──────────┘
+
+  ┌──────────┐   ┌────────┐   ┌────────┐
+  │ Postgres │   │  NATS  │   │ Redis  │
+  │  :5433   │   │ :4222  │   │ :6379  │
+  └──────────┘   └────────┘   └────────┘
 ```
 
-Every request from the browser hits the **API Gateway** first. The
-gateway validates the JWT, applies per-action rate limits, and reverse-
-proxies to the appropriate service. The browser never talks to
-`identity-service`, `community-service`, or `organization-service`
-directly.
+Every request from the browser hits the **API Gateway** first. It applies
+per-action rate limits and reverse-proxies to the appropriate service; the
+browser never talks to a service directly. Most routes also carry JWT
+validation, but **not all of them are authenticated** — community lists,
+public campaign pages and the homepage activity ticker are reachable signed
+out, by design.
+
+Who talks to what, since the boxes above don't say:
+
+- **Postgres** — identity, community and organization share one database.
+  Ownership is by table, not by schema; a service reading another's table
+  pins `TableName()` and treats it as read-only.
+- **Redis** — the gateway (rate-limit budgets) and CivicAI (response cache).
+- **NATS** — organization → community, one subject. See below.
+- **CivicAI has no database of its own.** It fetches platform metrics from
+  identity-service over HTTP with the caller's forwarded JWT, then caches the
+  result. It is the one service that calls another over HTTP.
 
 ## The five Go services
 
@@ -50,16 +61,16 @@ directly.
 | ------------------------ | ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **api-gateway**          | 3000 | Reverse proxy, JWT validation, per-action rate limiting, `/health` aggregation, Swagger UI at `/docs`                                                                                          |
 | **identity-service**     | 3001 | Auth (register / login / refresh with family rotation), users, applications, content flags (incl. campaign concerns), audit log, admin metrics, DB migrations                                  |
-| **community-service**    | 3002 | Communities, issues, petitions, representatives, comments, notifications (with SSE hub), search, discover feed, image uploads                                                                  |
+| **community-service**    | 3002 | Communities, issues, petitions, representatives and their announcements, comments, notifications (with SSE hub), search, discover feed, public activity ticker, image uploads                  |
 | **organization-service** | 3003 | Organizations, membership, announcements, projects, issue assignments, progress updates, consultations, **Community Funding** (campaigns, donations, spend, reconciliation), funding analytics |
-| **civicai-service**      | 3004 | Gemini-backed advisory endpoints — classification, summarization, drafting, community insights, campaign risk. Every response is a suggestion; nothing auto-acts                               |
+| **civicai-service**      | 3004 | Gemini-backed advisory endpoints — classification, summarization, drafting, community insights, campaign risk. No database of its own. Every response is a suggestion; nothing auto-acts       |
 
 Notifications and search were spec'd as future standalone services in
 the Engineering Playbook but live inside community-service for the MVP
 so cross-entity event emission (e.g., a petition signature → notification)
 stays in-process. Extract when scale demands it, not before.
 
-## Two React apps
+## The frontend workspaces
 
 - **`apps/web`** — the citizen-facing app on port 5173. Homepage, feeds,
   issue and petition detail, representative pages, consultations,
@@ -73,10 +84,11 @@ stays in-process. Extract when scale demands it, not before.
   the same sense, but it lives in the same workspace and ships with the
   monorepo.
 
-Both apps consume the API through the gateway. There's a shared UI
-package (`@civicos/ui`) and a shared types package (`@civicos/types`)
-so a change to a request/response contract flows through the compiler
-in both apps at once.
+Both apps consume the API through the gateway, and both depend on the shared
+types package (`@civicos/types`) — so a change to a request/response contract
+flows through the compiler in both at once. The shared UI package
+(`@civicos/ui`) is currently used by `apps/web` only; the admin console has
+its own components.
 
 ## Data flow example — signing a petition
 
@@ -99,9 +111,22 @@ in both apps at once.
      in-process SSE hub to any open browser tab for that user.
 5. Response returns up through the gateway to the browser.
 
-Everything above happens in the same process boundary once — no NATS,
-no cross-service HTTP. That's the point of colocating notifications and
-search in community-service.
+**This particular flow** happens entirely inside one process — no NATS, no
+cross-service HTTP. That's the point of colocating notifications and search
+in community-service.
+
+It is not the whole story. When **organization-service** writes a
+notification — an announcement, a consultation, a campaign event — it writes
+the row itself, then publishes `civicos.notifications.created` on NATS.
+community-service subscribes and pushes the event to the SSE hub, because it
+owns the hub and the row never passed through its `Emit`. The bridge
+deliberately persists nothing: the publisher already committed, so writing
+again would duplicate every cross-service notification. Losing an event costs
+a realtime push and nothing more — the row is in the table and the REST list
+stays the source of truth.
+
+The subject string is declared separately in both services, because they are
+separate Go modules. That string is the contract.
 
 ## Why Go, not the Playbook's NestJS?
 
@@ -134,8 +159,9 @@ UTC) still apply — only the language differs.
 
 ## What's _not_ here yet
 
-- **NATS** is provisioned but not driving anything today. Reserved for
-  Phase 2 event-driven work.
+- **Broad event-driven work.** NATS carries exactly one subject today (see
+  above); everything else is still an in-process call or a direct table
+  write.
 - **Full-text search** — currently a naive `ILIKE` sweep in
   community-service. Replace with pg_trgm or Meilisearch when the
   dataset justifies it.
