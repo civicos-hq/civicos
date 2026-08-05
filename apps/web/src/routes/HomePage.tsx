@@ -19,6 +19,8 @@ import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { useSeo } from '../hooks/useSeo';
 import { usePublicActivity, type PublicActivityItem } from '../hooks/usePublicActivity';
+import { usePublicCampaigns } from '../hooks/useCampaigns';
+import { CampaignCard } from '../components/CampaignCard';
 import { hasAccessToken } from '../App';
 
 export function HomePage() {
@@ -36,6 +38,7 @@ export function HomePage() {
       <Manifesto />
       <Parties />
       <Articles />
+      <Funding />
       <Stories />
       <Principles />
       <HowItWorks />
@@ -302,7 +305,7 @@ export function TopNav() {
       </Link>
 
       <nav className="home-nav-links" aria-label="Primary">
-        <Link to="/#docket">{t('nav.links.docket')}</Link>
+        <Link to="/campaigns">{t('nav.links.fund')}</Link>
         <Link to="/#articles">{t('nav.links.whatItDoes')}</Link>
         <Link to="/#how">{t('nav.links.howItWorks')}</Link>
         <Link to="/#faq">{t('nav.links.faq')}</Link>
@@ -787,6 +790,71 @@ function Articles() {
   );
 }
 
+// § Community Funding — real campaigns currently raising money, read from
+// the same public endpoint the browse page uses.
+//
+// Every figure here is live. A campaign that has raised nothing shows ₦0
+// against its goal rather than being filtered out or having its progress bar
+// hidden: money asked for in public is exactly the number a citizen is
+// entitled to see, and a section that only ever showed successful campaigns
+// would be advertising, not a public record.
+//
+// Three at most. This is a shop window onto /campaigns, not a second browse
+// page — the sorts, filters and near-me logic all live there.
+const HOMEPAGE_CAMPAIGNS = 3;
+
+function Funding() {
+  const { t } = useTranslation();
+  // MOST_FUNDED puts the campaigns with real traction first, which is both
+  // the most useful thing for a visitor and the most honest ordering: it is
+  // the platform's actual state, not a curated selection.
+  const { data, isLoading, isError } = usePublicCampaigns({ sort: 'MOST_FUNDED' });
+  const campaigns = (data ?? []).slice(0, HOMEPAGE_CAMPAIGNS);
+
+  return (
+    <section id="funding" className="home-section reveal">
+      <TypedMarker text={t('funding.marker')} />
+      <div className="home-section-head">
+        <h2 className="home-section-title">{t('funding.title')}</h2>
+        <p className="home-section-lede">{t('funding.lede')}</p>
+      </div>
+
+      {campaigns.length > 0 ? (
+        <>
+          <div className="home-funding-grid">
+            {campaigns.map((c) => (
+              <CampaignCard key={c.id} c={c} />
+            ))}
+          </div>
+          <div className="home-funding-actions">
+            <Link to="/campaigns" className="home-btn home-btn-primary">
+              {t('funding.browseAll')}
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+            <p className="home-funding-note">{t('funding.note')}</p>
+          </div>
+        </>
+      ) : (
+        <div className="home-funding-blank">
+          <p>
+            {isLoading
+              ? t('funding.loading')
+              : isError
+                ? t('funding.unavailable')
+                : t('funding.empty')}
+          </p>
+          {!isLoading && (
+            <Link to="/campaigns" className="home-link">
+              {t('funding.browseAll')}
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          )}
+        </div>
+      )}
+    </section>
+  );
+}
+
 /**
  * "Stories" — three big illustrated cards showing CivicOS's flagship
  * flows (issue reporting, consultations, representative engagement),
@@ -1198,6 +1266,16 @@ export function Footer() {
             >
               {t('footer.developers.api')}
             </a>
+          </nav>
+
+          {/* Public destinations. The top nav is display:none below 880px and
+              there is no mobile menu, so without this the funding pages are
+              unreachable from the chrome on a phone — which is most of the
+              audience. */}
+          <nav className="home-footer-col" aria-label={t('footer.explore.label')}>
+            <p className="home-footer-col-title">{t('footer.explore.label')}</p>
+            <Link to="/campaigns">{t('footer.explore.campaigns')}</Link>
+            <Link to="/register">{t('footer.explore.join')}</Link>
           </nav>
 
           <nav className="home-footer-col" aria-label={t('footer.legal.label')}>

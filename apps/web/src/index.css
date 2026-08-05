@@ -2466,6 +2466,73 @@ button {
 }
 
 /* ── Articles (was Features) ── */
+/* Community Funding section — reuses .fund-card from the browse page so the
+   same campaign looks the same wherever it is listed. */
+.home-section-lede {
+  margin: 0.9rem 0 0;
+  font-family: var(--pr-sans);
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: var(--pr-ink-soft, var(--pr-ink));
+}
+
+.home-funding-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (min-width: 760px) {
+  .home-funding-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1100px) {
+  .home-funding-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.home-funding-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  margin-top: 2.2rem;
+  text-align: center;
+}
+
+/* Says who handles the money and where it lands. Belongs next to the
+   campaigns, not buried on the donate form. */
+.home-funding-note {
+  margin: 0;
+  max-width: 34rem;
+  font-family: var(--pr-sans);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--pr-ink-soft, var(--pr-ink));
+}
+
+.home-funding-blank {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 2.5rem 1rem;
+  text-align: center;
+}
+
+.home-funding-blank p {
+  margin: 0;
+  max-width: 34rem;
+  font-family: var(--pr-sans);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--pr-ink-soft, var(--pr-ink));
+}
+
 .home-articles {
   display: grid;
   grid-template-columns: 1fr;

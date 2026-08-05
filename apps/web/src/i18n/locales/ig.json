@@ -456,10 +456,10 @@
   "nav": {
     "brandSubtitle": "Akwụkwọ Ọha · Site n'afọ 2026",
     "links": {
-      "docket": "Akwụkwọ Edemede",
       "whatItDoes": "Ihe ọ na-eme",
       "howItWorks": "Otu o si arụ ọrụ",
-      "faq": "Ajụjụ"
+      "faq": "Ajụjụ",
+      "fund": "Kwado ọrụ"
     },
     "signIn": "Banye",
     "register": "Debanye aha"
@@ -553,6 +553,16 @@
       "title": "Ọ dịghị ihe na-efunahụ na nkịtị",
       "body": "Ozi ọ bụla, mbinye aka, na azịza ọchịchị nwere oge edenyere ma a na-edebe ya na ndekọ ọha. Ozi kọntaktị gị na adreesị ụlọ gị na-anọgide bụrụ nzuzo."
     }
+  },
+  "funding": {
+    "marker": "NGALABA — NKWADO OBODO",
+    "title": "Obodo na-akpakọta ego n'ihu ọha",
+    "lede": "Òtù akwadoro na-ebipụta ihe ha na-akpakọtara ego, ihe ha natara, na ebe ha mefuru ya. Ọnụọgụ ọ bụla dị n'okpuru bụ nke dị ndụ.",
+    "browseAll": "Chọgharịa mkpọsa niile",
+    "note": "Paystack na-ahazi onyinye, ọ na-abanye òtù ahụ ozugbo.",
+    "loading": "Na-ebugo mkpọsa…",
+    "empty": "Ọ dịghị mkpọsa mepere ugbu a. Òtù akwadoro nwere ike ibipụta otu n'oge ọ bụla.",
+    "unavailable": "Mkpọsa adịghị ugbu a."
   },
   "principles": {
     "marker": "Ihe anyị ji jide onwe anyị aka",
@@ -691,6 +701,11 @@
   "footer": {
     "mission": "Imesi ntinye aka n'ọchịchị onye kwuo uche ya site n'akụrụngwa dijitalụ echekwara, doro anya, na enwere ohere.",
     "meta": "© {{year}} CivicOS — Akụrụngwa ọha mepere emepe",
+    "explore": {
+      "label": "Nyocha",
+      "campaigns": "Kwado ọrụ",
+      "join": "Mepee akaụntụ"
+    },
     "legal": {
       "label": "Iwu",
       "privacy": "Nzuzo",

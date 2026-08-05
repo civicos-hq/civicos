@@ -456,10 +456,10 @@
   "nav": {
     "brandSubtitle": "Bayanin Jama'a · An kafa 2026",
     "links": {
-      "docket": "Ayyuka kai tsaye",
       "whatItDoes": "Abin da yake yi",
       "howItWorks": "Yadda yake aiki",
-      "faq": "Tambayoyi"
+      "faq": "Tambayoyi",
+      "fund": "Ba da tallafi"
     },
     "signIn": "Shiga",
     "register": "Yi rajista"
@@ -553,6 +553,16 @@
       "title": "Babu abin da ke ɓacewa a shiru",
       "body": "Kowane rahoto, sa hannu, da amsar hukuma yana da alamar lokaci kuma ana ajiye shi a rikodin jama'a. Bayanan tuntuɓarka da adireshin gidanka sun rage na sirri."
     }
+  },
+  "funding": {
+    "marker": "SASHE — TALLAFIN AL'UMMA",
+    "title": "Al'ummomin da ke tara kuɗi a fili",
+    "lede": "Ƙungiyoyi tabbatattu suna buga abin da suke tara kuɗi domin sa, abin da suka karɓa, da yadda suka kashe shi. Kowane adadi da ke ƙasa na ainihi ne.",
+    "browseAll": "Duba dukkan yaƙin neman tallafi",
+    "note": "Paystack ne ke sarrafa gudummawa, kuma tana shiga asusun ƙungiyar kai tsaye.",
+    "loading": "Ana loda yaƙin neman tallafi…",
+    "empty": "Babu yaƙin neman tallafi a buɗe yanzu. Ƙungiyoyi tabbatattu na iya buga ɗaya a kowane lokaci.",
+    "unavailable": "Ba a samun yaƙin neman tallafi a yanzu."
   },
   "principles": {
     "marker": "Abin da muke riƙe kanmu da shi",
@@ -691,6 +701,11 @@
   "footer": {
     "mission": "Ƙarfafa shiga dimokuradiyya ta hanyar tsarin dijital mai aminci, bayyane, kuma mai samuwa.",
     "meta": "© {{year}} CivicOS — Tsarin jama'a a bayyane",
+    "explore": {
+      "label": "Bincika",
+      "campaigns": "Ba da tallafi",
+      "join": "Buɗe asusu"
+    },
     "legal": {
       "label": "Doka",
       "privacy": "Sirri",
