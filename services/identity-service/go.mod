@@ -1,6 +1,6 @@
 module github.com/civicos/identity-service
 
-go 1.22
+go 1.26.0
 
 require (
 	github.com/gin-contrib/cors v1.7.2
@@ -8,6 +8,7 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
+	github.com/pressly/goose/v3 v3.20.0
 	golang.org/x/crypto v0.24.0
 	gorm.io/driver/postgres v1.5.9
 	gorm.io/gorm v1.25.10
@@ -39,7 +40,6 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
-	github.com/pressly/goose/v3 v3.20.0 // indirect
 	github.com/sethvargo/go-retry v0.2.4 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect

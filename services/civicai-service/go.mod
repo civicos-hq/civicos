@@ -1,6 +1,6 @@
 module github.com/civicos/civicai-service
 
-go 1.24
+go 1.26.0
 
 require (
 	github.com/gin-contrib/cors v1.7.2

@@ -14,7 +14,7 @@ the frontends with Vite.
 
 - **Node.js** 20+
 - **pnpm** 9+ (`npm install -g pnpm`)
-- **Go** 1.22+
+- **Go** 1.26+
 - **Docker Desktop** (or compatible)
 - **Air** — Go hot-reload tool:
   ```bash
