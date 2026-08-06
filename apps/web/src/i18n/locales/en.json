@@ -902,7 +902,7 @@
       },
       "what": {
         "title": "What CivicOS is (and isn't)",
-        "body": "<p>CivicOS is an informational platform for civic engagement. It lets citizens report community issues, sign petitions, follow representatives, and see public responses from organizations. It is <strong>not</strong> a substitute for emergency services, legal advice, or government complaint channels. If you or someone else is in danger, call the appropriate emergency number, not CivicOS.</p>"
+        "body": "<p>CivicOS is an informational platform for civic engagement. It lets citizens report community issues, sign petitions, follow representatives, and see public responses from organizations. It is <strong>not</strong> a substitute for emergency services, legal advice, or government complaint channels. If you or someone else is in danger, call the appropriate emergency number, not CivicOS.</p><p>Two parts of CivicOS carry their own rules: community funding, where money changes hands (§10), and AI-assisted features (§11).</p>"
       },
       "eligibility": {
         "title": "Who can use CivicOS",
@@ -926,11 +926,19 @@
       },
       "reps": {
         "title": "Representatives and organizations",
-        "body": "<p>Accounts marked as representatives or verified organizations carry public trust — citizens use the badge to distinguish real officials from impersonators. Misusing a verified account — pretending to speak for the person or org, posting non-civic commercial content, or coordinating to deceive citizens — will cause the verified status to be revoked and, in serious cases, the account terminated.</p>"
+        "body": "<p>Accounts marked as representatives or verified organizations carry public trust — citizens use the badge to distinguish real officials from impersonators. Misusing a verified account — pretending to speak for the person or org, posting non-civic commercial content, or coordinating to deceive citizens — will cause the verified status to be revoked and, in serious cases, the account terminated.</p><p><strong>Representatives can publish announcements</strong> to their constituents. A published announcement is a public statement: its text is frozen once published, because constituents were notified about specific words and quietly rewriting them afterwards would make the record meaningless. An announcement can be archived, which removes it from public view but does not erase that it was made.</p>"
       },
       "petitions": {
         "title": "Petitions",
         "body": "<p>Petitions on CivicOS are civic voice, not legal instruments. Signing a petition does not compel any government body to act, and hitting a signature target does not create any obligation. Petitions still matter — they surface priorities to elected representatives, journalists, and the public — but do not treat them as binding decisions.</p>"
+      },
+      "funding": {
+        "title": "Community funding",
+        "body": "<p>Verified organizations can raise money on CivicOS for community projects. Anyone can donate — you do not need an account.</p><p><strong>CivicOS never holds your money.</strong> Donations are processed by Paystack and settle directly into the organization's own Paystack account. We are not the merchant of record, not a trustee, and not a party to the transaction between you and the organization.</p><p><strong>Refunds are not ours to give.</strong> Because the funds never reach us, we cannot reverse a donation. Take a refund up with the organization, or dispute the charge with Paystack or your bank.</p><p><strong>We charge a platform fee of 2.5%</strong> of each donation, taken at the time of payment. The payment processor's own fee comes out of the organization's share. The donate page shows the exact split before you confirm.</p><p><strong>Reviewing a campaign is not endorsing it.</strong> Before a campaign is published we check that the organization is verified and that the campaign is coherent and appropriate. That is a screening, not an audit, and not a guarantee that the project will be delivered.</p><p><strong>Spending reports are the organization's word, not ours.</strong> Organizations publish what they say they spent and we display it. Because the money settles into their own account, <strong>CivicOS cannot independently verify that any reported spending actually took place.</strong> Read those reports as disclosure by the organization, not as accounts audited by us, and donate on that basis.</p><p>If you believe a campaign misrepresents itself, raise a concern from the campaign page. We can unpublish a campaign and revoke an organization's verification. We cannot recover money that has already settled.</p>"
+      },
+      "ai": {
+        "title": "AI-assisted features",
+        "body": "<p>Some features are assisted by AI — classifying an issue, summarising a discussion, drafting an announcement, surfacing patterns across a community. What the AI produces is a <strong>suggestion</strong>.</p><p><strong>Nothing is published because an AI said so.</strong> Every suggestion is shown to a person who decides whether to accept, edit or discard it. Responsibility for anything published rests with the account that published it.</p><p>AI output can be wrong, incomplete, or subtly misleading. Do not rely on a summary in place of reading the thread, and do not treat a classification as an official determination. For exactly what is sent to our AI provider and what is not, see the <privacy>privacy notice</privacy>.</p>"
       },
       "availability": {
         "title": "Availability and changes",
@@ -938,7 +946,7 @@
       },
       "termination": {
         "title": "Termination",
-        "body": "<p>You can leave CivicOS at any time — the delete-account button in your profile anonymizes your public contributions and purges your PII within 30 days (see privacy §7 for the exact retention picture).</p><p>We may suspend or terminate an account that violates these terms. In most cases we will attempt to notify you and explain the reason. In cases involving credible threats, coordinated abuse, or legal risk, we may act immediately without notice.</p>"
+        "body": "<p>You can leave CivicOS at any time — the delete-account button in your profile anonymizes your public contributions and purges your PII within 30 days. <strong>Donation records are the exception</strong> — a settled payment is a financial record we are obliged to keep. See privacy §9 for the exact retention picture.</p><p>We may suspend or terminate an account that violates these terms. In most cases we will attempt to notify you and explain the reason. In cases involving credible threats, coordinated abuse, or legal risk, we may act immediately without notice.</p>"
       },
       "law": {
         "title": "Governing law",
@@ -954,7 +962,7 @@
     "eyebrow": "The Public Record — Privacy Notice",
     "title": "Privacy notice",
     "effective": "Effective {{date}}",
-    "intro": "This is CivicOS's privacy notice. Plain English, no legalese, and specific to how CivicOS actually works. If anything below is unclear, write to us — the address is in §12.",
+    "intro": "This is CivicOS's privacy notice. Plain English, no legalese, and specific to how CivicOS actually works. If anything below is unclear, write to us — the address is in §14.",
     "footerLink": "Read the CivicOS privacy notice",
     "sections": {
       "who": {
@@ -963,7 +971,7 @@
       },
       "what": {
         "title": "What we collect",
-        "body": "<p><strong>Account information.</strong> Your email, a password (never stored in clear — see §6), your display name, your community (state and LGA), and optionally your phone number and avatar. Representatives and admins may store additional public contact fields (office email, phone, website) tied to their public role.</p><p><strong>Activity.</strong> Issues you report, petitions you sign or create, comments you post, representatives you follow, notifications delivered to you, and timestamps for each — all in UTC.</p><p><strong>Security signals.</strong> IP address, request path, session ID, and rate-limit counters. Kept briefly, then discarded (see §7).</p><p><strong>We do not collect.</strong> Real-time location, contacts, biometrics, browsing history outside CivicOS, or advertising identifiers.</p>"
+        "body": "<p><strong>Account information.</strong> Your email, a password (never stored in clear — see §8), your display name, your community (state and LGA), and optionally your phone number and avatar. Representatives and admins may store additional public contact fields (office email, phone, website) tied to their public role.</p><p><strong>Activity.</strong> Issues you report, petitions you sign or create, comments you post, representatives you follow, notifications delivered to you, and timestamps for each — all in UTC.</p><p><strong>Donations.</strong> If you donate to a community campaign we record the amount, the campaign, your name, your email address, and any message you attach. Your email is required by our payment processor and is used to send your receipt. Card and bank details are entered on the processor's own page and never reach CivicOS — see §6.</p><p><strong>Reports and concerns.</strong> If you report content or raise a concern about a campaign, we keep what you wrote and who you are, so moderators can act on it.</p><p><strong>Security signals.</strong> IP address, request path, session ID, and rate-limit counters. Kept briefly, then discarded (see §9).</p><p><strong>We do not collect.</strong> Real-time location, contacts, biometrics, browsing history outside CivicOS, or advertising identifiers.</p>"
       },
       "why": {
         "title": "Why we collect it",
@@ -971,11 +979,19 @@
       },
       "donot": {
         "title": "What we do not do",
-        "body": "<p>We do not sell your data. Ever. To anyone. We do not run advertising, tracking pixels, or cross-site cookies. We do not enrich your profile from external databases. We do not embed third-party analytics scripts that could exfiltrate your activity.</p>"
+        "body": "<p>We do not sell your data. Ever. To anyone. We do not run advertising, tracking pixels, or cross-site cookies. We do not enrich your profile from external databases. We do not embed third-party analytics scripts.</p><p>We do rely on two outside services to run the platform: an AI provider (§5) and a payment processor (§6). Both are described in full below, including what leaves CivicOS and what never does. We would rather say so plainly than let \"no trackers\" leave you with the impression that nothing ever leaves.</p>"
+      },
+      "ai": {
+        "title": "Artificial intelligence and Google Gemini",
+        "body": "<p>Some CivicOS features are powered by <strong>Google Gemini</strong>, an AI service run by Google. When one of those features is used, the relevant content is sent to Google, processed there, and a suggestion is returned.</p><p><strong>What is sent.</strong> Summarising a discussion sends the comments in that thread, including the display name and role shown against each one. Community insights send issue and petition titles with their categories and statuses. Issue classification sends the text of the issue. Announcement drafting sends what the author typed. Platform narration sends aggregate counts only.</p><p><strong>What is never sent.</strong> Email addresses, phone numbers, password hashes, IP addresses, donation records, and private notifications. Nothing that is not already visible on the platform is included.</p><p><strong>This means some of your data leaves Nigeria.</strong> Google processes it on infrastructure outside the country under Google's own terms. We cannot exempt an individual comment from a thread summary, so if you would prefer your words were never processed this way, that is worth knowing before you post in a thread an organization or representative may summarise.</p><p><strong>Nothing an AI produces is published automatically.</strong> Every result is a suggestion shown to a person, who decides whether to use it. Suggestions are cached briefly so the same question is not asked twice.</p>"
+      },
+      "payments": {
+        "title": "Donations and payments",
+        "body": "<p>Donations are processed by <strong>Paystack</strong>. Your card or bank details are entered on Paystack's own page and never reach CivicOS servers.</p><p><strong>What we hold.</strong> Your name, your email address, the amount, the campaign, any message you wrote, and Paystack's reference for the transaction.</p><p><strong>What the organization sees.</strong> The amount, the date, your message, and your name — or \"Anonymous\" if you chose that. It does not receive your email address; no part of our API returns it.</p><p><strong>What \"anonymous\" means.</strong> Donating anonymously hides your name from the public donor list on the campaign page. It does not hide you from CivicOS or from Paystack — we both still hold your name and email, because a receipt has to reach someone and a payment has to be traceable. It is anonymity in public, not anonymity from us.</p><p><strong>The money does not pass through CivicOS.</strong> Funds settle directly from Paystack into the organization's own account. We are not the merchant of record — see the terms for what that means for refunds.</p>"
       },
       "sharing": {
         "title": "What is public, what is private",
-        "body": "<p><strong>Public by design:</strong> your display name, community, petitions you author, comments you post publicly on issues, petitions, and representatives, and aggregate counts (signature totals, upvotes, follower counts).</p><p><strong>Private by default:</strong> your email, phone, password hash, private notifications, security signals, and the audit trail of admin actions on your account.</p><p><strong>Petition signatures</strong> appear as counts, not names, on public pages — unless you explicitly opt into signed public endorsement.</p>"
+        "body": "<p><strong>Public by design:</strong> your display name, community, petitions you author, comments you post publicly on issues, petitions, representatives and their announcements, and aggregate counts (signature totals, upvotes, follower counts).</p><p><strong>Readable without an account.</strong> Parts of the public record are visible to anyone on the internet, signed in or not: campaign pages, and the activity panel on our homepage, which lists recent issue, petition, consultation, announcement and campaign <em>titles</em> with their state and LGA. That panel deliberately carries no author names and no message bodies.</p><p><strong>Private by default:</strong> your email, phone, password hash, private notifications, security signals, donor email addresses, and the audit trail of admin actions on your account.</p><p><strong>Petition signatures</strong> appear on public pages as counts only. Your name is never shown against a petition you have signed.</p>"
       },
       "security": {
         "title": "Security",
@@ -983,7 +999,7 @@
       },
       "retention": {
         "title": "Retention",
-        "body": "<p><strong>Active account.</strong> We keep your account and activity for as long as your account is active.</p><p><strong>Deleted account.</strong> On request, we anonymise your public contributions (comments show as removed; petitions you authored show that the author withdrew) and purge your personal information within 30 days. Aggregate counts stay, for record integrity.</p><p><strong>Security signals.</strong> IP addresses and rate-limit counters expire within 24 hours.</p><p><strong>Backups.</strong> Encrypted, retained 30 days, then destroyed.</p>"
+        "body": "<p><strong>Active account.</strong> We keep your account and activity for as long as your account is active.</p><p><strong>Deleted account.</strong> On request, we anonymise your public contributions (comments show as removed; petitions you authored show that the author withdrew) and purge your personal information within 30 days. Aggregate counts stay, for record integrity.</p><p><strong>Donations are the exception.</strong> A settled donation is a financial record. We keep the amount, date, campaign and payment reference, together with the name and email attached to it, even after an account is deleted — the organization's public accounts and our reconciliation against Paystack have to remain auditable, and we have tax and anti-fraud obligations. If you have donated, deleting your account does not erase those records. Write to us if you need to discuss it.</p><p><strong>Security signals.</strong> IP addresses and rate-limit counters expire within 24 hours.</p><p><strong>Backups.</strong> Encrypted, retained 30 days, then destroyed.</p>"
       },
       "rights": {
         "title": "Your rights",
