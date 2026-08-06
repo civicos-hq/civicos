@@ -3,7 +3,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { TopNav, Footer } from './HomePage';
 import { useSeo } from '../hooks/useSeo';
 
-const EFFECTIVE_DATE = '2026-07-04';
+const EFFECTIVE_DATE = '2026-08-05';
 
 export function TermsPage() {
   const { t, i18n } = useTranslation();
@@ -33,6 +33,9 @@ export function TermsPage() {
     'moderation',
     'reps',
     'petitions',
+    // §10 and §11 are referenced by number from §2.
+    'funding',
+    'ai',
     'availability',
     'termination',
     'law',

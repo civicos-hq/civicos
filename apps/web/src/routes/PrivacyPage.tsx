@@ -3,7 +3,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { TopNav, Footer } from './HomePage';
 import { useSeo } from '../hooks/useSeo';
 
-const EFFECTIVE_DATE = '2026-07-03';
+const EFFECTIVE_DATE = '2026-08-05';
 
 export function PrivacyPage() {
   const { t, i18n } = useTranslation();
@@ -28,6 +28,10 @@ export function PrivacyPage() {
     'what',
     'why',
     'donot',
+    // §5 and §6 are referenced by number from §4 — keep them adjacent and in
+    // this order, or that cross-reference silently starts pointing elsewhere.
+    'ai',
+    'payments',
     'sharing',
     'security',
     'retention',
