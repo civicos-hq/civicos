@@ -36,7 +36,8 @@
     "commentCount_one": "{{count}} comment",
     "commentCount_other": "{{count}} comments",
     "memberCount_one": "{{count}} member",
-    "memberCount_other": "{{count}} members"
+    "memberCount_other": "{{count}} members",
+    "previous": "Previous"
   },
   "time": {
     "justNow": "just now",
@@ -276,7 +277,8 @@
       "announcements": "Announcements",
       "projects": "Projects",
       "campaigns": "Campaigns",
-      "repAnnouncements": "Representative announcements"
+      "repAnnouncements": "Representative announcements",
+      "communities": "Communities"
     }
   },
   "discoverPage": {
@@ -534,7 +536,11 @@
       "descriptionPlaceholder": "What this community is about",
       "genericError": "Could not create community. Please try again.",
       "create": "Create community"
-    }
+    },
+    "searchPlaceholder": "Search communities by name, LGA or state…",
+    "noSearchResults": "No communities match “{{query}}”.",
+    "resultCount_one": "{{count}} community",
+    "resultCount_other": "{{count}} communities"
   },
   "profilePage": {
     "eyebrow": "Civic Profile",
@@ -1171,24 +1177,34 @@
       "eyebrow": "Find your community",
       "title": "Let's get you set up.",
       "description": "Pick your community so your feed, notifications, and representatives all point to your patch. You can change this later from your profile.",
-      "step": "Step {{n}} of 3",
-      "stateTitle": "Which state are you in?",
-      "stateHint": "Choose the state you want to be active in on CivicOS.",
-      "statePlaceholder": "Search states…",
-      "lgaTitle": "And your LGA?",
-      "lgaHint": "Local Government Area within {{state}}.",
-      "lgaPlaceholder": "Search LGAs…",
-      "communityTitle": "Pick a community",
-      "communityHint": "These are the CivicOS communities set up in {{lga}}, {{state}}. Choose the one closest to where you live or care about most.",
       "communityLoading": "Loading communities…",
-      "communityEmptyTitle": "No community here yet.",
-      "communityEmptySub": "Nobody has created a CivicOS community for {{lga}}, {{state}} yet. You can still browse the platform — the yellow banner on Discover will remind you to come back when one appears.",
-      "next": "Continue",
       "back": "Back",
       "skip": "Skip for now",
-      "join": "Join community",
       "joining": "Joining…",
-      "successToast": "You're in — welcome to {{community}}."
+      "stepOf": "Step {{n}} of {{total}}",
+      "pickTitle": "Find your communities",
+      "pickHint": "Search for your town, LGA, or university — you can pick more than one. Most people join where they live and where they study or work.",
+      "searchPlaceholder": "Try “University of Abuja”, “Gwagwalada”, “Lekki”…",
+      "showBrowse": "Or browse by state and LGA",
+      "hideBrowse": "Hide state and LGA filters",
+      "stateLabel": "State",
+      "lgaLabel": "LGA",
+      "anyState": "Any state",
+      "anyLGA": "Any LGA",
+      "selectedLabel": "Communities you have selected",
+      "removeSelection": "Remove",
+      "noResultsTitle": "Nothing matches that yet.",
+      "noResultsSub": "Try a shorter search, or browse by state and LGA. If your community is not on CivicOS yet, you can still explore the platform and join later.",
+      "resultCount_one": "{{count}} community found",
+      "resultCount_other": "{{count}} communities found",
+      "continueWith_zero": "Pick at least one",
+      "continueWith_one": "Continue with {{count}}",
+      "continueWith_other": "Continue with {{count}}",
+      "homeTitle": "Which one is home?",
+      "homeHint": "Your home community is where you can report issues and start petitions. You stay a full member of the others — you can comment, upvote and sign there too.",
+      "homeCooldownNote": "You can change your home community once every 30 days, so pick the one you are most likely to act in.",
+      "finish": "Finish",
+      "joinError": "We could not save that. Please try again."
     },
     "forgot": {
       "eyebrow": "Password Recovery",

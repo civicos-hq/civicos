@@ -8,6 +8,7 @@ import (
 
 	"github.com/civicos/identity-service/internal/domain"
 	"github.com/civicos/identity-service/pkg/config"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -16,6 +17,9 @@ type inMemoryUserStore struct {
 	usersByEmail map[string]*domain.User
 	repApps      map[string]*domain.RepresentativeApplication
 	orgApps      map[string]*domain.OrganizationApplication
+	// communities stands in for the communities table, which identity
+	// reads directly from the shared database to validate a batch join.
+	communities map[string]struct{}
 }
 
 func newInMemoryUserStore() *inMemoryUserStore {
@@ -24,7 +28,60 @@ func newInMemoryUserStore() *inMemoryUserStore {
 		usersByEmail: make(map[string]*domain.User),
 		repApps:      make(map[string]*domain.RepresentativeApplication),
 		orgApps:      make(map[string]*domain.OrganizationApplication),
+		communities:  make(map[string]struct{}),
 	}
+}
+
+func (s *inMemoryUserStore) addCommunity(ids ...string) {
+	for _, id := range ids {
+		s.communities[id] = struct{}{}
+	}
+}
+
+func (s *inMemoryUserStore) CountExistingCommunities(ids []string) (int64, error) {
+	var n int64
+	for _, id := range ids {
+		if _, ok := s.communities[id]; ok {
+			n++
+		}
+	}
+	return n, nil
+}
+
+// JoinCommunities mirrors the real repository's rule: memberships are
+// upserted, and the nominated primary is only written when the user has
+// never had one.
+func (s *inMemoryUserStore) JoinCommunities(userID string, communityIDs []string, primaryID string) error {
+	user, ok := s.usersByID[userID]
+	if !ok {
+		return gorm.ErrRecordNotFound
+	}
+	now := time.Now().UTC()
+	for _, id := range communityIDs {
+		exists := false
+		for _, m := range user.Memberships {
+			if m.CommunityID == id {
+				exists = true
+				break
+			}
+		}
+		if exists {
+			continue
+		}
+		user.Memberships = append(user.Memberships, domain.UserCommunityMembership{
+			ID:          "membership-" + id,
+			UserID:      userID,
+			CommunityID: id,
+			JoinedAt:    now,
+		})
+	}
+	if user.PrimaryCommunityID == nil {
+		p := primaryID
+		user.PrimaryCommunityID = &p
+	}
+	active := primaryID
+	user.ActiveCommunityID = &active
+	return nil
 }
 
 func (s *inMemoryUserStore) FindByEmail(email string) (*domain.User, error) {
@@ -64,20 +121,29 @@ func (s *inMemoryUserStore) CreateNotification(userID, title, body string, linkU
 }
 
 func (s *inMemoryUserStore) JoinCommunity(userID, communityID string) error {
-	if user, ok := s.usersByID[userID]; ok {
-		user.ActiveCommunityID = &communityID
-		for _, membership := range user.Memberships {
-			if membership.CommunityID == communityID {
-				return nil
-			}
-		}
-		user.Memberships = append(user.Memberships, domain.UserCommunityMembership{
-			ID:          "membership-" + communityID,
-			UserID:      userID,
-			CommunityID: communityID,
-			JoinedAt:    time.Now().UTC(),
-		})
+	user, ok := s.usersByID[userID]
+	if !ok {
+		return nil
 	}
+	user.ActiveCommunityID = &communityID
+	// The first join claims primary but leaves the cooldown clock unset,
+	// exactly as the real repository does — an initial assignment is not
+	// a change.
+	if user.PrimaryCommunityID == nil {
+		p := communityID
+		user.PrimaryCommunityID = &p
+	}
+	for _, membership := range user.Memberships {
+		if membership.CommunityID == communityID {
+			return nil
+		}
+	}
+	user.Memberships = append(user.Memberships, domain.UserCommunityMembership{
+		ID:          "membership-" + communityID,
+		UserID:      userID,
+		CommunityID: communityID,
+		JoinedAt:    time.Now().UTC(),
+	})
 	return nil
 }
 
@@ -620,6 +686,181 @@ func TestLogoutRevokesFamily(t *testing.T) {
 	if err := svc.Logout("does-not-exist"); err != nil {
 		t.Fatalf("logout with unknown token should be a no-op, got %v", err)
 	}
+}
+
+// ─── Batch join (onboarding) ──────────────────────────────────────────
+
+const (
+	uniAbuja    = "11111111-1111-4111-8111-111111111111"
+	gwagwalada  = "22222222-2222-4222-8222-222222222222"
+	nileUni     = "33333333-3333-4333-8333-333333333333"
+	notACommuty = "44444444-4444-4444-8444-444444444444"
+)
+
+func newJoinFixture(t *testing.T) (*Service, *inMemoryUserStore, string) {
+	t.Helper()
+	cfg := &config.Config{JWTSecret: "12345678901234567890123456789012", AppURL: "http://localhost:5173"}
+	repo := newInMemoryUserStore()
+	repo.addCommunity(uniAbuja, gwagwalada, nileUni)
+	svc := NewService(repo, newInMemoryRefreshStore(), cfg, &captureMailer{})
+
+	user, _, err := svc.Register(RegisterInput{
+		Name:     "Ada",
+		Email:    "ada@example.com",
+		Password: "password123",
+	})
+	if err != nil {
+		t.Fatalf("register: %v", err)
+	}
+	return svc, repo, user.ID
+}
+
+// The whole reason this endpoint exists: a student lives in one LGA and
+// studies in another, and gets to say which of the two is home.
+func TestJoinCommunitiesSetsChosenPrimary(t *testing.T) {
+	svc, _, userID := newJoinFixture(t)
+
+	user, err := svc.JoinCommunities(userID, []string{gwagwalada, uniAbuja}, uniAbuja)
+	if err != nil {
+		t.Fatalf("join communities: %v", err)
+	}
+	if len(user.Memberships) != 2 {
+		t.Fatalf("expected 2 memberships, got %d", len(user.Memberships))
+	}
+	// Primary must be the nominated one, NOT the first in the list.
+	if user.PrimaryCommunityID == nil || *user.PrimaryCommunityID != uniAbuja {
+		t.Fatalf("expected primary %s, got %v", uniAbuja, user.PrimaryCommunityID)
+	}
+	if user.ActiveCommunityID == nil || *user.ActiveCommunityID != uniAbuja {
+		t.Fatalf("expected active to follow primary, got %v", user.ActiveCommunityID)
+	}
+}
+
+// Regression guard for the trap this endpoint was built to avoid. Joining
+// communities one at a time stamps primary_community_changed_at on the first
+// join, so nominating a different home immediately afterwards was refused
+// with PRIMARY_COMMUNITY_COOLDOWN — a 30-day lockout earned during signup.
+func TestJoinCommunitiesAvoidsDayOneCooldownLockout(t *testing.T) {
+	svc, _, userID := newJoinFixture(t)
+
+	// The old wizard's shape: join, join, and the primary is decided by
+	// whichever request happened to land first, not by the user.
+	if _, err := svc.JoinCommunity(userID, gwagwalada); err != nil {
+		t.Fatalf("first join: %v", err)
+	}
+	if _, err := svc.JoinCommunity(userID, uniAbuja); err != nil {
+		t.Fatalf("second join: %v", err)
+	}
+	me, err := svc.GetMe(userID)
+	if err != nil {
+		t.Fatalf("get me: %v", err)
+	}
+	if me.PrimaryCommunityID == nil || *me.PrimaryCommunityID != gwagwalada {
+		t.Fatalf("sequential joins should leave primary at the first join, got %v", me.PrimaryCommunityID)
+	}
+
+	// The batch path does it in one write, so the user's choice lands.
+	svc2, _, userID2 := newJoinFixture(t)
+	user, err := svc2.JoinCommunities(userID2, []string{gwagwalada, uniAbuja}, uniAbuja)
+	if err != nil {
+		t.Fatalf("batch join: %v", err)
+	}
+	if user.PrimaryCommunityID == nil || *user.PrimaryCommunityID != uniAbuja {
+		t.Fatalf("expected primary %s, got %v", uniAbuja, user.PrimaryCommunityID)
+	}
+}
+
+// Picking a home during onboarding must not consume the 30-day allowance.
+// It used to: both join paths stamped primary_community_changed_at on the
+// initial assignment, so a citizen who chose wrong on their first day was
+// locked out for a month before they had done anything at all.
+func TestOnboardingChoiceLeavesTheCooldownUnspent(t *testing.T) {
+	svc, _, userID := newJoinFixture(t)
+
+	if _, err := svc.JoinCommunities(userID, []string{gwagwalada, uniAbuja}, uniAbuja); err != nil {
+		t.Fatalf("batch join: %v", err)
+	}
+
+	// Immediately correcting the choice must be allowed.
+	user, err := svc.SetPrimaryCommunity(userID, gwagwalada)
+	if err != nil {
+		t.Fatalf("first correction after onboarding must be free, got %v", err)
+	}
+	if user.PrimaryCommunityID == nil || *user.PrimaryCommunityID != gwagwalada {
+		t.Fatalf("expected primary %s, got %v", gwagwalada, user.PrimaryCommunityID)
+	}
+
+	// But that correction does start the clock — a second change is not free.
+	_, err = svc.SetPrimaryCommunity(userID, uniAbuja)
+	var cooldown *PrimaryCommunityChangeError
+	if !errors.As(err, &cooldown) {
+		t.Fatalf("expected the second change to hit the cooldown, got %v", err)
+	}
+}
+
+// Re-running the batch path must not become a cooldown bypass.
+func TestJoinCommunitiesDoesNotOverwriteExistingPrimary(t *testing.T) {
+	svc, _, userID := newJoinFixture(t)
+
+	if _, err := svc.JoinCommunities(userID, []string{gwagwalada}, gwagwalada); err != nil {
+		t.Fatalf("first batch: %v", err)
+	}
+	user, err := svc.JoinCommunities(userID, []string{nileUni}, nileUni)
+	if err != nil {
+		t.Fatalf("second batch: %v", err)
+	}
+	if user.PrimaryCommunityID == nil || *user.PrimaryCommunityID != gwagwalada {
+		t.Fatalf("primary must stay %s, got %v", gwagwalada, user.PrimaryCommunityID)
+	}
+}
+
+func TestJoinCommunitiesValidation(t *testing.T) {
+	cases := []struct {
+		name    string
+		ids     []string
+		primary string
+		want    string
+	}{
+		{"empty selection", nil, uniAbuja, "COMMUNITY_SELECTION_REQUIRED"},
+		{"primary outside selection", []string{gwagwalada}, uniAbuja, "PRIMARY_MUST_BE_SELECTED"},
+		{"unknown community", []string{notACommuty}, notACommuty, "COMMUNITY_NOT_FOUND"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			svc, _, userID := newJoinFixture(t)
+			_, err := svc.JoinCommunities(userID, tc.ids, tc.primary)
+			if err == nil || err.Error() != tc.want {
+				t.Fatalf("expected %s, got %v", tc.want, err)
+			}
+		})
+	}
+
+	t.Run("over the batch cap", func(t *testing.T) {
+		svc, repo, userID := newJoinFixture(t)
+		ids := make([]string, 0, MaxCommunitiesPerJoin+1)
+		for i := 0; i <= MaxCommunitiesPerJoin; i++ {
+			id := uuid.New().String()
+			repo.addCommunity(id)
+			ids = append(ids, id)
+		}
+		_, err := svc.JoinCommunities(userID, ids, ids[0])
+		if err == nil || err.Error() != "TOO_MANY_COMMUNITIES" {
+			t.Fatalf("expected TOO_MANY_COMMUNITIES, got %v", err)
+		}
+	})
+
+	// Duplicates are the client's problem to make and ours to absorb: a
+	// double-tapped checkbox must not trip the batch cap or double-write.
+	t.Run("duplicates collapse", func(t *testing.T) {
+		svc, _, userID := newJoinFixture(t)
+		user, err := svc.JoinCommunities(userID, []string{uniAbuja, uniAbuja, gwagwalada}, uniAbuja)
+		if err != nil {
+			t.Fatalf("duplicate join: %v", err)
+		}
+		if len(user.Memberships) != 2 {
+			t.Fatalf("expected 2 memberships after dedupe, got %d", len(user.Memberships))
+		}
+	})
 }
 
 // Prevent unused-import complaints in the rare test-only build case.

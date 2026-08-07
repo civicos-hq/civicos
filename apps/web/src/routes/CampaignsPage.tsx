@@ -10,7 +10,7 @@ import {
 } from '../hooks/useCampaigns';
 import { CampaignCard } from '../components/CampaignCard';
 import { useOptionalMe } from '../hooks/useMe';
-import { useCommunities } from '../hooks/useCommunities';
+import { useCommunity } from '../hooks/useCommunities';
 
 // Public, unauthenticated. Uses the marketing chrome (TopNav/Footer) rather
 // than the dashboard layout, because a citizen following a shared campaign
@@ -41,8 +41,7 @@ export function CampaignsPage() {
   // only a community id, so the place comes from the community list — already
   // cached for other pages, and no new endpoint.
   const { data: me } = useOptionalMe();
-  const { data: communities } = useCommunities();
-  const home = communities?.find((c) => c.id === me?.activeCommunityId);
+  const { data: home } = useCommunity(me?.activeCommunityId);
 
   useSeo({
     title: t('campaigns.seoTitle'),

@@ -129,6 +129,10 @@ func main() {
 	// script that hammers DELETE would nuke accounts en masse.
 	r.DELETE("/api/v1/auth/me", authMiddleware, limitStrict, identityProtected)
 	r.POST("/api/v1/auth/me/community", authMiddleware, limitStandard, identityProtected)
+	// Batch join — the onboarding wizard's single write. Strict, not
+	// standard: it is called once per user at signup, and it is the one
+	// route that can create many memberships in a single request.
+	r.POST("/api/v1/auth/me/communities", authMiddleware, limitStrict, identityProtected)
 	r.PATCH("/api/v1/auth/me/active-community", authMiddleware, limitStandard, identityProtected)
 	r.PATCH("/api/v1/auth/me/primary-community", authMiddleware, limitStandard, identityProtected)
 	r.GET("/api/v1/applications/me", authMiddleware, identityProtected)

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useUnreadCount } from '../../hooks/useNotifications';
-import { useCommunities } from '../../hooks/useCommunities';
+import { useCommunitiesByID } from '../../hooks/useCommunities';
 import { useMe } from '../../hooks/useMe';
 import { api } from '../../lib/api';
 import { SearchBar } from './SearchBar';
@@ -20,16 +20,15 @@ export function Topbar({ onOpenDrawer }: { onOpenDrawer?: () => void } = {}) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const meQuery = useMe();
-  const communitiesQuery = useCommunities();
+  const membershipIds = (meQuery.data?.memberships ?? []).map((m) => m.communityId);
+  const communitiesQuery = useCommunitiesByID(membershipIds);
   const { data: unread = 0 } = useUnreadCount();
   const hasUnread = unread > 0;
   const label = unread > 99 ? '99+' : String(unread);
-  const memberships = meQuery.data?.memberships ?? [];
   const activeCommunityId = meQuery.data?.activeCommunityId;
-  const joinedCommunityIDs = new Set(memberships.map((membership) => membership.communityId));
-  const joinedCommunities = (communitiesQuery.data ?? []).filter((community) =>
-    joinedCommunityIDs.has(community.id),
-  );
+  // Already scoped to the user's memberships by the query itself — no
+  // client-side filtering of a full community list any more.
+  const joinedCommunities = communitiesQuery.data ?? [];
 
   const switchMutation = useMutation({
     mutationFn: async (communityId: string) => {

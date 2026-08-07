@@ -38,6 +38,8 @@ type UserStore interface {
 	JoinCommunity(userID, communityID string) error
 	SetActiveCommunity(userID, communityID string) error
 	SetPrimaryCommunity(userID, communityID string, changedAt time.Time) error
+	JoinCommunities(userID string, communityIDs []string, primaryID string) error
+	CountExistingCommunities(ids []string) (int64, error)
 	UpdateProfile(userID, name, email string) error
 	SetVerificationToken(userID, tokenHash string, expiresAt time.Time) error
 	FindByVerificationTokenHash(tokenHash string) (*domain.User, error)
@@ -674,6 +676,52 @@ func (s *Service) UpdateProfile(userID string, input UpdateProfileInput) (*domai
 
 func (s *Service) JoinCommunity(userID, communityID string) (*domain.PublicUser, error) {
 	if err := s.repo.JoinCommunity(userID, communityID); err != nil {
+		return nil, err
+	}
+	return s.GetMe(userID)
+}
+
+// MaxCommunitiesPerJoin bounds a single batch join. Generous enough for the
+// realistic answer (a residence, a campus, maybe a hometown) while keeping a
+// scripted client from writing thousands of memberships in one call.
+const MaxCommunitiesPerJoin = 20
+
+// JoinCommunities joins a set of communities and nominates one as primary.
+//
+// Onboarding needs this as one call rather than N joins plus a
+// change-primary: the wizard lets a user pick several communities at once
+// (a student lives in one place and studies in another), and which of them
+// becomes home has to be their explicit choice, not an artefact of the order
+// the requests happened to land in.
+func (s *Service) JoinCommunities(userID string, communityIDs []string, primaryID string) (*domain.PublicUser, error) {
+	unique := make([]string, 0, len(communityIDs))
+	seen := make(map[string]struct{}, len(communityIDs))
+	for _, id := range communityIDs {
+		if _, dup := seen[id]; dup {
+			continue
+		}
+		seen[id] = struct{}{}
+		unique = append(unique, id)
+	}
+	if len(unique) == 0 {
+		return nil, errors.New("COMMUNITY_SELECTION_REQUIRED")
+	}
+	if len(unique) > MaxCommunitiesPerJoin {
+		return nil, errors.New("TOO_MANY_COMMUNITIES")
+	}
+	if _, ok := seen[primaryID]; !ok {
+		return nil, errors.New("PRIMARY_MUST_BE_SELECTED")
+	}
+
+	found, err := s.repo.CountExistingCommunities(unique)
+	if err != nil {
+		return nil, err
+	}
+	if int(found) != len(unique) {
+		return nil, errors.New("COMMUNITY_NOT_FOUND")
+	}
+
+	if err := s.repo.JoinCommunities(userID, unique, primaryID); err != nil {
 		return nil, err
 	}
 	return s.GetMe(userID)

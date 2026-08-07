@@ -119,6 +119,11 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup) {
 // Result is a flat per-entity search payload. Frontend renders one lane
 // per bucket by the map key without needing entity-specific shapes.
 type Result struct {
+	// Communities lead the struct because they are the one result kind that
+	// is an entry point rather than a destination: someone searching
+	// "University of Abuja" is almost always trying to join it, not to read
+	// a specific issue inside it.
+	Communities      []domain.Community      `json:"communities"`
 	Issues           []domain.Issue          `json:"issues"`
 	Petitions        []domain.Petition       `json:"petitions"`
 	Representatives  []domain.Representative `json:"representatives"`
@@ -132,6 +137,7 @@ type Result struct {
 
 func emptyResult() gin.H {
 	return gin.H{
+		"communities":      []domain.Community{},
 		"issues":           []domain.Issue{},
 		"petitions":        []domain.Petition{},
 		"representatives":  []domain.Representative{},
@@ -157,6 +163,7 @@ func (h *Handler) search(c *gin.Context) {
 		return
 	}
 	response.Success(c, http.StatusOK, gin.H{
+		"communities":      res.Communities,
 		"issues":           res.Issues,
 		"petitions":        res.Petitions,
 		"representatives":  res.Representatives,
@@ -169,11 +176,13 @@ func (h *Handler) search(c *gin.Context) {
 	})
 }
 
-// Search runs nine case-insensitive LIKE queries. ILIKE is good enough
+// Search runs ten case-insensitive LIKE queries. ILIKE is good enough
 // for the dataset sizes this catalog will see before we need pg_trgm or
 // full-text indexing (tracked on the roadmap as "Full-text search").
 //
 // Visibility rules match the citizen browse pages:
+//   - Communities: no status field; civic geography is fully public, and
+//     a community nobody can find is a community nobody can join.
 //   - Consultations: DRAFT is hidden (author-only visibility).
 //   - Announcements: only PUBLISHED (drafts + archived are not
 //     citizen-facing).
@@ -193,6 +202,23 @@ func (h *Handler) search(c *gin.Context) {
 //     representative has not, or no longer has, stood behind.
 func (s *Service) Search(q string) (*Result, error) {
 	like := "%" + strings.ReplaceAll(strings.ReplaceAll(q, `\`, `\\`), `%`, `\%`) + "%"
+
+	// Communities match on place names as well as their own name, so
+	// searching "Gwagwalada" surfaces both the LGA community and the
+	// university sitting inside it. Prefix matches lead, for the same
+	// reason they do on the browse endpoint.
+	var communities []domain.Community
+	if err := s.db.
+		Where("name ILIKE ? OR description ILIKE ? OR lga ILIKE ? OR state ILIKE ?", like, like, like, like).
+		Order(gorm.Expr("CASE WHEN name ILIKE ? THEN 0 ELSE 1 END", strings.ReplaceAll(strings.ReplaceAll(q, `\`, `\\`), `%`, `\%`)+"%")).
+		Order("name asc").
+		Limit(perBucketLimit).
+		Find(&communities).Error; err != nil {
+		return nil, err
+	}
+	if err := s.attachCommunityMemberCounts(communities); err != nil {
+		return nil, err
+	}
 
 	var issues []domain.Issue
 	if err := s.db.
@@ -280,6 +306,7 @@ func (s *Service) Search(q string) (*Result, error) {
 	}
 
 	return &Result{
+		Communities:      communities,
 		Issues:           issues,
 		Petitions:        petitions,
 		Representatives:  reps,
@@ -290,4 +317,43 @@ func (s *Service) Search(q string) (*Result, error) {
 		Campaigns:        campaigns,
 		RepAnnouncements: repAnns,
 	}, nil
+}
+
+// attachCommunityMemberCounts fills the read-only MemberCount on a bucket of
+// community results. Mirrors the communities repository rather than sharing
+// it: search reaches the database directly and has no repository to borrow.
+//
+// The count is what makes a community result actionable — with four
+// universities in one city, "which of these is actually in use" is the only
+// thing distinguishing them at a glance.
+func (s *Service) attachCommunityMemberCounts(list []domain.Community) error {
+	if len(list) == 0 {
+		return nil
+	}
+	ids := make([]string, 0, len(list))
+	for i := range list {
+		ids = append(ids, list[i].ID)
+	}
+
+	var rows []struct {
+		CommunityID string
+		Total       int
+	}
+	if err := s.db.
+		Table("user_community_memberships").
+		Select("community_id, COUNT(*) AS total").
+		Where("community_id IN ?", ids).
+		Group("community_id").
+		Scan(&rows).Error; err != nil {
+		return err
+	}
+
+	counts := make(map[string]int, len(rows))
+	for _, row := range rows {
+		counts[row.CommunityID] = row.Total
+	}
+	for i := range list {
+		list[i].MemberCount = counts[list[i].ID]
+	}
+	return nil
 }

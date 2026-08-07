@@ -33,7 +33,8 @@
     "commentCount_one": "Sharhi {{count}}",
     "commentCount_other": "Sharhohi {{count}}",
     "memberCount_one": "Memba {{count}}",
-    "memberCount_other": "Membobi {{count}}"
+    "memberCount_other": "Membobi {{count}}",
+    "previous": "Baya"
   },
   "time": {
     "justNow": "yanzu-yanzu",
@@ -180,7 +181,8 @@
       "petitions": "Koƙe-koƙe",
       "representatives": "Wakilai",
       "campaigns": "Tallafin al'umma",
-      "repAnnouncements": "Sanarwar wakilai"
+      "repAnnouncements": "Sanarwar wakilai",
+      "communities": "Al'ummomi"
     }
   },
   "discoverPage": {
@@ -410,7 +412,11 @@
       "descriptionPlaceholder": "Abin da wannan al'ummar ke gudanarwa",
       "genericError": "Ba mu iya ƙirƙira al'umma ba. Da fatan sake gwadawa.",
       "create": "Ƙirƙira al'umma"
-    }
+    },
+    "searchPlaceholder": "Nemi al'ummomi da suna, ƙaramar hukuma ko jiha…",
+    "noSearchResults": "Babu al'ummar da ta dace da “{{query}}”.",
+    "resultCount_one": "al'umma {{count}}",
+    "resultCount_other": "al'ummomi {{count}}"
   },
   "profilePage": {
     "eyebrow": "Bayanin Ɗan Ƙasa",
@@ -759,24 +765,34 @@
       "eyebrow": "Nemo al'ummarka",
       "title": "Bari mu tsara ka.",
       "description": "Zaɓi al'ummarka don jerinka, sanarwarka, da wakilanka duk su nuna yankinka. Za ka iya canza wannan daga baya daga bayanin martabarka.",
-      "step": "Mataki {{n}} na 3",
-      "stateTitle": "Wace jiha kake?",
-      "stateHint": "Zaɓi jihar da kake son yin aiki a cikin CivicOS.",
-      "statePlaceholder": "Nemi jihohi…",
-      "lgaTitle": "Kuma LGA ɗinka?",
-      "lgaHint": "Ƙaramar Hukumar Karamar Hukuma a cikin {{state}}.",
-      "lgaPlaceholder": "Nemi LGAs…",
-      "communityTitle": "Zaɓi al'umma",
-      "communityHint": "Waɗannan sune al'ummomin CivicOS da aka kafa a {{lga}}, {{state}}. Zaɓi wanda ya fi kusa da inda kake zama ko wanda ya fi damunka.",
       "communityLoading": "Ana ɗora al'ummomi…",
-      "communityEmptyTitle": "Babu al'umma anan tukuna.",
-      "communityEmptySub": "Babu wanda ya ƙirƙira al'ummar CivicOS don {{lga}}, {{state}} tukuna. Har yanzu za ka iya bincika dandalin — rufin rawaya a kan Gano zai tunatar da kai ka dawo lokacin da ɗaya ya bayyana.",
-      "next": "Ci gaba",
       "back": "Koma baya",
       "skip": "Tsallake yanzu",
-      "join": "Shiga al'umma",
       "joining": "Ana shiga…",
-      "successToast": "Ka shiga — maraba zuwa {{community}}."
+      "stepOf": "Mataki {{n}} na {{total}}",
+      "pickTitle": "Nemo al'ummominka",
+      "pickHint": "Nemi garinka, ƙaramar hukuma, ko jami'a — kana iya zaɓar fiye da ɗaya. Yawancin mutane suna shiga inda suke zama da inda suke karatu ko aiki.",
+      "searchPlaceholder": "Gwada “University of Abuja”, “Gwagwalada”, “Lekki”…",
+      "showBrowse": "Ko bincika ta jiha da ƙaramar hukuma",
+      "hideBrowse": "Ɓoye tacewar jiha da ƙaramar hukuma",
+      "stateLabel": "Jiha",
+      "lgaLabel": "Ƙaramar hukuma",
+      "anyState": "Kowace jiha",
+      "anyLGA": "Kowace ƙaramar hukuma",
+      "selectedLabel": "Al'ummomin da ka zaɓa",
+      "removeSelection": "Cire",
+      "noResultsTitle": "Babu abin da ya dace har yanzu.",
+      "noResultsSub": "Gwada gajeriyar bincike, ko bincika ta jiha da ƙaramar hukuma. Idan al'ummarka ba ta kan CivicOS ba tukuna, har yanzu kana iya bincika dandalin ka shiga daga baya.",
+      "resultCount_one": "an sami al'umma {{count}}",
+      "resultCount_other": "an sami al'ummomi {{count}}",
+      "continueWith_zero": "Zaɓi aƙalla ɗaya",
+      "continueWith_one": "Ci gaba da {{count}}",
+      "continueWith_other": "Ci gaba da {{count}}",
+      "homeTitle": "Wace ce gidanka?",
+      "homeHint": "Al'ummar gidanka ita ce inda za ka iya ba da rahoton matsaloli da fara koke-koke. Kana nan cikakken memba a sauran — kana iya yin sharhi, goyon baya da sa hannu a can ma.",
+      "homeCooldownNote": "Kana iya canza al'ummar gidanka sau ɗaya a kowace kwana 30, don haka zaɓi wadda za ka fi aiki a ciki.",
+      "finish": "Kammala",
+      "joinError": "Ba mu iya adana hakan ba. Da fatan za a sake gwadawa."
     },
     "forgot": {
       "eyebrow": "Dawo da Kalmar Shiga",

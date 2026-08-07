@@ -109,15 +109,79 @@ func (r *Repository) JoinCommunity(userID, communityID string) error {
 		// First-ever join sets primary_community_id. Later joins don't
 		// touch it — changing primary requires the explicit endpoint so
 		// the cooldown can be enforced.
+		//
+		// primary_community_changed_at stays NULL: it records when the
+		// user last *changed* their primary, and an initial assignment is
+		// not a change. Stamping it here started the 30-day cooldown at
+		// signup, so anyone who picked wrong on their first day was
+		// frozen out for a month before they had done anything — which is
+		// the opposite of what the cooldown is for. SetPrimaryCommunity
+		// treats NULL as "never changed" and lets the first one through.
 		if err := tx.Model(&domain.User{}).
 			Where("id = ? AND primary_community_id IS NULL", userID).
-			Updates(map[string]any{
-				"primary_community_id":         communityID,
-				"primary_community_changed_at": now,
-			}).Error; err != nil {
+			Update("primary_community_id", communityID).Error; err != nil {
 			return err
 		}
 		return tx.Model(&domain.User{}).Where("id = ?", userID).Updates(updates).Error
+	})
+}
+
+// CountExistingCommunities reports how many of the given IDs are real
+// communities. The memberships table is created by AutoMigrate and carries no
+// foreign key to communities, so nothing at the database level stops a bogus
+// UUID from becoming a phantom membership — the batch join checks first.
+func (r *Repository) CountExistingCommunities(ids []string) (int64, error) {
+	if len(ids) == 0 {
+		return 0, nil
+	}
+	var n int64
+	return n, r.db.Table("communities").Where("id IN ?", ids).Count(&n).Error
+}
+
+// JoinCommunities joins several communities at once and nominates one of them
+// as primary, in a single transaction so onboarding cannot half-apply.
+//
+// The primary is only written when the user has never had one, and as in
+// JoinCommunity the cooldown clock is deliberately left unstamped — an
+// initial assignment is not a change. Later changes go through
+// SetPrimaryCommunity and do serve the 30-day cooldown, so this is not a
+// route around it for an established user.
+//
+// Doing the join and the nomination as one write is what makes an explicit
+// "which is your home community?" step possible: joining sequentially and
+// then calling the change-primary endpoint would be refused outright,
+// because by then the user already has a primary and the cooldown applies.
+func (r *Repository) JoinCommunities(userID string, communityIDs []string, primaryID string) error {
+	if len(communityIDs) == 0 {
+		return nil
+	}
+	now := time.Now().UTC()
+	return r.db.Transaction(func(tx *gorm.DB) error {
+		rows := make([]domain.UserCommunityMembership, 0, len(communityIDs))
+		for _, id := range communityIDs {
+			rows = append(rows, domain.UserCommunityMembership{
+				ID:          uuid.New().String(),
+				UserID:      userID,
+				CommunityID: id,
+				JoinedAt:    now,
+			})
+		}
+		if err := tx.Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "user_id"}, {Name: "community_id"}},
+			DoNothing: true,
+		}).Create(&rows).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Model(&domain.User{}).
+			Where("id = ? AND primary_community_id IS NULL", userID).
+			Update("primary_community_id", primaryID).Error; err != nil {
+			return err
+		}
+		// Active community follows the nominated primary so the user lands
+		// looking at the community they just called home.
+		return tx.Model(&domain.User{}).Where("id = ?", userID).
+			Update("community_id", primaryID).Error
 	})
 }
 

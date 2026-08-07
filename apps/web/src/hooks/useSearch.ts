@@ -3,6 +3,7 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import type {
   Announcement,
   ApiResponse,
+  Community,
   Consultation,
   Issue,
   Organization,
@@ -32,6 +33,13 @@ export interface SearchCampaign {
 }
 
 export interface SearchResult {
+  /**
+   * Communities are the one result kind that is an entry point rather
+   * than a destination: someone searching "University of Abuja" is
+   * almost always trying to join it, not to read something inside it.
+   * They lead the results for that reason.
+   */
+  communities: Community[];
   issues: Issue[];
   petitions: Petition[];
   representatives: Representative[];
@@ -56,6 +64,7 @@ export interface SearchRepAnnouncement {
 }
 
 const empty: SearchResult = {
+  communities: [],
   issues: [],
   petitions: [],
   representatives: [],

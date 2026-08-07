@@ -79,8 +79,18 @@ type Community struct {
 	CreatedByID string     `gorm:"type:uuid;not null" json:"createdById"`
 	Issues      []Issue    `gorm:"foreignKey:CommunityID" json:"-"`
 	Petitions   []Petition `gorm:"foreignKey:CommunityID" json:"-"`
-	CreatedAt   time.Time  `json:"createdAt"`
-	UpdatedAt   time.Time  `json:"updatedAt"`
+	// MemberCount is computed at query time from user_community_memberships
+	// — a table owned by identity-service and read here from the shared
+	// database, the same arrangement Discover uses for organizations and
+	// campaigns. Never stored: `gorm:"-"` keeps it out of both AutoMigrate
+	// and every SELECT, so the repository fills it explicitly.
+	//
+	// @civicos/types has promised this field since the Community interface
+	// was written; until now nothing populated it, so every "N members"
+	// label in the UI rendered "undefined members".
+	MemberCount int       `gorm:"-" json:"memberCount"`
+	CreatedAt   time.Time `json:"createdAt"`
+	UpdatedAt   time.Time `json:"updatedAt"`
 }
 
 type Issue struct {

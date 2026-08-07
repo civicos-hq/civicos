@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Button, Input } from '@civicos/ui';
 import type { CreateConsultationInput } from '@civicos/types';
 import { PageHeader } from '../components/PageHeader';
-import { useCommunities } from '../hooks/useCommunities';
+import { useAllCommunities } from '../hooks/useCommunities';
 import { getApiError, uploadImage } from '../lib/api';
 import { useCreateConsultation } from '../hooks/useConsultations';
 
@@ -15,7 +15,7 @@ export function OrgConsultationCreatePage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { orgId } = useParams<{ orgId: string }>();
-  const communitiesQuery = useCommunities();
+  const communitiesQuery = useAllCommunities();
   const createMutation = useCreateConsultation(orgId);
 
   const [title, setTitle] = useState('');
