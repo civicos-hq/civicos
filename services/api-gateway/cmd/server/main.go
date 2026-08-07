@@ -198,6 +198,10 @@ func main() {
 	r.GET("/api/v1/representatives", communityProxy)
 	r.GET("/api/v1/representatives/:id", communityProxy)
 	r.PATCH("/api/v1/representatives/:id", authMiddleware, limitStandard, communityProxy)
+	// Linking a profile to the account that holds the office. Strict: it is
+	// PLATFORM_ADMIN-only and decides who may speak — and now raise money —
+	// as an elected official.
+	r.POST("/api/v1/representatives/:id/claim", authMiddleware, limitStrict, communityProxy)
 	r.POST("/api/v1/representatives/:id/follow", authMiddleware, limitStandard, communityProxy)
 	r.DELETE("/api/v1/representatives/:id/follow", authMiddleware, limitStandard, communityProxy)
 	r.GET("/api/v1/representatives/:id/comments", communityProxy)
@@ -244,6 +248,10 @@ func main() {
 	r.GET("/api/v1/organizations/:id/members", orgProxy)
 	// Caller-scoped — which orgs am I a member of, and with what role.
 	r.GET("/api/v1/me/organizations", authMiddleware, orgProxy)
+	// Fetch-or-create the caller's constituency office. Idempotent, and the
+	// web app calls it whenever a representative opens their dashboard, so
+	// it takes the lenient limit rather than the strict one.
+	r.POST("/api/v1/me/representative-office", authMiddleware, limitLenient, orgProxy)
 	r.POST("/api/v1/organizations/:id/members", authMiddleware, limitStandard, orgProxy)
 	r.PATCH("/api/v1/organizations/:id/members/:userId", authMiddleware, limitStandard, orgProxy)
 	r.DELETE("/api/v1/organizations/:id/members/:userId", authMiddleware, limitStandard, orgProxy)

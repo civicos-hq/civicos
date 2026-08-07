@@ -1020,7 +1020,8 @@
     "notifications": "Notifications",
     "profile": "Profile",
     "signOut": "Sign out",
-    "campaigns": "Community funding"
+    "campaigns": "Community funding",
+    "myOffice": "My office"
   },
   "language": {
     "label": "Language",
@@ -1484,5 +1485,21 @@
     },
     "showReplies": "Replies ({{count}})",
     "hideReplies": "Hide replies"
+  },
+  "repOffice": {
+    "eyebrow": "Constituency office",
+    "title": "Set up your office",
+    "subtitle": "Publish give your constituents di same way organization dey do am.",
+    "cardTitle": "Create your constituency office",
+    "cardBody": "CivicOS dey give every elected representative one office — na di entity wey your constituents go see behind everything wey you publish. To set am up na one click, and e go open:",
+    "capabilities": {
+      "campaigns": "Fundraising campaigns, wey donation go enter your own account",
+      "projects": "Projects, with budget and progress updates",
+      "consultations": "Consultations, to ask your constituents question",
+      "announcements": "Announcements from di office"
+    },
+    "fundingNote": "Your office go start as unverified, just like new organization. You fit draft campaign sharp-sharp, but before e go fit collect money, platform admin must verify di office and you must connect payout account.",
+    "unclaimedError": "Your account never link to any representative profile. Platform admin must link am before your office fit dey created.",
+    "action": "Create my office"
   }
 }

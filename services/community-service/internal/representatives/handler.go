@@ -35,6 +35,11 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth, verified, requireRol
 	// admin-side direct create. Admins can still PATCH existing rows
 	// to fix data.
 	rg.PATCH("/:id", auth, requireRole, h.update)
+	// Linking a profile to the account that holds the office. Not gated by
+	// `requireRole` here because that admits GOVERNMENT_ADMIN and NGO —
+	// the service enforces PLATFORM_ADMIN itself, since a claim decides who
+	// may speak as an elected official and raise money in their name.
+	rg.POST("/:id/claim", auth, h.claim)
 	rg.POST("/:id/follow", auth, verified, h.follow)
 	rg.DELETE("/:id/follow", auth, h.unfollow)
 	rg.GET("/:id/comments", h.listComments)
@@ -124,6 +129,33 @@ func (h *Handler) update(c *gin.Context) {
 			return
 		}
 		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to update representative")
+		return
+	}
+	response.Success(c, http.StatusOK, gin.H{"representative": item})
+}
+
+// claim links an unclaimed representative profile to the account of the
+// person who holds that office. Without it an admin-seeded profile can
+// never publish anything or open a constituency office.
+func (h *Handler) claim(c *gin.Context) {
+	var input struct {
+		UserID string `json:"userId" binding:"required,uuid4"`
+	}
+	if err := c.ShouldBindJSON(&input); err != nil {
+		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", err.Error())
+		return
+	}
+	role, _ := c.Get("userRole")
+	roleStr, _ := role.(string)
+
+	item, err := h.svc.ClaimProfile(c.Param("id"), input.UserID, roleStr)
+	if err != nil {
+		var appErr *AppError
+		if errors.As(err, &appErr) {
+			response.Error(c, appErr.Status, appErr.Code, appErr.Message)
+			return
+		}
+		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to link representative profile")
 		return
 	}
 	response.Success(c, http.StatusOK, gin.H{"representative": item})

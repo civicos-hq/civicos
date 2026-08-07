@@ -91,6 +91,51 @@ admin. The profile is linked to your account when your application is
 approved, and that link is what the check is against — so nobody can put
 words in your mouth.
 
+:::note Profile seeded by an admin?
+If your profile was created by a platform admin rather than by your own
+approved application, it starts **unclaimed** — it isn't tied to any
+account yet, and publishing will tell you so. Ask a platform admin to link
+it to your account. Until they do, you can't post announcements or open a
+constituency office.
+:::
+
+## Your constituency office
+
+Everything an organization can do on CivicOS, you can do too — through
+your **constituency office**. Open **My office** in the sidebar and create
+it once; it takes a click.
+
+The office is the entity your constituents see behind what you publish
+("Office of Senator Ada Okafor"), and it gives you:
+
+- **Campaigns** — raise money for something your constituency needs.
+  Donations settle to your own account, not to CivicOS.
+- **Projects** — publish what you're delivering, with budgets and progress
+  updates.
+- **Consultations** — put a question to your constituents and collect
+  structured responses.
+- **Announcements from the office** — distinct from the personal
+  announcements on your profile above.
+
+### Before your office can take money
+
+Creating the office lets you **draft**. It does not let you collect
+anything. Your office starts unverified with no payout account, exactly
+as a newly registered organization does. Before a campaign can accept a
+single naira:
+
+1. A platform admin verifies your office.
+2. You connect a payout account.
+3. Your campaign passes review.
+
+One thing differs from an organization, and only one: an NGO proves it
+exists by its registration number, and an elected office has no such
+entry in any company register. In its place, your office must be linked
+to your claimed representative profile — a platform admin has confirmed
+that you are the person holding the seat. Every other requirement is
+identical. Raising money from your own constituents is held to at least
+the standard an NGO is held to, not a lower one.
+
 ## Reading what citizens are saying
 
 Three feeds are relevant to you:

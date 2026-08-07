@@ -18,6 +18,8 @@ type RepresentativeStore interface {
 	FindFollowedIDs(userID string) ([]string, error)
 	FindFollowerIDs(repID string) ([]string, error)
 	ListComments(repID string) ([]domain.RepresentativeComment, error)
+	FindUser(id string) (*userRecord, error)
+	ClaimProfile(repID, userID string) error
 	AddComment(comment *domain.RepresentativeComment) error
 }
 
@@ -167,4 +169,76 @@ func (s *Service) FollowerIDs(repID string) ([]string, error) {
 		ids = []string{}
 	}
 	return ids, nil
+}
+
+// ClaimProfile links an unclaimed representative profile to the account of
+// the person who holds that office.
+//
+// This exists because `user_id` was previously set in exactly two places:
+// the application-approval flow, which links a representative who applied
+// for themselves, and the one-off 00007 backfill. A profile seeded by an
+// admin was therefore unclaimable forever — publishing returned
+// REPRESENTATIVE_UNCLAIMED telling the user to ask a platform admin, and
+// no endpoint existed for that admin to help. Provisioning a constituency
+// office keys off the same claim, so the gap now blocks campaigns,
+// projects and consultations too.
+//
+// PLATFORM_ADMIN only, and deliberately narrower than the rest of this
+// module (which also admits GOVERNMENT_ADMIN and NGO): a claim decides who
+// may speak as an elected official and raise money in their name.
+func (s *Service) ClaimProfile(repID, targetUserID, actorRole string) (*domain.Representative, error) {
+	if actorRole != "PLATFORM_ADMIN" {
+		return nil, &AppError{
+			Code:    "FORBIDDEN",
+			Message: "Only a platform admin can link a representative profile to an account",
+			Status:  http.StatusForbidden,
+		}
+	}
+
+	rep, err := s.repo.FindByID(repID)
+	if err != nil || rep == nil {
+		return nil, &AppError{Code: "REPRESENTATIVE_NOT_FOUND", Message: "Representative not found", Status: http.StatusNotFound}
+	}
+	if rep.UserID != nil && *rep.UserID != "" {
+		return nil, &AppError{
+			Code:    "REPRESENTATIVE_ALREADY_CLAIMED",
+			Message: "This profile is already linked to an account. Unlink it first if the office has changed hands.",
+			Status:  http.StatusConflict,
+		}
+	}
+
+	user, err := s.repo.FindUser(targetUserID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, &AppError{Code: "USER_NOT_FOUND", Message: "No such user", Status: http.StatusNotFound}
+		}
+		return nil, err
+	}
+	if user.DeletedAt != nil {
+		return nil, &AppError{Code: "USER_DELETED", Message: "That account has been deleted", Status: http.StatusBadRequest}
+	}
+	// The account must already be a representative. Linking is not a
+	// promotion: role changes go through the approval flow, which records a
+	// reviewer and a review event. Granting the role as a side effect of a
+	// link would leave no trace of who decided this person holds office.
+	if user.Role != "REPRESENTATIVE" {
+		return nil, &AppError{
+			Code:    "USER_NOT_REPRESENTATIVE",
+			Message: "That account is not a representative. Approve their representative application first.",
+			Status:  http.StatusBadRequest,
+		}
+	}
+
+	if err := s.repo.ClaimProfile(repID, targetUserID); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// Lost a race with a concurrent claim.
+			return nil, &AppError{
+				Code:    "REPRESENTATIVE_ALREADY_CLAIMED",
+				Message: "This profile was claimed by another request. Reload and check who holds it.",
+				Status:  http.StatusConflict,
+			}
+		}
+		return nil, err
+	}
+	return s.repo.FindByID(repID)
 }

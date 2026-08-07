@@ -863,7 +863,8 @@
     "notifications": "Ọkwa",
     "profile": "Profaịlụ",
     "signOut": "Pụta",
-    "campaigns": "Ịchịkọta ego"
+    "campaigns": "Ịchịkọta ego",
+    "myOffice": "Ọfịs m"
   },
   "language": {
     "label": "Asụsụ",
@@ -1255,5 +1256,21 @@
     },
     "showReplies": "Azịza ({{count}})",
     "hideReplies": "Zoo azịza"
+  },
+  "repOffice": {
+    "eyebrow": "Ọfịs ndị ntuli aka",
+    "title": "Hazie ọfịs gị",
+    "subtitle": "Bipụta nye ndị gị otu ụzọ nzukọ si eme ya.",
+    "cardTitle": "Mepụta ọfịs ndị ntuli aka gị",
+    "cardBody": "CivicOS na-enye onye nnọchi anya ọ bụla a họpụtara ọfịs — ọ bụ ihe ndị gị na-ahụ n’azụ ihe ọ bụla ị bipụtara. Ịhazi ya bụ otu pịa, ọ na-emeghekwa:",
+    "capabilities": {
+      "campaigns": "Mkpọsa ịchụta ego, ebe onyinye na-abanye n’akaụntụ gị",
+      "projects": "Ọrụ, na mmefu ego na mmelite ọganihu",
+      "consultations": "Ndụmọdụ, iji jụọ ndị gị ajụjụ",
+      "announcements": "Ọkwa sitere na ọfịs ahụ"
+    },
+    "fundingNote": "Ọfịs gị na-amalite na-enweghị nkwenye, dịka nzukọ ọhụrụ. Ị nwere ike ide mkpọsa ozugbo, mana tupu ọ nabata ego, onye nchịkwa ga-akwenye ọfịs ahụ, ị ga-ejikọkwa akaụntụ nnata ego.",
+    "unclaimedError": "Ejikọtabeghị akaụntụ gị na profaịlụ onye nnọchi anya. Onye nchịkwa ga-ejikọ ya tupu e mepụta ọfịs gị.",
+    "action": "Mepụta ọfịs m"
   }
 }
