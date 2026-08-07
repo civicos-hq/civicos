@@ -1501,5 +1501,34 @@
     "fundingNote": "Your office go start as unverified, just like new organization. You fit draft campaign sharp-sharp, but before e go fit collect money, platform admin must verify di office and you must connect payout account.",
     "unclaimedError": "Your account never link to any representative profile. Platform admin must link am before your office fit dey created.",
     "action": "Create my office"
+  },
+  "orgMembers": {
+    "title": "Team",
+    "subtitle": "Who dey work here, and wetin each person fit do for CivicOS.",
+    "add": "Add person",
+    "empty": "Nobody never dey added.",
+    "joined": "Join {{date}}",
+    "changeRoleFor": "Change {{name}} permission level",
+    "removeMember": "Comot {{name}}",
+    "confirmRemove": "Comot",
+    "form": {
+      "email": "Email address",
+      "emailPlaceholder": "colleague@example.com",
+      "emailHint": "Dem must get CivicOS account already — to add person no dey create one.",
+      "jobTitle": "Job title (optional)",
+      "jobTitlePlaceholder": "e.g. Head of Distribution",
+      "role": "Permission level",
+      "submit": "Add to team"
+    },
+    "roles": {
+      "OWNER": "Owner",
+      "ADMIN": "Admin",
+      "STAFF": "Staff"
+    },
+    "roleHints": {
+      "OWNER": "Full control, including members and payout details.",
+      "ADMIN": "Fit publish, run campaigns and manage di team.",
+      "STAFF": "Fit see di organization internal work."
+    }
   }
 }

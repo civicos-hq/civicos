@@ -379,6 +379,13 @@ export interface OrgMember {
   userId: UUID;
   userName: string;
   userRole: UserRole;
+  /**
+   * Job title inside the organization — "Head of Distribution", "Field
+   * Officer". Distinct from `role`, which is what they may DO on CivicOS:
+   * a utility needs both, one for permissions and one so a citizen knows
+   * who they are actually reading.
+   */
+  title?: string;
   role: OrgMemberRole;
   joinedAt: ISODateTime;
 }

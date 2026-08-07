@@ -2142,5 +2142,34 @@
     "fundingNote": "Your office starts unverified, exactly as a new organization does. You can draft a campaign right away, but before it can accept money a platform admin has to verify the office and you have to connect a payout account.",
     "unclaimedError": "Your account is not linked to a representative profile yet. A platform admin has to link it before your office can be created.",
     "action": "Create my office"
+  },
+  "orgMembers": {
+    "title": "Team",
+    "subtitle": "Who works here, and what each person can do on CivicOS.",
+    "add": "Add someone",
+    "empty": "Nobody has been added yet.",
+    "joined": "Joined {{date}}",
+    "changeRoleFor": "Change {{name}}'s permission level",
+    "removeMember": "Remove {{name}}",
+    "confirmRemove": "Remove",
+    "form": {
+      "email": "Email address",
+      "emailPlaceholder": "colleague@example.com",
+      "emailHint": "They need a CivicOS account already — adding someone does not create one.",
+      "jobTitle": "Job title (optional)",
+      "jobTitlePlaceholder": "e.g. Head of Distribution",
+      "role": "Permission level",
+      "submit": "Add to team"
+    },
+    "roles": {
+      "OWNER": "Owner",
+      "ADMIN": "Admin",
+      "STAFF": "Staff"
+    },
+    "roleHints": {
+      "OWNER": "Full control, including members and payout details.",
+      "ADMIN": "Can publish, run campaigns and manage the team.",
+      "STAFF": "Can see the organization’s internal work."
+    }
   }
 }

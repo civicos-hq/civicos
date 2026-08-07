@@ -82,21 +82,53 @@ reviewable.
 If you believe your org qualifies, contact the platform admins with your
 proof (registration certificate, staff directory, etc.).
 
-## Members
+## Your team
 
-Organizations have three internal roles:
+A utility or agency has many people doing different jobs, and CivicOS
+records two separate things about each of them.
 
-- **OWNER** — full control, including adding admins and deleting the org.
-- **ADMIN** — can post announcements, projects, assignments, progress
-  updates, and manage members below the owner tier.
-- **STAFF** — read-only member; can see internal drafts and org-only
-  content but can't publish.
+**Role** is what they may do on CivicOS:
 
-To add someone:
+- **OWNER** — full control, including members and payout details.
+- **ADMIN** — commits the organization: publishes announcements, creates
+  campaigns and consultations, accepts issue assignments, manages the team,
+  edits the org.
+- **STAFF** — does the work: moves an assignment along (RECEIVED →
+  IN PROGRESS → COMPLETED) and posts progress updates on issues and
+  projects. Cannot publish announcements, cannot run campaigns, cannot
+  manage members, and cannot post a campaign update — that one reports to
+  people who gave money.
 
-1. Go to **Your organization → Members**.
-2. Click **Add member**.
-3. Enter their user ID and role.
+The line between ADMIN and STAFF is **reporting on a commitment versus
+making one**. A field officer saying "we're on site, the main is repaired"
+is recording work the organization already took on. Deciding to take the
+job on in the first place, or asking the public for money, is a commitment
+the organization makes.
+
+**Job title** is their actual job — "Head of Distribution", "Field
+Officer". Free text, optional, and shown next to their name. A citizen
+reading an update wants to know they're hearing from the Head of
+Distribution; that is a different question from whether that person is
+allowed to publish.
+
+### Adding someone
+
+1. Go to **My organization** and scroll to **Team**.
+2. Click **Add someone**.
+3. Enter their **email address**, an optional job title, and a role.
+
+They need a CivicOS account already — adding someone does not create one
+or send an invitation. If they haven't signed up, ask them to register
+first.
+
+Platform admins can do the same from the admin console's organization
+page, which also shows each member's current platform role.
+
+Any platform role can be added, including representatives. A councillor
+sitting on a water board's oversight committee is both an elected
+representative and a member of that organization — the two are
+independent, and being on a utility's team does not make someone an
+elected official (or vice versa).
 
 Member changes are audit-logged.
 
@@ -162,6 +194,14 @@ either an **assigned issue** or a **project**.
 
 Public updates are readable by anyone. Internal notes are only visible
 to org members.
+
+**Who can post one:** any member, STAFF included. This is the operational
+record of work in progress, and the person who actually did the work
+should be able to say so.
+
+Campaign updates are the exception. An update attached to a **campaign**
+goes to everyone who donated and forms part of the spend-accountability
+trail, so it stays with owners and admins.
 
 ## Running a fundraising campaign
 

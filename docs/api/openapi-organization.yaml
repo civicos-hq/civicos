@@ -118,6 +118,16 @@ components:
       enum: [NATIONAL, STATE, LGA, COMMUNITY]
     OrgMemberRole:
       type: string
+      description: |
+        What a member may do on CivicOS.
+
+        - `OWNER` / `ADMIN` — commit the organization: publish
+          announcements, create campaigns and consultations, accept issue
+          assignments, manage members, edit the org.
+        - `STAFF` — do the work: move an assignment along, post progress
+          updates on issues and projects. Cannot publish, cannot run
+          campaigns, cannot manage members, and cannot post a campaign
+          update (that reports to donors).
       enum: [OWNER, ADMIN, STAFF]
     AnnouncementStatus:
       type: string
@@ -421,7 +431,20 @@ components:
         organizationId: { type: string, format: uuid }
         userId: { type: string, format: uuid }
         userName: { type: string }
-        userRole: { type: string, description: Platform role at time of add. }
+        userRole:
+          type: string
+          description: |
+            The member's CURRENT platform role, read from `users` when the
+            list is served. The stored column is a join-time snapshot that
+            goes stale, so it is refreshed on read rather than returned as
+            written.
+        title:
+          type: string
+          nullable: true
+          description: |
+            Job title inside the organization, e.g. "Head of Distribution".
+            Distinct from `role`, which is what the person may DO — a
+            utility needs both.
         role: { $ref: '#/components/schemas/OrgMemberRole' }
         joinedAt: { type: string, format: date-time }
 
@@ -761,23 +784,53 @@ paths:
     post:
       tags: [Members]
       summary: Add a member (org admin)
+      description: |
+        Identify the person by `email` (the normal path) or `userId`.
+
+        Name and platform role are NOT accepted — they are read from the
+        `users` table. The previous shape required the caller to supply
+        both, which meant a UI had to already know the target's UUID, and
+        meant the stored name was whatever the client sent.
+
+        The person must already have a CivicOS account; this does not
+        create one. The not-found message deliberately does not reveal
+        whether an address is registered.
+
+        Any platform role can be added, including `REPRESENTATIVE` — an
+        elected official sitting on a utility's oversight committee is both
+        a representative and a member of that organization.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [userId, userName, userRole, role]
+              required: [role]
               properties:
-                userId: { type: string, format: uuid }
-                userName: { type: string }
-                userRole: { type: string, description: Platform role at time of add. }
+                email:
+                  type: string
+                  format: email
+                  description: Preferred. Matched case-insensitively.
+                userId:
+                  type: string
+                  format: uuid
+                  description: Alternative to `email`. One of the two is required.
                 role: { $ref: '#/components/schemas/OrgMemberRole' }
+                title:
+                  type: string
+                  maxLength: 120
+                  description: Job title, e.g. "Head of Distribution".
             examples:
               default:
-                { value: { userId: 3f1a..., userName: Ada Nnamdi, userRole: NGO, role: ADMIN } }
+                value: { email: ada@example.com, role: STAFF, title: Head of Distribution }
       responses:
         '201': { description: Member added; audit-logged. }
+        '400':
+          description: '`VALIDATION_ERROR` (neither identifier given), `INVALID_ROLE`, or `USER_DELETED`.'
+        '404':
+          description: '`USER_NOT_FOUND` — no CivicOS account matches.'
+        '409':
+          description: '`ALREADY_MEMBER`.'
 
   /organizations/{id}/members/{userId}:
     parameters:

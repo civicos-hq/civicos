@@ -1272,5 +1272,34 @@
     "fundingNote": "Ofishinka zai fara ba tare da tabbatarwa ba, kamar sabuwar ƙungiya. Kana iya tsara kamfen nan da nan, amma kafin ya karɓi kuɗi dole ne mai gudanarwa ya tabbatar da ofishin kuma ka haɗa asusun karɓar kuɗi.",
     "unclaimedError": "Ba a haɗa asusunka da bayanan wakili ba tukuna. Mai gudanarwa dole ne ya haɗa shi kafin a ƙirƙiri ofishinka.",
     "action": "Ƙirƙiri ofishina"
+  },
+  "orgMembers": {
+    "title": "Tawaga",
+    "subtitle": "Wa ke aiki a nan, da abin da kowanne zai iya yi a CivicOS.",
+    "add": "Ƙara wani",
+    "empty": "Ba a ƙara kowa ba tukuna.",
+    "joined": "Ya shiga {{date}}",
+    "changeRoleFor": "Canja matakin izinin {{name}}",
+    "removeMember": "Cire {{name}}",
+    "confirmRemove": "Cire",
+    "form": {
+      "email": "Adireshin imel",
+      "emailPlaceholder": "colleague@example.com",
+      "emailHint": "Suna buƙatar asusun CivicOS tuni — ƙara wani ba ya ƙirƙirar asusu.",
+      "jobTitle": "Matsayin aiki (na zaɓi)",
+      "jobTitlePlaceholder": "misali Shugaban Rarrabawa",
+      "role": "Matakin izini",
+      "submit": "Ƙara cikin tawaga"
+    },
+    "roles": {
+      "OWNER": "Mai shi",
+      "ADMIN": "Mai gudanarwa",
+      "STAFF": "Ma’aikaci"
+    },
+    "roleHints": {
+      "OWNER": "Cikakken iko, har da mambobi da bayanan biyan kuɗi.",
+      "ADMIN": "Zai iya wallafawa, gudanar da kamfen da sarrafa tawaga.",
+      "STAFF": "Zai iya ganin aikin cikin gida na ƙungiyar."
+    }
   }
 }

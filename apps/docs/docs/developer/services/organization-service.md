@@ -14,7 +14,9 @@ post announcements.
 
 - **Organizations** — CRUD, verified-badge toggle (audit-logged
   separately), search by kind / jurisdiction / state / LGA.
-- **Members** — org-internal roles (`OWNER`, `ADMIN`, `STAFF`),
+- **Members** — org-internal roles (`OWNER`, `ADMIN`, `STAFF`) plus an
+  optional free-text `title` (the person's actual job, e.g. "Head of
+  Distribution" — distinct from `role`, which is permissions),
   add / update role / remove.
 - **Announcements** — DRAFT → PUBLISHED → ARCHIVED lifecycle. Global
   feed of published items plus per-org list.
@@ -23,8 +25,11 @@ post announcements.
 - **Issue assignments** — records that an org has claimed an issue.
   Members-only reads on the org's inbox; public reads on the per-issue
   list.
-- **Progress updates** — the "respond publicly" primitive. Hangs off
-  either an assigned issue or a project.
+- **Progress updates** — the "respond publicly" primitive. Hangs off an
+  assigned issue, a project, or a campaign.
+- **Representative offices** — an elected representative's constituency
+  office, provisioned on demand as an organization of kind
+  `REPRESENTATIVE_OFFICE`.
 - **Consultations** — structured feedback asks with a full DRAFT →
   PUBLISHED → CLOSED lifecycle, question builder, response submission,
   per-question analytics, and outcome publishing (the "close the loop"
@@ -72,16 +77,34 @@ Two role systems overlap here:
 - **Org role** — on the `OrgMember` row — governs who can post
   announcements, projects, assignments, and consultations _inside_ an org.
 
+They are independent, and a person can hold both. A councillor sitting on
+a water board's oversight committee is an elected `REPRESENTATIVE` **and**
+an `ADMIN` of that org; neither implies the other. `POST
+/organizations/:id/members` places no restriction on platform role for
+exactly this reason.
+
+Members are added by **email**, resolved server-side. Name and platform
+role are read from `users` rather than accepted from the request — the
+older shape took both from the client, which meant a UI had to already
+know the target's UUID (so none was ever built) and meant the stored name
+was whatever the caller typed. `ListMembers` re-reads both from `users` on
+every call, because the stored columns are join-time snapshots that go
+stale the moment someone is renamed or promoted.
+
 Once an org exists, content-authorship writes (create / edit / delete /
 publish) are gated **strictly** by org role — `PLATFORM_ADMIN` does
 not bypass. Attribution matters: an announcement or consultation
 should read as coming from the org, not from the platform.
 
-Three authorization helpers on `organizations.Service`:
+Four authorization helpers on `organizations.Service`:
 
 - **`CanAdmin(orgID, userID, userRole)`** — strict. Requires OWNER or
   ADMIN membership in the target org. Used for all content-authorship
   writes.
+- **`CanOperate(orgID, userID)`** — the operational tier. Any member,
+  STAFF included; no platform role bypasses it. Wired to
+  `assignments.updateStatus` and to `progress.create` when the update
+  hangs off an issue or a project.
 - **`CanClose(orgID, userID, userRole)`** — the emergency lever.
   Allows the same OWNER/ADMIN plus PLATFORM_ADMIN. Wired to
   `consultations.close` and `announcements.archive` so the platform
@@ -90,9 +113,71 @@ Three authorization helpers on `organizations.Service`:
   any org member (including STAFF) plus PLATFORM_ADMIN. Used for
   response lists, analytics, and org-only announcement drafts.
 
+#### Why `CanOperate` exists
+
+Every operational write used to sit behind `CanAdmin`, which made STAFF
+a read-only role that nobody doing actual work could use. A utility with
+field officers had to make each of them an ADMIN — which also granted
+publishing in the organization's name, creating fundraising campaigns,
+and removing colleagues.
+
+The line is **reporting on a commitment versus making one**. Marking a
+repair IN_PROGRESS records work the org already took on; accepting the
+assignment, publishing, or asking the public for money commits the org,
+and those stay at `CanAdmin`.
+
+`progress.create` is the one endpoint that gates on its target rather
+than on a fixed role, because it serves three of them:
+
+| Update attached to | Gate         |
+| ------------------ | ------------ |
+| Issue              | `CanOperate` |
+| Project            | `CanOperate` |
+| Campaign           | `CanAdmin`   |
+
+A campaign update goes to everyone who donated and forms part of the
+spend-accountability trail, so it belongs with the people answerable for
+the campaign. The handler binds the request body _before_ authorising,
+which is why that one reads out of order compared to its neighbours.
+
+`CanOperate` deliberately refuses PLATFORM_ADMIN non-members, matching
+`CanAdmin` rather than `CanReadInternal`: "the water board says it is
+fixed" has to come from the water board.
+
 If PLATFORM_ADMIN legitimately needs to intervene beyond
 close/archive/read, the correct path is to join the org first — that
 action is audit-logged, so the intervention is properly attributed.
+
+### Representative offices
+
+An elected representative gets campaigns, projects, consultations and
+announcements by getting an **organization** — one of kind
+`REPRESENTATIVE_OFFICE`, linked back to their profile by
+`Organization.RepresentativeID`.
+
+`POST /me/representative-office` is fetch-or-create: it requires a claimed
+representative profile (`representatives.user_id` = caller), creates the
+org with the caller as `OWNER`, and is idempotent. A partial unique index
+on `representative_id` settles concurrent calls; the loser re-reads and
+returns the winner's office rather than erroring.
+
+The alternative was a polymorphic owner on campaigns, projects,
+consultations and announcements. It was rejected because `CanAdmin` is the
+single gate in front of all four: making the representative an OWNER
+passes it, so **none of those modules changed**, and neither did the
+sub-account, split, ledger, reconciliation, payout or admin review. A
+second owner type would have meant editing code that moves donations.
+
+Two consequences worth knowing:
+
+- `validKind` deliberately excludes `REPRESENTATIVE_OFFICE`, so nobody can
+  relabel an ordinary org as an official's office (acquiring the funding
+  substitution below without a claim) or strip the kind off a real one.
+- `FundingEligible` substitutes rather than waives. An elected office has
+  no entry in a company register, so a **claimed representative profile**
+  stands in for `RegistrationNumber`. Every other requirement —
+  verification, country, official email, named human, bank verification,
+  connected payout account — is identical to an NGO's.
 
 ### The verified badge is its own audit action
 

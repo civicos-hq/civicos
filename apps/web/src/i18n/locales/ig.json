@@ -1272,5 +1272,34 @@
     "fundingNote": "Ọfịs gị na-amalite na-enweghị nkwenye, dịka nzukọ ọhụrụ. Ị nwere ike ide mkpọsa ozugbo, mana tupu ọ nabata ego, onye nchịkwa ga-akwenye ọfịs ahụ, ị ga-ejikọkwa akaụntụ nnata ego.",
     "unclaimedError": "Ejikọtabeghị akaụntụ gị na profaịlụ onye nnọchi anya. Onye nchịkwa ga-ejikọ ya tupu e mepụta ọfịs gị.",
     "action": "Mepụta ọfịs m"
+  },
+  "orgMembers": {
+    "title": "Ndị otu",
+    "subtitle": "Onye na-arụ ọrụ ebe a, na ihe onye ọ bụla nwere ike ime na CivicOS.",
+    "add": "Tinye mmadụ",
+    "empty": "A tinyebeghị onye ọ bụla.",
+    "joined": "Sonyere {{date}}",
+    "changeRoleFor": "Gbanwee ọkwa ikike {{name}}",
+    "removeMember": "Wepụ {{name}}",
+    "confirmRemove": "Wepụ",
+    "form": {
+      "email": "Adreesị email",
+      "emailPlaceholder": "colleague@example.com",
+      "emailHint": "Ha ga-enwerịrị akaụntụ CivicOS — ịtinye mmadụ anaghị emepụta otu.",
+      "jobTitle": "Aha ọrụ (nhọrọ)",
+      "jobTitlePlaceholder": "dịka Onyeisi Nkesa",
+      "role": "Ọkwa ikike",
+      "submit": "Tinye na ndị otu"
+    },
+    "roles": {
+      "OWNER": "Onye nwe",
+      "ADMIN": "Onye nchịkwa",
+      "STAFF": "Onye ọrụ"
+    },
+    "roleHints": {
+      "OWNER": "Njikwa zuru oke, gụnyere ndị otu na nkọwa ịkwụ ụgwọ.",
+      "ADMIN": "Nwere ike ibipụta, ịgba mkpọsa na ijikwa ndị otu.",
+      "STAFF": "Nwere ike ịhụ ọrụ ime nzukọ ahụ."
+    }
   }
 }

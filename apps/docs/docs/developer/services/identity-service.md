@@ -16,8 +16,8 @@ infrastructure.
   email verification, forgot / reset password.
 - **Profile** — `GET /me`, `PATCH /me`, `DELETE /me` (soft delete with
   PII anonymization).
-- **Community membership** — join, set active community, change primary
-  community (30-day cooldown).
+- **Community membership** — join one or several at once, set active
+  community, change primary community (30-day cooldown).
 - **Applications** — the queue where citizens apply to be
   representatives or organizations. Admins review.
 - **Content flags** — citizens report content; moderators resolve. Also
@@ -89,6 +89,26 @@ services/identity-service/
 - Both are stored on the `User` row. First join sets both.
 - `PATCH /auth/me/primary-community` enforces a **30-day cooldown**.
   Returns `429` with `nextEligibleAt` if you try earlier.
+- The cooldown clock is `primary_community_changed_at`, and it is
+  deliberately **left NULL on the initial assignment**. That column records
+  when a user last _changed_ their primary, and a first assignment is not a
+  change. Both join paths used to stamp it, so anyone who picked wrong on
+  their first day was frozen out for a month before doing anything — the
+  opposite of what the cooldown is for. `SetPrimaryCommunity` treats NULL
+  as "never changed" and lets the first correction through.
+
+### Joining several communities at once
+
+`POST /auth/me/communities` takes `{communityIds[], primaryCommunityId}`
+and applies both in one transaction. Onboarding uses it because the honest
+answer is usually more than one community — someone lives in one place and
+studies in another — and which is _home_ has to be the user's explicit
+choice rather than an artefact of request ordering.
+
+It is not a route around the cooldown: the primary is written only when
+the caller has never had one. Prefer it over looping
+`POST /auth/me/community`, which sets the primary from whichever join
+landed first.
 
 ### Ban and self-delete enforcement
 

@@ -320,9 +320,12 @@ func (h *Handler) addMember(c *gin.Context) {
 		TargetType: "ORGANIZATION",
 		TargetID:   orgID,
 		Metadata: map[string]any{
-			"memberUserId": input.UserID,
-			"memberEmail":  input.UserName,
-			"role":         input.Role,
+			// The resolved member, not what the request claimed — the audit
+			// trail should record who was actually added.
+			"memberUserId": m.UserID,
+			"memberName":   m.UserName,
+			"role":         m.Role,
+			"title":        m.Title,
 		},
 		Request: c.Request,
 	})

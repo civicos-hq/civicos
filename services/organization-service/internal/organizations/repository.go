@@ -1,6 +1,8 @@
 package organizations
 
 import (
+	"strings"
+
 	"github.com/civicos/organization-service/internal/domain"
 	"gorm.io/gorm"
 )
@@ -80,7 +82,12 @@ func (r *Repository) FindByIDs(ids []string) ([]domain.Organization, error) {
 
 func (r *Repository) ListMembers(orgID string) ([]domain.OrgMember, error) {
 	var list []domain.OrgMember
-	return list, r.db.Where("organization_id = ?", orgID).Order("joined_at asc").Find(&list).Error
+	if err := r.db.Where("organization_id = ?", orgID).Order("joined_at asc").Find(&list).Error; err != nil {
+		return nil, err
+	}
+	// Names and platform roles are stored as snapshots; show what is true
+	// now, not what was true when each person joined.
+	return list, r.hydrateMembers(list)
 }
 
 func (r *Repository) AddMember(m *domain.OrgMember) error {
@@ -103,4 +110,85 @@ func (r *Repository) RemoveMember(orgID, userID string) error {
 func (r *Repository) BumpMemberCount(orgID string, delta int) error {
 	return r.db.Model(&domain.Organization{}).Where("id = ?", orgID).
 		Update("member_count", gorm.Expr("member_count + ?", delta)).Error
+}
+
+// userRecord is a read-only view of `users`, owned by identity-service.
+// Same shared-database pattern as the communities and audit packages: only
+// the columns actually read are declared, TableName is pinned, and nothing
+// here ever writes.
+type userRecord struct {
+	ID        string  `gorm:"type:uuid;primaryKey"`
+	Email     string  `gorm:"column:email"`
+	Name      string  `gorm:"column:name"`
+	Role      string  `gorm:"column:role"`
+	DeletedAt *string `gorm:"column:deleted_at"`
+}
+
+func (userRecord) TableName() string { return "users" }
+
+// FindUserByEmail resolves the person an org owner is trying to add.
+//
+// Adding by email rather than by UUID is what makes member management
+// usable at all: an org owner knows their colleague's email address, never
+// their internal ID. Matching is case-insensitive because nobody types
+// their own address the same way twice.
+func (r *Repository) FindUserByEmail(email string) (*userRecord, error) {
+	var u userRecord
+	if err := r.db.Where("LOWER(email) = LOWER(?)", strings.TrimSpace(email)).First(&u).Error; err != nil {
+		return nil, err
+	}
+	return &u, nil
+}
+
+func (r *Repository) FindUserByID(id string) (*userRecord, error) {
+	var u userRecord
+	if err := r.db.Where("id = ?", id).First(&u).Error; err != nil {
+		return nil, err
+	}
+	return &u, nil
+}
+
+// hydrateMembers replaces the stored UserName/UserRole snapshots with what
+// `users` currently says.
+//
+// Those columns are written once at join time and never updated, so a
+// member who has since been renamed, or promoted from CITIZEN to
+// REPRESENTATIVE, would otherwise be displayed with values that were true
+// months ago. One grouped query per page rather than a join, to keep the
+// cross-service read in one obvious place.
+//
+// A user row that has vanished leaves the snapshot untouched — it is the
+// only record left of who that member was.
+func (r *Repository) hydrateMembers(list []domain.OrgMember) error {
+	if len(list) == 0 {
+		return nil
+	}
+	ids := make([]string, 0, len(list))
+	for i := range list {
+		ids = append(ids, list[i].UserID)
+	}
+
+	var users []userRecord
+	if err := r.db.Table("users").Select("id, email, name, role, deleted_at").
+		Where("id IN ?", ids).Scan(&users).Error; err != nil {
+		return err
+	}
+
+	byID := make(map[string]userRecord, len(users))
+	for _, u := range users {
+		byID[u.ID] = u
+	}
+	for i := range list {
+		if u, ok := byID[list[i].UserID]; ok {
+			list[i].UserName = u.Name
+			list[i].UserRole = u.Role
+		}
+	}
+	return nil
+}
+
+func (r *Repository) UpdateMemberTitle(orgID, userID string, title *string) error {
+	return r.db.Model(&domain.OrgMember{}).
+		Where("organization_id = ? AND user_id = ?", orgID, userID).
+		Update("title", title).Error
 }

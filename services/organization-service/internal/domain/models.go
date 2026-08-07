@@ -292,13 +292,29 @@ func (o *Organization) FundingEligible() (bool, []string) {
 }
 
 type OrgMember struct {
-	ID             string        `gorm:"type:uuid;primaryKey" json:"id"`
-	OrganizationID string        `gorm:"type:uuid;not null;uniqueIndex:idx_org_user" json:"organizationId"`
-	UserID         string        `gorm:"type:uuid;not null;uniqueIndex:idx_org_user" json:"userId"`
-	UserName       string        `gorm:"not null" json:"userName"`
-	UserRole       string        `gorm:"not null" json:"userRole"`
-	Role           OrgMemberRole `gorm:"type:varchar(20);default:'STAFF'" json:"role"`
-	JoinedAt       time.Time     `json:"joinedAt"`
+	ID             string `gorm:"type:uuid;primaryKey" json:"id"`
+	OrganizationID string `gorm:"type:uuid;not null;uniqueIndex:idx_org_user" json:"organizationId"`
+	UserID         string `gorm:"type:uuid;not null;uniqueIndex:idx_org_user" json:"userId"`
+	UserName       string `gorm:"not null" json:"userName"`
+	// UserRole is a snapshot of the platform role at the time of joining
+	// and goes stale the moment that role changes — a citizen later
+	// approved as a REPRESENTATIVE still reads CITIZEN here forever.
+	//
+	// Kept only so existing rows are not rewritten. Nothing should read it:
+	// the repository overwrites both this and UserName from `users` when
+	// listing members, so callers see current values rather than a
+	// historical guess.
+	UserRole string `gorm:"not null" json:"userRole"`
+	// Title is the person's job inside the organization — "Head of
+	// Distribution", "Field Officer", "Communications Lead".
+	//
+	// Distinct from Role, which is what they may DO on CivicOS. A utility
+	// with a dozen staff needs both: Role decides permissions, Title tells
+	// a citizen who they are actually talking to. Free text, because job
+	// titles are not an enum anyone can enumerate in advance.
+	Title    *string       `json:"title,omitempty"`
+	Role     OrgMemberRole `gorm:"type:varchar(20);default:'STAFF'" json:"role"`
+	JoinedAt time.Time     `json:"joinedAt"`
 }
 
 type Announcement struct {

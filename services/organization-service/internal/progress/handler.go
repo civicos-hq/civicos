@@ -119,13 +119,29 @@ func (h *Handler) create(c *gin.Context) {
 	userID, _ := c.Get("userID")
 	userName, _ := c.Get("userName")
 	userRole, _ := c.Get("userRole")
-	if err := h.orgs.CanAdmin(orgID, userID.(string), asString(userRole)); err != nil {
-		handleAppErr(c, err)
-		return
-	}
+
+	// Bind before authorising, because which permission applies depends on
+	// what the update is attached to.
 	var input CreateInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", err.Error())
+		return
+	}
+
+	// An update on an issue or a project is operational — the record of
+	// work being done — so any member may post it, STAFF included.
+	//
+	// An update on a CAMPAIGN is not. It is addressed to people who gave
+	// money, it is part of the spend-accountability trail, and it fans out
+	// a notification to every donor. That stays with the admins who are
+	// answerable for the campaign.
+	if input.CampaignID != nil && *input.CampaignID != "" {
+		if err := h.orgs.CanAdmin(orgID, userID.(string), asString(userRole)); err != nil {
+			handleAppErr(c, err)
+			return
+		}
+	} else if err := h.orgs.CanOperate(orgID, userID.(string)); err != nil {
+		handleAppErr(c, err)
 		return
 	}
 	item, err := h.svc.Create(orgID, input, userID.(string), asString(userName))

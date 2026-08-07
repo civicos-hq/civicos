@@ -90,8 +90,14 @@ func (h *Handler) updateStatus(c *gin.Context) {
 		return
 	}
 	userID, _ := c.Get("userID")
-	userRole, _ := c.Get("userRole")
-	if err := h.orgs.CanAdmin(a.OrganizationID, userID.(string), asString(userRole)); err != nil {
+	// Moving an assignment along is the work itself, so any member may do
+	// it — a field officer marking a repair IN_PROGRESS should not need
+	// the permission to launch a fundraising campaign.
+	//
+	// Deliberately weaker than `create` and `delete` below, which stay at
+	// CanAdmin: those decide whether the organization takes responsibility
+	// at all, and that is a commitment rather than a status report.
+	if err := h.orgs.CanOperate(a.OrganizationID, userID.(string)); err != nil {
 		handleAppErr(c, err)
 		return
 	}
