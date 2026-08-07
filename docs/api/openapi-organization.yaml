@@ -1818,6 +1818,122 @@ paths:
                           answerCount: 142
                           optionCounts: { Civic Ed: 88, Science: 62, Maths: 51, History: 22 }
 
+  /organizations/{id}/invitations:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    get:
+      tags: [Members]
+      summary: List pending invitations
+      description: |
+        Any member may read this. Knowing who has been asked to join is not
+        an admin privilege, and it stops two admins inviting the same
+        person twice. Expired-but-unaccepted invitations are included, so
+        an inviter can see why somebody never arrived.
+      responses:
+        '200': { description: Pending invitations, newest first. }
+    post:
+      tags: [Members]
+      summary: Invite someone to join (org admin)
+      description: |
+        Emails a signed link. The invitee does **not** need a CivicOS
+        account — they can create one from the link, and the accept page is
+        public so they can see what they are joining first.
+
+        Re-inviting the same address supersedes the outstanding invitation
+        rather than failing: the previous link stops working and a new one
+        is sent. A partial unique index enforces one pending invitation per
+        (organization, email).
+
+        The raw token exists only in the email; the database stores a
+        SHA-256 of it, so a database leak does not yield working links.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, role]
+              properties:
+                email: { type: string, format: email }
+                role: { $ref: '#/components/schemas/OrgMemberRole' }
+                title: { type: string, maxLength: 120 }
+            examples:
+              default:
+                value: { email: ada@water.example, role: STAFF, title: Head of Distribution }
+      responses:
+        '201': { description: Invitation created and emailed; audit-logged. }
+        '400': { description: '`INVALID_ROLE` or validation error.' }
+        '409': { description: '`ALREADY_MEMBER` — that address is already a member.' }
+
+  /invitations/{invitationId}:
+    parameters:
+      - in: path
+        name: invitationId
+        required: true
+        description: |
+          The opaque token from the invitation email on `GET`; the
+          invitation's UUID on `DELETE`.
+        schema: { type: string }
+    get:
+      tags: [Members]
+      security: []
+      summary: Read an invitation from its token (public)
+      description: |
+        Unauthenticated, because the invitee may have no account yet — that
+        is the point of an invitation.
+
+        Returns only the organization name, the role, who invited them and
+        the invited address. The page is reachable by anyone holding the
+        link, so it must not expose an organization's internal state.
+
+        Expired, already-accepted, revoked and never-existed all return the
+        **same** `INVITATION_INVALID` response. Distinguishing them would
+        let someone probing tokens confirm that an organization had invited
+        a particular address.
+      responses:
+        '200': { description: The invitation preview. }
+        '404':
+          { description: '`INVITATION_INVALID` — expired, used, withdrawn, or no such invitation.' }
+    delete:
+      tags: [Members]
+      summary: Withdraw a pending invitation (org admin)
+      responses:
+        '200': { description: Invitation revoked; audit-logged. }
+        '409': { description: '`INVITATION_NOT_PENDING` — already accepted or revoked.' }
+
+  /invitations/{invitationId}/accept:
+    parameters:
+      - in: path
+        name: invitationId
+        required: true
+        description: The opaque token from the invitation email.
+        schema: { type: string }
+    post:
+      tags: [Members]
+      summary: Accept an invitation
+      description: |
+        Creates the membership at the role and title the inviter chose —
+        the invitee never picks their own permission level.
+
+        **The signed-in account's email must match the invited address.**
+        Organization membership is not cosmetic: an `ADMIN` can publish in
+        the organization's name and launch fundraising campaigns, so a
+        forwarded link must not be enough to get in. The mismatch error
+        names both addresses, because the usual cause is being signed in to
+        a personal account while the invitation went to a work one.
+
+        Single-use, and safe under concurrent requests: the invitation is
+        consumed and the membership created in one transaction, guarded on
+        the invitation still being pending.
+      responses:
+        '200': { description: Membership created; audit-logged. }
+        '403': { description: '`INVITATION_EMAIL_MISMATCH` — signed in as a different address.' }
+        '404': { description: '`INVITATION_INVALID`.' }
+        '409': { description: '`ALREADY_MEMBER`.' }
+
   /me/representative-office:
     post:
       tags: [Organizations]

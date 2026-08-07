@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
@@ -9,6 +9,7 @@ import { useSeo } from '../hooks/useSeo';
 export function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   useSeo({
     title: 'Sign in — CivicOS',
     description:
@@ -43,9 +44,19 @@ export function LoginPage() {
         localStorage.setItem('refreshToken', refreshToken);
       }
 
-      // Users who never picked a community land on the wizard first.
-      // Once they've joined one (or skipped it), they go straight to Discover.
-      const destination = user?.activeCommunityId ? '/discover' : '/onboarding';
+      // An explicit `?redirect=` wins: someone who arrived here from an
+      // invitation link must land back on it, or the invitation is lost and
+      // they have to dig the email out again.
+      //
+      // Only same-site paths are honoured — an absolute URL here would turn
+      // the login page into an open redirect.
+      const requested = searchParams.get('redirect');
+      const safeRedirect =
+        requested?.startsWith('/') && !requested.startsWith('//') ? requested : null;
+
+      // Otherwise: users who never picked a community land on the wizard
+      // first. Once they've joined one (or skipped it), straight to Discover.
+      const destination = safeRedirect ?? (user?.activeCommunityId ? '/discover' : '/onboarding');
       navigate(destination, { replace: true });
     } catch {
       setErrorMessage(t('auth.login.error'));

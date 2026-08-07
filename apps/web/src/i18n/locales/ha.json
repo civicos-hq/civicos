@@ -1276,7 +1276,7 @@
   "orgMembers": {
     "title": "Tawaga",
     "subtitle": "Wa ke aiki a nan, da abin da kowanne zai iya yi a CivicOS.",
-    "add": "Ƙara wani",
+    "add": "Gayyaci wani",
     "empty": "Ba a ƙara kowa ba tukuna.",
     "joined": "Ya shiga {{date}}",
     "changeRoleFor": "Canja matakin izinin {{name}}",
@@ -1289,7 +1289,9 @@
       "jobTitle": "Matsayin aiki (na zaɓi)",
       "jobTitlePlaceholder": "misali Shugaban Rarrabawa",
       "role": "Matakin izini",
-      "submit": "Ƙara cikin tawaga"
+      "submit": "Ƙara cikin tawaga",
+      "inviteHint": "Za mu aika musu hanyar haɗi ta imel. Ba sa buƙatar asusun CivicOS tukuna — suna iya ƙirƙirar ɗaya daga nan.",
+      "sendInvite": "Aika gayyata"
     },
     "roles": {
       "OWNER": "Mai shi",
@@ -1300,6 +1302,34 @@
       "OWNER": "Cikakken iko, har da mambobi da bayanan biyan kuɗi.",
       "ADMIN": "Zai iya wallafawa, gudanar da kamfen da sarrafa tawaga.",
       "STAFF": "Zai iya ganin aikin cikin gida na ƙungiyar."
+    },
+    "pending": {
+      "title_one": "An aika gayyata {{count}}, ba a karɓa ba tukuna",
+      "title_other": "An aika gayyatu {{count}}, ba a karɓa ba tukuna",
+      "expires": "zai ƙare {{date}}",
+      "expired": "hanyar haɗi ta ƙare — aika wata",
+      "revoke": "Janye"
     }
+  },
+  "invitation": {
+    "title": "Shiga {{org}}",
+    "subtitle": "{{inviter}} ya gayyace ka ka shiga {{org}} a CivicOS.",
+    "invalidTitle": "Wannan gayyatar ba ta aiki kuma",
+    "invalidSubtitle": "Ba za a iya amfani da hanyar haɗin ba.",
+    "invalidBody": "Wataƙila ta ƙare, an riga an yi amfani da ita, ko an janye ta. Ka tambayi wanda ya gayyace ka ya aika sabuwa.",
+    "goToCivicOS": "Je zuwa CivicOS",
+    "fields": {
+      "organization": "Ƙungiya",
+      "role": "Matakin izini",
+      "jobTitle": "Matsayin aiki",
+      "sentTo": "An aika zuwa",
+      "expires": "Zai ƙare"
+    },
+    "signInPrompt": "Shiga a matsayin {{email}} don karɓa, ko ƙirƙiri asusu da wannan adireshin.",
+    "createAccount": "Ƙirƙiri asusu",
+    "signIn": "Shiga",
+    "wrongAccount": "An aika wannan gayyatar zuwa {{invited}}, amma ka shiga a matsayin {{current}}. Ka shiga da adireshin da aka gayyata don karɓa.",
+    "switchAccount": "Shiga da wani asusu",
+    "accept": "Karɓi gayyata"
   }
 }

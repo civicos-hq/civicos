@@ -111,18 +111,36 @@ reading an update wants to know they're hearing from the Head of
 Distribution; that is a different question from whether that person is
 allowed to publish.
 
-### Adding someone
+### Inviting someone
 
 1. Go to **My organization** and scroll to **Team**.
-2. Click **Add someone**.
+2. Click **Invite someone**.
 3. Enter their **email address**, an optional job title, and a role.
 
-They need a CivicOS account already — adding someone does not create one
-or send an invitation. If they haven't signed up, ask them to register
-first.
+They get an email with a link. **They do not need a CivicOS account** —
+the link opens a page showing who invited them and to what, and they can
+create an account from there. The link is good for 14 days.
 
-Platform admins can do the same from the admin console's organization
-page, which also shows each member's current platform role.
+Invitations you have sent but nobody has accepted appear under **Team**,
+so two admins don't invite the same person twice. If a link expires it
+says so — send another, which replaces the old one and stops the previous
+link working.
+
+You can **withdraw** a pending invitation at any time.
+
+:::note They must accept with the invited address
+Accepting requires being signed in as the address the invitation was sent
+to. A forwarded link does not let someone else in — organization admins
+can publish in your name and run fundraising campaigns, so the invitation
+grants access to the person you chose, not to whoever opens the message.
+
+If someone signs in with a different address, the page tells them which
+one to use.
+:::
+
+Platform admins can add existing accounts directly from the admin
+console's organization page, which also shows each member's current
+platform role.
 
 Any platform role can be added, including representatives. A councillor
 sitting on a water board's oversight committee is both an elected

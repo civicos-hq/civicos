@@ -80,6 +80,9 @@ const ProjectDetailPage = lazy(() =>
 const OrgLandingPage = lazy(() =>
   import('./routes/OrgLandingPage').then((m) => ({ default: m.OrgLandingPage })),
 );
+const InvitationAcceptPage = lazy(() =>
+  import('./routes/InvitationAcceptPage').then((m) => ({ default: m.InvitationAcceptPage })),
+);
 const OrgDashboardPage = lazy(() =>
   import('./routes/OrgDashboardPage').then((m) => ({ default: m.OrgDashboardPage })),
 );
@@ -159,6 +162,10 @@ function AppRoutes() {
       {/* Email verification — reachable whether or not signed in (the user
           may click the link from another browser/device). */}
       <Route path="/verify-email" element={<VerifyEmailPage />} />
+      {/* Public: an invitee may not have an account yet, which is the whole
+          point of an invitation. The page itself decides what to show based
+          on whether anyone is signed in. */}
+      <Route path="/invitations/:token" element={<InvitationAcceptPage />} />
       <Route path="/verify-email-sent" element={<VerifyEmailSentPage />} />
 
       {/* Password recovery — reachable while logged-out (the whole point) and

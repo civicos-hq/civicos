@@ -614,3 +614,38 @@ export interface ConsultationOutcomeInput {
 
 /** Map of questionId → new zero-based position. */
 export type ConsultationQuestionOrdering = Record<UUID, number>;
+
+/**
+ * An outstanding invitation to join an organization.
+ *
+ * `email` is stored lower-cased. There is no token here — the raw token
+ * exists only in the email that was sent; the server keeps a hash.
+ */
+export interface OrgInvitation {
+  id: UUID;
+  organizationId: UUID;
+  email: string;
+  role: OrgMemberRole;
+  title?: string;
+  invitedById: UUID;
+  invitedByName: string;
+  expiresAt: ISODateTime;
+  acceptedAt?: ISODateTime;
+  revokedAt?: ISODateTime;
+  createdAt: ISODateTime;
+}
+
+/**
+ * The unauthenticated view of an invitation, shown on the accept page
+ * before the invitee signs in. Deliberately thin — the page is reachable
+ * by anyone holding the link.
+ */
+export interface OrgInvitationPreview {
+  organizationId: UUID;
+  organizationName: string;
+  role: OrgMemberRole;
+  title?: string;
+  invitedByName: string;
+  email: string;
+  expiresAt: ISODateTime;
+}
