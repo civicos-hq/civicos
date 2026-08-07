@@ -20,17 +20,20 @@ demands it.
 
 ## Responsibilities
 
-- **Communities** — list, filter by state / LGA, create (admin roles
-  only).
+- **Communities** — paginated list with name search (`?q=`), filter by
+  state / LGA, resolve a specific set by `?ids=`, create (admin roles
+  only). Member counts are computed at query time from
+  `user_community_memberships`.
 - **Issues** — CRUD, upvote toggle, status changes, comment threads.
 - **Petitions** — CRUD, sign, comment threads, milestone notifications.
 - **Representatives** — CRUD, follow / unfollow, comment threads,
-  official-response notifications to followers.
+  official-response notifications to followers, and profile **claiming**
+  (`POST /representatives/:id/claim`, PLATFORM_ADMIN only).
 - **Notifications** — persisted list plus **realtime SSE** push via an
   in-process hub.
-- **Search** — global search across issues, petitions, representatives,
-  organizations, consultations, announcements, projects, funding campaigns
-  and representative announcements.
+- **Search** — global search across communities, issues, petitions,
+  representatives, organizations, consultations, announcements, projects,
+  funding campaigns and representative announcements.
 - **Discover feed** — personalized feed tiered by geographic proximity
   (`COMMUNITY` → `LGA` → `STATE` → `COUNTRY`).
 - **Uploads** — image upload endpoint (5 MB max, JPG/PNG/GIF/WEBP) plus
@@ -97,6 +100,29 @@ Two middlewares gate community-scoped actions:
   for the target's community.
 
 Both live in `internal/middleware/`.
+
+### Representative profile ownership
+
+`representatives.user_id` is the account that may publish as that
+representative. It is set in exactly three places:
+
+1. Approving a representative application (identity-service) — the
+   applicant owns the profile their own application created.
+2. The `00007` backfill, for profiles that predate the column.
+3. `POST /representatives/:id/claim` — PLATFORM_ADMIN only.
+
+The third exists because the first two leave **admin-seeded profiles
+permanently unclaimable**: publishing returned `REPRESENTATIVE_UNCLAIMED`
+telling the user to ask a platform admin, and no endpoint let that admin
+help. Provisioning a constituency office in organization-service keys off
+the same claim, so the gap blocked campaigns and consultations too.
+
+Claiming never displaces an existing claim — the repository guards on
+`user_id IS NULL`. Reassigning a profile would hand one official's
+constituents, and their donors, to a different account; that has to be a
+deliberate unlink first. Claiming also does not grant the
+`REPRESENTATIVE` platform role: that comes from the approval flow, which
+records a reviewer.
 
 ### Petition milestones
 
