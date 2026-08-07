@@ -25,10 +25,13 @@ _use_ CivicOS, head to the **[User Guide](/)** instead.
 ## What CivicOS is, technically
 
 CivicOS is a **microservice-oriented civic engagement platform** built in
-**Go** on the backend and **React + TypeScript** on the frontend. Four
-Go services (identity, community, organization, api-gateway) sit behind
-Postgres 16 and Redis 7. Two React apps (citizen web, admin console)
-consume the gateway.
+**Go** on the backend and **React + TypeScript** on the frontend. Five Go
+services — api-gateway plus identity, community, organization and
+civicai behind it — sit on Postgres 16 and Redis 7. Two React apps
+(citizen web, admin console) consume the gateway, and this Docusaurus
+site is the third TypeScript workspace.
+
+Full breakdown in [Architecture](./overview/architecture.md).
 
 - One binary per service. Single Docker image per service.
 - pnpm workspaces + Turborepo hold the frontend and shared TS packages.

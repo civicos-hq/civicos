@@ -56,7 +56,7 @@ frontend can't read it.
 `apps/admin`. Buttons, form primitives, layout shells, empty-state
 components — anything both apps benefit from being consistent about.
 
-Keep app-specific components in each app's `src/features/` folder.
+Keep app-specific components in each app's `src/components/` folder.
 Only extract to `@civicos/ui` when a component is _actually_ used in
 both apps — premature sharing creates coupling for no gain.
 

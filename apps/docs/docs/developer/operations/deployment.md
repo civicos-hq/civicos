@@ -17,12 +17,29 @@ This page is the tour, not the replacement.
 
 ## What Render provisions
 
-- `civicos-gateway` — the api-gateway Web Service (port `3000`).
-- `civicos-identity` — identity-service Private Service.
-- `civicos-community` — community-service Private Service.
-- `civicos-organization` — organization-service Private Service.
-- `civicos-civicai` — civicai-service Private Service. Holds no database
-  of its own; it reads from the other services with the caller's token.
+- `civicos-gateway` — the api-gateway, a **free** Web Service (port
+  `3000`). Public entry point; spins down after 15 minutes idle.
+- `civicos-identity` — identity-service, **starter** Web Service. Also
+  runs the shared database's migrations at boot.
+- `civicos-community` — community-service, **starter** Web Service.
+- `civicos-organization` — organization-service, **starter** Web Service.
+- `civicos-civicai` — civicai-service, **starter** Web Service. Holds no
+  database of its own; it reads from the other services with the caller's
+  token.
+
+The four internal services are `type: web`, not `pserv`. They are reached
+by the gateway over Render's **private network** via
+`fromService.hostport`, so the traffic never touches the public edge —
+that matters, because Render's Cloudflare-fronted edge intermittently
+429s the gateway's shared egress IP. They stay `web` rather than becoming
+private services because a service's type is immutable on Render:
+converting means delete and recreate, with new hostnames and re-wiring.
+They remain publicly reachable on their `onrender.com` URLs, and every
+route enforces JWT itself.
+
+`starter` also buys two things the free plan does not: instances that
+never spin down, and outbound SMTP.
+
 - `civicos-web` — citizen web Static Site (`apps/web` build output).
 - `civicos-admin` — admin console Static Site (`apps/admin` build
   output).

@@ -35,6 +35,10 @@ docker compose -f infrastructure/docker-compose.yml up -d
 cp .env.example .env
 # Edit .env — set JWT_SECRET to a 32+ char random string:
 #   openssl rand -base64 48
+#
+# GEMINI_API_KEY is only needed for civicai-service. Leave it blank and
+# every other service still runs — CivicAI fails open by design, so the
+# platform works without it, you just get no AI suggestions.
 
 # 4. Install pnpm workspaces
 pnpm install
@@ -55,6 +59,7 @@ set -a && source /path/to/civicos/.env && set +a
 cd services/identity-service      && air
 cd services/community-service     && air
 cd services/organization-service  && air
+cd services/civicai-service       && air   # needs GEMINI_API_KEY
 cd services/api-gateway           && air
 ```
 
@@ -77,7 +82,8 @@ the two frontends and this Docusaurus site.
 | API gateway          | http://localhost:3000      | Single entry point for all API calls             |
 | Identity service     | http://localhost:3001      | Auth, users, applications, moderation            |
 | Community service    | http://localhost:3002      | Communities, issues, petitions                   |
-| Organization service | http://localhost:3003      | Organizations, projects, assignments             |
+| Organization service | http://localhost:3003      | Organizations, projects, consultations, funding  |
+| CivicAI service      | http://localhost:3004      | Gemini-backed suggestions — optional             |
 | Swagger UI           | http://localhost:3000/docs | API reference — served by the gateway            |
 | Postgres             | localhost:5433             | Mapped from container's 5432 → host's 5433       |
 | Redis                | localhost:6379             |                                                  |
@@ -107,6 +113,7 @@ curl http://localhost:3000/health              # gateway itself
 curl http://localhost:3000/health/identity     # via gateway
 curl http://localhost:3000/health/community
 curl http://localhost:3000/health/organization
+curl http://localhost:3000/health/civicai
 ```
 
 Use these when something feels off.
@@ -126,13 +133,20 @@ docker compose -f infrastructure/docker-compose.yml down -v
 docker compose -f infrastructure/docker-compose.yml up -d
 ```
 
-Each Go service re-runs `AutoMigrate` on next startup, so the schema
-rebuilds itself.
+Bring **community-service and organization-service up first**, then
+identity-service.
+
+identity-service owns the versioned migrations for the whole shared
+database, and several of them touch tables the other services create. On
+an empty database it will stop with a message naming exactly which tables
+are missing and which service creates them — that is expected, not a
+broken setup. Start those services and restart identity-service. See
+[Database](../backend/database.md#reset-in-dev).
 
 **Kill stuck Go processes on service ports:**
 
 ```bash
-lsof -tiTCP:3000,3001,3002,3003 -sTCP:LISTEN | xargs -r kill
+lsof -tiTCP:3000,3001,3002,3003,3004 -sTCP:LISTEN | xargs -r kill
 ```
 
 ## Common failure modes

@@ -39,9 +39,29 @@ on startup. GORM inspects the models and issues idempotent DDL:
 column with a safe default, new index.
 
 **When you need a real migration:** anything destructive — dropping
-columns, renaming, backfilling data, tightening a constraint on
-existing rows. Write a `.sql` file into the service's `migrations/`
-folder and apply it manually before deploying.
+columns, renaming, backfilling data, tightening a constraint on existing
+rows, or adding a partial/unique index.
+
+Those live in **`services/identity-service/internal/migrate/migrations/`**
+as goose `.sql` files, and they run **automatically, in-process, at
+identity-service boot** — before its own `AutoMigrate`. They are not
+applied by hand.
+
+### Why identity-service owns migrations for everybody
+
+All services share one database, so migrations need exactly one owner —
+three services racing to migrate at startup would contend over a single
+version table. identity-service owns `users`, which everything else
+references, and it runs on a plan that never sleeps.
+
+A Postgres advisory lock serialises concurrent deploys: two instances
+starting together cannot both migrate, and the second finds the work done
+and carries on. A failed migration stops the service rather than letting
+it serve against a half-changed schema.
+
+They run in-process rather than as a deploy hook because the images are
+distroless — no shell, nothing to run a command with. In-process needs
+none of that and behaves identically on a laptop and on Render.
 
 ## Connection setup
 
@@ -68,11 +88,12 @@ Every service has `pkg/database/postgres.go` that:
 
 ## Tables by owner
 
-| Owner service        | Tables                                                                                                                                                                                                         |
-| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| identity-service     | `users`, `user_community_memberships`, `refresh_tokens`, `audit_logs`, `content_flags`, `representative_applications`, `organization_applications`, `application_review_events`                                |
-| community-service    | `communities`, `issues`, `issue_comments`, `issue_upvotes`, `petitions`, `petition_signatures`, `petition_comments`, `representatives`, `representative_followers`, `representative_comments`, `notifications` |
-| organization-service | `organizations`, `org_members`, `announcements`, `projects`, `issue_assignments`, `progress_updates`                                                                                                           |
+| Owner service        | Tables                                                                                                                                                                                                                                                                                                                           |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| identity-service     | `users`, `user_community_memberships`, `refresh_tokens`, `audit_logs`, `content_flags`, `representative_applications`, `organization_applications`, `application_review_events`, plus `schema_migrations` (goose's version table)                                                                                                |
+| community-service    | `communities`, `issues`, `issue_comments`, `issue_upvotes`, `petitions`, `petition_signatures`, `petition_comments`, `representatives`, `representative_followers`, `representative_comments`, `representative_announcements`, `representative_announcement_comments`, `notifications`                                           |
+| organization-service | `organizations`, `org_members`, `announcements`, `projects`, `issue_assignments`, `progress_updates`, `consultations`, `consultation_questions`, `consultation_responses`, `consultation_answers`, `consultation_outcomes`, `campaigns`, `milestones`, `donations`, `webhook_events`, `spend_records`, `reconciliation_findings` |
+| civicai-service      | none — holds no tables of its own                                                                                                                                                                                                                                                                                                |
 
 ## Local development
 
@@ -96,8 +117,34 @@ Or with any client at `postgresql://civicos:civicos@localhost:5433/civicos`.
 docker compose -f infrastructure/docker-compose.yml down -v
 docker compose -f infrastructure/docker-compose.yml up -d
 
-# Then restart every Go service — AutoMigrate rebuilds the schema.
+# Then restart the Go services — AutoMigrate rebuilds the schema.
 ```
+
+:::note Boot order after a full wipe
+identity-service's migrations operate on tables that **other** services
+own — `petition_signatures`, `issues`, `representatives`, `organizations`
+and more. Nothing orders the three services, so on an empty database
+identity can reach a migration whose subject does not exist yet.
+
+It now detects this and stops with a message naming the missing tables and
+the service that creates each one, instead of a bare
+`relation "..." does not exist`. Nothing is applied and no version is
+recorded, so it retries cleanly: start the named services, restart
+identity-service, and it proceeds.
+
+It deliberately **fails rather than skipping**. An `IF EXISTS` guard would
+let a migration record itself as applied while doing nothing, and goose
+would never revisit it — permanently losing the `ON DELETE` policies in
+`00005` and the partial indexes in `00006`–`00008`, none of which any GORM
+model declares.
+
+identity-service's own tables are handled by ordering rather than by
+waiting: against an empty database it runs `AutoMigrate` **before** the
+migrations, because `users` is its own table and no other service will
+ever create it. On an established database the original order holds —
+migrations first, so `AutoMigrate` never meets a column type a migration
+is about to change.
+:::
 
 ## Production
 
@@ -107,7 +154,9 @@ docker compose -f infrastructure/docker-compose.yml up -d
 - Backups are Render's daily snapshots (7-day retention on the smallest
   plans).
 - **Do not** rely on AutoMigrate for destructive changes in production.
-  Push a `.sql` migration first and apply it manually before deploying
-  the code that expects the new shape.
+  Add a goose migration under
+  `services/identity-service/internal/migrate/migrations/` — it applies
+  itself at the next identity-service boot, behind the advisory lock, and
+  is recorded in `schema_migrations`.
 
 Next: [Events](./events.md).
