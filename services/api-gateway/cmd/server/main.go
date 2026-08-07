@@ -253,6 +253,18 @@ func main() {
 	// it takes the lenient limit rather than the strict one.
 	r.POST("/api/v1/me/representative-office", authMiddleware, limitLenient, orgProxy)
 	r.POST("/api/v1/organizations/:id/members", authMiddleware, limitStandard, orgProxy)
+
+	// Team invitations. Creating one sends mail, so it takes the strict
+	// limit — an unbounded invite endpoint is a spam relay pointed at
+	// whatever addresses the caller types.
+	r.GET("/api/v1/organizations/:id/invitations", authMiddleware, orgProxy)
+	r.POST("/api/v1/organizations/:id/invitations", authMiddleware, limitStrict, orgProxy)
+	r.DELETE("/api/v1/invitations/:invitationId", authMiddleware, limitStandard, orgProxy)
+	// Public: the invitee reads this before they have an account. Keyed by
+	// IP and strict, because it is the one route that takes a guessable
+	// token from an unauthenticated caller.
+	r.GET("/api/v1/invitations/:invitationId", limitStrict, orgProxy)
+	r.POST("/api/v1/invitations/:invitationId/accept", authMiddleware, limitStrict, orgProxy)
 	r.PATCH("/api/v1/organizations/:id/members/:userId", authMiddleware, limitStandard, orgProxy)
 	r.DELETE("/api/v1/organizations/:id/members/:userId", authMiddleware, limitStandard, orgProxy)
 

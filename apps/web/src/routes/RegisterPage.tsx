@@ -55,10 +55,13 @@ export function RegisterPage() {
     description:
       'Create your CivicOS account — register as a citizen, apply as a representative, or apply to list your organization.',
   });
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [searchParams] = useSearchParams();
+  const [name, setName] = useState('');
+  // Prefilled from an invitation link. The invitation is bound to this
+  // address, so signing up with a different one would fail on acceptance —
+  // starting them on the right value avoids that dead end.
+  const [email, setEmail] = useState(searchParams.get('email') ?? '');
+  const [password, setPassword] = useState('');
   const [accountType, setAccountType] = useState<AccountType>(() =>
     accountTypeFromParam(searchParams.get('type')),
   );
@@ -158,6 +161,18 @@ export function RegisterPage() {
       const refreshToken = res.data?.data?.tokens?.refreshToken;
       if (accessToken) localStorage.setItem('accessToken', accessToken);
       if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
+      // Someone who arrived from an invitation goes straight back to it.
+      // They are already signed in at this point, and the invitation link
+      // is itself proof they control the address, so they can accept before
+      // verifying — the verification nudge still follows them elsewhere.
+      //
+      // Same-site paths only: an absolute URL would make this an open
+      // redirect.
+      const requested = searchParams.get('redirect');
+      if (requested?.startsWith('/') && !requested.startsWith('//')) {
+        navigate(requested, { replace: true });
+        return;
+      }
       navigate('/verify-email-sent', {
         replace: true,
         state: { email, requestedAccountType: accountType },

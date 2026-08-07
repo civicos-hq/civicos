@@ -2,13 +2,9 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@civicos/ui';
 import { OrgMemberRole, type OrgMember } from '@civicos/types';
-import { UserPlus, Trash2 } from 'lucide-react';
-import {
-  useAddOrgMember,
-  useOrgMembers,
-  useRemoveOrgMember,
-  useUpdateOrgMember,
-} from '../hooks/useOrgMembers';
+import { UserPlus, Trash2, MailCheck, Clock } from 'lucide-react';
+import { useOrgMembers, useRemoveOrgMember, useUpdateOrgMember } from '../hooks/useOrgMembers';
+import { useInviteToOrg, useOrgInvitations, useRevokeInvitation } from '../hooks/useOrgInvitations';
 import { getApiError } from '../lib/api';
 import { EmptyState } from './EmptyState';
 
@@ -49,7 +45,9 @@ export function OrgMembers({ orgId, canManage }: { orgId: string; canManage: boo
         )}
       </div>
 
-      {adding && <AddMemberForm orgId={orgId} onDone={() => setAdding(false)} />}
+      {adding && <InviteForm orgId={orgId} onDone={() => setAdding(false)} />}
+
+      <PendingInvitations orgId={orgId} canManage={canManage} />
 
       {isLoading ? (
         <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>
@@ -68,20 +66,20 @@ export function OrgMembers({ orgId, canManage }: { orgId: string; canManage: boo
   );
 }
 
-function AddMemberForm({ orgId, onDone }: { orgId: string; onDone: () => void }) {
+function InviteForm({ orgId, onDone }: { orgId: string; onDone: () => void }) {
   const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [title, setTitle] = useState('');
   const [role, setRole] = useState<OrgMemberRole>(OrgMemberRole.STAFF);
-  const add = useAddOrgMember(orgId);
-  const apiError = getApiError(add.error);
+  const invite = useInviteToOrg(orgId);
+  const apiError = getApiError(invite.error);
 
   return (
     <form
       className="mt-4 grid gap-3 rounded-xl border border-slate-200 bg-slate-50/70 p-4 sm:grid-cols-2 dark:border-slate-700 dark:bg-slate-800/40"
       onSubmit={(e) => {
         e.preventDefault();
-        add.mutate({ email, role, title }, { onSuccess: onDone });
+        invite.mutate({ email, role, title }, { onSuccess: onDone });
       }}
     >
       <label className="flex flex-col gap-1 text-sm sm:col-span-2">
@@ -96,10 +94,10 @@ function AddMemberForm({ orgId, onDone }: { orgId: string; onDone: () => void })
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
-        {/* Membership is invitation-only — the person must already have an
-            account, and this form cannot create one for them. */}
+        {/* They no longer need an account first — the invitation walks
+            them through creating one. */}
         <span className="text-xs text-slate-500 dark:text-slate-400">
-          {t('orgMembers.form.emailHint')}
+          {t('orgMembers.form.inviteHint')}
         </span>
       </label>
 
@@ -140,14 +138,79 @@ function AddMemberForm({ orgId, onDone }: { orgId: string; onDone: () => void })
       )}
 
       <div className="flex gap-2 sm:col-span-2">
-        <Button type="submit" size="sm" loading={add.isPending}>
-          {t('orgMembers.form.submit')}
+        <Button type="submit" size="sm" loading={invite.isPending}>
+          {t('orgMembers.form.sendInvite')}
         </Button>
         <Button type="button" size="sm" variant="secondary" onClick={onDone}>
           {t('common.cancel')}
         </Button>
       </div>
     </form>
+  );
+}
+
+/**
+ * Invitations that have gone out but not been accepted.
+ *
+ * Shown to every member, not just admins: without it two admins invite the
+ * same person twice, and nobody can tell whether a colleague was asked and
+ * has not got round to it or was never asked at all.
+ */
+function PendingInvitations({ orgId, canManage }: { orgId: string; canManage: boolean }) {
+  const { t } = useTranslation();
+  const { data: invitations = [] } = useOrgInvitations(orgId);
+  const revoke = useRevokeInvitation(orgId);
+
+  if (invitations.length === 0) return null;
+
+  return (
+    <div className="mt-4 rounded-xl border border-dashed border-slate-300 p-4 dark:border-slate-600">
+      <h3 className="flex items-center gap-1.5 text-sm font-semibold text-slate-700 dark:text-slate-200">
+        <MailCheck className="h-4 w-4" aria-hidden="true" />
+        {t('orgMembers.pending.title', { count: invitations.length })}
+      </h3>
+      <ul className="mt-3 grid gap-2">
+        {invitations.map((inv) => {
+          const expired = new Date(inv.expiresAt).getTime() < Date.now();
+          return (
+            <li key={inv.id} className="flex flex-wrap items-center justify-between gap-2 text-sm">
+              <div className="min-w-0">
+                <p className="truncate text-slate-800 dark:text-slate-100">{inv.email}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  {t(`orgMembers.roles.${inv.role}`)}
+                  {inv.title ? ` · ${inv.title}` : ''} ·{' '}
+                  {expired ? (
+                    /* An expired link is why somebody never arrived. Saying
+                       so is the difference between "they ignored us" and
+                       "send another one". */
+                    <span className="text-amber-700 dark:text-amber-400">
+                      {t('orgMembers.pending.expired')}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1">
+                      <Clock className="h-3 w-3" aria-hidden="true" />
+                      {t('orgMembers.pending.expires', {
+                        date: new Date(inv.expiresAt).toLocaleDateString(),
+                      })}
+                    </span>
+                  )}
+                </p>
+              </div>
+              {canManage && (
+                <button
+                  type="button"
+                  className="text-xs font-medium text-red-600 hover:underline dark:text-red-400"
+                  disabled={revoke.isPending}
+                  onClick={() => revoke.mutate(inv.id)}
+                >
+                  {t('orgMembers.pending.revoke')}
+                </button>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   );
 }
 

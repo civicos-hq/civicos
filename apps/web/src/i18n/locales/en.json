@@ -2146,7 +2146,7 @@
   "orgMembers": {
     "title": "Team",
     "subtitle": "Who works here, and what each person can do on CivicOS.",
-    "add": "Add someone",
+    "add": "Invite someone",
     "empty": "Nobody has been added yet.",
     "joined": "Joined {{date}}",
     "changeRoleFor": "Change {{name}}'s permission level",
@@ -2159,7 +2159,9 @@
       "jobTitle": "Job title (optional)",
       "jobTitlePlaceholder": "e.g. Head of Distribution",
       "role": "Permission level",
-      "submit": "Add to team"
+      "submit": "Add to team",
+      "inviteHint": "We'll email them a link. They don't need a CivicOS account yet — they can create one from it.",
+      "sendInvite": "Send invitation"
     },
     "roles": {
       "OWNER": "Owner",
@@ -2170,6 +2172,34 @@
       "OWNER": "Full control, including members and payout details.",
       "ADMIN": "Can publish, run campaigns and manage the team.",
       "STAFF": "Can see the organization’s internal work."
+    },
+    "pending": {
+      "title_one": "{{count}} invitation sent, not yet accepted",
+      "title_other": "{{count}} invitations sent, not yet accepted",
+      "expires": "expires {{date}}",
+      "expired": "link expired — send another",
+      "revoke": "Withdraw"
     }
+  },
+  "invitation": {
+    "title": "Join {{org}}",
+    "subtitle": "{{inviter}} invited you to join {{org}} on CivicOS.",
+    "invalidTitle": "This invitation is no longer valid",
+    "invalidSubtitle": "The link cannot be used.",
+    "invalidBody": "It may have expired, been used already, or been withdrawn. Ask whoever invited you to send a new one.",
+    "goToCivicOS": "Go to CivicOS",
+    "fields": {
+      "organization": "Organization",
+      "role": "Permission level",
+      "jobTitle": "Job title",
+      "sentTo": "Sent to",
+      "expires": "Expires"
+    },
+    "signInPrompt": "Sign in as {{email}} to accept, or create an account with that address.",
+    "createAccount": "Create an account",
+    "signIn": "Sign in",
+    "wrongAccount": "This invitation was sent to {{invited}}, but you are signed in as {{current}}. Sign in with the invited address to accept it.",
+    "switchAccount": "Sign in with a different account",
+    "accept": "Accept invitation"
   }
 }

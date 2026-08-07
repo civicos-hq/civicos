@@ -1276,7 +1276,7 @@
   "orgMembers": {
     "title": "Ndị otu",
     "subtitle": "Onye na-arụ ọrụ ebe a, na ihe onye ọ bụla nwere ike ime na CivicOS.",
-    "add": "Tinye mmadụ",
+    "add": "Kpọọ mmadụ",
     "empty": "A tinyebeghị onye ọ bụla.",
     "joined": "Sonyere {{date}}",
     "changeRoleFor": "Gbanwee ọkwa ikike {{name}}",
@@ -1289,7 +1289,9 @@
       "jobTitle": "Aha ọrụ (nhọrọ)",
       "jobTitlePlaceholder": "dịka Onyeisi Nkesa",
       "role": "Ọkwa ikike",
-      "submit": "Tinye na ndị otu"
+      "submit": "Tinye na ndị otu",
+      "inviteHint": "Anyị ga-eziga ha njikọ site na email. Ha achọghị akaụntụ CivicOS ugbu a — ha nwere ike imepụta otu site na ya.",
+      "sendInvite": "Ziga òkù"
     },
     "roles": {
       "OWNER": "Onye nwe",
@@ -1300,6 +1302,34 @@
       "OWNER": "Njikwa zuru oke, gụnyere ndị otu na nkọwa ịkwụ ụgwọ.",
       "ADMIN": "Nwere ike ibipụta, ịgba mkpọsa na ijikwa ndị otu.",
       "STAFF": "Nwere ike ịhụ ọrụ ime nzukọ ahụ."
+    },
+    "pending": {
+      "title_one": "Ezigara òkù {{count}}, a nabatabeghị ya",
+      "title_other": "Ezigara òkù {{count}}, a nabatabeghị ha",
+      "expires": "ọ ga-agwụ {{date}}",
+      "expired": "njikọ agwụla — ziga ọzọ",
+      "revoke": "Wepụ"
     }
+  },
+  "invitation": {
+    "title": "Sonye na {{org}}",
+    "subtitle": "{{inviter}} kpọrọ gị ka ị sonye na {{org}} na CivicOS.",
+    "invalidTitle": "Òkù a abaghịzi uru",
+    "invalidSubtitle": "Enweghị ike iji njikọ ahụ.",
+    "invalidBody": "O nwere ike ịbụ na ọ gwụla, e jirila ya, ma ọ bụ ewepụrụ ya. Gwa onye kpọrọ gị ka o zigara gị ọhụrụ.",
+    "goToCivicOS": "Gaa na CivicOS",
+    "fields": {
+      "organization": "Nzukọ",
+      "role": "Ọkwa ikike",
+      "jobTitle": "Aha ọrụ",
+      "sentTo": "Ezigara ya na",
+      "expires": "Ọ ga-agwụ"
+    },
+    "signInPrompt": "Banye dịka {{email}} iji nabata ya, ma ọ bụ mepụta akaụntụ na adreesị ahụ.",
+    "createAccount": "Mepụta akaụntụ",
+    "signIn": "Banye",
+    "wrongAccount": "E zigara òkù a na {{invited}}, mana ị banyere dịka {{current}}. Jiri adreesị a kpọrọ banye iji nabata ya.",
+    "switchAccount": "Jiri akaụntụ ọzọ banye",
+    "accept": "Nabata òkù"
   }
 }

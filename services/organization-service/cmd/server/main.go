@@ -15,6 +15,7 @@ import (
 	"github.com/civicos/organization-service/internal/consultations"
 	"github.com/civicos/organization-service/internal/domain"
 	"github.com/civicos/organization-service/internal/donations"
+	"github.com/civicos/organization-service/internal/invitations"
 	"github.com/civicos/organization-service/internal/middleware"
 	"github.com/civicos/organization-service/internal/milestones"
 	"github.com/civicos/organization-service/internal/notifications"
@@ -51,6 +52,7 @@ func main() {
 		&domain.WebhookEvent{},
 		&domain.SpendRecord{},
 		&domain.ReconciliationFinding{},
+		&domain.OrgInvitation{},
 	); err != nil {
 		log.Fatalf("migration failed: %v", err)
 	}
@@ -180,6 +182,13 @@ func main() {
 		log.Printf("receipts: no SMTP_HOST — receipts will be printed to this log")
 	}
 
+	// Invitations reuse the same mailer as receipts: both are optional
+	// infrastructure, and with no SMTP host the console mailer prints the
+	// link to the log so the flow is still walkable in dev.
+	inviteRepo := invitations.NewRepository(db)
+	inviteSvc := invitations.NewService(inviteRepo, receiptMailer, cfg.AppURL)
+	inviteHandler := invitations.NewHandler(inviteSvc, orgSvc, auditor)
+
 	donRepo := donations.NewRepository(db)
 	donSvc := donations.NewService(donRepo, payProvider, cfg.PlatformFeeBps, cfg.DonationCallbackURL).
 		WithReceipts(receiptMailer, cfg.AppURL).
@@ -229,6 +238,7 @@ func main() {
 	msHandler.RegisterRoutes(v1, authMiddleware)
 	donHandler.RegisterRoutes(v1, authMiddleware, optionalAuth)
 	spendHandler.RegisterRoutes(v1, authMiddleware)
+	inviteHandler.RegisterRoutes(v1, authMiddleware)
 
 	addr := ":" + cfg.Port
 	log.Printf("organization-service listening on %s", addr)

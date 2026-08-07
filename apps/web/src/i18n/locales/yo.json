@@ -1276,7 +1276,7 @@
   "orgMembers": {
     "title": "Ẹgbẹ́ iṣẹ́",
     "subtitle": "Ta ni ó ń ṣiṣẹ́ níbí, àti ohun tí ẹnìkọ̀ọ̀kan lè ṣe lórí CivicOS.",
-    "add": "Fi ẹnìkan kún",
+    "add": "Pe ẹnìkan",
     "empty": "A kò tíì fi ẹnikẹ́ni kún.",
     "joined": "Dara pọ̀ ní {{date}}",
     "changeRoleFor": "Yí ipele àṣẹ {{name}} padà",
@@ -1289,7 +1289,9 @@
       "jobTitle": "Orúkọ iṣẹ́ (àṣàyàn)",
       "jobTitlePlaceholder": "bí àpẹẹrẹ Olórí Ìpínkiri",
       "role": "Ipele àṣẹ",
-      "submit": "Fi kún ẹgbẹ́"
+      "submit": "Fi kún ẹgbẹ́",
+      "inviteHint": "A ó fi ìjápọ̀ ránṣẹ́ sí wọn nípasẹ̀ ìmẹ́lì. Wọn kò nílò àkàǹtì CivicOS síbẹ̀ — wọ́n lè ṣẹ̀dá ọ̀kan láti ibẹ̀.",
+      "sendInvite": "Fi ìpè ránṣẹ́"
     },
     "roles": {
       "OWNER": "Onílé",
@@ -1300,6 +1302,34 @@
       "OWNER": "Ìdarí kíkún, pẹ̀lú àwọn ọmọ ẹgbẹ́ àti àlàyé ìsanwó.",
       "ADMIN": "Ó lè tẹ̀jáde, ṣe ìpolongo kí ó sì ṣàkóso ẹgbẹ́.",
       "STAFF": "Ó lè rí iṣẹ́ inú ilé ìdàsílẹ̀ náà."
+    },
+    "pending": {
+      "title_one": "Ìpè {{count}} ni a fi ránṣẹ́, wọn kò tíì gbà",
+      "title_other": "Ìpè {{count}} ni a fi ránṣẹ́, wọn kò tíì gbà",
+      "expires": "yóò pari {{date}}",
+      "expired": "ìjápọ̀ ti pari — fi òmíràn ránṣẹ́",
+      "revoke": "Fà sẹ́yìn"
     }
+  },
+  "invitation": {
+    "title": "Dara pọ̀ mọ́ {{org}}",
+    "subtitle": "{{inviter}} pè ọ́ láti dara pọ̀ mọ́ {{org}} lórí CivicOS.",
+    "invalidTitle": "Ìpè yìí kò wúlò mọ́",
+    "invalidSubtitle": "A kò lè lo ìjápọ̀ náà.",
+    "invalidBody": "Ó lè ti pari, wọ́n ti lò ó, tàbí wọ́n ti fà á sẹ́yìn. Béèrè lọ́wọ́ ẹni tí ó pè ọ́ kí ó fi tuntun ránṣẹ́.",
+    "goToCivicOS": "Lọ sí CivicOS",
+    "fields": {
+      "organization": "Ìdàsílẹ̀",
+      "role": "Ipele àṣẹ",
+      "jobTitle": "Orúkọ iṣẹ́",
+      "sentTo": "A fi ránṣẹ́ sí",
+      "expires": "Yóò pari"
+    },
+    "signInPrompt": "Wọlé gẹ́gẹ́ bí {{email}} láti gbà á, tàbí ṣẹ̀dá àkàǹtì pẹ̀lú àdírẹ́sì náà.",
+    "createAccount": "Ṣẹ̀dá àkàǹtì",
+    "signIn": "Wọlé",
+    "wrongAccount": "A fi ìpè yìí ránṣẹ́ sí {{invited}}, ṣùgbọ́n o wọlé gẹ́gẹ́ bí {{current}}. Wọlé pẹ̀lú àdírẹ́sì tí a pè láti gbà á.",
+    "switchAccount": "Wọlé pẹ̀lú àkàǹtì mìíràn",
+    "accept": "Gba ìpè"
   }
 }

@@ -1505,7 +1505,7 @@
   "orgMembers": {
     "title": "Team",
     "subtitle": "Who dey work here, and wetin each person fit do for CivicOS.",
-    "add": "Add person",
+    "add": "Invite person",
     "empty": "Nobody never dey added.",
     "joined": "Join {{date}}",
     "changeRoleFor": "Change {{name}} permission level",
@@ -1518,7 +1518,9 @@
       "jobTitle": "Job title (optional)",
       "jobTitlePlaceholder": "e.g. Head of Distribution",
       "role": "Permission level",
-      "submit": "Add to team"
+      "submit": "Add to team",
+      "inviteHint": "We go email dem link. Dem no need CivicOS account before — dem fit create one from am.",
+      "sendInvite": "Send invitation"
     },
     "roles": {
       "OWNER": "Owner",
@@ -1529,6 +1531,34 @@
       "OWNER": "Full control, including members and payout details.",
       "ADMIN": "Fit publish, run campaigns and manage di team.",
       "STAFF": "Fit see di organization internal work."
+    },
+    "pending": {
+      "title_one": "{{count}} invitation don go, dem never accept am",
+      "title_other": "{{count}} invitations don go, dem never accept dem",
+      "expires": "e go expire {{date}}",
+      "expired": "link don expire — send another one",
+      "revoke": "Comot am"
     }
+  },
+  "invitation": {
+    "title": "Join {{org}}",
+    "subtitle": "{{inviter}} invite you make you join {{org}} for CivicOS.",
+    "invalidTitle": "Dis invitation no valid again",
+    "invalidSubtitle": "Di link no fit work.",
+    "invalidBody": "E fit don expire, dem don use am, or dem don comot am. Tell di person wey invite you make dem send another one.",
+    "goToCivicOS": "Go to CivicOS",
+    "fields": {
+      "organization": "Organization",
+      "role": "Permission level",
+      "jobTitle": "Job title",
+      "sentTo": "Dem send am to",
+      "expires": "E go expire"
+    },
+    "signInPrompt": "Sign in as {{email}} to accept am, or create account with dat address.",
+    "createAccount": "Create account",
+    "signIn": "Sign in",
+    "wrongAccount": "Dem send dis invitation to {{invited}}, but na {{current}} you sign in with. Sign in with di invited address make you accept am.",
+    "switchAccount": "Sign in with another account",
+    "accept": "Accept invitation"
   }
 }

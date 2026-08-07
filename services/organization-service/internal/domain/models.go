@@ -809,3 +809,50 @@ type WebhookEvent struct {
 	Note      *string   `json:"note,omitempty"`
 	CreatedAt time.Time `json:"createdAt"`
 }
+
+// OrgInvitation invites someone to join an organization by email address,
+// including someone who has no CivicOS account yet.
+//
+// Adding a member directly requires an existing account, which made
+// onboarding a utility's staff a two-step dance: everyone registers, then
+// an owner adds them one at a time. An invitation inverts that — the org
+// decides who and at what level, and the person completes it themselves.
+type OrgInvitation struct {
+	ID             string `gorm:"type:uuid;primaryKey" json:"id"`
+	OrganizationID string `gorm:"type:uuid;not null;index" json:"organizationId"`
+	// Email is stored lower-cased so the pending-invite uniqueness check
+	// and the accept-time comparison both behave the same way regardless of
+	// how anyone typed it.
+	Email string `gorm:"not null;index" json:"email"`
+	// Role and Title are decided by the inviter and applied verbatim on
+	// acceptance. The invitee never chooses their own permission level.
+	Role  OrgMemberRole `gorm:"type:varchar(20);not null" json:"role"`
+	Title *string       `json:"title,omitempty"`
+
+	// TokenHash is a SHA-256 of the token that went out in the email. The
+	// raw token is never stored, so a database leak does not hand anyone a
+	// working invitation — the same arrangement as email verification and
+	// password reset.
+	TokenHash string    `gorm:"not null;index" json:"-"`
+	ExpiresAt time.Time `gorm:"not null" json:"expiresAt"`
+
+	InvitedByID   string `gorm:"type:uuid;not null" json:"invitedById"`
+	InvitedByName string `gorm:"not null" json:"invitedByName"`
+
+	// Exactly one of these is set once an invitation stops being pending.
+	// Rows are kept rather than deleted: who was invited to an organization
+	// that can raise money, by whom, and what happened, is worth being able
+	// to answer later.
+	AcceptedAt     *time.Time `json:"acceptedAt,omitempty"`
+	AcceptedUserID *string    `gorm:"type:uuid" json:"acceptedUserId,omitempty"`
+	RevokedAt      *time.Time `json:"revokedAt,omitempty"`
+	RevokedByID    *string    `gorm:"type:uuid" json:"revokedById,omitempty"`
+
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+// Pending reports whether this invitation can still be accepted.
+func (i *OrgInvitation) Pending(now time.Time) bool {
+	return i.AcceptedAt == nil && i.RevokedAt == nil && now.Before(i.ExpiresAt)
+}

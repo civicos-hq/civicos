@@ -106,6 +106,7 @@ var prerequisites = map[int64][]string{
 	6: {"reconciliation_findings"},
 	7: {"representatives"},
 	8: {"organizations"},
+	9: {"org_invitations"},
 }
 
 // tableOwner maps a table to the service whose AutoMigrate creates it, so
@@ -126,6 +127,7 @@ var tableOwner = map[string]string{
 	"announcements": "organization-service", "projects": "organization-service",
 	"issue_assignments": "organization-service", "progress_updates": "organization-service",
 	"reconciliation_findings": "organization-service",
+	"org_invitations":         "organization-service",
 }
 
 // checkPrerequisites reports which tables the pending migrations need but
