@@ -17,6 +17,7 @@ import { OrgCampaigns } from '../components/OrgCampaigns';
 import { PayoutAccount } from '../components/PayoutAccount';
 import { EmptyState } from '../components/EmptyState';
 import { CommunityInsightsTile } from '../components/civic/CommunityInsightsTile';
+import { OrgMembers } from '../components/OrgMembers';
 import { useMe } from '../hooks/useMe';
 import { useCommunity } from '../hooks/useCommunities';
 import { useConsultations, useMyOrganizations } from '../hooks/useConsultations';
@@ -195,6 +196,11 @@ export function OrgDashboardPage() {
           {canAdmin && <PayoutAccount org={membership.organization} />}
         </div>
       )}
+
+      {/* Everyone in the org sees who else is in it — knowing your
+          colleagues is not an admin privilege. Only owners and admins can
+          change anything. */}
+      {orgId && <OrgMembers orgId={orgId} canManage={canAdmin} />}
     </section>
   );
 }

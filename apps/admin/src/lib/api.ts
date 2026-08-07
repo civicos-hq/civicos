@@ -149,3 +149,8 @@ export async function apiPatch<T>(
   const res = await api.patch<{ success: boolean; data: T }>(url, body, config);
   return res.data.data;
 }
+
+export async function apiDelete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
+  const res = await api.delete<{ success: boolean; data: T }>(url, config);
+  return res.data.data;
+}

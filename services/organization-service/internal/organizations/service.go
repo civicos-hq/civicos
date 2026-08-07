@@ -3,6 +3,7 @@ package organizations
 import (
 	"errors"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/civicos/organization-service/internal/domain"
@@ -23,6 +24,11 @@ type OrgStore interface {
 	UpdateMemberRole(orgID, userID string, role domain.OrgMemberRole) error
 	RemoveMember(orgID, userID string) error
 	BumpMemberCount(orgID string, delta int) error
+	UpdateMemberTitle(orgID, userID string, title *string) error
+
+	// Resolving the person being added, from the shared `users` table.
+	FindUserByEmail(email string) (*userRecord, error)
+	FindUserByID(id string) (*userRecord, error)
 
 	// Representative offices — see repoffice.go.
 	FindRepresentativeByUserID(userID string) (*representativeRecord, error)
@@ -73,15 +79,25 @@ type FundingVerificationInput struct {
 	BankAccountVerified bool `json:"bankAccountVerified"`
 }
 
+// AddMemberInput identifies the person to add by EMAIL or by user ID.
+//
+// Name and platform role are deliberately absent. The previous shape
+// required the caller to supply both, which meant a UI had to already know
+// the target's UUID — so no UI was ever built — and meant the stored name
+// was whatever the client typed. Both are now read from `users`.
 type AddMemberInput struct {
-	UserID   string `json:"userId" binding:"required"`
-	UserName string `json:"userName" binding:"required"`
-	UserRole string `json:"userRole" binding:"required"`
-	Role     string `json:"role" binding:"required"`
+	// Email is the normal path: an org owner knows their colleague's email.
+	Email string `json:"email" binding:"omitempty,email"`
+	// UserID stays supported for callers that already hold one.
+	UserID string  `json:"userId" binding:"omitempty,uuid4"`
+	Role   string  `json:"role" binding:"required"`
+	Title  *string `json:"title" binding:"omitempty,max=120"`
 }
 
 type UpdateMemberInput struct {
 	Role string `json:"role" binding:"required"`
+	// Title is optional on update; omitting it leaves the current one.
+	Title *string `json:"title" binding:"omitempty,max=120"`
 }
 
 func (s *Service) List(f ListFilters) ([]domain.Organization, error) {
@@ -287,6 +303,37 @@ func (s *Service) CanClose(orgID, userID, userRole string) error {
 	return s.CanAdmin(orgID, userID, userRole)
 }
 
+// CanOperate gates the day-to-day work of an organization: moving an
+// assignment along, and posting a progress update on an issue or project.
+// Any member qualifies, STAFF included.
+//
+// This exists because STAFF previously could not do anything. Every
+// operational action sat behind CanAdmin, so a utility with field officers
+// had to make each of them an ADMIN — which also let them publish in the
+// organization's name, create fundraising campaigns, and remove their own
+// colleagues. There was no tier for "does the work".
+//
+// The line drawn here is between REPORTING on a commitment and MAKING one.
+// A field officer saying "we are on site, the main is repaired" is
+// recording fact about work the organization already took on. Accepting the
+// assignment in the first place, publishing an announcement, launching a
+// campaign or editing the org are commitments the organization makes, and
+// those stay at CanAdmin.
+//
+// PLATFORM_ADMIN is NOT accepted, matching CanAdmin: operational records
+// carry the organization's voice, and "the water board says it is fixed"
+// must come from the water board. Emergency intervention has CanClose.
+func (s *Service) CanOperate(orgID, userID string) error {
+	if _, err := s.repo.FindMember(orgID, userID); err != nil {
+		return &AppError{
+			Code:    "FORBIDDEN",
+			Message: "Only members of this organization can do this",
+			Status:  http.StatusForbidden,
+		}
+	}
+	return nil
+}
+
 // CanReadInternal gates admin-only reads — response lists, analytics,
 // draft content. Members of the org (any role including STAFF) and
 // PLATFORM_ADMIN both qualify. This is separate from CanAdmin because
@@ -306,15 +353,50 @@ func (s *Service) AddMember(orgID string, input AddMemberInput) (*domain.OrgMemb
 	if !validMemberRole(input.Role) {
 		return nil, &AppError{Code: "INVALID_ROLE", Message: "Unknown member role", Status: http.StatusBadRequest}
 	}
-	if _, err := s.repo.FindMember(orgID, input.UserID); err == nil {
-		return nil, &AppError{Code: "ALREADY_MEMBER", Message: "User is already a member", Status: http.StatusConflict}
+	if strings.TrimSpace(input.Email) == "" && input.UserID == "" {
+		return nil, &AppError{Code: "VALIDATION_ERROR", Message: "Provide an email address or a user ID", Status: http.StatusBadRequest}
 	}
+
+	// Resolve the person from `users` rather than trusting the request.
+	// Name and platform role are recorded from what the database says, so
+	// a member cannot be filed under a name of the caller's choosing.
+	var (
+		user *userRecord
+		err  error
+	)
+	if input.UserID != "" {
+		user, err = s.repo.FindUserByID(input.UserID)
+	} else {
+		user, err = s.repo.FindUserByEmail(input.Email)
+	}
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// Deliberately says nothing about whether the address exists on
+			// CivicOS. Membership is invitation-only, so an org owner has no
+			// business using this endpoint to probe for registered accounts.
+			return nil, &AppError{
+				Code:    "USER_NOT_FOUND",
+				Message: "No CivicOS account matches that. They need to sign up first, then you can add them.",
+				Status:  http.StatusNotFound,
+			}
+		}
+		return nil, err
+	}
+	if user.DeletedAt != nil {
+		return nil, &AppError{Code: "USER_DELETED", Message: "That account has been deleted", Status: http.StatusBadRequest}
+	}
+
+	if _, err := s.repo.FindMember(orgID, user.ID); err == nil {
+		return nil, &AppError{Code: "ALREADY_MEMBER", Message: "That person is already a member", Status: http.StatusConflict}
+	}
+
 	m := &domain.OrgMember{
 		ID:             uuid.New().String(),
 		OrganizationID: orgID,
-		UserID:         input.UserID,
-		UserName:       input.UserName,
-		UserRole:       input.UserRole,
+		UserID:         user.ID,
+		UserName:       user.Name,
+		UserRole:       user.Role,
+		Title:          trimTitle(input.Title),
 		Role:           domain.OrgMemberRole(input.Role),
 		JoinedAt:       time.Now().UTC(),
 	}
@@ -329,7 +411,26 @@ func (s *Service) UpdateMember(orgID, userID string, input UpdateMemberInput) er
 	if !validMemberRole(input.Role) {
 		return &AppError{Code: "INVALID_ROLE", Message: "Unknown member role", Status: http.StatusBadRequest}
 	}
-	return s.repo.UpdateMemberRole(orgID, userID, domain.OrgMemberRole(input.Role))
+	if err := s.repo.UpdateMemberRole(orgID, userID, domain.OrgMemberRole(input.Role)); err != nil {
+		return err
+	}
+	if input.Title != nil {
+		return s.repo.UpdateMemberTitle(orgID, userID, trimTitle(input.Title))
+	}
+	return nil
+}
+
+// trimTitle normalises a job title, turning an all-whitespace one into no
+// title rather than a blank string that renders as an empty line.
+func trimTitle(t *string) *string {
+	if t == nil {
+		return nil
+	}
+	trimmed := strings.TrimSpace(*t)
+	if trimmed == "" {
+		return nil
+	}
+	return &trimmed
 }
 
 func (s *Service) RemoveMember(orgID, userID string) error {

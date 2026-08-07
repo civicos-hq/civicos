@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, ShieldCheck } from 'lucide-react';
-import { apiGet } from '../lib/api';
+import { apiDelete, apiGet, apiPatch, apiPost } from '../lib/api';
+
+const ORG_ROLES = ['OWNER', 'ADMIN', 'STAFF'] as const;
 
 interface Organization {
   id: string;
@@ -29,6 +32,8 @@ interface OrgMember {
   userId: string;
   userName: string;
   userRole: string;
+  /** Job inside the org — distinct from `role`, which is permissions. */
+  title?: string;
   role: string;
   joinedAt: string;
 }
@@ -46,6 +51,46 @@ export function OrganizationDetailPage() {
     queryKey: ['admin-org-members', id],
     queryFn: () => apiGet<{ members: OrgMember[] }>(`/api/v1/organizations/${id}/members`),
     enabled: Boolean(id),
+  });
+
+  const queryClient = useQueryClient();
+  const refreshMembers = () => {
+    void queryClient.invalidateQueries({ queryKey: ['admin-org-members', id] });
+    void queryClient.invalidateQueries({ queryKey: ['admin-org', id] });
+  };
+
+  const [email, setEmail] = useState('');
+  const [title, setTitle] = useState('');
+  const [role, setRole] = useState<string>('STAFF');
+  const [memberError, setMemberError] = useState<string | null>(null);
+
+  const addMember = useMutation({
+    mutationFn: () =>
+      apiPost(`/api/v1/organizations/${id}/members`, {
+        email,
+        role,
+        title: title || undefined,
+      }),
+    onSuccess: () => {
+      setEmail('');
+      setTitle('');
+      setMemberError(null);
+      refreshMembers();
+    },
+    onError: (err: unknown) => setMemberError(readApiMessage(err)),
+  });
+
+  const changeRole = useMutation({
+    mutationFn: (v: { userId: string; role: string }) =>
+      apiPatch(`/api/v1/organizations/${id}/members/${v.userId}`, { role: v.role }),
+    onSuccess: refreshMembers,
+    onError: (err: unknown) => setMemberError(readApiMessage(err)),
+  });
+
+  const removeMember = useMutation({
+    mutationFn: (userId: string) => apiDelete(`/api/v1/organizations/${id}/members/${userId}`),
+    onSuccess: refreshMembers,
+    onError: (err: unknown) => setMemberError(readApiMessage(err)),
   });
 
   if (orgQuery.isLoading) return <p className="text-sm text-slate-500">Loading…</p>;
@@ -136,6 +181,54 @@ export function OrganizationDetailPage() {
       >
         MEMBERS ({members.length})
       </h2>
+
+      {/* Adding staff was previously impossible from any interface — the
+          endpoint existed, nothing called it. A utility with field officers
+          and leads needs this to put any of them on CivicOS at all. */}
+      <form
+        className="admin-toolbar mb-2 flex flex-wrap items-end gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          addMember.mutate();
+        }}
+      >
+        <label className="flex flex-col gap-1 text-xs">
+          <span className="text-slate-500">Email of an existing CivicOS account</span>
+          <input
+            type="email"
+            required
+            className="admin-input"
+            placeholder="colleague@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </label>
+        <label className="flex flex-col gap-1 text-xs">
+          <span className="text-slate-500">Job title (optional)</span>
+          <input
+            type="text"
+            maxLength={120}
+            className="admin-input"
+            placeholder="Head of Distribution"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+        </label>
+        <label className="flex flex-col gap-1 text-xs">
+          <span className="text-slate-500">Role</span>
+          <select className="admin-input" value={role} onChange={(e) => setRole(e.target.value)}>
+            {ORG_ROLES.map((r) => (
+              <option key={r} value={r}>
+                {r}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button type="submit" className="admin-btn" disabled={addMember.isPending}>
+          {addMember.isPending ? 'Adding…' : 'Add member'}
+        </button>
+      </form>
+      {memberError && <p className="mb-2 text-xs text-rose-600">{memberError}</p>}
       <div className="admin-table-shell">
         {membersQuery.isLoading ? (
           <div className="admin-empty">Loading…</div>
@@ -146,9 +239,11 @@ export function OrganizationDetailPage() {
             <thead>
               <tr>
                 <th>User</th>
+                <th>Job title</th>
                 <th>Role in org</th>
                 <th>Platform role</th>
                 <th>Joined</th>
+                <th />
               </tr>
             </thead>
             <tbody>
@@ -159,14 +254,45 @@ export function OrganizationDetailPage() {
                       {m.userName}
                     </Link>
                   </td>
+                  <td className="text-xs text-slate-600">{m.title ?? '—'}</td>
                   <td>
-                    <span className="admin-chip admin-chip-role-CITIZEN">{m.role}</span>
+                    <select
+                      className="admin-input"
+                      value={m.role}
+                      disabled={changeRole.isPending}
+                      aria-label={`Role for ${m.userName}`}
+                      onChange={(e) =>
+                        changeRole.mutate({ userId: m.userId, role: e.target.value })
+                      }
+                    >
+                      {ORG_ROLES.map((r) => (
+                        <option key={r} value={r}>
+                          {r}
+                        </option>
+                      ))}
+                    </select>
                   </td>
                   <td>
+                    {/* Read live from `users`, not the join-time snapshot —
+                        a member promoted since joining shows correctly. */}
                     <span className={`admin-chip admin-chip-role-${m.userRole}`}>{m.userRole}</span>
                   </td>
                   <td className="mono text-xs text-slate-500">
                     {new Date(m.joinedAt).toLocaleDateString()}
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      className="text-xs text-rose-600 hover:underline"
+                      disabled={removeMember.isPending}
+                      onClick={() => {
+                        if (window.confirm(`Remove ${m.userName} from this organization?`)) {
+                          removeMember.mutate(m.userId);
+                        }
+                      }}
+                    >
+                      Remove
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -203,4 +329,13 @@ function StatCard({ label, value, sub }: { label: string; value: number; sub: st
       <p className="admin-stat-sub">{sub}</p>
     </article>
   );
+}
+
+// readApiMessage pulls the service's error message out of an axios failure.
+// The services return {success:false, code, message}; showing `message`
+// means an admin sees "That person is already a member" rather than
+// "Request failed with status code 409".
+function readApiMessage(err: unknown): string {
+  const body = (err as { response?: { data?: { message?: string } } })?.response?.data;
+  return body?.message ?? 'Something went wrong. Please try again.';
 }
