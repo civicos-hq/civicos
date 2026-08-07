@@ -25,6 +25,18 @@ const (
 	OrgKindNGO        OrgKind = "NGO"
 	OrgKindUtility    OrgKind = "UTILITY"
 	OrgKindOther      OrgKind = "OTHER"
+	// OrgKindRepresentativeOffice is the constituency office of an elected
+	// representative — "Office of Senator X".
+	//
+	// A representative publishes through one of these rather than through a
+	// parallel set of rep-owned campaign/project/consultation tables. That
+	// is not a shim: an elected official's office genuinely is an
+	// organization in civic terms, it has staff, and it is the thing that
+	// outlives any individual holder. Modelling it as one also means the
+	// entire money path — sub-account, split, ledger, reconciliation,
+	// payout, admin review — stays exactly as it is, rather than growing a
+	// second owner type through code that moves people's donations.
+	OrgKindRepresentativeOffice OrgKind = "REPRESENTATIVE_OFFICE"
 
 	JurisdictionNational  OrgJurisdiction = "NATIONAL"
 	JurisdictionState     OrgJurisdiction = "STATE"
@@ -208,9 +220,23 @@ type Organization struct {
 	PSPAccountLast4 *string    `gorm:"type:varchar(4)" json:"pspAccountLast4,omitempty"`
 	PSPConnectedAt  *time.Time `json:"pspConnectedAt,omitempty"`
 
+	// RepresentativeID links a REPRESENTATIVE_OFFICE back to the profile in
+	// `representatives` whose holder owns it. NULL for every other kind.
+	//
+	// Unique where set: one office per representative. Two offices for the
+	// same official would let the same person raise money twice under
+	// names a constituent could not tell apart.
+	RepresentativeID *string `gorm:"type:uuid" json:"representativeId,omitempty"`
+
 	CreatedByID string    `gorm:"type:uuid;not null" json:"createdById"`
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
+}
+
+// IsRepresentativeOffice reports whether this org is an elected
+// representative's constituency office rather than a registered body.
+func (o *Organization) IsRepresentativeOffice() bool {
+	return o.Kind == OrgKindRepresentativeOffice
 }
 
 // FundingEligible reports whether this organization may raise money.
@@ -227,7 +253,22 @@ func (o *Organization) FundingEligible() (bool, []string) {
 	if !o.Verified {
 		missing = append(missing, "organization verification")
 	}
-	if blank(o.RegistrationNumber) {
+	// A registered body proves it exists by its entry in a public register.
+	// An elected office cannot: there is no registration number for "Office
+	// of Senator X". The equivalent-strength proof is that the profile is
+	// CLAIMED — a platform admin has tied this office to a named account
+	// they checked actually holds the seat. That is substituted for the
+	// registration number, never waived: an office with no claim fails
+	// here exactly as an unregistered NGO does.
+	//
+	// Every other requirement below is identical for both, deliberately.
+	// A representative raising money from their own constituents warrants
+	// at least the scrutiny an NGO gets, not less.
+	if o.IsRepresentativeOffice() {
+		if o.RepresentativeID == nil || strings.TrimSpace(*o.RepresentativeID) == "" {
+			missing = append(missing, "linked representative profile")
+		}
+	} else if blank(o.RegistrationNumber) {
 		missing = append(missing, "registration number")
 	}
 	if blank(o.Country) {

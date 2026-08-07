@@ -686,6 +686,57 @@ paths:
       responses:
         '200': { description: Representatives. }
 
+  /representatives/{id}/claim:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+    post:
+      tags: [Representatives]
+      summary: Link a representative profile to the account that holds the office
+      description: |
+        PLATFORM_ADMIN only — deliberately narrower than the rest of this
+        module, which also admits GOVERNMENT_ADMIN and NGO. A claim decides
+        who may speak as an elected official and, since an office can raise
+        money, who may do so in their name.
+
+        Why this exists: `user_id` was previously set in only two places —
+        the application-approval flow, which links a representative who
+        applied for themselves, and a one-off backfill. A profile seeded by
+        an admin was therefore unclaimable forever: publishing returned
+        `REPRESENTATIVE_UNCLAIMED` telling the user to ask a platform admin,
+        and no endpoint existed for that admin to help. Provisioning a
+        constituency office keys off the same claim.
+
+        Claiming never displaces an existing claim. Reassigning a profile
+        would hand one official's constituents — and their donors — to a
+        different account, so it must be a deliberate unlink first.
+
+        Linking is not a promotion: the target account must already have the
+        `REPRESENTATIVE` role, which is granted by the approval flow so that
+        a reviewer is on record.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId]
+              properties:
+                userId: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Profile linked; returns the representative.
+        '400':
+          description: '`USER_NOT_REPRESENTATIVE` or `USER_DELETED`.'
+        '403':
+          description: '`FORBIDDEN` — caller is not a PLATFORM_ADMIN.'
+        '404':
+          description: '`REPRESENTATIVE_NOT_FOUND` or `USER_NOT_FOUND`.'
+        '409':
+          description: '`REPRESENTATIVE_ALREADY_CLAIMED` — unlink first.'
+
   /representatives/{id}:
     parameters:
       - in: path

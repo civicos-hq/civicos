@@ -107,7 +107,12 @@ components:
 
     OrgKind:
       type: string
-      enum: [GOVERNMENT, AGENCY, NGO, UTILITY, OTHER]
+      description: |
+        `REPRESENTATIVE_OFFICE` is the constituency office of an elected
+        representative. It cannot be set through `PATCH /organizations/{id}` —
+        offices are created only by `POST /me/representative-office`, which
+        requires a claimed representative profile and records the link.
+      enum: [GOVERNMENT, AGENCY, NGO, UTILITY, OTHER, REPRESENTATIVE_OFFICE]
     OrgJurisdiction:
       type: string
       enum: [NATIONAL, STATE, LGA, COMMUNITY]
@@ -381,6 +386,14 @@ components:
         slug: { type: string }
         kind: { $ref: '#/components/schemas/OrgKind' }
         jurisdiction: { $ref: '#/components/schemas/OrgJurisdiction' }
+        representativeId:
+          type: string
+          format: uuid
+          nullable: true
+          description: |
+            Set only on a REPRESENTATIVE_OFFICE — the profile whose holder
+            owns this office. Unique where present: one office per
+            representative.
         state: { type: string, nullable: true }
         lga: { type: string, nullable: true }
         description: { type: string, nullable: true }
@@ -1751,6 +1764,61 @@ paths:
                           type: MULTI_CHOICE
                           answerCount: 142
                           optionCounts: { Civic Ed: 88, Science: 62, Maths: 51, History: 22 }
+
+  /me/representative-office:
+    post:
+      tags: [Organizations]
+      summary: Fetch or create the caller's constituency office
+      description: |
+        Returns the calling representative's constituency office, creating
+        it on the first call.
+
+        An elected representative publishes campaigns, projects,
+        consultations and announcements through an organization of kind
+        `REPRESENTATIVE_OFFICE`. Once this returns, the caller is its
+        `OWNER`, so every `/organizations/{id}/*` endpoint works for them
+        unchanged — there is no representative-specific variant of any of
+        them, and the donation path is untouched.
+
+        Idempotent: safe to call whenever a representative opens their
+        dashboard. A unique index on `representative_id` settles concurrent
+        calls, and the loser returns the office that won rather than an
+        error.
+
+        The office is created **unverified with no payout account**, exactly
+        as a newly registered organization is. This grants drafting, not
+        money: `FundingEligible` must still pass before a campaign can leave
+        review, which needs a platform admin. The one substitution for an
+        office is that a claimed representative profile stands in for a
+        registration number — an elected office has no entry in a company
+        register. Every other funding requirement is identical.
+      responses:
+        '200':
+          description: The caller's office, created or existing.
+          content:
+            application/json:
+              examples:
+                default:
+                  value:
+                    success: true
+                    data:
+                      organization:
+                        id: 9d2f1a3b-4c5d-4e6f-8a9b-0c1d2e3f4a5b
+                        name: Office of Senator Ada Okafor
+                        slug: office-of-senator-ada-okafor-9d2f1a3b
+                        kind: REPRESENTATIVE_OFFICE
+                        jurisdiction: NATIONAL
+                        representativeId: 3f1a2b3c-4d5e-4f6a-8b9c-0d1e2f3a4b5c
+                        state: Enugu
+                        lga: Enugu East
+                        verified: false
+        '403':
+          description: '`NOT_A_REPRESENTATIVE` — the caller is not an approved representative.'
+        '409':
+          description: |
+            `REPRESENTATIVE_UNCLAIMED` — the account is a representative but
+            no profile names it as the holder. A platform admin must link it
+            via `POST /representatives/{id}/claim` in community-service.
 
   /me/consultations/responses:
     get:

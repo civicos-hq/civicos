@@ -863,7 +863,8 @@
     "notifications": "Sanarwa",
     "profile": "Bayani",
     "signOut": "Fita",
-    "campaigns": "Tara kuɗi"
+    "campaigns": "Tara kuɗi",
+    "myOffice": "Ofishina"
   },
   "language": {
     "label": "Harshe",
@@ -1255,5 +1256,21 @@
     },
     "showReplies": "Amsoshi ({{count}})",
     "hideReplies": "Ɓoye amsoshi"
+  },
+  "repOffice": {
+    "eyebrow": "Ofishin mazaɓa",
+    "title": "Kafa ofishinka",
+    "subtitle": "Yi wallafa ga mazaɓunka kamar yadda ƙungiya take yi.",
+    "cardTitle": "Ƙirƙiri ofishin mazaɓarka",
+    "cardBody": "CivicOS yana ba kowane zaɓaɓɓen wakili ofishi — shi ne abin da mazaɓunka ke gani a bayan duk abin da ka wallafa. Kafa shi yana ɗaukar dannawa ɗaya kuma yana buɗe:",
+    "capabilities": {
+      "campaigns": "Kamfen tara kuɗi, tare da gudummawa da ke shiga asusunka",
+      "projects": "Ayyuka, tare da kasafin kuɗi da sabuntawar ci gaba",
+      "consultations": "Tuntuɓa, don yin tambaya ga mazaɓunka",
+      "announcements": "Sanarwa daga ofishin"
+    },
+    "fundingNote": "Ofishinka zai fara ba tare da tabbatarwa ba, kamar sabuwar ƙungiya. Kana iya tsara kamfen nan da nan, amma kafin ya karɓi kuɗi dole ne mai gudanarwa ya tabbatar da ofishin kuma ka haɗa asusun karɓar kuɗi.",
+    "unclaimedError": "Ba a haɗa asusunka da bayanan wakili ba tukuna. Mai gudanarwa dole ne ya haɗa shi kafin a ƙirƙiri ofishinka.",
+    "action": "Ƙirƙiri ofishina"
   }
 }

@@ -1281,7 +1281,8 @@
     "notifications": "Notifications",
     "profile": "Profile",
     "signOut": "Sign out",
-    "campaigns": "Community funding"
+    "campaigns": "Community funding",
+    "myOffice": "My office"
   },
   "announcementsPage": {
     "eyebrow": "Section — Announcements",
@@ -2125,5 +2126,21 @@
     },
     "showReplies": "Replies ({{count}})",
     "hideReplies": "Hide replies"
+  },
+  "repOffice": {
+    "eyebrow": "Constituency office",
+    "title": "Set up your office",
+    "subtitle": "Publish to your constituents the same way an organization does.",
+    "cardTitle": "Create your constituency office",
+    "cardBody": "CivicOS gives every elected representative an office — the entity your constituents see behind everything you publish. Setting it up takes one click and unlocks:",
+    "capabilities": {
+      "campaigns": "Fundraising campaigns, with donations settled to your own account",
+      "projects": "Projects, with budgets and progress updates",
+      "consultations": "Consultations, to put a question to your constituents",
+      "announcements": "Announcements from the office"
+    },
+    "fundingNote": "Your office starts unverified, exactly as a new organization does. You can draft a campaign right away, but before it can accept money a platform admin has to verify the office and you have to connect a payout account.",
+    "unclaimedError": "Your account is not linked to a representative profile yet. A platform admin has to link it before your office can be created.",
+    "action": "Create my office"
   }
 }

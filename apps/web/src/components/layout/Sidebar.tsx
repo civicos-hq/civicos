@@ -16,8 +16,10 @@ import {
 } from 'lucide-react';
 import { Link, NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { UserRole } from '@civicos/types';
 import { useUnreadCount } from '../../hooks/useNotifications';
 import { useMyOrganizations } from '../../hooks/useConsultations';
+import { useMe } from '../../hooks/useMe';
 import { signOut } from '../../lib/api';
 
 const navItems = [
@@ -44,11 +46,16 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
   const { t } = useTranslation();
   const { data: unread = 0 } = useUnreadCount();
   const { data: myOrgs = [] } = useMyOrganizations();
+  const { data: me } = useMe();
   // The "My organization" link only shows when the caller can actually
   // act on behalf of an org. Ordinary citizens don't see it at all.
-  const canActAsOrg = myOrgs.some(
-    (m) => m.membership.role === 'OWNER' || m.membership.role === 'ADMIN',
-  );
+  //
+  // Representatives are included even before they own anything: their
+  // constituency office is created on first visit to /org, and without the
+  // link there is no way to reach the page that creates it.
+  const canActAsOrg =
+    myOrgs.some((m) => m.membership.role === 'OWNER' || m.membership.role === 'ADMIN') ||
+    me?.role === UserRole.REPRESENTATIVE;
   async function logout() {
     // Best-effort server revoke of the refresh family, then wipe local state.
     // signOut() itself never throws so the sign-out flow is idempotent.
@@ -86,7 +93,11 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
             }
           >
             <Briefcase className="h-4 w-4" aria-hidden="true" />
-            <span className="dashboard-link-label flex-1">{t('sidebar.myOrg')}</span>
+            <span className="dashboard-link-label flex-1">
+              {/* A representative's is their constituency office, not an
+                  "organization" — same destination, honest label. */}
+              {me?.role === UserRole.REPRESENTATIVE ? t('sidebar.myOffice') : t('sidebar.myOrg')}
+            </span>
           </NavLink>
         )}
         {navItems.map(({ to, i18n: i18nKey, icon: Icon }) => {

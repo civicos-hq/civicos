@@ -129,3 +129,46 @@ func (r *Repository) AddComment(comment *domain.RepresentativeComment) error {
 			UpdateColumn("comment_count", gorm.Expr("comment_count + 1")).Error
 	})
 }
+
+// userRecord is a read-only view of the `users` table, owned by
+// identity-service. Same shared-database pattern used elsewhere: only the
+// columns actually read are declared, TableName is pinned, nothing is
+// written.
+type userRecord struct {
+	ID        string  `gorm:"type:uuid;primaryKey"`
+	Name      string  `gorm:"column:name"`
+	Role      string  `gorm:"column:role"`
+	DeletedAt *string `gorm:"column:deleted_at"`
+}
+
+func (userRecord) TableName() string { return "users" }
+
+func (r *Repository) FindUser(id string) (*userRecord, error) {
+	var u userRecord
+	if err := r.db.Where("id = ?", id).First(&u).Error; err != nil {
+		return nil, err
+	}
+	return &u, nil
+}
+
+// ClaimProfile links a representative profile to the account that holds the
+// office. Guarded on user_id IS NULL so a claim can never silently displace
+// an existing one: reassigning a profile would hand one official's
+// constituents — and, now that an office can raise money, their donors — to
+// a different account, and that must be a deliberate two-step action rather
+// than a side effect of a single call.
+//
+// Returns gorm.ErrRecordNotFound when the profile is missing or already
+// claimed; the service distinguishes the two for the error message.
+func (r *Repository) ClaimProfile(repID, userID string) error {
+	res := r.db.Model(&domain.Representative{}).
+		Where("id = ? AND user_id IS NULL", repID).
+		Update("user_id", userID)
+	if res.Error != nil {
+		return res.Error
+	}
+	if res.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
+}

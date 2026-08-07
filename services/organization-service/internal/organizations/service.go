@@ -23,6 +23,12 @@ type OrgStore interface {
 	UpdateMemberRole(orgID, userID string, role domain.OrgMemberRole) error
 	RemoveMember(orgID, userID string) error
 	BumpMemberCount(orgID string, delta int) error
+
+	// Representative offices — see repoffice.go.
+	FindRepresentativeByUserID(userID string) (*representativeRecord, error)
+	FindCommunity(id string) (*communityRecord, error)
+	FindOfficeByRepresentativeID(repID string) (*domain.Organization, error)
+	CreateOffice(org *domain.Organization, owner *domain.OrgMember) error
 }
 
 type Service struct{ repo OrgStore }
@@ -334,6 +340,15 @@ func (s *Service) RemoveMember(orgID, userID string) error {
 	return nil
 }
 
+// validKind lists the kinds a caller may SET on an organization.
+//
+// REPRESENTATIVE_OFFICE is deliberately absent. An office is created only
+// by the provisioning endpoint, which requires a claimed representative
+// profile and records the link. Allowing it here would let anyone relabel
+// an ordinary org as an elected official's office — acquiring the
+// registration-number substitution in FundingEligible without ever having
+// a claim — or strip the kind off a real office to shake its provenance.
+// Neither direction has a legitimate use.
 func validKind(k string) bool {
 	switch domain.OrgKind(k) {
 	case domain.OrgKindGovernment, domain.OrgKindAgency, domain.OrgKindNGO, domain.OrgKindUtility, domain.OrgKindOther:

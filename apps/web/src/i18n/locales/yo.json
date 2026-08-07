@@ -863,7 +863,8 @@
     "notifications": "Àwọn Ìfìmọ̀ràn",
     "profile": "Profáìlì",
     "signOut": "Jáde",
-    "campaigns": "Ìkówójọ"
+    "campaigns": "Ìkówójọ",
+    "myOffice": "Ọ́fíìsì mi"
   },
   "language": {
     "label": "Èdè",
@@ -1255,5 +1256,21 @@
     },
     "showReplies": "Ìdáhùn ({{count}})",
     "hideReplies": "Fi ìdáhùn pamọ́"
+  },
+  "repOffice": {
+    "eyebrow": "Ọ́fíìsì agbègbè ìdìbò",
+    "title": "Ṣètò ọ́fíìsì rẹ",
+    "subtitle": "Tẹ̀jáde sí àwọn ọmọ agbègbè rẹ bí ìdàsílẹ̀ ṣe ń ṣe.",
+    "cardTitle": "Ṣẹ̀dá ọ́fíìsì agbègbè ìdìbò rẹ",
+    "cardBody": "CivicOS ń fún gbogbo aṣojú tí a yàn ní ọ́fíìsì — òun ni ohun tí àwọn ọmọ agbègbè rẹ rí lẹ́yìn gbogbo ohun tí o bá tẹ̀jáde. Ìṣètò rẹ̀ jẹ́ ìtẹ̀ kan, ó sì ṣí:",
+    "capabilities": {
+      "campaigns": "Àwọn ìpolongo ìkówójọ, pẹ̀lú ọrẹ tí ń wọ àkàǹtì tìrẹ",
+      "projects": "Àwọn iṣẹ́ àkànṣe, pẹ̀lú ìnáwó àti ìtẹ̀síwájú",
+      "consultations": "Ìjíròrò, láti béèrè ìbéèrè lọ́wọ́ àwọn ọmọ agbègbè rẹ",
+      "announcements": "Ìkéde láti ọ́fíìsì náà"
+    },
+    "fundingNote": "Ọ́fíìsì rẹ yóò bẹ̀rẹ̀ láìní ìjẹ́rìísí, gẹ́gẹ́ bí ìdàsílẹ̀ tuntun. O lè kọ ìpolongo lẹ́sẹ̀kẹsẹ̀, ṣùgbọ́n kí ó tó lè gba owó, alábòójútó gbọ́dọ̀ jẹ́rìí sí ọ́fíìsì náà, o sì gbọ́dọ̀ so àkàǹtì ìsanwó pọ̀.",
+    "unclaimedError": "A kò tíì so àkàǹtì rẹ mọ́ profaili aṣojú kankan. Alábòójútó gbọ́dọ̀ so ó ṣáájú kí a tó ṣẹ̀dá ọ́fíìsì rẹ.",
+    "action": "Ṣẹ̀dá ọ́fíìsì mi"
   }
 }

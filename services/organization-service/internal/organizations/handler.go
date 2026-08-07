@@ -47,6 +47,40 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth gin.HandlerFunc) {
 // it's mounted on the v1 root by main.go.
 func (h *Handler) RegisterMeRoutes(rg *gin.RouterGroup, auth gin.HandlerFunc) {
 	rg.GET("/organizations", auth, h.listMyMemberships)
+	// POST rather than GET because the first call creates the office. It is
+	// idempotent on every subsequent call, so a client may treat it as
+	// "fetch or create" and call it whenever a representative opens their
+	// dashboard.
+	rg.POST("/representative-office", auth, h.provisionRepresentativeOffice)
+}
+
+// provisionRepresentativeOffice returns the caller's constituency office,
+// creating it the first time. This is how an elected representative gets
+// campaigns, projects, consultations and announcements: the office is an
+// organization, so every one of those features works unchanged.
+func (h *Handler) provisionRepresentativeOffice(c *gin.Context) {
+	userID, _ := c.Get("userID")
+	userRole, _ := c.Get("userRole")
+	uid, _ := userID.(string)
+	if uid == "" {
+		response.Error(c, http.StatusUnauthorized, "UNAUTHORIZED", "Sign in required")
+		return
+	}
+
+	org, err := h.svc.ProvisionRepresentativeOffice(uid, asString(userRole))
+	if handleAppErr(c, err) {
+		return
+	}
+
+	h.auditor.Log(audit.Entry{
+		Actor:      audit.FromContext(c),
+		Action:     "representative_office.provisioned",
+		TargetType: "ORGANIZATION",
+		TargetID:   org.ID,
+		Metadata:   map[string]any{"representativeId": org.RepresentativeID, "name": org.Name},
+		Request:    c.Request,
+	})
+	response.Success(c, http.StatusOK, gin.H{"organization": org})
 }
 
 func (h *Handler) listMyMemberships(c *gin.Context) {
