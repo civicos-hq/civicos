@@ -15,9 +15,10 @@ civicos/
 │
 ├── services/                      # One folder per Go service — separate go.mod each
 │   ├── api-gateway/               # :3000 — reverse proxy + JWT + rate limit
-│   ├── identity-service/          # :3001 — auth, users, applications, moderation
+│   ├── identity-service/          # :3001 — auth, users, applications, moderation, migrations
 │   ├── community-service/         # :3002 — communities, issues, petitions, reps
-│   └── organization-service/      # :3003 — orgs, projects, announcements
+│   ├── organization-service/      # :3003 — orgs, projects, consultations, funding
+│   └── civicai-service/           # :3004 — Gemini-backed advisory endpoints (no DB)
 │
 ├── packages/                      # Shared TS packages (pnpm workspaces)
 │   ├── types/                     # @civicos/types — DTOs + enums shared by both apps
@@ -26,6 +27,8 @@ civicos/
 │
 ├── infrastructure/
 │   └── docker-compose.yml         # Postgres 16 + Redis 7 + NATS + Mailpit
+│
+├── scripts/                       # Operational scripts — seeding, OpenAPI sync, smoke test
 │
 ├── docs/
 │   ├── product/                   # 5 source PDFs (Blueprint, Roadmap, Architecture, UX, Playbook)
@@ -50,8 +53,9 @@ services/<name>/
 ├── internal/
 │   ├── domain/models.go           # GORM models + enums
 │   ├── middleware/                # JWT + role + ban/deletion enforcement
+│   ├── migrate/                   # Goose SQL migrations (identity-service only —
+│   │                              #   it owns them for the whole shared database)
 │   └── <feature>/                 # repository.go + service.go + handler.go per feature
-├── migrations/                    # Optional — GORM AutoMigrate does most of the work
 ├── pkg/
 │   ├── config/config.go           # Env loading + validation
 │   ├── database/postgres.go       # GORM connection
@@ -87,9 +91,11 @@ apps/<name>/
 │   ├── App.tsx
 │   ├── main.tsx
 │   ├── routes/                   # React Router v6 route trees
-│   ├── features/                 # Feature-scoped components + hooks
+│   ├── components/               # Shared + feature components
+│   ├── hooks/                    # TanStack Query hooks, one per resource
+│   ├── data/                     # Static reference data (e.g. Nigerian states + LGAs)
 │   ├── lib/                      # API client, auth helpers, utils
-│   └── i18n/                     # Translation resources (web only)
+│   └── i18n/                     # Translation resources (web only — en, ha, ig, yo, pcm)
 ├── public/
 ├── index.html
 ├── vite.config.ts
