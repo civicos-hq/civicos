@@ -5,7 +5,7 @@ import { Button, Input } from '@civicos/ui';
 import { ProjectStatus } from '@civicos/types';
 import { PageHeader } from '../components/PageHeader';
 import { getApiError } from '../lib/api';
-import { useCommunities } from '../hooks/useCommunities';
+import { useAllCommunities } from '../hooks/useCommunities';
 import { useCreateProject, nairaToKobo } from '../hooks/useProjects';
 
 const STATUSES: ProjectStatus[] = [
@@ -24,7 +24,7 @@ export function OrgProjectCreatePage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { orgId } = useParams<{ orgId: string }>();
-  const communitiesQuery = useCommunities();
+  const communitiesQuery = useAllCommunities();
   const createMutation = useCreateProject(orgId);
 
   const [title, setTitle] = useState('');

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Search, Loader2 } from 'lucide-react';
 import type {
   Announcement,
+  Community,
   Consultation,
   Organization,
   Petition,
@@ -41,6 +42,7 @@ export function SearchBar() {
   }
 
   const total =
+    data.communities.length +
     data.issues.length +
     data.petitions.length +
     data.representatives.length +
@@ -84,6 +86,24 @@ export function SearchBar() {
             <p className="px-4 py-6 text-center text-sm text-slate-600 dark:text-slate-300">
               {t('search.empty', { query: debouncedQuery })}
             </p>
+          )}
+
+          {/* Communities come first. Every other result is something to
+              read; a community is somewhere to join, and it is the only
+              result that unlocks the ability to act on the rest. This is
+              also the one place a citizen can find a campus by name
+              without knowing which LGA it sits in. */}
+          {data.communities.length > 0 && (
+            <Section title={t('search.groups.communities')}>
+              {data.communities.map((c: Community) => (
+                <ResultRow
+                  key={c.id}
+                  primary={c.name}
+                  secondary={`${c.lga}, ${c.state} · ${t('common.memberCount', { count: c.memberCount ?? 0 })}`}
+                  onClick={() => go('/community')}
+                />
+              ))}
+            </Section>
           )}
 
           {/* Campaigns sit above the rest: someone searching a campaign by

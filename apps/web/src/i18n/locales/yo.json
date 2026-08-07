@@ -33,7 +33,8 @@
     "commentCount_one": "Ọ̀rọ̀ {{count}}",
     "commentCount_other": "Àwọn ọ̀rọ̀ {{count}}",
     "memberCount_one": "Ọmọ ẹgbẹ́ {{count}}",
-    "memberCount_other": "Àwọn ọmọ ẹgbẹ́ {{count}}"
+    "memberCount_other": "Àwọn ọmọ ẹgbẹ́ {{count}}",
+    "previous": "Ẹ̀yìn"
   },
   "time": {
     "justNow": "báyìí",
@@ -180,7 +181,8 @@
       "petitions": "Àwọn Ẹ̀bẹ̀",
       "representatives": "Àwọn Aṣojú",
       "campaigns": "Ìnáwó àdúgbò",
-      "repAnnouncements": "Ìkéde àwọn aṣojú"
+      "repAnnouncements": "Ìkéde àwọn aṣojú",
+      "communities": "Àwọn agbègbè"
     }
   },
   "discoverPage": {
@@ -410,7 +412,11 @@
       "descriptionPlaceholder": "Kí ni agbègbè yìí jẹ́",
       "genericError": "A kò lè ṣẹ̀dá agbègbè. Jọ̀wọ́ gbìyànjú lẹ́ẹ̀kan sí i.",
       "create": "Ṣẹ̀dá agbègbè"
-    }
+    },
+    "searchPlaceholder": "Wá àwọn agbègbè nípa orúkọ, ìjọba ìbílẹ̀ tàbí ìpínlẹ̀…",
+    "noSearchResults": "Kò sí agbègbè tí ó bá “{{query}}” mu.",
+    "resultCount_one": "agbègbè {{count}}",
+    "resultCount_other": "agbègbè {{count}}"
   },
   "profilePage": {
     "eyebrow": "Profáìlì Aráàlú",
@@ -759,24 +765,34 @@
       "eyebrow": "Wá agbègbè rẹ",
       "title": "Jẹ́ kí a ṣètò rẹ.",
       "description": "Yan agbègbè rẹ kí àkójọpọ̀, àwọn ìfìmọ̀ràn, àti àwọn aṣojú rẹ máa tọ́ka sí ojú-ọ̀nà rẹ. O lè yí padà lẹ́yìn náà láti profáìlì rẹ.",
-      "step": "Ìgbésẹ̀ {{n}} nínú 3",
-      "stateTitle": "Ìpínlẹ̀ wo ni ó wà?",
-      "stateHint": "Yan ìpínlẹ̀ tí o fẹ́ máa ṣiṣẹ́ ní CivicOS.",
-      "statePlaceholder": "Wá ìpínlẹ̀…",
-      "lgaTitle": "LGA rẹ ńkọ́?",
-      "lgaHint": "Àgbègbè Ìjọba Ìbílẹ̀ nínú {{state}}.",
-      "lgaPlaceholder": "Wá LGA…",
-      "communityTitle": "Yan agbègbè",
-      "communityHint": "Àwọn agbègbè CivicOS wọ̀nyí wà ní {{lga}}, {{state}}. Yan èyí tí ó sún mọ́ ibi tí o gbé tàbí èyí tí o nífẹ̀ẹ́ jù.",
       "communityLoading": "À ń kó àwọn agbègbè…",
-      "communityEmptyTitle": "Kò sí agbègbè níbí ṣíṣí.",
-      "communityEmptySub": "Kò sí ẹnìkan tí ó ti ṣẹ̀dá agbègbè CivicOS fún {{lga}}, {{state}} ṣíṣí. O ṣì lè wá àwọn ohun kan lórí ojú-òpó — àpérò ofeefee lórí Ṣàwárí yóò rán ọ létí láti padà nígbà tí ọ̀kan bá dé.",
-      "next": "Tẹ̀síwájú",
       "back": "Padà",
       "skip": "Fo báyìí",
-      "join": "Dara pọ̀ mọ́ agbègbè",
       "joining": "À ń dara pọ̀…",
-      "successToast": "O ti wọlé — káàbọ̀ sí {{community}}."
+      "stepOf": "Ìgbésẹ̀ {{n}} nínú {{total}}",
+      "pickTitle": "Wá àwọn agbègbè rẹ",
+      "pickHint": "Wá ìlú rẹ, ìjọba ìbílẹ̀, tàbí yunifásítì — o lè yan ju ọ̀kan lọ. Ọ̀pọ̀ ènìyàn ń dara pọ̀ mọ́ ibi tí wọ́n ń gbé àti ibi tí wọ́n ti ń kàwé tàbí ṣiṣẹ́.",
+      "searchPlaceholder": "Gbìyànjú “University of Abuja”, “Gwagwalada”, “Lekki”…",
+      "showBrowse": "Tàbí wá nípasẹ̀ ìpínlẹ̀ àti ìjọba ìbílẹ̀",
+      "hideBrowse": "Fi àwọn àṣàyàn ìpínlẹ̀ àti ìjọba ìbílẹ̀ pamọ́",
+      "stateLabel": "Ìpínlẹ̀",
+      "lgaLabel": "Ìjọba ìbílẹ̀",
+      "anyState": "Ìpínlẹ̀ èyíkéyìí",
+      "anyLGA": "Ìjọba ìbílẹ̀ èyíkéyìí",
+      "selectedLabel": "Àwọn agbègbè tí o yàn",
+      "removeSelection": "Yọ kúrò",
+      "noResultsTitle": "Kò sí ohun tí ó bá a mu síbẹ̀.",
+      "noResultsSub": "Gbìyànjú ìwádìí kúkúrú, tàbí wá nípasẹ̀ ìpínlẹ̀ àti ìjọba ìbílẹ̀. Bí agbègbè rẹ kò bá tíì wà lórí CivicOS, o ṣì lè wo ojúlé náà kí o sì dara pọ̀ nígbà mìíràn.",
+      "resultCount_one": "agbègbè {{count}} ni a rí",
+      "resultCount_other": "agbègbè {{count}} ni a rí",
+      "continueWith_zero": "Yan ó kéré tán ọ̀kan",
+      "continueWith_one": "Tẹ̀síwájú pẹ̀lú {{count}}",
+      "continueWith_other": "Tẹ̀síwájú pẹ̀lú {{count}}",
+      "homeTitle": "Èwo ni ilé rẹ?",
+      "homeHint": "Agbègbè ilé rẹ ni ibi tí o ti lè ròyìn ìṣòro kí o sì bẹ̀rẹ̀ ẹ̀bẹ̀. O ṣì jẹ́ ọmọ ẹgbẹ́ kíkún nínú àwọn yòókù — o lè sọ̀rọ̀, ṣe àtìlẹ́yìn kí o sì fọwọ́ sí i níbẹ̀ pẹ̀lú.",
+      "homeCooldownNote": "O lè yí agbègbè ilé rẹ padà lẹ́ẹ̀kan ní ọjọ́ 30 kọ̀ọ̀kan, nítorí náà yan èyí tí ìwọ yóò ti ṣiṣẹ́ jùlọ.",
+      "finish": "Parí",
+      "joinError": "A kò lè fi pamọ́. Jọ̀wọ́ gbìyànjú lẹ́ẹ̀kan síi."
     },
     "forgot": {
       "eyebrow": "Ìgbà Ọ̀rọ̀ Ìkọ̀kọ̀ Padà",

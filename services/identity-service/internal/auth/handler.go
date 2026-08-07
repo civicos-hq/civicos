@@ -31,6 +31,7 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, authMiddleware gin.Handler
 	rg.PATCH("/me", authMiddleware, h.updateMe)
 	rg.DELETE("/me", authMiddleware, h.deleteMe)
 	rg.POST("/me/community", authMiddleware, h.joinCommunity)
+	rg.POST("/me/communities", authMiddleware, h.joinCommunities)
 	rg.PATCH("/me/active-community", authMiddleware, h.setActiveCommunity)
 	rg.PATCH("/me/primary-community", authMiddleware, h.setPrimaryCommunity)
 }
@@ -282,6 +283,38 @@ func (h *Handler) joinCommunity(c *gin.Context) {
 	user, err := h.service.JoinCommunity(userID.(string), body.CommunityID)
 	if err != nil {
 		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to join community")
+		return
+	}
+	response.Success(c, http.StatusOK, gin.H{"user": user})
+}
+
+// joinCommunities is the onboarding wizard's single write: join everything
+// the user picked and record which one is home, atomically.
+func (h *Handler) joinCommunities(c *gin.Context) {
+	var body struct {
+		CommunityIDs       []string `json:"communityIds" binding:"required,min=1,dive,uuid4"`
+		PrimaryCommunityID string   `json:"primaryCommunityId" binding:"required,uuid4"`
+	}
+	if err := c.ShouldBindJSON(&body); err != nil {
+		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", err.Error())
+		return
+	}
+
+	userID, _ := c.Get("userID")
+	user, err := h.service.JoinCommunities(userID.(string), body.CommunityIDs, body.PrimaryCommunityID)
+	if err != nil {
+		switch err.Error() {
+		case "COMMUNITY_SELECTION_REQUIRED":
+			response.Error(c, http.StatusBadRequest, "COMMUNITY_SELECTION_REQUIRED", "Pick at least one community")
+		case "TOO_MANY_COMMUNITIES":
+			response.Error(c, http.StatusBadRequest, "TOO_MANY_COMMUNITIES", "Too many communities in one request")
+		case "PRIMARY_MUST_BE_SELECTED":
+			response.Error(c, http.StatusBadRequest, "PRIMARY_MUST_BE_SELECTED", "Your home community must be one of the communities you joined")
+		case "COMMUNITY_NOT_FOUND":
+			response.Error(c, http.StatusNotFound, "COMMUNITY_NOT_FOUND", "One or more communities do not exist")
+		default:
+			response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to join communities")
+		}
 		return
 	}
 	response.Success(c, http.StatusOK, gin.H{"user": user})

@@ -1,26 +1,50 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@civicos/ui';
 import { type Community } from '@civicos/types';
 import { api } from '../lib/api';
-import { useCommunities } from '../hooks/useCommunities';
+import { useCommunities, useCommunitiesByID } from '../hooks/useCommunities';
 import { useMe } from '../hooks/useMe';
 import { PageHeader, useTodayMeta } from '../components/PageHeader';
 import { EmptyState } from '../components/EmptyState';
-import { Home, Crown } from 'lucide-react';
+import { Home, Crown, Search } from 'lucide-react';
 
 // Communities are civic geography — the canonical list is managed by
 // platform operators from the admin console, not from the citizen web.
 // No in-app create affordance here for any role.
 
+const BROWSE_PAGE_SIZE = 20;
+
 export function CommunityPage() {
   const { t } = useTranslation();
   const meta = useTodayMeta();
   const meQuery = useMe();
-  const communitiesQuery = useCommunities();
   const queryClient = useQueryClient();
+
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(0);
+
+  const membershipIds = useMemo(
+    () => (meQuery.data?.memberships ?? []).map((m) => m.communityId),
+    [meQuery.data],
+  );
+
+  // Two queries, not one filtered list. The endpoint is paginated now, so
+  // a community the user has joined is not guaranteed to appear on
+  // whatever page of browse results happens to be showing — it has to be
+  // fetched by ID or it silently vanishes from "your communities".
+  const joinedQuery = useCommunitiesByID(membershipIds);
+  const browseQuery = useCommunities({
+    q: search,
+    limit: BROWSE_PAGE_SIZE,
+    offset: page * BROWSE_PAGE_SIZE,
+  });
+
+  useEffect(() => {
+    setPage(0);
+  }, [search]);
 
   const joinMutation = useMutation({
     mutationFn: async (communityId: string) => {
@@ -67,12 +91,13 @@ export function CommunityPage() {
   });
 
   const me = meQuery.data;
-  const communities = communitiesQuery.data ?? [];
-  const memberships = me?.memberships ?? [];
-  const joinedCommunityIDs = new Set(memberships.map((membership) => membership.communityId));
-  const activeCommunity = communities.find((c) => c.id === me?.activeCommunityId);
-  const joinedCommunities = communities.filter((c) => joinedCommunityIDs.has(c.id));
-  const availableCommunities = communities.filter((c) => !joinedCommunityIDs.has(c.id));
+  const joinedCommunities = joinedQuery.data ?? [];
+  const joinedCommunityIDs = new Set(membershipIds);
+  const activeCommunity = joinedCommunities.find((c) => c.id === me?.activeCommunityId);
+  const browseResults = browseQuery.data?.communities ?? [];
+  const browseTotal = browseQuery.data?.total ?? 0;
+  const availableCommunities = browseResults.filter((c) => !joinedCommunityIDs.has(c.id));
+  const hasMore = (page + 1) * BROWSE_PAGE_SIZE < browseTotal;
   const primaryCommunityId = me?.primaryCommunityId;
 
   return (
@@ -92,7 +117,10 @@ export function CommunityPage() {
         meta={meta}
       />
 
-      {meQuery.isLoading || communitiesQuery.isLoading ? (
+      {/* Only the membership lookup gates the page. The browse list has
+          its own loading state, so a slow search must not blank out the
+          communities the user has already joined. */}
+      {meQuery.isLoading || joinedQuery.isLoading ? (
         <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>
       ) : activeCommunity ? (
         <>
@@ -155,63 +183,148 @@ export function CommunityPage() {
             </div>
           </section>
 
-          <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-              {t('communityPage.availableCommunities')}
-            </h2>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-              {t('communityPage.availableSub')}
-            </p>
-            {availableCommunities.length === 0 ? (
-              <div className="mt-4">
-                <EmptyState
-                  icon={<Home className="h-5 w-5" />}
-                  title={t('communityPage.emptyJoinedAll')}
-                />
-              </div>
-            ) : (
-              <div className="mt-4 grid gap-3">
-                {availableCommunities.map((c) => (
-                  <AvailableCommunityRow
-                    key={c.id}
-                    community={c}
-                    actionLabel={t('communityPage.actions.join')}
-                    loading={joinMutation.isPending && joinMutation.variables === c.id}
-                    onAction={() => joinMutation.mutate(c.id)}
-                  />
-                ))}
-              </div>
-            )}
-          </section>
+          <BrowseSection
+            search={search}
+            onSearch={setSearch}
+            communities={availableCommunities}
+            total={browseTotal}
+            loading={browseQuery.isLoading}
+            page={page}
+            hasMore={hasMore}
+            onPage={setPage}
+            joiningId={joinMutation.isPending ? (joinMutation.variables as string) : null}
+            onJoin={(id) => joinMutation.mutate(id)}
+            emptyTitle={t('communityPage.emptyJoinedAll')}
+          />
         </>
       ) : (
-        <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-            {t('communityPage.availableCommunities')}
-          </h2>
-          {communities.length === 0 ? (
-            <div className="mt-4">
-              <EmptyState icon={<Home className="h-5 w-5" />} title={t('communityPage.empty')} />
-            </div>
-          ) : (
-            <div className="mt-4 grid gap-3">
-              {availableCommunities.map((c) => (
-                <AvailableCommunityRow
-                  key={c.id}
-                  community={c}
-                  actionLabel={t('communityPage.actions.join')}
-                  loading={joinMutation.isPending && joinMutation.variables === c.id}
-                  onAction={() => joinMutation.mutate(c.id)}
-                />
-              ))}
-            </div>
-          )}
+        <>
+          <BrowseSection
+            search={search}
+            onSearch={setSearch}
+            communities={availableCommunities}
+            total={browseTotal}
+            loading={browseQuery.isLoading}
+            page={page}
+            hasMore={hasMore}
+            onPage={setPage}
+            joiningId={joinMutation.isPending ? (joinMutation.variables as string) : null}
+            onJoin={(id) => joinMutation.mutate(id)}
+            emptyTitle={t('communityPage.empty')}
+          />
           {(joinMutation.isError || switchMutation.isError) && (
-            <p className="mt-3 text-sm text-red-600 dark:text-red-400">
-              {t('communityPage.joinError')}
-            </p>
+            <p className="text-sm text-red-600 dark:text-red-400">{t('communityPage.joinError')}</p>
           )}
-        </section>
+        </>
+      )}
+    </section>
+  );
+}
+
+/**
+ * The join surface. Search and paging live here because this is where
+ * CommunityGate sends every citizen who hasn't joined anything yet — and
+ * an unsearchable alphabetical list is unusable once a few hundred
+ * communities (every university, every LGA) exist.
+ */
+function BrowseSection({
+  search,
+  onSearch,
+  communities,
+  total,
+  loading,
+  page,
+  hasMore,
+  onPage,
+  joiningId,
+  onJoin,
+  emptyTitle,
+}: {
+  search: string;
+  onSearch: (v: string) => void;
+  communities: Community[];
+  total: number;
+  loading: boolean;
+  page: number;
+  hasMore: boolean;
+  onPage: (updater: (p: number) => number) => void;
+  joiningId: string | null;
+  onJoin: (id: string) => void;
+  emptyTitle: string;
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <section className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-6 shadow-sm">
+      <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+        {t('communityPage.availableCommunities')}
+      </h2>
+      <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+        {t('communityPage.availableSub')}
+      </p>
+
+      <label
+        className="mt-4 flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 dark:border-slate-600 dark:bg-slate-800"
+        htmlFor="community-browse-search"
+      >
+        <Search className="h-4 w-4 text-slate-400" aria-hidden="true" />
+        <input
+          id="community-browse-search"
+          type="search"
+          className="w-full bg-transparent text-sm outline-none"
+          placeholder={t('communityPage.searchPlaceholder')}
+          value={search}
+          onChange={(e) => onSearch(e.target.value)}
+        />
+      </label>
+
+      {loading ? (
+        <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>
+      ) : communities.length === 0 ? (
+        <div className="mt-4">
+          <EmptyState
+            icon={<Home className="h-5 w-5" />}
+            title={search ? t('communityPage.noSearchResults', { query: search }) : emptyTitle}
+          />
+        </div>
+      ) : (
+        <>
+          <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+            {t('communityPage.resultCount', { count: total })}
+          </p>
+          <div className="mt-3 grid gap-3">
+            {communities.map((c) => (
+              <AvailableCommunityRow
+                key={c.id}
+                community={c}
+                actionLabel={t('communityPage.actions.join')}
+                loading={joiningId === c.id}
+                onAction={() => onJoin(c.id)}
+              />
+            ))}
+          </div>
+        </>
+      )}
+
+      {(page > 0 || hasMore) && (
+        <div className="mt-4 flex items-center justify-between">
+          <Button
+            size="sm"
+            variant="secondary"
+            disabled={page === 0}
+            onClick={() => onPage((p) => Math.max(0, p - 1))}
+          >
+            {t('common.previous')}
+          </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            disabled={!hasMore}
+            onClick={() => onPage((p) => p + 1)}
+          >
+            {t('common.next')}
+          </Button>
+        </div>
       )}
     </section>
   );

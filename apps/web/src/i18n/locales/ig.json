@@ -33,7 +33,8 @@
     "commentCount_one": "Okwu {{count}}",
     "commentCount_other": "Okwu {{count}}",
     "memberCount_one": "Onye otu {{count}}",
-    "memberCount_other": "Ndị otu {{count}}"
+    "memberCount_other": "Ndị otu {{count}}",
+    "previous": "Azụ"
   },
   "time": {
     "justNow": "ugbu a",
@@ -180,7 +181,8 @@
       "petitions": "Akwụkwọ arịrịọ",
       "representatives": "Ndị nnọchi anya",
       "campaigns": "Ego obodo",
-      "repAnnouncements": "Ọkwa ndị nnọchi anya"
+      "repAnnouncements": "Ọkwa ndị nnọchi anya",
+      "communities": "Obodo"
     }
   },
   "discoverPage": {
@@ -410,7 +412,11 @@
       "descriptionPlaceholder": "Ihe obodo a bụ",
       "genericError": "Anyị enweghị ike imepụta obodo. Biko nwaa ọzọ.",
       "create": "Mepụta obodo"
-    }
+    },
+    "searchPlaceholder": "Chọọ obodo site na aha, LGA ma ọ bụ steeti…",
+    "noSearchResults": "Ọ dịghị obodo dabara “{{query}}”.",
+    "resultCount_one": "obodo {{count}}",
+    "resultCount_other": "obodo {{count}}"
   },
   "profilePage": {
     "eyebrow": "Profaịlụ Nwa Amaala",
@@ -759,24 +765,34 @@
       "eyebrow": "Chọta obodo gị",
       "title": "Ka anyị hazie gị.",
       "description": "Họrọ obodo gị ka ndepụta gị, ọkwa gị, na ndị nnọchi anya gị niile rụọ ọrụ maka mpaghara gị. Ị nwere ike ịgbanwe nke a mgbe emesịrị site na profaịlụ gị.",
-      "step": "Nzọụkwụ {{n}} nke 3",
-      "stateTitle": "Kedu steeti ị nọ?",
-      "stateHint": "Họrọ steeti ị chọrọ ịrụ ọrụ na CivicOS.",
-      "statePlaceholder": "Chọọ steeti…",
-      "lgaTitle": "Kedụ LGA gị?",
-      "lgaHint": "Ógbè ọchịchị obodo n'ime {{state}}.",
-      "lgaPlaceholder": "Chọọ LGA…",
-      "communityTitle": "Họrọ obodo",
-      "communityHint": "Ndị a bụ obodo CivicOS ka esetịpụrụ na {{lga}}, {{state}}. Họrọ nke kacha nso ebe i bi ma ọ bụ nke kacha metụta gị.",
       "communityLoading": "Na-ebubata obodo…",
-      "communityEmptyTitle": "Enweghị obodo ebe a ka.",
-      "communityEmptySub": "Ọ dịbeghị onye mepụtara obodo CivicOS maka {{lga}}, {{state}}. Ị ka nwere ike ilegharị anya n'ikpo okwu — akara ọdịda edo edo n'elu Chọpụta ga-echetara gị ịlaghachi mgbe otu abịara.",
-      "next": "Gaa n'ihu",
       "back": "Laghachi",
       "skip": "Wụfee ugbu a",
-      "join": "Sonye n'obodo",
       "joining": "Na-esonye…",
-      "successToast": "Ị banyela — nnọọ na {{community}}."
+      "stepOf": "Nzọụkwụ {{n}} nke {{total}}",
+      "pickTitle": "Chọta obodo gị",
+      "pickHint": "Chọọ obodo gị, LGA, ma ọ bụ mahadum — ị nwere ike ịhọrọ ihe karịrị otu. Ọtụtụ mmadụ na-esonye ebe ha bi na ebe ha na-agụ akwụkwọ ma ọ bụ na-arụ ọrụ.",
+      "searchPlaceholder": "Nwaa “University of Abuja”, “Gwagwalada”, “Lekki”…",
+      "showBrowse": "Ma ọ bụ chọgharịa site na steeti na LGA",
+      "hideBrowse": "Zoo nzacha steeti na LGA",
+      "stateLabel": "Steeti",
+      "lgaLabel": "LGA",
+      "anyState": "Steeti ọ bụla",
+      "anyLGA": "LGA ọ bụla",
+      "selectedLabel": "Obodo ị họrọla",
+      "removeSelection": "Wepụ",
+      "noResultsTitle": "Ọ dịghị ihe dabara na nke ahụ.",
+      "noResultsSub": "Nwaa ọchụchọ dị mkpirikpi, ma ọ bụ chọgharịa site na steeti na LGA. Ọ bụrụ na obodo gị adịbeghị na CivicOS, ị ka nwere ike ịgagharị wee sonye ma emesịa.",
+      "resultCount_one": "achọtara obodo {{count}}",
+      "resultCount_other": "achọtara obodo {{count}}",
+      "continueWith_zero": "Họrọ opekempe otu",
+      "continueWith_one": "Gaa n’ihu na {{count}}",
+      "continueWith_other": "Gaa n’ihu na {{count}}",
+      "homeTitle": "Kedu nke bụ ụlọ gị?",
+      "homeHint": "Obodo ụlọ gị bụ ebe ị nwere ike ịkọ nsogbu ma malite arịrịọ. Ị ka bụ ezigbo onye òtù na ndị ọzọ — ị nwere ike ikwu okwu, kwado ma bịanye aka ebe ahụ.",
+      "homeCooldownNote": "Ị nwere ike ịgbanwe obodo ụlọ gị otu ugboro n’ime ụbọchị 30 ọ bụla, ya mere họrọ nke ị ga-arụsi ọrụ ike na ya.",
+      "finish": "Mechaa",
+      "joinError": "Anyị enweghị ike ịchekwa nke ahụ. Biko nwaa ọzọ."
     },
     "forgot": {
       "eyebrow": "Nweghachi Okwuntughe",

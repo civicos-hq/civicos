@@ -51,7 +51,7 @@ tags:
   - name: Discover
     description: Personalized feed tiered by geographic proximity.
   - name: Search
-    description: Global search across issues, petitions, representatives.
+    description: Global search across communities, issues, petitions, representatives and more.
   - name: Uploads
     description: Image uploads for issue and petition attachments.
 
@@ -101,6 +101,11 @@ components:
         lga: { type: string }
         country: { type: string, example: Nigeria }
         logoUrl: { type: string, nullable: true }
+        memberCount:
+          type: integer
+          description: |
+            Computed at query time from memberships. Read-only — never
+            accepted on create or update.
         createdById: { type: string, format: uuid }
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
@@ -251,17 +256,42 @@ paths:
     get:
       tags: [Communities]
       security: []
-      summary: List communities
+      summary: Search and list communities
+      description: |
+        Paginated. Search by name so a community can be found without
+        knowing its administrative location — several universities in one
+        city typically sit in different LGAs, which made them unreachable
+        by state/LGA filtering alone.
       parameters:
+        - in: query
+          name: q
+          description: |
+            Case-insensitive match against name, description, LGA and
+            state. Prefix matches on name are ranked first.
+          schema: { type: string }
         - in: query
           name: state
           schema: { type: string }
         - in: query
           name: lga
           schema: { type: string }
+        - in: query
+          name: ids
+          description: |
+            Comma-separated community IDs. Restricts the result to exactly
+            these — used to resolve a user's memberships, which are known
+            by ID and need not appear on any given page of results.
+          schema: { type: string }
+        - in: query
+          name: limit
+          description: Defaults to 20, capped at 100.
+          schema: { type: integer, default: 20, maximum: 100 }
+        - in: query
+          name: offset
+          schema: { type: integer, default: 0 }
       responses:
         '200':
-          description: Communities matching the filter, or all if no filter.
+          description: One page of communities matching the filters.
           content:
             application/json:
               examples:
@@ -269,13 +299,17 @@ paths:
                   value:
                     success: true
                     data:
+                      total: 3
+                      limit: 20
+                      offset: 0
                       communities:
                         - id: 6f2a1c4d-9b3e-4a1f-8c7d-2b3e4f5a6b7c
-                          name: Enugu East
-                          slug: enugu-east
-                          state: Enugu
-                          lga: Enugu East
+                          name: University of Abuja
+                          slug: university-of-abuja
+                          state: FCT
+                          lga: Gwagwalada
                           country: Nigeria
+                          memberCount: 812
                           createdById: 3f1a...
                           createdAt: 2026-06-01T09:00:00Z
                           updatedAt: 2026-06-01T09:00:00Z
@@ -875,13 +909,16 @@ paths:
     get:
       tags: [Search]
       security: []
-      summary: Global search — 8 buckets across the platform
+      summary: Global search — 10 buckets across the platform
       description: |
         Case-insensitive ILIKE across every citizen-facing entity kind.
         Queries under 2 characters return empty buckets rather than 400.
 
         Visibility rules match the citizen browse pages:
 
+        - **communities**: no status field; civic geography is fully
+          public. Matched on name, description, LGA and state, so a campus
+          is findable by name without knowing its LGA.
         - **consultations**: DRAFT is hidden (author-only visibility).
         - **announcements**: only PUBLISHED (DRAFT + ARCHIVED are not
           citizen-facing).
@@ -900,7 +937,7 @@ paths:
           schema: { type: string, minLength: 2 }
       responses:
         '200':
-          description: Eight buckets, capped at 8 items each.
+          description: Ten buckets, capped at 8 items each.
           content:
             application/json:
               examples:
@@ -908,6 +945,7 @@ paths:
                   value:
                     success: true
                     data:
+                      communities: []
                       issues: []
                       petitions: []
                       representatives: []
@@ -916,6 +954,7 @@ paths:
                       announcements: []
                       projects: []
                       campaigns: []
+                      repAnnouncements: []
 
   # ──────────────────────── DISCOVER ────────────────────────
   /discover/feed:

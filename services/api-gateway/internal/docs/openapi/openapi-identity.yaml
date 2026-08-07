@@ -820,6 +820,58 @@ paths:
         '200':
           description: Membership added; returns updated profile.
 
+  /auth/me/communities:
+    post:
+      tags: [Auth]
+      summary: Join several communities and nominate a home
+      description: |
+        Joins every listed community and sets `primaryCommunityId` to the
+        nominated one, in a single transaction. Used by onboarding.
+
+        Prefer this over repeated calls to `POST /auth/me/community` when
+        the user is choosing more than one. The first single join stamps
+        the primary-community cooldown clock, so joining sequentially and
+        then calling `PATCH /auth/me/primary-community` is rejected with
+        `PRIMARY_COMMUNITY_COOLDOWN` — a 30-day lockout incurred during
+        signup. This endpoint sets the primary as part of the same write.
+
+        The primary is only written when the caller has never had one, so
+        this is not a route around the cooldown for existing users.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [communityIds, primaryCommunityId]
+              properties:
+                communityIds:
+                  type: array
+                  minItems: 1
+                  maxItems: 20
+                  items: { type: string, format: uuid }
+                primaryCommunityId:
+                  type: string
+                  format: uuid
+                  description: Must be one of `communityIds`.
+            examples:
+              default:
+                value:
+                  communityIds:
+                    - 6f2a1c4d-9b3e-4a1f-8c7d-2b3e4f5a6b7c
+                    - 8a1b2c3d-4e5f-4a6b-9c8d-1e2f3a4b5c6d
+                  primaryCommunityId: 6f2a1c4d-9b3e-4a1f-8c7d-2b3e4f5a6b7c
+      responses:
+        '200':
+          description: Memberships added; returns updated profile.
+        '400':
+          description: |
+            `COMMUNITY_SELECTION_REQUIRED`, `TOO_MANY_COMMUNITIES`, or
+            `PRIMARY_MUST_BE_SELECTED` (the nominated home was not in the
+            selection).
+        '404':
+          description: '`COMMUNITY_NOT_FOUND` — one or more IDs do not exist.'
+
   /auth/me/active-community:
     patch:
       tags: [Auth]

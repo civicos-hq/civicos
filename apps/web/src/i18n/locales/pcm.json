@@ -33,7 +33,8 @@
     "commentCount_one": "{{count}} comment",
     "commentCount_other": "{{count}} comments",
     "memberCount_one": "{{count}} member",
-    "memberCount_other": "{{count}} members"
+    "memberCount_other": "{{count}} members",
+    "previous": "Before"
   },
   "time": {
     "justNow": "just now",
@@ -196,7 +197,8 @@
       "petitions": "Petitions",
       "representatives": "Representatives",
       "campaigns": "Campaigns",
-      "repAnnouncements": "Representative announcements"
+      "repAnnouncements": "Representative announcements",
+      "communities": "Communities"
     }
   },
   "discoverPage": {
@@ -445,7 +447,11 @@
       "descriptionPlaceholder": "Wetin this community be about",
       "genericError": "We no fit create community. Try again.",
       "create": "Create community"
-    }
+    },
+    "searchPlaceholder": "Search communities by name, LGA or state…",
+    "noSearchResults": "No community match “{{query}}”.",
+    "resultCount_one": "{{count}} community",
+    "resultCount_other": "{{count}} communities"
   },
   "profilePage": {
     "eyebrow": "Civic Profile",
@@ -915,24 +921,34 @@
       "eyebrow": "Find your community",
       "title": "Make we set you up.",
       "description": "Pick your community so your feed, notifications, and reps go point to your area. You fit change am later from your profile.",
-      "step": "Step {{n}} of 3",
-      "stateTitle": "Which state you dey?",
-      "stateHint": "Choose the state where you wan dey active for CivicOS.",
-      "statePlaceholder": "Search states…",
-      "lgaTitle": "And your LGA?",
-      "lgaHint": "Local Government Area inside {{state}}.",
-      "lgaPlaceholder": "Search LGAs…",
-      "communityTitle": "Pick a community",
-      "communityHint": "Na these CivicOS communities dem set up for {{lga}}, {{state}}. Choose the one wey close to where you dey stay or wey concern you pass.",
       "communityLoading": "Loading communities…",
-      "communityEmptyTitle": "No community here yet.",
-      "communityEmptySub": "Nobody don create CivicOS community for {{lga}}, {{state}} yet. You still fit look around the platform — the yellow banner for Discover go remind you to come back when one land.",
-      "next": "Continue",
       "back": "Go back",
       "skip": "Skip am for now",
-      "join": "Join community",
       "joining": "Dey join…",
-      "successToast": "You don enter — welcome to {{community}}."
+      "stepOf": "Step {{n}} of {{total}}",
+      "pickTitle": "Find your communities",
+      "pickHint": "Search your town, LGA, or university — you fit pick more than one. Plenty people dey join where dem dey live and where dem dey school or work.",
+      "searchPlaceholder": "Try “University of Abuja”, “Gwagwalada”, “Lekki”…",
+      "showBrowse": "Or check by state and LGA",
+      "hideBrowse": "Hide state and LGA filters",
+      "stateLabel": "State",
+      "lgaLabel": "LGA",
+      "anyState": "Any state",
+      "anyLGA": "Any LGA",
+      "selectedLabel": "Communities wey you don pick",
+      "removeSelection": "Comot am",
+      "noResultsTitle": "Nothing match am yet.",
+      "noResultsSub": "Try shorter search, or check by state and LGA. If your community never dey CivicOS, you fit still waka around and join later.",
+      "resultCount_one": "{{count}} community dey",
+      "resultCount_other": "{{count}} communities dey",
+      "continueWith_zero": "Pick at least one",
+      "continueWith_one": "Continue with {{count}}",
+      "continueWith_other": "Continue with {{count}}",
+      "homeTitle": "Which one be your home?",
+      "homeHint": "Your home community na where you fit report issue and start petition. You still be full member for di others — you fit comment, upvote and sign for there too.",
+      "homeCooldownNote": "You fit change your home community once every 30 days, so pick di one wey you go really dey active for.",
+      "finish": "Finish",
+      "joinError": "We no fit save am. Abeg try again."
     },
     "forgot": {
       "eyebrow": "Password recovery",

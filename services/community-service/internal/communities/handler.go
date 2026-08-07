@@ -3,6 +3,8 @@ package communities
 import (
 	"errors"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/civicos/community-service/pkg/response"
 	"github.com/gin-gonic/gin"
@@ -24,12 +26,36 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth, requireRole gin.Hand
 }
 
 func (h *Handler) list(c *gin.Context) {
-	items, err := h.svc.List(c.Query("state"), c.Query("lga"))
+	limit, _ := strconv.Atoi(c.Query("limit"))
+	offset, _ := strconv.Atoi(c.Query("offset"))
+
+	var ids []string
+	if raw := strings.TrimSpace(c.Query("ids")); raw != "" {
+		for _, id := range strings.Split(raw, ",") {
+			if id = strings.TrimSpace(id); id != "" {
+				ids = append(ids, id)
+			}
+		}
+	}
+
+	result, err := h.svc.List(SearchParams{
+		Query:  c.Query("q"),
+		State:  c.Query("state"),
+		LGA:    c.Query("lga"),
+		IDs:    ids,
+		Limit:  limit,
+		Offset: offset,
+	})
 	if err != nil {
 		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to fetch communities")
 		return
 	}
-	response.Success(c, http.StatusOK, gin.H{"communities": items})
+	response.Success(c, http.StatusOK, gin.H{
+		"communities": result.Communities,
+		"total":       result.Total,
+		"limit":       result.Limit,
+		"offset":      result.Offset,
+	})
 }
 
 func (h *Handler) get(c *gin.Context) {

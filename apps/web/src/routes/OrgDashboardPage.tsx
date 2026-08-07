@@ -18,7 +18,7 @@ import { PayoutAccount } from '../components/PayoutAccount';
 import { EmptyState } from '../components/EmptyState';
 import { CommunityInsightsTile } from '../components/civic/CommunityInsightsTile';
 import { useMe } from '../hooks/useMe';
-import { useCommunities } from '../hooks/useCommunities';
+import { useCommunity } from '../hooks/useCommunities';
 import { useConsultations, useMyOrganizations } from '../hooks/useConsultations';
 import { useOrgAnnouncements } from '../hooks/useAnnouncements';
 import { useOrgProjects, kobopToNaira } from '../hooks/useProjects';
@@ -104,9 +104,8 @@ export function OrgDashboardPage() {
   // the user picks context via the community they're active in. Prefer
   // active over primary because that's what they're viewing right now.
   const meQuery = useMe();
-  const communitiesQuery = useCommunities();
   const insightsCommunityId = meQuery.data?.activeCommunityId ?? meQuery.data?.primaryCommunityId;
-  const insightsCommunity = communitiesQuery.data?.find((c) => c.id === insightsCommunityId);
+  const { data: insightsCommunity } = useCommunity(insightsCommunityId);
 
   if (!membership) {
     return (
