@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
@@ -6,7 +6,27 @@ import { Topbar } from './Topbar';
 import { UnverifiedBanner } from '../UnverifiedBanner';
 import { useNotificationStream } from '../../hooks/useNotifications';
 
-export function DashboardLayout() {
+/**
+ * The dashboard chrome: sidebar + topbar + drawer + scroll lock. Renders
+ * its children inside the main content area.
+ *
+ * Two ways to use it:
+ *
+ *   1. As a route parent — declare `<Route element={<DashboardLayout />}>`
+ *      and let nested routes render via `<Outlet />`. The standard pattern
+ *      for every other dashboard page.
+ *
+ *   2. With explicit children — pass a single child element and it
+ *      renders inside the main content area instead of the outlet. Used
+ *      by routes that share a URL with a public surface (see
+ *      CampaignRoute in App.tsx), where declaring a nested route would
+ *      shadow the public variant.
+ *
+ * Both work because `<Outlet />` is rendered only when no children were
+ * passed — React Router gives us the rendered children of the route when
+ * used as an element, and a null Outlet when used imperatively.
+ */
+export function DashboardLayout({ children }: { children?: ReactNode } = {}) {
   const { t } = useTranslation();
   useNotificationStream();
 
@@ -68,7 +88,9 @@ export function DashboardLayout() {
               </p>
             }
           >
-            <Outlet />
+            {/* When used as a route parent, the nested route renders here.
+                When used with explicit children, those render instead. */}
+            {children ?? <Outlet />}
           </Suspense>
         </main>
       </div>
