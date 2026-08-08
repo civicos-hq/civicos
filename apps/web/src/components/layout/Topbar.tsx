@@ -9,6 +9,7 @@ import { api } from '../../lib/api';
 import { SearchBar } from './SearchBar';
 import { LanguageSwitcher } from '../LanguageSwitcher';
 import { ThemeToggle } from '../ThemeToggle';
+import { meInitials } from '../../lib/initials';
 
 /**
  * `onOpenDrawer` is invoked when the hamburger button is tapped on
@@ -98,10 +99,15 @@ export function Topbar({ onOpenDrawer }: { onOpenDrawer?: () => void } = {}) {
 
         {/* Avatar is the universal shortcut to Profile — users click
             here reflexively expecting account settings, so honour the
-            pattern. Aria-label spells out the destination for screen
-            readers since the visible content is just initials. */}
+            pattern. Initials are derived from the user's name (up to
+            two letters) so a real account shows "GN" for "Gino
+            Osahon" rather than the hard-coded "CO" every prior
+            version used. The aria-label spells out the destination
+            for screen readers since the visible content is just the
+            initials. Falls back to "?" if the name is missing so the
+            circle never reads blank. */}
         <Link to="/profile" className="dashboard-avatar" aria-label={t('common.openProfile')}>
-          CO
+          {meInitials(meQuery.data?.name)}
         </Link>
       </div>
     </header>

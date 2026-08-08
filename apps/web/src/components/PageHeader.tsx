@@ -5,18 +5,20 @@ import { useTranslation } from 'react-i18next';
  * The one masthead every dashboard page hangs off. Consciously echoes the
  * homepage's "public record" typography:
  *
- *   - A short accent rule on top (brand → accent gradient)
- *   - A small brand dot + all-caps eyebrow. This used to be a `§` glyph;
- *     the legalistic section marks were dropped across the product along
- *     with the homepage's "§ 01 —" section numbering, which read as
- *     template scaffolding rather than as anything a reader needed.
+ *   - All-caps eyebrow on the left (the page's section label)
  *   - Optional meta line on the right ("Fri · 3 Jul 2026 · Public") —
  *     masthead-style dateline that gives the app its civic-register feel
  *   - Fraunces headline in the middle row
- *   - Subtitle in Space Grotesk
+ *   - Subtitle underneath the headline
  *   - Actions slot on the right of the title row
  *   - Children slot underneath for banners / notices that belong to
  *     THIS page's header (unverified nag, "join a community first", etc.)
+ *
+ * The header used to carry a small Civic Blue dot before the eyebrow, on
+ * top of a `§` glyph before that. Both were attempts to anchor the eyebrow
+ * the way the homepage masthead does, but on a dashboard page the dot
+ * reads as a sticker and the `§` read as legal scaffolding — neither earned
+ * its keep. The all-caps eyebrow stands on its own.
  *
  * If a page just needs eyebrow + title + subtitle, that's the entire prop
  * surface — everything else is optional. Pages that want the standard
@@ -58,14 +60,7 @@ export function PageHeader({
     <header className="page-header">
       {(eyebrow || meta) && (
         <div className="page-header-top">
-          {eyebrow ? (
-            <p className="page-header-eyebrow">
-              <span className="page-header-marker" aria-hidden="true" />
-              {eyebrow}
-            </p>
-          ) : (
-            <span aria-hidden="true" />
-          )}
+          {eyebrow ? <p className="page-header-eyebrow">{eyebrow}</p> : <span aria-hidden="true" />}
           {meta && <p className="page-header-meta">{meta}</p>}
         </div>
       )}
