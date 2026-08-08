@@ -11,8 +11,8 @@ import { RateLimitToast } from './components/RateLimitToast';
 // most (marketing → sign-up conversion).
 import { HomePage } from './routes/HomePage';
 import { PrivacyPage } from './routes/PrivacyPage';
-import { CampaignsPage } from './routes/CampaignsPage';
-import { CampaignDetailPage } from './routes/CampaignDetailPage';
+import { CampaignsPage, CampaignsContent } from './routes/CampaignsPage';
+import { CampaignDetailPage, CampaignDetailContent } from './routes/CampaignDetailPage';
 import { DonationCompletePage } from './routes/DonationCompletePage';
 import { TermsPage } from './routes/TermsPage';
 import { LoginPage } from './routes/LoginPage';
@@ -140,6 +140,60 @@ function PublicOnly() {
   return <Outlet />;
 }
 
+/**
+ * Layout decision for the `/campaigns*` routes. Same URL behaves two ways:
+ *
+ *   - Signed-out visitor (shared link from Twitter / WhatsApp) keeps the
+ *     marketing `TopNav` + `Footer` so the page reads as a complete civic
+ *     surface even with no session, and they can sign in from the top
+ *     nav without bouncing through `/login`.
+ *
+ *   - Signed-in user (sidebar Campaigns entry) keeps the dashboard chrome
+ *     so the sidebar, topbar, search, notifications bell and community
+ *     switcher stay put — the same behavior as every other sidebar link.
+ *
+ * Both branches render identical content; only the chrome differs.
+ */
+function CampaignLayout() {
+  // Used as the `element` prop on the parent <Route>. Its child <Outlet />
+  // is whatever nested route matches — <CampaignRoute /> for /campaigns,
+  // <CampaignDetailRoute /> for /campaigns/:slug. Each picks the right
+  // wrapper based on whether the visitor is signed in.
+  return <Outlet />;
+}
+
+/**
+ * Leaf for `/campaigns`. Branches on auth state:
+ *   - Signed-in → <DashboardLayout><CampaignsContent /></DashboardLayout>
+ *     so the sidebar Campaigns entry behaves like every other sidebar link.
+ *   - Signed-out → <CampaignsPage /> (with marketing TopNav/Footer) so a
+ *     shared link from outside the app lands on a complete page.
+ *
+ * `CampaignsContent` is rendered inside the dashboard's <Outlet /> by
+ * mounting it via React Router's outlet contract — see the layout below.
+ */
+function CampaignRoute() {
+  if (!hasAccessToken()) {
+    return <CampaignsPage />;
+  }
+  return (
+    <DashboardLayout>
+      <CampaignsContent variant="dashboard" />
+    </DashboardLayout>
+  );
+}
+
+function CampaignDetailRoute() {
+  if (!hasAccessToken()) {
+    return <CampaignDetailPage />;
+  }
+  return (
+    <DashboardLayout>
+      <CampaignDetailContent />
+    </DashboardLayout>
+  );
+}
+
 export default function App() {
   return (
     <>
@@ -178,12 +232,16 @@ function AppRoutes() {
       <Route path="/privacy" element={<PrivacyPage />} />
       <Route path="/terms" element={<TermsPage />} />
 
-      {/* Community Funding — public campaign pages. Outside RequireAuth on
-          purpose: a citizen following a shared campaign link has no session
-          and must not be bounced to /login. The API behind these is
-          unauthenticated too. */}
-      <Route path="/campaigns" element={<CampaignsPage />} />
-      <Route path="/campaigns/:slug" element={<CampaignDetailPage />} />
+      {/* Community Funding — same URL behaves differently depending on
+          whether the visitor is signed in. Signed-out visitors land on
+          the marketing version with TopNav/Footer; signed-in users hit
+          the dashboard chrome and see only the content body. The branch
+          lives inside the leaf components themselves so one URL, one
+          route, no shadowing. */}
+      <Route element={<CampaignLayout />}>
+        <Route path="/campaigns" element={<CampaignRoute />} />
+        <Route path="/campaigns/:slug" element={<CampaignDetailRoute />} />
+      </Route>
       {/* Paystack's return URL. Public and above the :slug route would be
           ambiguous, so it lives under /donations rather than /campaigns. */}
       <Route path="/donations/complete" element={<DonationCompletePage />} />

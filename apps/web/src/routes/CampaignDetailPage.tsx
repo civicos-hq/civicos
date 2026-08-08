@@ -274,7 +274,16 @@ function UpdatesSection({
   );
 }
 
-export function CampaignDetailPage() {
+/**
+ * The body of a single campaign page, free of chrome. The public
+ * `CampaignDetailPage` wraps this in the marketing `TopNav`/`Footer` so
+ * a shared campaign link from outside the app lands somewhere cohesive.
+ * The dashboard variant renders this directly under `DashboardLayout`.
+ *
+ * Owns its own loading and not-found branches so both surfaces behave
+ * the same way.
+ */
+export function CampaignDetailContent() {
   const { slug } = useParams();
   const { t, i18n } = useTranslation();
   const query = usePublicCampaign(slug);
@@ -297,13 +306,9 @@ export function CampaignDetailPage() {
 
   if (query.isLoading) {
     return (
-      <div className="home-shell">
-        <TopNav />
-        <section className="home-section fund-section">
-          <p className="fund-empty">{t('common.loading')}</p>
-        </section>
-        <Footer />
-      </div>
+      <section className="home-section fund-section">
+        <p className="fund-empty">{t('common.loading')}</p>
+      </section>
     );
   }
 
@@ -312,18 +317,14 @@ export function CampaignDetailPage() {
   // that a hidden campaign is merely unavailable.
   if (!c) {
     return (
-      <div className="home-shell">
-        <TopNav />
-        <section className="home-section fund-section">
-          <div className="fund-empty">
-            <p>{t('campaigns.notFound')}</p>
-            <Link to="/campaigns" className="home-btn home-btn-ghost">
-              {t('campaigns.backToAll')}
-            </Link>
-          </div>
-        </section>
-        <Footer />
-      </div>
+      <section className="home-section fund-section">
+        <div className="fund-empty">
+          <p>{t('campaigns.notFound')}</p>
+          <Link to="/campaigns" className="home-btn home-btn-ghost">
+            {t('campaigns.backToAll')}
+          </Link>
+        </div>
+      </section>
     );
   }
 
@@ -336,151 +337,160 @@ export function CampaignDetailPage() {
   const donations = donationsQuery.data ?? [];
 
   return (
-    <div className="home-shell">
-      <TopNav />
+    <section className="home-section fund-section">
+      <p className="fund-back">
+        <Link to="/campaigns">{t('campaigns.backToAll')}</Link>
+      </p>
 
-      <section className="home-section fund-section">
-        <p className="fund-back">
-          <Link to="/campaigns">{t('campaigns.backToAll')}</Link>
-        </p>
-
-        <div className="fund-detail">
-          <div className="fund-detail-main">
-            <div className="fund-card-tags">
-              {c.isEmergency && (
-                <span className="fund-tag fund-tag--emergency">{t('campaigns.emergency')}</span>
+      <div className="fund-detail">
+        <div className="fund-detail-main">
+          <div className="fund-card-tags">
+            {c.isEmergency && (
+              <span className="fund-tag fund-tag--emergency">{t('campaigns.emergency')}</span>
+            )}
+            <span className="fund-tag">
+              {t(
+                `campaigns.categories.${c.category
+                  .toLowerCase()
+                  .replace(/_([a-z])/g, (_, ch: string) => ch.toUpperCase())}`,
               )}
-              <span className="fund-tag">
-                {t(
-                  `campaigns.categories.${c.category
-                    .toLowerCase()
-                    .replace(/_([a-z])/g, (_, ch: string) => ch.toUpperCase())}`,
-                )}
+            </span>
+          </div>
+
+          <h1 className="fund-detail-title">{c.title}</h1>
+          <p className="fund-detail-summary">{c.summary}</p>
+
+          <div className="fund-detail-meta">
+            {c.organizationName && (
+              <span>
+                <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+                {t('campaigns.runBy', { org: c.organizationName })}
               </span>
-            </div>
-
-            <h1 className="fund-detail-title">{c.title}</h1>
-            <p className="fund-detail-summary">{c.summary}</p>
-
-            <div className="fund-detail-meta">
-              {c.organizationName && (
-                <span>
-                  <ShieldCheck className="h-4 w-4" aria-hidden="true" />
-                  {t('campaigns.runBy', { org: c.organizationName })}
-                </span>
-              )}
-              {place && (
-                <span>
-                  <MapPin className="h-4 w-4" aria-hidden="true" />
-                  {place}
-                </span>
-              )}
-            </div>
-
-            {c.coverImageUrl && (
-              <img className="fund-detail-img" src={c.coverImageUrl} alt="" loading="lazy" />
             )}
+            {place && (
+              <span>
+                <MapPin className="h-4 w-4" aria-hidden="true" />
+                {place}
+              </span>
+            )}
+          </div>
 
-            <div className="fund-detail-body">
-              {c.description
-                .split('\n')
-                .map((para, i) => (para.trim() ? <p key={i}>{para}</p> : null))}
-            </div>
+          {c.coverImageUrl && (
+            <img className="fund-detail-img" src={c.coverImageUrl} alt="" loading="lazy" />
+          )}
 
-            <h2 className="fund-plan-heading">{t('campaigns.spendPlan')}</h2>
-            <p className="fund-plan-lede">
-              {t('campaigns.spendPlanLede', {
-                allocated: formatMoney(allocated, c.currency, i18n.language),
-                goal: formatMoney(c.goalMinor, c.currency, i18n.language),
-              })}
-            </p>
-            <ul className="fund-milestones">
-              {c.milestones.map((m) => (
-                <MilestoneRow key={m.id} m={m} currency={c.currency} locale={i18n.language} />
-              ))}
-            </ul>
+          <div className="fund-detail-body">
+            {c.description
+              .split('\n')
+              .map((para, i) => (para.trim() ? <p key={i}>{para}</p> : null))}
+          </div>
 
-            <AccountingSection campaign={c} spend={spendQuery.data ?? []} locale={i18n.language} />
+          <h2 className="fund-plan-heading">{t('campaigns.spendPlan')}</h2>
+          <p className="fund-plan-lede">
+            {t('campaigns.spendPlanLede', {
+              allocated: formatMoney(allocated, c.currency, i18n.language),
+              goal: formatMoney(c.goalMinor, c.currency, i18n.language),
+            })}
+          </p>
+          <ul className="fund-milestones">
+            {c.milestones.map((m) => (
+              <MilestoneRow key={m.id} m={m} currency={c.currency} locale={i18n.language} />
+            ))}
+          </ul>
 
-            <FinalReportSection campaign={c} locale={i18n.language} />
+          <AccountingSection campaign={c} spend={spendQuery.data ?? []} locale={i18n.language} />
 
-            <UpdatesSection
-              updates={updatesQuery.data ?? []}
-              locale={i18n.language}
-              canReport={signedIn}
-            />
+          <FinalReportSection campaign={c} locale={i18n.language} />
 
-            {/* Shown only to admins of the owning organization. Rendering
+          <UpdatesSection
+            updates={updatesQuery.data ?? []}
+            locale={i18n.language}
+            canReport={signedIn}
+          />
+
+          {/* Shown only to admins of the owning organization. Rendering
                 only — every write is authorised again server-side. */}
-            {canManage && (
-              <CampaignConsole campaign={c} spend={spendQuery.data ?? []} locale={i18n.language} />
-            )}
+          {canManage && (
+            <CampaignConsole campaign={c} spend={spendQuery.data ?? []} locale={i18n.language} />
+          )}
 
-            {donations.length > 0 && (
-              <>
-                <h2 className="fund-plan-heading">{t('campaigns.donorsHeading')}</h2>
-                <ul className="fund-donor-list">
-                  {donations.map((d, i) => (
-                    <li key={i} className="fund-donor">
-                      <span className="fund-donor-name">{d.donorName}</span>
-                      <span className="fund-donor-amount">
-                        {formatMoney(d.amountMinor, c.currency, i18n.language)}
-                      </span>
-                      {d.message && <p className="fund-donor-message">{d.message}</p>}
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
+          {donations.length > 0 && (
+            <>
+              <h2 className="fund-plan-heading">{t('campaigns.donorsHeading')}</h2>
+              <ul className="fund-donor-list">
+                {donations.map((d, i) => (
+                  <li key={i} className="fund-donor">
+                    <span className="fund-donor-name">{d.donorName}</span>
+                    <span className="fund-donor-amount">
+                      {formatMoney(d.amountMinor, c.currency, i18n.language)}
+                    </span>
+                    {d.message && <p className="fund-donor-message">{d.message}</p>}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
 
-            {/* Last thing in the body, and deliberately quiet. Someone who
+          {/* Last thing in the body, and deliberately quiet. Someone who
                 has just read the spend figures and found them hard to believe
                 should not have to hunt for this — but a prominent accusation
                 button on a page whose whole job is to earn trust would poison
                 the well for the many organizations doing this honestly. Only
                 an admin can act on what it produces. */}
-            {signedIn && !canManage && (
-              <div className="fund-report-concern">
-                <ReportButton contentType="CAMPAIGN" contentId={c.id} />
-              </div>
-            )}
+          {signedIn && !canManage && (
+            <div className="fund-report-concern">
+              <ReportButton contentType="CAMPAIGN" contentId={c.id} />
+            </div>
+          )}
+        </div>
+
+        <aside className="fund-detail-aside">
+          <div className="fund-raised">{formatMoney(c.raisedMinor, c.currency, i18n.language)}</div>
+          <p className="fund-raised-sub">
+            {t('campaigns.ofGoal', { goal: formatMoney(c.goalMinor, c.currency, i18n.language) })}
+          </p>
+
+          <div
+            className="fund-progress"
+            role="progressbar"
+            aria-valuenow={pct}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={t('campaigns.progressLabel', { percent: pct })}
+          >
+            <span className="fund-progress-fill" style={{ width: `${pct}%` }} />
           </div>
 
-          <aside className="fund-detail-aside">
-            <div className="fund-raised">
-              {formatMoney(c.raisedMinor, c.currency, i18n.language)}
-            </div>
-            <p className="fund-raised-sub">
-              {t('campaigns.ofGoal', { goal: formatMoney(c.goalMinor, c.currency, i18n.language) })}
-            </p>
+          <p className="fund-donors">{t('campaigns.donorCount', { count: c.donorCount })}</p>
 
-            <div
-              className="fund-progress"
-              role="progressbar"
-              aria-valuenow={pct}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-label={t('campaigns.progressLabel', { percent: pct })}
-            >
-              <span className="fund-progress-fill" style={{ width: `${pct}%` }} />
-            </div>
+          {acceptsDonations ? (
+            <DonateForm campaign={c} />
+          ) : (
+            <p className="fund-soon">{t('campaigns.notAccepting')}</p>
+          )}
 
-            <p className="fund-donors">{t('campaigns.donorCount', { count: c.donorCount })}</p>
+          <p className="fund-trust">
+            <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+            {t('campaigns.trustNote')}
+          </p>
+        </aside>
+      </div>
+    </section>
+  );
+}
 
-            {acceptsDonations ? (
-              <DonateForm campaign={c} />
-            ) : (
-              <p className="fund-soon">{t('campaigns.notAccepting')}</p>
-            )}
-
-            <p className="fund-trust">
-              <ShieldCheck className="h-4 w-4" aria-hidden="true" />
-              {t('campaigns.trustNote')}
-            </p>
-          </aside>
-        </div>
-      </section>
-
+/**
+ * Public-facing wrapper for the `/campaigns/:slug` route mounted outside
+ * `RequireAuth`. Adds the marketing `TopNav` + `Footer` so a citizen
+ * following a shared link lands on a complete page even without an
+ * account. Signed-in users reach the same detail content through the
+ * dashboard route, which renders `<CampaignDetailContent />` directly.
+ */
+export function CampaignDetailPage() {
+  return (
+    <div className="home-shell">
+      <TopNav />
+      <CampaignDetailContent />
       <Footer />
     </div>
   );

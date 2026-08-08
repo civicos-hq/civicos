@@ -771,6 +771,13 @@ button {
   display: flex;
   flex-direction: column;
   z-index: 1;
+  /* min-height: 0 lets the .dashboard-nav child shrink and scroll
+     instead of stretching past the viewport. Without it, flex items
+     refuse to overflow and the Account group (Profile / Sign out)
+     gets pushed off-screen when the main nav is longer than the
+     viewport — which it is now that the nav is grouped into four
+     labelled clusters. */
+  min-height: 0;
 }
 
 .dashboard-brand {
@@ -833,7 +840,40 @@ button {
 }
 
 .dashboard-nav {
-  flex: 1;
+  /* flex: 1 + min-height: 0 lets this child shrink to fit available
+     space and scroll independently when its content overflows. The
+     brand stays pinned at the top and the Account group stays pinned
+     at the bottom — only the middle nav scrolls. */
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  /* Thin scrollbar so the scrolling affordance stays visible without
+     drawing a heavy rail that competes with the nav links. */
+  scrollbar-width: thin;
+  scrollbar-color: var(--dash-line) transparent;
+}
+
+/* Grouped sidebar nav. Each group is a labelled cluster of links
+   inside the same <nav>; the label sets context for the cluster
+   without competing with the active link's color or weight. The
+   spacing around the label makes the cluster read as a unit while
+   the links themselves remain the same density as before. */
+.dashboard-nav-group {
+  display: grid;
+  gap: 0.18rem;
+  margin-top: 0.7rem;
+}
+.dashboard-nav-group:first-of-type {
+  margin-top: 0;
+}
+.dashboard-nav-group-label {
+  margin: 0 0.72rem 0.18rem;
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--dash-muted);
+  opacity: 0.78;
 }
 
 .dashboard-link {
@@ -5199,34 +5239,39 @@ button {
 }
 
 /* Shared PageHeader ("top card" on every dashboard page — Discover,
-   Issues, Petitions, Consultations, etc.) — this is a bespoke
-   .page-header block, not a Tailwind card, so it needs its own
-   green treatment. Match the surface tone + white ink used by the
-   Tailwind cards above so the top card + the cards below read as
-   the same family. */
-[data-theme='dark'] .dashboard-content .page-header {
-  background: #234f2c;
-  border-color: rgba(255, 255, 255, 0.16);
-  box-shadow: 0 1px 2px rgba(11, 32, 18, 0.2);
+   Issues, Petitions, Consultations, etc.). Uses the dashboard's standard
+   surface tokens so it reads as the same family as every other card in
+   the dashboard, not a green hero stamp on top of them.
+
+   The page-header used to render as a forest-green hero card in dark
+   mode, with white ink. The experiment outlived its purpose — the same
+   green on every page reads as a stamped template rather than a page-
+   specific header, and it makes the dashboard feel like a marketing
+   surface rather than a working tool. Now it picks up the dashboard's
+   existing --dash-surface / --dash-ink / --dash-muted / --dash-line
+   tokens, so dark and light mode use the same family of surfaces. */
+[data-theme='light'] .dashboard-content .page-header {
+  background: var(--dash-surface, #ffffff);
+  border-color: var(--dash-line, #d9e3ec);
+  box-shadow: 0 1px 2px rgba(15, 39, 71, 0.04);
 }
-[data-theme='dark'] .dashboard-content .page-header::before {
-  background: linear-gradient(90deg, #d7ecd6, #ffffff);
+[data-theme='dark'] .dashboard-content .page-header {
+  background: var(--dash-surface, #1a3866);
+  border-color: var(--dash-line, rgba(148, 163, 184, 0.18));
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 [data-theme='dark'] .dashboard-content .page-header-title {
-  color: #ffffff;
+  color: var(--dash-ink, #f8fafc);
 }
 [data-theme='dark'] .dashboard-content .page-header-subtitle,
 [data-theme='dark'] .dashboard-content .page-header-meta {
-  color: rgba(255, 255, 255, 0.78);
+  color: var(--dash-muted, #94a3b8);
 }
 [data-theme='dark'] .dashboard-content .page-header-eyebrow {
-  color: #d7ecd6;
-}
-[data-theme='dark'] .dashboard-content .page-header-marker {
-  background: #ffffff;
+  color: var(--dash-muted, #94a3b8);
 }
 [data-theme='dark'] .dashboard-content .page-header-notice {
-  border-top-color: rgba(255, 255, 255, 0.18);
+  border-top-color: var(--dash-line, rgba(148, 163, 184, 0.18));
 }
 
 /* ── Hover motion on every card / row in the dashboard ─────────
@@ -5719,21 +5764,23 @@ button {
   align-items: center;
   text-align: center;
   gap: 0.55rem;
-  padding: 2.2rem 1.5rem;
-  border-radius: 1rem;
-  border: 1px dashed rgba(15, 23, 42, 0.16);
-  background: rgba(255, 255, 255, 0.6);
-  color: var(--ink-700, #334155);
+  padding: 1.6rem 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--dash-line);
+  background: transparent;
+  color: var(--dash-muted, #516579);
 }
+
+/* The icon used to sit inside a tinted blue circle — a stock "AI
+   empty state" pattern that read as a sticker. Drop the circle; the
+   muted icon alone does the same job without announcing itself. */
 .empty-state-icon {
-  display: inline-grid;
-  place-items: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 999px;
-  background: rgba(37, 99, 235, 0.08);
-  color: var(--brand-700, #174d95);
-  margin-bottom: 0.15rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--dash-muted, #516579);
+  margin-bottom: 0.1rem;
+  opacity: 0.7;
 }
 .empty-state-title {
   margin: 0;
@@ -5758,14 +5805,8 @@ button {
    "nothing here yet" affordance, but border + fill shift so it
    reads on Deep Navy. */
 [data-theme='dark'] .empty-state {
-  background: rgba(18, 44, 80, 0.45);
   border-color: rgba(148, 163, 184, 0.22);
   color: #94a3b8;
-}
-
-[data-theme='dark'] .empty-state-icon {
-  background: rgba(59, 130, 246, 0.18);
-  color: #93c5fd;
 }
 
 [data-theme='dark'] .empty-state-title {
@@ -6488,17 +6529,14 @@ button {
   overflow: hidden;
 }
 
-/* Thin accent rule at the top — Deep Navy to Civic Blue. Was a
-   navy-blue-terracotta gradient; terracotta (--accent-500) is off
-   the brand palette so it was retired in favour of the two-tone
-   brand primary. */
-.page-header::before {
-  content: '';
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--brand-navy), var(--brand-blue));
-}
+/* PageHeader used to carry a thin Deep Navy → Civic Blue gradient
+   strip across its top, on top of the (now-removed) blue bullet and
+   (now-removed) green hero background. Together they read as a
+   template stamp — a stamped accent line, a stamped dot, a stamped
+   color — that screams "AI built me" on every dashboard page. The
+   strip, dot, and green were all parts of the same visual idea; with
+   the others gone, the strip alone is just decoration for its own
+   sake. Dropped. The eyebrow + title do the section-labeling job. */
 
 .page-header-top {
   display: flex;
@@ -6519,18 +6557,6 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-}
-
-.page-header-marker {
-  /* Was a § glyph in Fraunces; now a small Civic Blue dot, matching the
-     homepage masthead's .pr-cyan-dot. Same job — anchoring the eyebrow —
-     without the legalistic section-mark. */
-  display: inline-block;
-  width: 0.42rem;
-  height: 0.42rem;
-  border-radius: 999px;
-  background: var(--brand-blue);
-  flex: none;
 }
 
 .page-header-meta {

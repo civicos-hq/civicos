@@ -1282,7 +1282,11 @@
     "profile": "Profile",
     "signOut": "Sign out",
     "campaigns": "Community funding",
-    "myOffice": "My office"
+    "myOffice": "My office",
+    "speakUp": "Speak up",
+    "connect": "Connect",
+    "stayInformed": "Stay informed",
+    "account": "Account"
   },
   "announcementsPage": {
     "eyebrow": "Section — Announcements",
@@ -1838,6 +1842,7 @@
     "seoDescription": "Verified organizations raising funds for local projects. Every campaign shows its goal and exactly how the money will be spent.",
     "detailSeoFallback": "Campaign — CivicOS",
     "title": "Community funding",
+    "eyebrow": "Fund a project",
     "lede": "Verified organizations raising money for local projects. Every campaign publishes its goal and a spend plan before it can accept a naira.",
     "filterLabel": "Filter campaigns",
     "emergency": "Emergency",
