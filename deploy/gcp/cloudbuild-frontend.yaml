@@ -1,0 +1,26 @@
+# Builds one frontend image from the repo root.
+#
+# The three frontends share this file and differ only by substitution:
+#   _DOCKERFILE  which app to build (apps/web|admin|docs/Dockerfile)
+#   _IMAGE       destination tag in Artifact Registry
+#   _API_URL     gateway URL, baked in at build time by Vite
+#
+# machineType is the default (e2-medium); a bigger machine would finish the
+# pnpm install faster but costs more per build-minute, and these builds are
+# infrequent.
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - --file=${_DOCKERFILE}
+      - --build-arg=VITE_API_URL=${_API_URL}
+      - --tag=${_IMAGE}
+      - .
+
+images:
+  - ${_IMAGE}
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+timeout: 1800s

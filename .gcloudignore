@@ -1,0 +1,42 @@
+# Files excluded from the source tarball Cloud Build uploads.
+#
+# The frontend images build from the repo root (pnpm workspace), so without
+# this the upload would include every node_modules tree and prior build output
+# — hundreds of MB, and all of it regenerated inside the image anyway.
+
+.git
+.gitignore
+
+node_modules/
+**/node_modules/
+
+# Build output — regenerated in the image
+apps/*/dist/
+apps/*/build/
+apps/*/.docusaurus/
+.turbo/
+**/.turbo/
+
+# Compiled Go binaries (services build from source in their own images)
+services/*/server
+
+# Local env + secrets — never upload
+.env
+.env.*
+!.env.example
+
+# Test artifacts
+**/playwright-report/
+**/test-results/
+**/coverage/
+
+# Editor / OS noise
+.vscode/
+.idea/
+.DS_Store
+
+# Docs sources that don't affect any build
+docs/product/
+*.png
+!apps/*/public/**
+!apps/*/src/**
