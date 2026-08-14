@@ -65,7 +65,7 @@ You're building on, deploying, or contributing to CivicOS.
 - Head to the **[Developer Guide](/developer)** — architecture,
   monorepo layout, per-service pages, database, events, contributing,
   deployment.
-- Or dive straight into the [API reference](https://civicos-gateway.onrender.com/docs) —
+- Or dive straight into the [API reference](https://api.civicos.ng/docs) —
   interactive Swagger UI, one spec per service.
 
 ### For decision makers evaluating CivicOS

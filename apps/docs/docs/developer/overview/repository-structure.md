@@ -33,10 +33,10 @@ civicos/
 ├── docs/
 │   ├── product/                   # 5 source PDFs (Blueprint, Roadmap, Architecture, UX, Playbook)
 │   ├── api/openapi-*.yaml         # Canonical OpenAPI specs — mirrored into api-gateway
-│   ├── deploy.md                  # Render deployment playbook
+│   ├── deploy-gcp.md              # Google Cloud deployment playbook
 │   └── setup.md                   # Older, partially stale — being superseded by this Docusaurus
 │
-├── render.yaml                    # Render Blueprint (declarative infra)
+├── deploy/gcp/                    # Cloud Run deploy script + nginx configs
 ├── turbo.json                     # Turborepo pipeline
 ├── pnpm-workspace.yaml            # Workspace globs — apps/*, services/*, packages/*
 ├── package.json                   # Root scripts + shared dev deps
@@ -116,6 +116,6 @@ apps/<name>/
 | Product source of truth | `docs/product/*.pdf`                                    |
 | OpenAPI specs           | `docs/api/openapi-*.yaml`                               |
 | Swagger UI handler      | `services/api-gateway/internal/docs/docs.go`            |
-| Render deploy config    | `render.yaml`                                           |
+| Deploy script           | `deploy/gcp/deploy.sh`                                  |
 
 Next: [Monorepo](./monorepo.md).

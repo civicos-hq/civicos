@@ -136,7 +136,8 @@ diverged for four reasons:
 1. **One binary per service** — no runtime dependency on Node, no
    package.json to build in production images.
 2. **Lower memory at idle** — Go services sit at ~20 MB RSS; a Node
-   equivalent would sit at 80–150 MB. Matters on a small Render plan.
+   equivalent would sit at 80–150 MB. Matters on scale-to-zero, where
+   image size is cold-start time.
 3. **Native concurrency for the SSE hub** — goroutines make the
    notification fan-out cheap. Node needs an event-loop reshape or a
    Worker.

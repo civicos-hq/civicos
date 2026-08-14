@@ -61,7 +61,7 @@ it serve against a half-changed schema.
 
 They run in-process rather than as a deploy hook because the images are
 distroless — no shell, nothing to run a command with. In-process needs
-none of that and behaves identically on a laptop and on Render.
+none of that and behaves identically on a laptop and on Cloud Run.
 
 ## Connection setup
 
@@ -148,11 +148,13 @@ is about to change.
 
 ## Production
 
-- Render provisions a managed Postgres 16.
-- The connection string is set by Render into `DATABASE_URL` on each
-  service.
-- Backups are Render's daily snapshots (7-day retention on the smallest
-  plans).
+- Cloud SQL runs a managed Postgres 16 (`db-f1-micro`, europe-west1).
+- Cloud Run reaches it over the mounted socket rather than an address —
+  there is no static egress IP — so `DATABASE_URL` uses
+  `host=/cloudsql/PROJECT:REGION:INSTANCE` and each service needs
+  `--add-cloudsql-instances`.
+- Cloud SQL takes automated daily backups. Check the retention on the
+  current tier before relying on it for compliance.
 - **Do not** rely on AutoMigrate for destructive changes in production.
   Add a goose migration under
   `services/identity-service/internal/migrate/migrations/` — it applies

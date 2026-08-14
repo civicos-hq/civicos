@@ -2,9 +2,9 @@ import type { AxiosError } from 'axios';
 import axios, { type InternalAxiosRequestConfig } from 'axios';
 import type { ApiResponse, ApiError } from '@civicos/types';
 
-// Prepend https:// when VITE_API_URL is a bare host (as Render's
-// Blueprint fromService.host property returns). Local dev keeps the
-// http://localhost default.
+// Prepend https:// when VITE_API_URL is a bare host. A scheme-less value
+// is treated as a relative path, so every request would silently hit the
+// static-site origin. Local dev keeps the http://localhost default.
 function resolveApiBase(): string {
   const raw = (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:3000';
   if (raw.startsWith('http://') || raw.startsWith('https://')) return raw;

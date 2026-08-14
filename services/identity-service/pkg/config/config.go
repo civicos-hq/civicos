@@ -28,10 +28,12 @@ type Config struct {
 	SMTPFrom     string
 }
 
-// ensureScheme hardens APP_URL against the bare-host form Render's Blueprint
-// injects via `fromService.host` (e.g. "civicos-web.onrender.com") — without
-// a scheme, links inside verification/reset emails would be unclickable.
-// A value with an explicit port ("localhost:5173") is a dev URL → http.
+// ensureScheme hardens APP_URL against a bare hostname.
+//
+// Without a scheme, every link inside a verification or password-reset
+// email is unclickable — and that failure is invisible until a user tries
+// to verify. A value with an explicit port ("localhost:5173") is a dev URL
+// and gets http; anything else gets https.
 func ensureScheme(u string) string {
 	if u == "" || strings.HasPrefix(u, "http://") || strings.HasPrefix(u, "https://") {
 		return u
@@ -47,7 +49,8 @@ func Load() *Config {
 	_ = godotenv.Load()
 
 	cfg := &Config{
-		// PORT wins when set — PaaS providers like Render dictate it.
+		// PORT wins when set — Cloud Run injects it and the container
+		// must listen on exactly that.
 		// Falls back to IDENTITY_SERVICE_PORT for local dev.
 		Port:                getInt("PORT", getInt("IDENTITY_SERVICE_PORT", 3001)),
 		DatabaseURL:         require("DATABASE_URL"),

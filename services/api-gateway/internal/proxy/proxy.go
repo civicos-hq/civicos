@@ -56,9 +56,10 @@ func newProxy(targetURL, stripPrefix string, flushInterval time.Duration) gin.Ha
 	rp.FlushInterval = flushInterval
 
 	// SingleHostReverseProxy rewrites req.URL.Host but not req.Host, so the
-	// outbound request keeps the client-facing Host header. Shared-edge
-	// platforms (Render) dispatch by Host, which would bounce the request
-	// straight back to this gateway. Pin Host to the upstream's own name.
+	// outbound request keeps the client-facing Host header. Platforms that
+	// route by Host — Cloud Run among them — would then dispatch the call
+	// straight back to this gateway instead of the upstream, producing an
+	// infinite loop that looks like a timeout. Pin Host to the target.
 	director := rp.Director
 	rp.Director = func(req *http.Request) {
 		director(req)

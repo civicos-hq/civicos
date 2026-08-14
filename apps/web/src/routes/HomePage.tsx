@@ -1259,11 +1259,7 @@ export function Footer() {
             >
               {t('footer.developers.github')}
             </a>
-            <a
-              href="https://civicos-gateway.onrender.com/docs"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a href="https://api.civicos.ng/docs" target="_blank" rel="noopener noreferrer">
               {t('footer.developers.api')}
             </a>
           </nav>

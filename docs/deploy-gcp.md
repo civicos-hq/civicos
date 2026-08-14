@@ -186,7 +186,7 @@ volume fails at deploy with `Total memory < 512 Mi is not supported with gen2`.
 
 **Backends are `--allow-unauthenticated`.** Every service validates the caller's
 JWT itself, so the gateway is a convenience layer rather than the only defence —
-the same posture as the previous Render deployment. Locking them to IAM would
+the posture the platform has always had. Locking them to IAM would
 require the gateway to mint ID tokens per request (a code change) or a VPC
 connector (~$8/mo).
 

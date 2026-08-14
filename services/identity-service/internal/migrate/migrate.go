@@ -20,13 +20,13 @@
 // All services share one database, so migrations need exactly one owner —
 // three services racing to migrate at startup would contend over a single
 // version table. identity-service owns `users`, which everything else
-// references, and it runs on a plan that never sleeps.
+// references.
 //
 // # Why at boot rather than a deploy hook
 //
-// Render's preDeployCommand runs a shell command inside the service image,
-// and these images are distroless: no shell, no libc, nothing to run a
-// command with. Running in-process at startup needs none of that, behaves
+// A pre-deploy hook runs a shell command inside the service image, and
+// these images are distroless: no shell, no libc, nothing to run a command
+// with. Running in-process at startup needs none of that, behaves
 // identically on a laptop and in production, and sits exactly where schema
 // work already happens. A Postgres advisory lock serialises concurrent
 // deploys.

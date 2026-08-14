@@ -83,8 +83,8 @@ it shows a number.
 CivicOS is four Go microservices behind a single API gateway — identity,
 community, organization and CivicAI — plus two React apps (citizen web,
 admin console) and this documentation site. The whole platform is described
-declaratively in a single `render.yaml` — one Blueprint deploy brings
-it all up.
+deployed to Google Cloud — Cloud Run for every service, Cloud SQL for
+Postgres — by a single idempotent script.
 
 If you're a developer curious about the internals, see the
 [Developer Guide](/developer). Everything from the DI conventions to
@@ -93,8 +93,8 @@ the SSE notification hub is documented there.
 ## How to try it
 
 Local development is fully covered in [Running locally](/developer/development/running-locally).
-In production, CivicOS runs at `civicos.ng` (custom domain — pointed
-at a Render deploy in front of managed Postgres + Redis).
+In production, CivicOS runs at `civicos.ng` — a custom domain pointed at
+Cloud Run, backed by Cloud SQL.
 
 ## Where to next
 

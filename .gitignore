@@ -107,6 +107,12 @@ Screen Shot*.png
 /docs/product/CivicOS Community Funding Feature.pdf
 /docs/product/How People Detect AI-Generated Websites.pdf
 
+# Demo script — kept local, not for publication. Scoped to this exact file:
+# the pitch deck alongside it (CivicOS-Pitch-Deck.pdf and
+# civicos-pitch-deck.html) IS tracked, so ignoring the directory would
+# quietly untrack material that is meant to be there.
+/docs/pitch/civicai-demo-script.md
+
 # ─── Misc ────────────────────────────────────────────────────────────────────
 *.local
 .cache/

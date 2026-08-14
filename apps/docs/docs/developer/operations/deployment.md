@@ -6,155 +6,130 @@ sidebar_position: 1
 
 # Deployment
 
-Production runs on **Render**. The whole stack (5 Go services + 3
-static sites + managed Postgres + managed Redis) is described
-declaratively in `render.yaml` at the repo root — one Blueprint apply
-brings it all up.
+Production runs on **Google Cloud**. Everything — 5 Go services and 3
+static sites — runs on Cloud Run with scale-to-zero, backed by Cloud SQL
+for Postgres and a GCS bucket for uploads.
 
 The full playbook lives in
-[`docs/deploy.md`](https://github.com/civicos-hq/civicos/blob/main/docs/deploy.md).
+[`docs/deploy-gcp.md`](https://github.com/civicos-hq/civicos/blob/main/docs/deploy-gcp.md).
 This page is the tour, not the replacement.
 
-## What Render provisions
+## What runs where
 
-- `civicos-gateway` — the api-gateway, a **free** Web Service (port
-  `3000`). Public entry point; spins down after 15 minutes idle.
-- `civicos-identity` — identity-service, **starter** Web Service. Also
-  runs the shared database's migrations at boot.
-- `civicos-community` — community-service, **starter** Web Service.
-- `civicos-organization` — organization-service, **starter** Web Service.
-- `civicos-civicai` — civicai-service, **starter** Web Service. Holds no
-  database of its own; it reads from the other services with the caller's
-  token.
+| Cloud Run service      | Image                    | Notes                                    |
+| ---------------------- | ------------------------ | ---------------------------------------- |
+| `civicos-gateway`      | `api-gateway`            | The only backend the browser talks to    |
+| `civicos-identity`     | `identity-service`       | Also runs the shared database migrations |
+| `civicos-community`    | `community-service`      | 512Mi — its GCS volume forces gen2       |
+| `civicos-organization` | `organization-service`   | —                                        |
+| `civicos-civicai`      | `civicai-service`        | Holds no tables of its own               |
+| `civicos-web`          | nginx + `apps/web` build | Static                                   |
+| `civicos-admin`        | nginx + `apps/admin`     | Static                                   |
+| `civicos-docs`         | nginx + `apps/docs`      | This site                                |
 
-The four internal services are `type: web`, not `pserv`. They are reached
-by the gateway over Render's **private network** via
-`fromService.hostport`, so the traffic never touches the public edge —
-that matters, because Render's Cloudflare-fronted edge intermittently
-429s the gateway's shared egress IP. They stay `web` rather than becoming
-private services because a service's type is immutable on Render:
-converting means delete and recreate, with new hostnames and re-wiring.
-They remain publicly reachable on their `onrender.com` URLs, and every
-route enforces JWT itself.
+Plus a `db-f1-micro` Cloud SQL instance in `europe-west1` — tier-1
+pricing, and roughly half the latency to Nigerian users versus a US
+region.
 
-`starter` also buys two things the free plan does not: instances that
-never spin down, and outbound SMTP.
+All services are `--allow-unauthenticated`. That is deliberate: every one
+validates the caller's JWT itself, so the gateway is a convenience layer
+rather than the only defence.
 
-- `civicos-web` — citizen web Static Site (`apps/web` build output).
-- `civicos-admin` — admin console Static Site (`apps/admin` build
-  output).
-- Managed Postgres, managed Redis.
+## Deploying
 
-Only the gateway and the two Static Sites are public. The three
-backend services are private — they're reachable inside Render's
-network from the gateway but never from the public internet.
+```bash
+./deploy/gcp/deploy.sh
+```
 
-## Estimated cost at launch
+Idempotent — re-running updates services in place.
 
-**~$34/mo** on Render's minimum plans. Breakdown in `docs/deploy.md`.
+### Order matters
 
-## First-time deploy — the short version
+`identity-service` refuses to migrate until the tables owned by community
+and organization exist, and says so explicitly rather than failing
+obscurely. So:
 
-1. Connect Render to the GitHub repo.
-2. In Render, **New + → Blueprint** → point at the repo → confirm.
-3. Wait ~20–30 minutes for the first Docker builds.
-4. Set the following env vars in the Render dashboard on each service
-   (Blueprint provides defaults for most, but some are secrets):
-   - `JWT_SECRET` (32+ chars) — must be **the same** on gateway,
-     identity, community, organization and civicai. The Blueprint mints
-     one into the shared `civicos-secrets` group, so this is only manual
-     if you override it.
-   - `GEMINI_API_KEY` on civicai — from
-     [Google AI Studio](https://aistudio.google.com/apikey). The service
-     **refuses to boot without it**, which surfaces as a failed deploy
-     rather than a service that 500s on every AI call.
+```
+community → organization → identity → civicai → gateway
+```
 
-     ⚠️ The free tier allows **20 requests per day** across the whole
-     project, shared by all eleven CivicAI endpoints. Put the key on a
-     paid plan before opening the platform to real users.
+The gateway is last because it needs every backend URL. Deploy it before a
+backend exists and it comes up with an empty `*_SERVICE_URL`, returning
+502s until redeployed.
 
-   - `PAYSTACK_SECRET_KEY` / `PAYSTACK_PUBLIC_KEY` on organization —
-     donations are disabled without them.
-   - `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASSWORD` /
-     `SMTP_FROM` on identity (once you have a Resend / Postmark
-     account).
-   - `APP_URL` on identity — the public URL where email links land.
-5. Wait for services to go healthy (each has `/health`).
-6. Register the first user via the citizen web app, verify the email,
-   then bump their role to `PLATFORM_ADMIN` via `render psql`:
-   ```sql
-   UPDATE users SET role='PLATFORM_ADMIN' WHERE email='<you>';
-   ```
+### Frontends are built, not configured
 
-## Zero-downtime deploys
-
-Render does rolling deploys per service by default. Because each
-service has `/health`, Render waits for the new instance to answer
-`200` before shifting traffic. AutoMigrate runs at startup — if you're
-making an additive schema change, that's fine. If you're making a
-destructive schema change, apply the SQL migration _first_ (via
-`render psql`) then push the code.
+Vite inlines `VITE_API_URL` at **build** time. The frontends take the
+gateway URL as a Docker build arg, so changing it means **rebuilding the
+images**, not just redeploying them.
 
 ## Environment variables — production checklist
 
+Secrets live in Secret Manager and are wired with `--set-secrets`; plain
+configuration goes through `--set-env-vars`.
+
 Set on **every backend service**:
 
-- `DATABASE_URL` — the Render Postgres string (Blueprint wires this).
-  Not set on civicai — it owns no tables.
-- `JWT_SECRET` — 32+ chars, identical across the gateway and every
-  service that validates a token (identity, community, organization,
-  civicai). A mismatch anywhere shows up as 401s on that service alone.
-- `PORT` — Render sets this; don't override.
+- `DATABASE_URL` — points at the Cloud SQL socket, not an address. Cloud
+  Run has no static egress IP, so the form is
+  `postgresql://civicos:PASS@localhost/civicos?host=/cloudsql/PROJECT:REGION:INSTANCE`,
+  and each service needs `--add-cloudsql-instances`. Not set on civicai —
+  it owns no tables.
+- `JWT_SECRET` — 32+ chars, identical across the gateway and every service
+  that validates a token. A mismatch anywhere shows up as 401s on that
+  service alone.
+- `PORT` — Cloud Run injects it; don't override.
 
 Set on the **gateway**:
 
 - `IDENTITY_SERVICE_URL`, `COMMUNITY_SERVICE_URL`,
-  `ORGANIZATION_SERVICE_URL`, `CIVICAI_SERVICE_URL` — Blueprint wires
-  these to the private URLs.
+  `ORGANIZATION_SERVICE_URL`, `CIVICAI_SERVICE_URL`.
 
   Each has a `localhost` fallback for local development, which is a trap
   in production: an unset variable does not fail loudly, it silently
   routes to a port where nothing is listening. If one family of routes
-  returns connection errors and everything else is fine, check this
-  first.
+  returns connection errors and everything else is fine, check this first.
 
-- `REDIS_URL` — Render Redis (Blueprint wires this).
+- `REDIS_URL` — **intentionally unset.** Memorystore's cheapest tier costs
+  more than the rest of the stack combined, and the rate limiter fails
+  open without it. Rate limiting is therefore off until a cheaper Redis is
+  wired in.
 
-Set on **identity**:
+Set on **identity**: `SMTP_*` for real email, and `APP_URL` for links
+inside those emails.
 
-- `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASSWORD` /
-  `SMTP_FROM` — real email.
-- `APP_URL` — used in email link generation.
+Set on **community** (all optional): `GOOGLE_FLOOD_API_KEY` and the
+`FLOOD_*` tuning vars for flood forecasts, `GOOGLE_GEOCODING_API_KEY` for
+admin location lookup. Each is referenced only if its secret exists, so a
+missing one never fails the deploy.
 
-Set on the **frontends** (build-time — configured in `apps/*/render.yaml`
-section or via Static Site env):
-
-- `VITE_API_URL` — the gateway's public URL.
+Set on the **frontends** at build time: `VITE_API_URL`.
 
 ## Custom domain
 
-Once the platform is live at the Render-issued URL:
-
-1. Add the custom domain in Render on the **gateway** service and both
-   Static Sites.
-2. Point DNS as Render instructs.
-3. Update `APP_URL` on identity and `VITE_API_URL` on the frontends to
-   the custom domain.
-4. Redeploy the frontends so the new env is baked in.
+1. Map the domain to the **gateway** service and both static sites in
+   Cloud Run.
+2. Point DNS as Cloud Run instructs.
+3. Update `APP_URL` on identity and `VITE_API_URL` on the frontends.
+4. **Rebuild** the frontend images — `VITE_API_URL` is baked in at build
+   time, so a redeploy alone will not pick it up.
 
 ## Backups
 
-- Render Postgres runs daily snapshots. Retention is plan-dependent —
-  check the current plan before relying on it for compliance.
-- **User uploads** live on the community-service Web Service's disk
-  (`uploads/` directory). Render's ephemeral disks don't survive a
-  redeploy on the free tier — for production you must either bind a
-  persistent disk to the community-service or move uploads to S3 / R2
-  before launch.
+- Cloud SQL takes automated daily backups. Check the retention on the
+  current tier before relying on it for compliance.
+- **User uploads** live in a GCS bucket mounted into community-service at
+  `/data`, so they survive redeploys — unlike a container filesystem.
 
 ## Rollback
 
-Each Render service keeps a small history of past deploys. Roll back
-via the Render dashboard on the specific service — the previous image
-comes back up in a couple of minutes. Roll back the schema only if
-you had a destructive migration; additive changes are safe to leave.
+Cloud Run keeps every revision. Roll back by routing traffic to the
+previous one:
+
+```bash
+gcloud run services update-traffic civicos-community \
+  --to-revisions=PREVIOUS_REVISION=100 --region=europe-west1
+```
+
+That is instant and needs no rebuild. Roll the schema back only if you
+shipped a destructive migration; additive changes are safe to leave.

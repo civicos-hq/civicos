@@ -76,7 +76,8 @@ func (c *Config) PaystackLive() bool {
 func Load() *Config {
 	_ = godotenv.Load()
 	cfg := &Config{
-		// PORT wins when set — PaaS providers like Render dictate it.
+		// PORT wins when set — Cloud Run injects it and the container
+		// must listen on exactly that.
 		// Falls back to ORGANIZATION_SERVICE_PORT for local dev.
 		Port:        getStr("PORT", getStr("ORGANIZATION_SERVICE_PORT", "3003")),
 		DatabaseURL: require("DATABASE_URL"),
@@ -114,9 +115,9 @@ func Load() *Config {
 	return cfg
 }
 
-// ensureScheme hardens APP_URL against the bare-host form Render's Blueprint
-// injects via `fromService.host` — without a scheme, the campaign link in a
-// receipt would be unclickable. A value with an explicit port is a dev URL.
+// ensureScheme hardens APP_URL against a bare hostname — without one, the
+// campaign link in a donation receipt is unclickable. A value with an
+// explicit port is a dev URL and gets http; anything else gets https.
 func ensureScheme(u string) string {
 	if u == "" || strings.HasPrefix(u, "http://") || strings.HasPrefix(u, "https://") {
 		return u
