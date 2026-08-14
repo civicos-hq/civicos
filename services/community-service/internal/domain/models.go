@@ -75,6 +75,22 @@ type Community struct {
 	State       string     `gorm:"not null" json:"state"`
 	LGA         string     `gorm:"not null" json:"lga"`
 	Country     string     `gorm:"default:'Nigeria'" json:"country"`
+	// Latitude and Longitude locate the community as a point.
+	//
+	// Everything else here is an administrative NAME — "Lagos", "Ikeja" —
+	// which is enough to group people but cannot answer "is this river
+	// gauge near here?". Flood forecasts arrive as coordinates, so without
+	// these a community cannot be matched to one.
+	//
+	// Nullable and set by an admin, never guessed. A community with no
+	// coordinates is simply excluded from flood matching rather than
+	// matched approximately: warning the wrong town is worse than warning
+	// nobody, and a derived centroid would be a guess wearing the costume
+	// of a measurement.
+	//
+	// Set together or not at all — see communities.Service.Update.
+	Latitude  *float64 `gorm:"type:double precision" json:"latitude,omitempty"`
+	Longitude *float64 `gorm:"type:double precision" json:"longitude,omitempty"`
 	LogoURL     *string    `json:"logoUrl,omitempty"`
 	CreatedByID string     `gorm:"type:uuid;not null" json:"createdById"`
 	Issues      []Issue    `gorm:"foreignKey:CommunityID" json:"-"`

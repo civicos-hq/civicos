@@ -154,3 +154,7 @@ func escapeLike(s string) string {
 	s = strings.ReplaceAll(s, `%`, `\%`)
 	return strings.ReplaceAll(s, `_`, `\_`)
 }
+
+func (r *Repository) Update(id string, updates map[string]any) error {
+	return r.db.Model(&domain.Community{}).Where("id = ?", id).Updates(updates).Error
+}

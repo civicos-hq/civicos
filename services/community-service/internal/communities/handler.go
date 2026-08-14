@@ -23,6 +23,28 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth, requireRole gin.Hand
 	rg.GET("", h.list)
 	rg.GET("/:id", h.get)
 	rg.POST("", auth, requireRole, h.create)
+	// Same roles as create: civic geography is not citizen-editable, and
+	// coordinates decide who receives a flood warning.
+	rg.PATCH("/:id", auth, requireRole, h.update)
+}
+
+func (h *Handler) update(c *gin.Context) {
+	var input UpdateInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", err.Error())
+		return
+	}
+	item, err := h.svc.Update(c.Param("id"), input)
+	if err != nil {
+		var appErr *AppError
+		if errors.As(err, &appErr) {
+			response.Error(c, appErr.Status, appErr.Code, appErr.Message)
+			return
+		}
+		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to update community")
+		return
+	}
+	response.Success(c, http.StatusOK, gin.H{"community": item})
 }
 
 func (h *Handler) list(c *gin.Context) {
