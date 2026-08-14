@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
+import { CampaignImpactSummary } from './civicai/CampaignImpactSummary';
 import { DonorUpdateAssist } from './civicai/UpdateDraftAssist';
 import { Loader2, Trash2 } from 'lucide-react';
 import {
@@ -39,6 +40,10 @@ export function CampaignConsole({
       <p className="fund-console-lede">{t('campaigns.console.lede')}</p>
       <SpendForm campaign={campaign} />
       <PublishedSpend campaign={campaign} spend={spend} locale={locale} />
+      {/* Sits after the published spend and before the update form on
+          purpose: it reads what has been published, and what it finds
+          missing is usually what the next update should say. */}
+      <CampaignImpactSummary campaignId={campaign.id} />
       <UpdateForm campaign={campaign} />
     </section>
   );

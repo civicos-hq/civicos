@@ -1331,5 +1331,25 @@
     "wrongAccount": "An aika wannan gayyatar zuwa {{invited}}, amma ka shiga a matsayin {{current}}. Ka shiga da adireshin da aka gayyata don karɓa.",
     "switchAccount": "Shiga da wani asusu",
     "accept": "Karɓi gayyata"
+  },
+  "campaignAssist": {
+    "pending": "CivicAI yana karanta kamfen ɗinka…",
+    "suggests": "CivicAI ya ba da shawarar",
+    "apply": "yi amfani da wannan",
+    "badge": "Shawarar AI",
+    "looksUrgent": "Wannan yana kama da gaggawa.",
+    "looksNotUrgent": "Wannan bai yi kama da gaggawa ba.",
+    "markUrgent": "Yi alama a matsayin gaggawa",
+    "unmarkUrgent": "Cire alamar gaggawa"
+  },
+  "campaignImpact": {
+    "heading": "Yadda mai bayarwa zai karanta wannan kamfen",
+    "lede": "Yana taƙaita abin da ka wallafa ya zuwa yanzu, da abin da mai karatu bai iya sani ba tukuna.",
+    "run": "Duba",
+    "rerun": "Sake dubawa",
+    "highlights": "Abin da ya bayyana",
+    "gaps": "Abin da mai bayarwa bai iya sani ba tukuna",
+    "badge": "Taƙaitawar AI · bisa abin da ka wallafa kaɗai",
+    "error": "CivicAI bai iya taƙaita wannan kamfen a yanzu ba."
   }
 }

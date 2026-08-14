@@ -287,35 +287,3 @@ export async function draftCompletionReport(
   );
   return res.data.data.report;
 }
-
-/** Review priorities, not verdicts. There is deliberately no "fraudulent". */
-export type RiskBand = 'ROUTINE' | 'WORTH_A_LOOK' | 'REVIEW_CLOSELY';
-
-export interface RiskSignal {
-  concern: string;
-  /** The specific campaign fact behind the concern. Never empty. */
-  evidence: string;
-  /** The most likely benign reading of that same fact. */
-  innocentExplanation: string;
-}
-
-export interface CampaignRiskAssessment extends AIProvenance {
-  band: RiskBand;
-  signals: RiskSignal[];
-  whatToCheck: string[];
-  confidence: number;
-  disclaimer: string;
-}
-
-/** PLATFORM_ADMIN only. Reading this changes nothing about the campaign. */
-export async function assessCampaignRisk(
-  campaignId: string,
-  signal?: AbortSignal,
-): Promise<CampaignRiskAssessment> {
-  const res = await api.post<ApiResponse<{ assessment: CampaignRiskAssessment }>>(
-    '/api/v1/ai/assess-campaign-risk',
-    { campaignId },
-    { signal },
-  );
-  return res.data.data.assessment;
-}

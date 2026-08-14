@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@civicos/ui';
 import { PageHeader } from '../components/PageHeader';
 import { CampaignDraftAssist } from '../components/civicai/CampaignDraftAssist';
+import { CampaignCategoryAssist } from '../components/civicai/CampaignCategoryAssist';
 import { getApiError } from '../lib/api';
 import {
   categoryKey,
@@ -50,6 +51,9 @@ export function OrgCampaignCreatePage() {
   const [summary, setSummary] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<CampaignCategory>('EMERGENCY_RELIEF');
+  // Tracked so the suggestion chip can stay quiet once the author has
+  // made a deliberate choice CivicAI agrees with.
+  const [categoryTouched, setCategoryTouched] = useState(false);
   const [goalNaira, setGoalNaira] = useState('');
   const [state, setState] = useState('');
   const [lga, setLga] = useState('');
@@ -199,7 +203,10 @@ export function OrgCampaignCreatePage() {
               name="category"
               className={FIELD}
               value={category}
-              onChange={(e) => setCategory(e.target.value as CampaignCategory)}
+              onChange={(e) => {
+                setCategory(e.target.value as CampaignCategory);
+                setCategoryTouched(true);
+              }}
             >
               {CATEGORIES.map((c) => (
                 <option key={c} value={c}>
@@ -207,6 +214,18 @@ export function OrgCampaignCreatePage() {
                 </option>
               ))}
             </select>
+            <CampaignCategoryAssist
+              title={title}
+              description={description}
+              category={category}
+              categoryTouched={categoryTouched}
+              isEmergency={isEmergency}
+              onApplyCategory={(next) => {
+                setCategory(next);
+                setCategoryTouched(true);
+              }}
+              onApplyEmergency={setIsEmergency}
+            />
           </div>
 
           <div>

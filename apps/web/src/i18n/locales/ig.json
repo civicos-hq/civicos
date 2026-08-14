@@ -1331,5 +1331,25 @@
     "wrongAccount": "E zigara òkù a na {{invited}}, mana ị banyere dịka {{current}}. Jiri adreesị a kpọrọ banye iji nabata ya.",
     "switchAccount": "Jiri akaụntụ ọzọ banye",
     "accept": "Nabata òkù"
+  },
+  "campaignAssist": {
+    "pending": "CivicAI na-agụ mkpọsa gị…",
+    "suggests": "CivicAI na-atụ aro",
+    "apply": "jiri nke a",
+    "badge": "Ntụaro AI",
+    "looksUrgent": "Nke a dị ka ihe mberede.",
+    "looksNotUrgent": "Nke a adịghị ka ihe mberede.",
+    "markUrgent": "Kaa ya dịka ihe mberede",
+    "unmarkUrgent": "Wepụ akara ihe mberede"
+  },
+  "campaignImpact": {
+    "heading": "Otu onye nyere onyinye ga-esi gụọ mkpọsa a",
+    "lede": "Ọ na-achịkọta ihe ị bipụtaralarị, na ihe onye na-agụ ka na-apụghị ịmata.",
+    "run": "Lelee",
+    "rerun": "Lelee ọzọ",
+    "highlights": "Ihe na-apụta ìhè",
+    "gaps": "Ihe onye nyere onyinye na-apụghị ịmata",
+    "badge": "Nchịkọta AI · naanị site na ihe ị bipụtara",
+    "error": "CivicAI enweghị ike ịchịkọta mkpọsa a ugbu a."
   }
 }

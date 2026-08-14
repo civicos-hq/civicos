@@ -1331,5 +1331,25 @@
     "wrongAccount": "A fi ìpè yìí ránṣẹ́ sí {{invited}}, ṣùgbọ́n o wọlé gẹ́gẹ́ bí {{current}}. Wọlé pẹ̀lú àdírẹ́sì tí a pè láti gbà á.",
     "switchAccount": "Wọlé pẹ̀lú àkàǹtì mìíràn",
     "accept": "Gba ìpè"
+  },
+  "campaignAssist": {
+    "pending": "CivicAI ń ka ìpolongo rẹ…",
+    "suggests": "CivicAI dábàá",
+    "apply": "lo èyí",
+    "badge": "Àbá AI",
+    "looksUrgent": "Èyí dà bí pàjáwìrì.",
+    "looksNotUrgent": "Èyí kò dà bí pàjáwìrì.",
+    "markUrgent": "Sàmì sí i gẹ́gẹ́ bí pàjáwìrì",
+    "unmarkUrgent": "Yọ àmì pàjáwìrì kúrò"
+  },
+  "campaignImpact": {
+    "heading": "Bí ìpolongo yìí ṣe rí lójú olùrànlọ́wọ́",
+    "lede": "Ó ṣàkópọ̀ ohun tí o ti tẹ̀jáde, àti ohun tí òǹkàwé kò tíì lè mọ̀.",
+    "run": "Ṣàyẹ̀wò",
+    "rerun": "Ṣàyẹ̀wò lẹ́ẹ̀kan síi",
+    "highlights": "Ohun tí ó hàn kedere",
+    "gaps": "Ohun tí olùrànlọ́wọ́ kò tíì lè mọ̀",
+    "badge": "Àkópọ̀ AI · lórí ohun tí o ti tẹ̀jáde nìkan",
+    "error": "CivicAI kò lè ṣàkópọ̀ ìpolongo yìí lọ́wọ́lọ́wọ́."
   }
 }

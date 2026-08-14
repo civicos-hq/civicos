@@ -1560,5 +1560,25 @@
     "wrongAccount": "Dem send dis invitation to {{invited}}, but na {{current}} you sign in with. Sign in with di invited address make you accept am.",
     "switchAccount": "Sign in with another account",
     "accept": "Accept invitation"
+  },
+  "campaignAssist": {
+    "pending": "CivicAI dey read your campaign…",
+    "suggests": "CivicAI suggest",
+    "apply": "use am",
+    "badge": "AI suggestion",
+    "looksUrgent": "Dis one be like emergency.",
+    "looksNotUrgent": "Dis one no be like emergency.",
+    "markUrgent": "Mark am as emergency",
+    "unmarkUrgent": "Comot di emergency flag"
+  },
+  "campaignImpact": {
+    "heading": "How dis campaign take dey read to donor",
+    "lede": "E go summarise wetin you don publish, and wetin person still no fit tell.",
+    "run": "Check am",
+    "rerun": "Check am again",
+    "highlights": "Wetin dey clear",
+    "gaps": "Wetin donor never fit tell",
+    "badge": "AI summary · na only wetin you publish e take",
+    "error": "CivicAI no fit summarise dis campaign now."
   }
 }
