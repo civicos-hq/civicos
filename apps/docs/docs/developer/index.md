@@ -20,7 +20,7 @@ _use_ CivicOS, head to the **[User Guide](/)** instead.
   section — one page per service, focused on responsibilities and
   package layout.
 - **Deploying?** See [Deployment](./operations/deployment.md) — pointer to the
-  Render blueprint in `docs/deploy.md`.
+  Cloud Run / Cloud SQL topology in `docs/deploy-gcp.md`.
 
 ## What CivicOS is, technically
 

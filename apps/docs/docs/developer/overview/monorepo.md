@@ -104,8 +104,9 @@ pnpm add --filter @civicos/web @civicos/new-pkg
    service (`cmd/server/`, `internal/`, `pkg/`, `.air.toml`,
    `Dockerfile`).
 2. `cd services/new-service && go mod init github.com/civicos-hq/new-service`.
-3. Wire it into `render.yaml` and the gateway (`services/api-gateway/cmd/server/main.go`
-   plus its `pkg/config`) so requests can route to it.
+3. Wire it into `deploy/gcp/deploy.sh` and the gateway
+   (`services/api-gateway/cmd/server/main.go` plus its `pkg/config`) so
+   requests can route to it.
 4. Add it to the running-services table in the root README.
 
 ## Running one workspace at a time

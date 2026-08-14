@@ -42,7 +42,8 @@ func Load() *Config {
 	_ = godotenv.Load()
 	cfg := &Config{
 		NATSURL: os.Getenv("NATS_URL"),
-		// PORT wins when set — PaaS providers like Render dictate it.
+		// PORT wins when set — Cloud Run injects it and the container
+		// must listen on exactly that.
 		// Falls back to COMMUNITY_SERVICE_PORT for local dev.
 		Port:        getStr("PORT", getStr("COMMUNITY_SERVICE_PORT", "3002")),
 		DatabaseURL: require("DATABASE_URL"),

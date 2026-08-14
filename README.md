@@ -382,7 +382,7 @@ The Go architecture diverges from the Engineering Playbook PDF (which specifies 
 
 ## Status
 
-MVP complete and in launch prep — not yet open to real users. GitHub Actions CI runs Prettier, gofmt, OpenAPI mirror sync, Go vet + test across the services, and the frontend build. The 5 Go services deploy to Render; the citizen web app, admin console and docs site deploy as static sites.
+MVP complete and in launch prep — not yet open to real users. GitHub Actions CI runs Prettier, gofmt, OpenAPI mirror sync, Go vet + test across the services, and the frontend build. The 5 Go services and the 3 frontends all deploy to Google Cloud Run, backed by Cloud SQL.
 
 Known before launch: the Gemini API key is on the free tier (20 requests/day shared across all eleven CivicAI endpoints), which is not enough for real use. Crypto donations via LinkiSwap are designed but blocked on an API spec. Source of truth for what's shipped vs. next vs. later: [`apps/docs/docs/about/roadmap.md`](./apps/docs/docs/about/roadmap.md) (also published at [docs.civicos.ng](https://docs.civicos.ng/about/roadmap)). Longer-horizon phasing is in `docs/product/CivicOS Product Roadmap.pdf`.
 

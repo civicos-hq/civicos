@@ -77,7 +77,7 @@ const config: Config = {
           label: 'Developer Guide',
         },
         {
-          href: 'https://civicos-gateway.onrender.com/docs',
+          href: 'https://api.civicos.ng/docs',
           label: 'API Reference',
           position: 'right',
         },
@@ -112,7 +112,7 @@ const config: Config = {
           items: [
             {
               label: 'API Reference (Swagger)',
-              href: 'https://civicos-gateway.onrender.com/docs',
+              href: 'https://api.civicos.ng/docs',
             },
             { label: 'GitHub', href: 'https://github.com/civicos-hq/civicos' },
           ],

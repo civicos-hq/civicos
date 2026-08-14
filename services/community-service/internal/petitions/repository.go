@@ -1,13 +1,13 @@
 package petitions
 
 import (
-	"strings"
 	"time"
 
 	"github.com/civicos/community-service/internal/domain"
 	"github.com/civicos/community-service/internal/moderation"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // Repository implements PetitionStore using GORM.
@@ -77,23 +77,48 @@ func (r *Repository) AddComment(comment *domain.PetitionComment) error {
 // signature_count for the petition.
 func (r *Repository) AddSignature(petitionID, userID string) (added bool, newCount int, err error) {
 	err = r.db.Transaction(func(tx *gorm.DB) error {
-		var sig domain.PetitionSignature
-		if err := tx.Where("petition_id = ? AND user_id = ?", petitionID, userID).First(&sig).Error; err == nil {
-			added = false
-		} else {
-			sig = domain.PetitionSignature{ID: uuid.New().String(), PetitionID: petitionID, UserID: userID, CreatedAt: time.Now()}
-			if cerr := tx.Create(&sig).Error; cerr != nil {
-				if strings.Contains(strings.ToLower(cerr.Error()), "duplicate") || strings.Contains(strings.ToLower(cerr.Error()), "unique") {
-					added = false
-				} else {
-					return cerr
-				}
-			} else {
-				added = true
-				if uerr := tx.Model(&domain.Petition{}).Where("id = ?", petitionID).
-					UpdateColumn("signature_count", gorm.Expr("signature_count + 1")).Error; uerr != nil {
-					return uerr
-				}
+		// Let the database resolve the conflict instead of inserting and
+		// catching.
+		//
+		// This previously read the signature first and, if absent,
+		// inserted and treated a duplicate-key error as "already signed".
+		// That is check-then-act: two concurrent signs both see no row and
+		// both insert, so one violates idx_petition_user.
+		//
+		// Catching that error did not help, it hurt. Postgres aborts the
+		// entire transaction the moment any statement in it fails, so the
+		// SELECT below then failed with "current transaction is aborted"
+		// and the request 500'd — a confusing failure two statements away
+		// from its cause. The handler looked idempotent and was not.
+		//
+		// ON CONFLICT means no statement ever errors, so the transaction
+		// stays usable and RowsAffected says whether we were the inserter.
+		//
+		// The conflict target is named rather than a bare DO NOTHING: if
+		// idx_petition_user ever went missing this fails loudly, instead
+		// of silently writing duplicate signatures and inflating the count
+		// that the whole petition rests on.
+		sig := domain.PetitionSignature{
+			ID:         uuid.New().String(),
+			PetitionID: petitionID,
+			UserID:     userID,
+			CreatedAt:  time.Now(),
+		}
+		res := tx.Clauses(clause.OnConflict{
+			Columns:   []clause.Column{{Name: "petition_id"}, {Name: "user_id"}},
+			DoNothing: true,
+		}).Create(&sig)
+		if res.Error != nil {
+			return res.Error
+		}
+
+		// Exactly one concurrent caller sees 1 here, which is what stops
+		// milestone notifications firing once per attempt.
+		added = res.RowsAffected > 0
+		if added {
+			if uerr := tx.Model(&domain.Petition{}).Where("id = ?", petitionID).
+				UpdateColumn("signature_count", gorm.Expr("signature_count + 1")).Error; uerr != nil {
+				return uerr
 			}
 		}
 

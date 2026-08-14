@@ -6,14 +6,18 @@ import (
 	"strings"
 )
 
-// ensureScheme resolves scheme-less service URLs, which Render's Blueprint
-// injects in two shapes:
-//   - `hostport` (private network): "civicos-identity:10000" — plain HTTP
-//   - `host` (public URL):          "civicos-identity.onrender.com" — must be
-//     HTTPS, because onrender.com 301-redirects HTTP and the reverse proxy
-//     would bounce that redirect back to the client
+// ensureScheme resolves scheme-less service URLs.
 //
-// A colon means an explicit port, i.e. the private-network/localhost form.
+// Cloud Run sets full https:// URLs, so in the current deployment this is a
+// no-op. It stays because a scheme-less value is a silent failure rather
+// than a loud one: the gateway would treat "civicos-identity-xyz.run.app"
+// as a relative path and every proxied route would 502 with nothing
+// pointing at the missing "https://".
+//
+// A colon means an explicit port, which only happens for a local or
+// private-network address — those are plain HTTP. Anything else is a
+// public hostname and must be HTTPS, or a platform's 301 to HTTPS gets
+// bounced back to the client by the reverse proxy.
 func ensureScheme(u string) string {
 	if u == "" {
 		return u
@@ -66,8 +70,8 @@ func Load() *Config {
 		civicaiURL = "http://localhost:3004"
 	}
 
-	// PORT wins if set — this is the env var PaaS providers like Render,
-	// Fly, and Heroku dictate. Falls back to the service-specific var for
+	// PORT wins if set — Cloud Run injects it and the container must
+	// listen on exactly that. Falls back to the service-specific var for
 	// local dev, then to a hardcoded default.
 	port := os.Getenv("PORT")
 	if port == "" {
