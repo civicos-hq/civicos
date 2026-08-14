@@ -2206,5 +2206,25 @@
     "wrongAccount": "This invitation was sent to {{invited}}, but you are signed in as {{current}}. Sign in with the invited address to accept it.",
     "switchAccount": "Sign in with a different account",
     "accept": "Accept invitation"
+  },
+  "campaignAssist": {
+    "pending": "CivicAI is reading your campaign…",
+    "suggests": "CivicAI suggests",
+    "apply": "use this",
+    "badge": "AI suggestion",
+    "looksUrgent": "This reads like an emergency.",
+    "looksNotUrgent": "This doesn't read like an emergency.",
+    "markUrgent": "Mark as emergency",
+    "unmarkUrgent": "Remove emergency flag"
+  },
+  "campaignImpact": {
+    "heading": "How this campaign reads to a donor",
+    "lede": "Summarises what you have published so far, and what a reader still cannot tell.",
+    "run": "Check",
+    "rerun": "Check again",
+    "highlights": "What comes across",
+    "gaps": "What a donor can't tell yet",
+    "badge": "AI summary · based only on what you have published",
+    "error": "CivicAI could not summarise this campaign right now."
   }
 }

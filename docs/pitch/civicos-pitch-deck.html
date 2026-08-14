@@ -1,0 +1,760 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>CivicOS — Investor Deck</title>
+<style>
+  @page { size: 1280px 720px; margin: 0; }
+
+  :root {
+    --ink:        #080d17;
+    --ink-2:      #0e1626;
+    --line:       #1e2b42;
+    --paper:      #f4f6fa;
+    --muted:      #8a9ab5;
+    --dim:        #5f7a99;
+    --accent:     #3ddc97;
+    --accent-dim: #1c6b4c;
+    --amber:      #ffb454;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { background: #05080f; }
+
+  body {
+    font-family: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: var(--paper);
+    -webkit-font-smoothing: antialiased;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .slide {
+    position: relative;
+    width: 1280px;
+    height: 720px;
+    padding: 68px 84px 64px;
+    background: var(--ink);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    page-break-after: always;
+    break-after: page;
+  }
+  .slide:last-child { page-break-after: auto; break-after: auto; }
+
+  /* subtle civic grid motif */
+  .slide::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,.022) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,.022) 1px, transparent 1px);
+    background-size: 64px 64px;
+    pointer-events: none;
+  }
+  .slide > * { position: relative; z-index: 1; }
+
+  /* ── header ─────────────────────────────────── */
+  .eyebrow {
+    display: flex; align-items: center; gap: 12px;
+    font-size: 12.5px; font-weight: 600; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--accent);
+    margin-bottom: 26px;
+  }
+  .eyebrow::after {
+    content: ""; flex: 1; height: 1px;
+    background: linear-gradient(to right, var(--line), transparent);
+  }
+  .num {
+    position: absolute; top: 68px; right: 84px;
+    font-size: 12.5px; font-weight: 600; letter-spacing: .1em;
+    color: #3a4a66;
+  }
+
+  h1 { font-size: 40px; font-weight: 700; letter-spacing: -.022em; line-height: 1.14; }
+  h1 .lite { color: var(--muted); font-weight: 500; }
+  h2 { font-size: 25px; font-weight: 650; letter-spacing: -.01em; line-height: 1.25; }
+  h3 { font-size: 16.5px; font-weight: 650; letter-spacing: -.005em; }
+  p  { font-size: 17px; line-height: 1.58; color: #c3cede; }
+  .lead { font-size: 20.5px; line-height: 1.5; color: #d5dee9; max-width: 940px; }
+  .sm { font-size: 14.5px; line-height: 1.5; color: var(--muted); }
+  .xs { font-size: 12.5px; line-height: 1.45; color: #6c7d99; }
+
+  strong, b { color: #fff; font-weight: 650; }
+  em { font-style: normal; color: var(--accent); }
+
+  .fill { flex: 1; }
+
+  /* ── title slide ────────────────────────────── */
+  .title-slide { justify-content: center; padding: 0 96px; }
+  .wordmark {
+    font-size: 92px; font-weight: 750; letter-spacing: -.045em; line-height: 1;
+    margin-bottom: 26px;
+  }
+  .wordmark span { color: var(--accent); }
+  .tagline { font-size: 27px; font-weight: 400; color: #cad5e4; letter-spacing: -.012em; }
+  .rule { width: 92px; height: 3px; background: var(--accent); margin: 34px 0 30px; }
+  .title-meta {
+    position: absolute; left: 96px; right: 96px; bottom: 60px;
+    display: flex; justify-content: space-between; align-items: flex-end;
+    font-size: 13px; color: #56678a; letter-spacing: .04em;
+  }
+  .glow {
+    position: absolute; width: 760px; height: 760px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(61,220,151,.11) 0%, rgba(61,220,151,0) 66%);
+    top: -290px; right: -230px;
+  }
+
+  /* ── layout helpers ─────────────────────────── */
+  .grid { display: grid; gap: 20px; }
+  /* grid children must be allowed to shrink, or a nowrap placeholder
+     inside one card widens its column and pushes the rest off-slide */
+  .grid > * { min-width: 0; }
+  .g2 { grid-template-columns: repeat(2, 1fr); }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  .g4 { grid-template-columns: repeat(4, 1fr); }
+  .g5 { grid-template-columns: repeat(5, 1fr); }
+
+  .card {
+    background: var(--ink-2);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 24px 24px 26px;
+  }
+  .card h3 { margin-bottom: 9px; }
+  .card p { font-size: 14.5px; line-height: 1.52; color: #a9b8cc; }
+  .card.accent { border-color: var(--accent-dim); background: linear-gradient(155deg, #0d2118, var(--ink-2) 62%); }
+
+  .kicker {
+    font-size: 11.5px; font-weight: 700; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 12px;
+  }
+  .kicker.muted { color: #4e6183; }
+
+  /* ── quotes / question list ─────────────────── */
+  .qlist { display: flex; flex-direction: column; gap: 13px; }
+  .q {
+    font-size: 20px; color: #d8e1ee; padding-left: 22px;
+    border-left: 2px solid var(--line); line-height: 1.4;
+  }
+  .q em { color: var(--accent); }
+
+  /* ── metrics ────────────────────────────────── */
+  .metric .big {
+    font-size: 52px; font-weight: 720; letter-spacing: -.035em;
+    color: #fff; line-height: 1; margin-bottom: 10px;
+  }
+  .metric .big.sm2 { font-size: 40px; }
+  .metric .lbl { font-size: 13.5px; color: var(--muted); line-height: 1.4; }
+
+  /* ── loop diagram ───────────────────────────── */
+  .loop { display: flex; align-items: stretch; gap: 0; margin-top: 6px; }
+  .step {
+    flex: 1; background: var(--ink-2); border: 1px solid var(--line);
+    border-radius: 11px; padding: 20px 18px; text-align: center;
+  }
+  .step .n {
+    font-size: 11px; font-weight: 700; letter-spacing: .12em;
+    color: var(--accent); margin-bottom: 9px;
+  }
+  .step h3 { font-size: 15.5px; margin-bottom: 7px; }
+  .step p { font-size: 13px; color: #9aa9be; line-height: 1.45; }
+  .arrow {
+    display: flex; align-items: center; justify-content: center;
+    width: 34px; color: #34486a; font-size: 17px; flex-shrink: 0;
+  }
+
+  /* ── tables ─────────────────────────────────── */
+  table { width: 100%; border-collapse: collapse; }
+  th, td {
+    text-align: left; padding: 13px 16px;
+    border-bottom: 1px solid var(--line); font-size: 14.5px;
+  }
+  th {
+    font-size: 11.5px; font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase; color: #6a7c99;
+  }
+  td { color: #bcc9db; }
+  td.on { color: #fff; font-weight: 600; }
+  .tick { color: var(--accent); font-weight: 700; }
+  .cross { color: #4a5a75; }
+
+  /* ── roadmap ────────────────────────────────── */
+  .phase { position: relative; padding-top: 26px; }
+  .phase::before {
+    content: ""; position: absolute; top: 6px; left: 0;
+    width: 11px; height: 11px; border-radius: 50%;
+    background: var(--line); border: 2px solid var(--ink);
+  }
+  .phase.done::before { background: var(--accent); }
+  .phase .pn {
+    font-size: 11.5px; font-weight: 700; letter-spacing: .12em;
+    color: #55688a; margin-bottom: 7px; text-transform: uppercase;
+  }
+  .phase.done .pn { color: var(--accent); }
+  .phase h3 { font-size: 15.5px; margin-bottom: 8px; }
+  .phase p { font-size: 13px; color: #93a3b9; line-height: 1.48; }
+  .track { position: relative; }
+  .track::after {
+    content: ""; position: absolute; top: 11px; left: 0; right: 0;
+    height: 1px; background: var(--line); z-index: 0;
+  }
+  .track .grid { position: relative; z-index: 1; }
+
+  /* ── placeholders ───────────────────────────── */
+  .ph {
+    color: var(--amber); font-weight: 600;
+    background: rgba(255,180,84,.09);
+    border: 1px dashed rgba(255,180,84,.45);
+    border-radius: 5px; padding: 1px 7px;
+    white-space: nowrap;
+  }
+  /* long, sentence-length placeholders wrap instead of forcing column width */
+  .ph.long { white-space: normal; display: inline; }
+  .ph-note {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--amber);
+    border: 1px dashed rgba(255,180,84,.4);
+    border-radius: 20px; padding: 5px 13px;
+  }
+
+  .pill {
+    display: inline-block; font-size: 12px; font-weight: 600;
+    letter-spacing: .04em; padding: 5px 11px; border-radius: 20px;
+    background: rgba(61,220,151,.11); color: var(--accent);
+    border: 1px solid var(--accent-dim);
+  }
+  .pill.grey { background: rgba(255,255,255,.045); color: var(--muted); border-color: var(--line); }
+
+  .foot {
+    position: absolute; left: 84px; right: 84px; bottom: 34px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 11.5px; color: #3e4f6d; letter-spacing: .05em;
+  }
+
+  /* ── closing ────────────────────────────────── */
+  .closing { justify-content: center; text-align: center; align-items: center; }
+  .closing .wordmark { font-size: 68px; }
+
+  /* ── screen preview ─────────────────────────── */
+  @media screen {
+    body { padding: 40px 0; display: flex; flex-direction: column; align-items: center; gap: 30px; }
+    .slide { box-shadow: 0 22px 60px rgba(0,0,0,.6); border-radius: 6px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ 1 · TITLE ═══════════════════════════════ -->
+<section class="slide title-slide">
+  <div class="glow"></div>
+  <div class="wordmark">Civic<span>OS</span></div>
+  <div class="rule"></div>
+  <div class="tagline">The operating system for democratic&nbsp;participation.</div>
+  <p class="lead" style="margin-top:22px;max-width:760px">
+    Open civic infrastructure that keeps citizens and their governments
+    connected <em>between</em> elections — not just at the ballot box.
+  </p>
+  <div class="title-meta">
+    <div>Investor Briefing · <span class="ph">[MONTH YEAR]</span></div>
+    <div><span class="ph">[YOUR NAME]</span> · <span class="ph">[EMAIL]</span></div>
+  </div>
+</section>
+
+<!-- ══ 2 · PROBLEM ═════════════════════════════ -->
+<section class="slide">
+  <div class="num">02</div>
+  <div class="eyebrow">The problem</div>
+  <h1>Democracy is a five-year event.<br><span class="lite">Governance is a daily one.</span></h1>
+  <p class="lead" style="margin-top:24px;margin-bottom:34px">
+    Citizens vote, governments form, and engagement fades until the next cycle.
+    In between, the questions that matter most have no reliable answer:
+  </p>
+  <div class="qlist">
+    <div class="q">Has this petition received <em>a response</em>?</div>
+    <div class="q">Did my representative <em>address this issue</em>?</div>
+    <div class="q">Was that project ever <em>completed</em>?</div>
+    <div class="q">What happened to the commitment made <em>last March</em>?</div>
+  </div>
+  <div class="fill"></div>
+  <p class="sm" style="max-width:900px">
+    Without visibility, accountability becomes reactive rather than continuous —
+    and public trust erodes on both sides of the relationship.
+  </p>
+  <div class="foot"><span>CivicOS</span><span>The problem</span></div>
+</section>
+
+<!-- ══ 3 · WHY EXISTING TOOLS FAIL ═════════════ -->
+<section class="slide">
+  <div class="num">03</div>
+  <div class="eyebrow">Why today's civic tech falls short</div>
+  <h1>Every tool solves one problem.<br><span class="lite">None of them connect.</span></h1>
+  <div class="grid g5" style="margin-top:36px">
+    <div class="card"><h3>Petition sites</h3><p>Collect signatures. No path to a response.</p></div>
+    <div class="card"><h3>Gov portals</h3><p>Publish outward. Rarely listen back.</p></div>
+    <div class="card"><h3>Complaint lines</h3><p>Receive requests. Go dark afterwards.</p></div>
+    <div class="card"><h3>Open data</h3><p>Release datasets. No civic workflow.</p></div>
+    <div class="card"><h3>Election monitors</h3><p>Active for weeks every few years.</p></div>
+  </div>
+  <div class="grid g2" style="margin-top:30px">
+    <div class="card accent">
+      <div class="kicker">The real gap</div>
+      <p style="font-size:16.5px;color:#dbe5f0">
+        Citizens don't experience civic life as isolated services. An issue becomes
+        a petition, which becomes a conversation with a representative, which
+        becomes a public commitment that <strong>should be measurable over time</strong>.
+      </p>
+    </div>
+    <div class="card">
+      <div class="kicker muted">Our thesis</div>
+      <p style="font-size:16.5px;color:#dbe5f0">
+        What's missing is not another standalone platform.<br>
+        It's <strong>shared civic infrastructure</strong> — the layer every one of
+        those tools should have been built on.
+      </p>
+    </div>
+  </div>
+  <div class="foot"><span>CivicOS</span><span>Market gap</span></div>
+</section>
+
+<!-- ══ 4 · SOLUTION ════════════════════════════ -->
+<section class="slide">
+  <div class="num">04</div>
+  <div class="eyebrow">The solution</div>
+  <h1>One continuous civic loop, <span class="lite">end to end.</span></h1>
+  <p class="lead" style="margin-top:20px;margin-bottom:38px">
+    CivicOS closes the loop that every other platform leaves open — from the
+    moment a citizen reports a problem to the moment an institution is held to
+    what it promised.
+  </p>
+  <div class="loop">
+    <div class="step"><div class="n">01</div><h3>Report</h3><p>Citizens raise issues, start petitions, answer consultations.</p></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="n">02</div><h3>Route</h3><p>Work reaches the right organization or representative.</p></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="n">03</div><h3>Respond</h3><p>Official responses, announcements, and project updates — in public.</p></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="n">04</div><h3>Track</h3><p>Status, spending, and milestones visible to everyone.</p></div>
+    <div class="arrow">→</div>
+    <div class="step"><div class="n">05</div><h3>Account</h3><p>Commitments measured against outcomes over time.</p></div>
+  </div>
+  <div class="fill"></div>
+  <div class="grid g3">
+    <div class="card"><div class="kicker">Complements, never replaces</div><p>API-first, designed to sit alongside existing government systems rather than rip them out.</p></div>
+    <div class="card"><div class="kicker">Locally owned</div><p>Every deployment keeps its own branding, governance, data, and policies.</p></div>
+    <div class="card"><div class="kicker">Country-agnostic</div><p>Nigeria first. The architecture adapts to any electoral and administrative model.</p></div>
+  </div>
+  <div class="foot"><span>CivicOS</span><span>Solution</span></div>
+</section>
+
+<!-- ══ 5 · PRODUCT ═════════════════════════════ -->
+<section class="slide">
+  <div class="num">05</div>
+  <div class="eyebrow">The product</div>
+  <h1>Five roles. <span class="lite">One shared system of record.</span></h1>
+  <div class="grid g3" style="margin-top:34px">
+    <div class="card">
+      <div class="kicker">For citizens</div>
+      <p>Report community issues with photos and location. Sign and create petitions.
+      Answer public consultations. Follow representatives. Get real-time updates when
+      something they care about moves.</p>
+    </div>
+    <div class="card">
+      <div class="kicker">For representatives</div>
+      <p>A direct channel to constituents that isn't social media. Publish
+      announcements, respond officially to issues, and build a visible public record
+      of responsiveness.</p>
+    </div>
+    <div class="card">
+      <div class="kicker">For organizations &amp; NGOs</div>
+      <p>Take formal ownership of issues, run consultations, publish projects and
+      progress, and raise transparently funded community campaigns.</p>
+    </div>
+    <div class="card">
+      <div class="kicker">For government admins</div>
+      <p>See what a community is actually saying, at volume, with AI triage — instead
+      of reading ten thousand submissions by hand.</p>
+    </div>
+    <div class="card">
+      <div class="kicker">For moderators</div>
+      <p>Content flags, audit logs, and platform-level review queues that keep public
+      civic space usable.</p>
+    </div>
+    <div class="card accent">
+      <div class="kicker">The compounding asset</div>
+      <p>Every interaction adds to a structured, queryable public record of civic
+      activity — the thing no petition site or portal accumulates, and the reason
+      switching cost grows over time.</p>
+    </div>
+  </div>
+  <div class="foot"><span>CivicOS</span><span>Product</span></div>
+</section>
+
+<!-- ══ 6 · BUILT TODAY ═════════════════════════ -->
+<section class="slide">
+  <div class="num">06</div>
+  <div class="eyebrow">Traction · engineering</div>
+  <h1>This is not a deck-stage idea. <span class="lite">It's a running platform.</span></h1>
+  <div class="grid g4" style="margin-top:38px;margin-bottom:30px">
+    <div class="card metric"><div class="big">5</div><div class="lbl">Go microservices in production layout</div></div>
+    <div class="card metric"><div class="big">180+</div><div class="lbl">API routes behind an authenticated gateway</div></div>
+    <div class="card metric"><div class="big">11</div><div class="lbl">Live CivicAI endpoints</div></div>
+    <div class="card metric"><div class="big">232</div><div class="lbl">Commits since first build, June 2026</div></div>
+  </div>
+  <div class="grid g2">
+    <div class="card">
+      <div class="kicker">Shipped and working</div>
+      <p style="font-size:14px;line-height:1.75">
+        Identity &amp; JWT auth · Communities · Issue reporting with status lifecycle ·
+        Petitions with signature milestones · Representative profiles &amp; official
+        responses · Public consultations with outcomes · Organizations, projects &amp;
+        assignments · Real-time notifications over SSE · Search &amp; discovery ·
+        Community funding with a donation ledger · Admin console · Moderation &amp; audit log
+      </p>
+    </div>
+    <div class="card">
+      <div class="kicker">Built like infrastructure</div>
+      <p style="font-size:14px;line-height:1.75">
+        Go 1.26 · PostgreSQL 16 · Redis · NATS · React 18 + TypeScript across a citizen
+        app, an admin console, and a documentation site · Hand-written OpenAPI 3.0 specs
+        served as live Swagger UI · CI gates on formatting and build across every service ·
+        Dependency injection throughout, UUID keys, UTC timestamps, structured error codes
+      </p>
+    </div>
+  </div>
+  <div class="foot"><span>CivicOS</span><span>What exists today</span></div>
+</section>
+
+<!-- ══ 7 · CIVICAI ═════════════════════════════ -->
+<section class="slide">
+  <div class="num">07</div>
+  <div class="eyebrow">Differentiator · CivicAI</div>
+  <h1>CivicAI is not a chatbot. <span class="lite">It's a decision-support layer.</span></h1>
+  <p class="lead" style="margin-top:20px;margin-bottom:32px">
+    An institution receiving 8,000 consultation responses cannot read them. CivicAI
+    turns unstructured civic input into structured, actionable output — wired into
+    the workflows that already exist.
+  </p>
+  <div class="grid g4" style="margin-bottom:26px">
+    <div class="card"><h3>Classify</h3><p>Suggests category, severity and tags as a citizen types an issue report.</p></div>
+    <div class="card"><h3>Summarize</h3><p>Themes, sentiment, top asks and recommended actions across a whole thread.</p></div>
+    <div class="card"><h3>Draft</h3><p>Announcements, donor updates and completion reports in plain, accessible language.</p></div>
+    <div class="card"><h3>Narrate &amp; assess</h3><p>Explains metrics in words; flags campaigns a human reviewer should open first.</p></div>
+  </div>
+  <div class="card accent">
+    <div class="kicker">Why this survives contact with government</div>
+    <p style="font-size:15.5px;line-height:1.65;color:#dbe5f0">
+      Every output is a <strong>suggestion, never an action</strong>. Nothing auto-publishes,
+      auto-assigns, or auto-decides. Each generation is provenance-tagged with its model
+      and timestamp, every risk signal must cite the evidence behind it and state the
+      innocent explanation for the same fact, and the entire layer <strong>fails open</strong> —
+      if the model is unavailable, the civic loop keeps running without it. That is the
+      difference between AI a public institution can adopt and AI its legal team blocks.
+    </p>
+  </div>
+  <div class="foot"><span>CivicOS</span><span>CivicAI</span></div>
+</section>
+
+<!-- ══ 8 · FUNDING RAILS ═══════════════════════ -->
+<section class="slide">
+  <div class="num">08</div>
+  <div class="eyebrow">Differentiator · community funding</div>
+  <h1>Civic money, <span class="lite">with a ledger citizens can audit.</span></h1>
+  <p class="lead" style="margin-top:20px;margin-bottom:34px">
+    Organizations raise for boreholes, clinics, flood relief and school repairs —
+    against milestones, with spending disclosed in public.
+  </p>
+  <div class="grid g3">
+    <div class="card"><div class="kicker">Append-only by design</div><p>A settled donation is never edited. Corrections are new rows. The ledger is the only account of this money the platform will ever have — so it is built to be replay-safe and tamper-evident.</p></div>
+    <div class="card"><div class="kicker">Funds never held by us</div><p>Payments settle directly to the organization's own payment-provider sub-account. CivicOS is the transparency layer, not the custodian — which materially changes the regulatory posture.</p></div>
+    <div class="card"><div class="kicker">Milestones, updates, disclosure</div><p>Campaigns publish a plan, report progress, and file spending records against it. AI drafts the donor update; a human publishes it.</p></div>
+  </div>
+  <div class="fill"></div>
+  <div class="card" style="border-color:#3a2f1a;background:linear-gradient(155deg,#1c1509,var(--ink-2) 62%)">
+    <p style="font-size:15px;color:#e2d9c8">
+      <strong style="color:var(--amber)">Stated honestly:</strong> organizations own their
+      payment sub-account, so reported spending is <em style="color:var(--amber)">disclosure</em>,
+      not something the platform can independently verify. The product is designed around
+      that limit — visible plans, visible updates, visible gaps — rather than pretending
+      otherwise.
+    </p>
+  </div>
+  <div class="foot"><span>CivicOS</span><span>Community funding</span></div>
+</section>
+
+<!-- ══ 9 · WHY NOW ═════════════════════════════ -->
+<section class="slide">
+  <div class="num">09</div>
+  <div class="eyebrow">Why now</div>
+  <h1>Three curves crossing <span class="lite">at the same moment.</span></h1>
+  <div class="grid g3" style="margin-top:40px">
+    <div class="card"><div class="kicker">01 · Trust</div><h3 style="margin-bottom:10px">Public trust is at a generational low</h3><p>Declining confidence in institutions is one of the defining challenges across democracies — and the deficit is measurable, which means improvement is too.</p></div>
+    <div class="card"><div class="kicker">02 · Mobile</div><h3 style="margin-bottom:10px">Civic life is the last analog holdout</h3><p>Banking, health and education went digital. Participation didn't. In high-growth democracies, mobile penetration now makes the leapfrog possible.</p></div>
+    <div class="card"><div class="kicker">03 · AI</div><h3 style="margin-bottom:10px">Scale finally became tractable</h3><p>Reading ten thousand citizen submissions was economically impossible two years ago. It now costs cents — which turns mass participation from a burden into an asset.</p></div>
+  </div>
+  <div class="fill"></div>
+  <div class="ph-note">Add 2–3 sourced statistics here for your target geography — trust index, mobile penetration, urban population growth</div>
+  <div class="foot"><span>CivicOS</span><span>Why now</span></div>
+</section>
+
+<!-- ══ 10 · MARKET ═════════════════════════════ -->
+<section class="slide">
+  <div class="num">10</div>
+  <div class="eyebrow">Market</div>
+  <h1>Every institution with a public <span class="lite">is a customer.</span></h1>
+  <div class="grid g3" style="margin-top:36px;margin-bottom:28px">
+    <div class="card metric"><div class="kicker">TAM</div><div class="big sm2"><span class="ph">[$ TAM]</span></div><div class="lbl">Global civic-engagement &amp; govtech software spend</div></div>
+    <div class="card metric"><div class="kicker">SAM</div><div class="big sm2"><span class="ph">[$ SAM]</span></div><div class="lbl">Local government, universities &amp; NGOs in target markets</div></div>
+    <div class="card metric"><div class="kicker">SOM</div><div class="big sm2"><span class="ph">[$ SOM]</span></div><div class="lbl">Reachable in 36 months from the beachhead</div></div>
+  </div>
+  <div class="grid g4">
+    <div class="card"><h3>Beachhead</h3><p>Nigerian LGAs, universities and NGOs — <span class="ph">[N]</span> LGAs, <span class="ph">[N]</span> tertiary institutions.</p></div>
+    <div class="card"><h3>Expand</h3><p>State governments and federal agencies once local proof exists.</p></div>
+    <div class="card"><h3>Adjacent</h3><p>Housing estates, unions, professional bodies, diaspora associations.</p></div>
+    <div class="card"><h3>Global</h3><p>Country-agnostic architecture; <span class="ph">[REGION]</span> as second market.</p></div>
+  </div>
+  <div class="fill"></div>
+  <div class="ph-note">Replace bracketed figures with sourced estimates — cite the source on the slide itself; investors will check</div>
+  <div class="foot"><span>CivicOS</span><span>Market</span></div>
+</section>
+
+<!-- ══ 11 · BUSINESS MODEL ═════════════════════ -->
+<section class="slide">
+  <div class="num">11</div>
+  <div class="eyebrow">Business model</div>
+  <h1>Free for citizens. <span class="lite">Paid by the institutions they hold to account.</span></h1>
+  <div class="grid g2" style="margin-top:34px">
+    <div class="card">
+      <div class="kicker">01 · Institutional subscription</div>
+      <h3 style="margin-bottom:10px">Per organization, per year — <span class="ph">[$ PRICE]</span></h3>
+      <p>Local governments, agencies, universities and NGOs pay for their own branded
+      deployment: consultations, projects, CivicAI, analytics and moderation. Tiered by
+      population served.</p>
+    </div>
+    <div class="card">
+      <div class="kicker">02 · Funding platform fee</div>
+      <h3 style="margin-bottom:10px"><span class="ph">[X]</span>% of transparently raised funds</h3>
+      <p>A usage-based line that scales with civic activity rather than seat count, and
+      only earns when an organization successfully raises.</p>
+    </div>
+    <div class="card">
+      <div class="kicker">03 · Deployment &amp; integration</div>
+      <h3 style="margin-bottom:10px">One-off — <span class="ph">[$ RANGE]</span></h3>
+      <p>Onboarding, data migration and integration with existing government systems.
+      Services revenue that also creates switching cost.</p>
+    </div>
+    <div class="card">
+      <div class="kicker">04 · Grants &amp; development finance</div>
+      <h3 style="margin-bottom:10px">Non-dilutive — <span class="ph">[$ TARGET]</span></h3>
+      <p>Open civic infrastructure is directly fundable by democracy, governance and
+      transparency programmes. Named targets: <span class="ph">[FUNDER 1, FUNDER 2]</span>.</p>
+    </div>
+  </div>
+  <div class="fill"></div>
+  <p class="sm">Citizen access stays permanently free. Charging the public to petition its own government would break the product.</p>
+  <div class="foot"><span>CivicOS</span><span>Business model</span></div>
+</section>
+
+<!-- ══ 12 · COMPETITION ════════════════════════ -->
+<section class="slide">
+  <div class="num">12</div>
+  <div class="eyebrow">Competitive position</div>
+  <h1>Point solutions vs. <span class="lite">shared infrastructure.</span></h1>
+  <table style="margin-top:30px">
+    <tr>
+      <th style="width:26%">&nbsp;</th>
+      <th>Petition platforms</th>
+      <th>Government portals</th>
+      <th>311 / complaint apps</th>
+      <th style="color:var(--accent)">CivicOS</th>
+    </tr>
+    <tr>
+      <td class="on">Citizen raises an issue</td>
+      <td><span class="tick">✓</span></td><td><span class="cross">partial</span></td><td><span class="tick">✓</span></td><td><span class="tick">✓</span></td>
+    </tr>
+    <tr>
+      <td class="on">Institution responds in public</td>
+      <td><span class="cross">—</span></td><td><span class="cross">partial</span></td><td><span class="cross">—</span></td><td><span class="tick">✓</span></td>
+    </tr>
+    <tr>
+      <td class="on">Two-way consultation</td>
+      <td><span class="cross">—</span></td><td><span class="cross">—</span></td><td><span class="cross">—</span></td><td><span class="tick">✓</span></td>
+    </tr>
+    <tr>
+      <td class="on">Commitments tracked over time</td>
+      <td><span class="cross">—</span></td><td><span class="cross">—</span></td><td><span class="cross">—</span></td><td><span class="tick">✓</span></td>
+    </tr>
+    <tr>
+      <td class="on">Transparent civic funding</td>
+      <td><span class="cross">—</span></td><td><span class="cross">—</span></td><td><span class="cross">—</span></td><td><span class="tick">✓</span></td>
+    </tr>
+    <tr>
+      <td class="on">AI at civic scale</td>
+      <td><span class="cross">—</span></td><td><span class="cross">—</span></td><td><span class="cross">—</span></td><td><span class="tick">✓</span></td>
+    </tr>
+    <tr>
+      <td class="on">Open, API-first, locally owned</td>
+      <td><span class="cross">—</span></td><td><span class="cross">—</span></td><td><span class="cross">—</span></td><td><span class="tick">✓</span></td>
+    </tr>
+  </table>
+  <div class="fill"></div>
+  <p class="sm" style="max-width:1000px">
+    <strong>The moat is the loop.</strong> A competitor can clone any single row.
+    Reproducing the connected record — issue to response to commitment to outcome,
+    accumulated across a community over years — requires the whole system and the
+    time it took to fill it.
+  </p>
+  <div class="foot"><span>CivicOS</span><span>Competition</span></div>
+</section>
+
+<!-- ══ 13 · TRACTION ═══════════════════════════ -->
+<section class="slide">
+  <div class="num">13</div>
+  <div class="eyebrow">Traction &amp; validation</div>
+  <h1>Where we are today.</h1>
+  <div class="grid g4" style="margin-top:36px;margin-bottom:28px">
+    <div class="card metric"><div class="big sm2"><span class="ph">[N]</span></div><div class="lbl">Pilot communities live</div></div>
+    <div class="card metric"><div class="big sm2"><span class="ph">[N]</span></div><div class="lbl">Registered citizens</div></div>
+    <div class="card metric"><div class="big sm2"><span class="ph">[N]</span></div><div class="lbl">Issues reported · <span class="ph">[N]</span>% resolved</div></div>
+    <div class="card metric"><div class="big sm2"><span class="ph">[N]</span></div><div class="lbl">Institutions in conversation</div></div>
+  </div>
+  <div class="grid g2">
+    <div class="card accent">
+      <div class="kicker">Proven without a single user</div>
+      <p style="font-size:15px">
+        The platform is <strong>built, documented and deployable today</strong> — five services,
+        three front-ends, full API documentation and CI. Capital goes to distribution and
+        pilots, not to finding out whether the thing can be built.
+      </p>
+    </div>
+    <div class="card">
+      <div class="kicker muted">Fill these in before you pitch</div>
+      <p style="font-size:14.5px">
+        Pilot LOIs or MoUs · named institutions in conversation · any live community and
+        its engagement numbers · advisor or government-relations names · grant applications
+        submitted. If a pilot is signed, this becomes your strongest slide — move it before
+        the market slide.
+      </p>
+    </div>
+  </div>
+  <div class="foot"><span>CivicOS</span><span>Traction</span></div>
+</section>
+
+<!-- ══ 14 · ROADMAP ════════════════════════════ -->
+<section class="slide">
+  <div class="num">14</div>
+  <div class="eyebrow">Roadmap</div>
+  <h1>Five phases. <span class="lite">Each one independently valuable.</span></h1>
+  <p class="lead" style="margin-top:18px;margin-bottom:40px">
+    Evolutionary, not revolutionary — every release is a complete product, deployable in
+    production, not an unfinished step toward one.
+  </p>
+  <div class="track">
+    <div class="grid g5">
+      <div class="phase done"><div class="pn">Phase 1 · built</div><h3>Community Foundation</h3><p>The core civic loop: issues, petitions, representatives, consultations, notifications. Live today.</p></div>
+      <div class="phase done"><div class="pn">Phase 2 · in progress</div><h3>Civic Participation</h3><p>Deeper engagement — funding campaigns, organizations, projects, CivicAI across every surface.</p></div>
+      <div class="phase"><div class="pn">Phase 3 · next</div><h3>Digital Identity &amp; Trust</h3><p>Verified civic identity and tamper-evident public records for high-stakes participation.</p></div>
+      <div class="phase"><div class="pn">Phase 4</div><h3>Government Operations</h3><p>Institutional workflows — commitment tracking, early-warning signals, service integration.</p></div>
+      <div class="phase"><div class="pn">Phase 5</div><h3>Open Civic Platform</h3><p>Multi-country deployments, open ecosystem, third-party civic applications on the API.</p></div>
+    </div>
+  </div>
+  <div class="fill"></div>
+  <div class="card">
+    <p style="font-size:14.5px">
+      <strong>Gate on all four, every phase:</strong> Does it solve a real civic problem? ·
+      Can communities deploy it today? · Does it strengthen trust? ·
+      Is it stable enough for organizations to rely upon?
+    </p>
+  </div>
+  <div class="foot"><span>CivicOS</span><span>Roadmap</span></div>
+</section>
+
+<!-- ══ 15 · TEAM ═══════════════════════════════ -->
+<section class="slide">
+  <div class="num">15</div>
+  <div class="eyebrow">Team</div>
+  <h1>Who is building this.</h1>
+  <div class="grid g3" style="margin-top:38px">
+    <div class="card">
+      <div class="kicker">Founder</div>
+      <h3 style="margin-bottom:8px"><span class="ph">[NAME]</span> — <span class="ph">[ROLE]</span></h3>
+      <p><span class="ph long">[One line: the credential that makes you the right person to build civic infrastructure — prior build, government relationship, years in the domain.]</span></p>
+    </div>
+    <div class="card">
+      <div class="kicker">Team member</div>
+      <h3 style="margin-bottom:8px"><span class="ph">[NAME]</span> — <span class="ph">[ROLE]</span></h3>
+      <p><span class="ph long">[Relevant background in one line.]</span></p>
+    </div>
+    <div class="card">
+      <div class="kicker">Advisors</div>
+      <h3 style="margin-bottom:8px"><span class="ph">[NAMES]</span></h3>
+      <p><span class="ph long">[Government, civil-society or govtech advisors — these carry unusual weight in this category.]</span></p>
+    </div>
+  </div>
+  <div class="fill"></div>
+  <div class="card accent">
+    <p style="font-size:15.5px;color:#dbe5f0">
+      <strong>What the code already says about the team:</strong> a five-service platform with
+      documented APIs, CI gates, an AI layer designed around human oversight, and a payments
+      ledger built to be replay-safe — shipped in months. Execution risk on the build is
+      largely retired.
+    </p>
+  </div>
+  <div class="foot"><span>CivicOS</span><span>Team</span></div>
+</section>
+
+<!-- ══ 16 · THE ASK ════════════════════════════ -->
+<section class="slide">
+  <div class="num">16</div>
+  <div class="eyebrow">The ask</div>
+  <h1>Raising <span class="ph" style="font-size:36px">[$ AMOUNT]</span> <span class="lite">to deploy what is already built.</span></h1>
+  <div class="grid g4" style="margin-top:40px;margin-bottom:30px">
+    <div class="card metric"><div class="big sm2"><span class="ph">[X]</span>%</div><div class="lbl">Pilot deployment &amp; government relations</div></div>
+    <div class="card metric"><div class="big sm2"><span class="ph">[X]</span>%</div><div class="lbl">Engineering — identity, trust layer, scale</div></div>
+    <div class="card metric"><div class="big sm2"><span class="ph">[X]</span>%</div><div class="lbl">Community growth &amp; civic partnerships</div></div>
+    <div class="card metric"><div class="big sm2"><span class="ph">[X]</span>%</div><div class="lbl">Operations, compliance &amp; runway</div></div>
+  </div>
+  <div class="grid g2">
+    <div class="card">
+      <div class="kicker">What this buys — <span class="ph">[N]</span> months</div>
+      <p style="font-size:14.5px;line-height:1.7">
+        <span class="ph">[N]</span> live pilot deployments · <span class="ph">[N]</span> paying institutions ·
+        <span class="ph">[N]</span> registered citizens · Phase 3 identity &amp; trust layer shipped ·
+        first <span class="ph">[$ ARR]</span> in recurring revenue
+      </p>
+    </div>
+    <div class="card">
+      <div class="kicker">Milestones that de-risk the next round</div>
+      <p style="font-size:14.5px;line-height:1.7">
+        Signed institutional contracts · demonstrated citizen retention · a measurable
+        improvement in one community's response rate — the metric this whole category
+        has never been able to show
+      </p>
+    </div>
+  </div>
+  <div class="foot"><span>CivicOS</span><span>The ask</span></div>
+</section>
+
+<!-- ══ 17 · CLOSING ════════════════════════════ -->
+<section class="slide closing">
+  <div class="glow" style="top:auto;bottom:-330px;left:-240px;right:auto"></div>
+  <div class="wordmark">Civic<span>OS</span></div>
+  <div class="rule" style="margin:30px auto 28px"></div>
+  <p class="lead" style="max-width:800px;font-size:23px;text-align:center">
+    Technology should not replace democratic institutions.<br>It should strengthen them.
+  </p>
+  <p class="sm" style="margin-top:30px;max-width:640px;text-align:center">
+    Just as digital infrastructure transformed how people move money, CivicOS is
+    building the infrastructure that transforms how people participate.
+  </p>
+  <div style="margin-top:46px;display:flex;gap:12px;justify-content:center">
+    <span class="pill"><span class="ph" style="border:none;background:none;padding:0">[EMAIL]</span></span>
+    <span class="pill grey"><span class="ph" style="border:none;background:none;padding:0">[PHONE]</span></span>
+    <span class="pill grey"><span class="ph" style="border:none;background:none;padding:0">[WEBSITE]</span></span>
+  </div>
+</section>
+
+</body>
+</html>
