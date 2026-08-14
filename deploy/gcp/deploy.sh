@@ -5,7 +5,7 @@
 #   Cloud Run       8 services (5 Go + 3 nginx static), all scale-to-zero
 #   Cloud SQL       PostgreSQL 16, db-f1-micro / 10GB HDD / zonal
 #   GCS             uploads bucket, mounted into community-service
-#   Secret Manager  JWT, SMTP, Gemini, Paystack, Flood Hub, DB password
+#   Secret Manager  JWT, SMTP, Gemini, Paystack, Flood Hub, Geocoding, DB password
 #
 # ~$10-13/month at launch traffic, nearly all of it Cloud SQL.
 #
@@ -29,6 +29,16 @@ APP_URL="${APP_URL:-https://civicos.ng}"
 # Consumer before floodforecasting.googleapis.com can even be enabled. Until
 # then leave the secret uncreated and community-service simply runs without
 # the feature. See docs/deploy-gcp.md.
+# Same conditional treatment as the flood key: an optional feature must
+# never be the reason a deploy of everything else fails.
+GEOCODE_SECRETS=""
+if gcloud secrets describe GOOGLE_GEOCODING_API_KEY --project="$PROJECT" >/dev/null 2>&1; then
+  GEOCODE_SECRETS=",GOOGLE_GEOCODING_API_KEY=GOOGLE_GEOCODING_API_KEY:latest"
+  echo "==> admin location lookup: ENABLED (Google Geocoding)"
+else
+  echo "==> admin location lookup: off (no GOOGLE_GEOCODING_API_KEY secret)"
+fi
+
 FLOOD_SECRETS=""
 FLOOD_ENV=""
 if gcloud secrets describe GOOGLE_FLOOD_API_KEY --project="$PROJECT" >/dev/null 2>&1; then
@@ -81,7 +91,7 @@ gcloud run deploy civicos-community --image="$REPO/community-service:latest" "${
   --add-volume=name=uploads,type=cloud-storage,bucket="$UPLOADS_BUCKET" \
   --add-volume-mount=volume=uploads,mount-path=/data \
   --set-env-vars="${ENVSEP}DATABASE_URL=${DB_URL}${FLOOD_ENV}" \
-  --set-secrets="JWT_SECRET=JWT_SECRET:latest${FLOOD_SECRETS}" 2>&1 | tail -2
+  --set-secrets="JWT_SECRET=JWT_SECRET:latest${FLOOD_SECRETS}${GEOCODE_SECRETS}" 2>&1 | tail -2
 
 echo "==> organization"
 gcloud run deploy civicos-organization --image="$REPO/organization-service:latest" "${COMMON[@]}" \

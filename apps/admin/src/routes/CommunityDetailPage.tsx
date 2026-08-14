@@ -2,6 +2,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft } from 'lucide-react';
 import { apiGet } from '../lib/api';
+import { CommunityLocationPanel } from '../components/CommunityLocationPanel';
 
 interface Community {
   id: string;
@@ -11,6 +12,9 @@ interface Community {
   lga: string;
   country: string;
   description?: string | null;
+  /** Set by an admin. Without it the community gets no flood forecasts. */
+  latitude?: number | null;
+  longitude?: number | null;
   createdAt: string;
 }
 
@@ -64,8 +68,10 @@ export function CommunityDetailPage() {
         {c.description && <p className="mt-2 text-sm text-slate-600">{c.description}</p>}
       </header>
 
+      <CommunityLocationPanel communityId={c.id} community={c} />
+
       <h2
-        className="text-xs font-semibold text-slate-500 mono mb-2"
+        className="text-xs font-semibold text-slate-500 mono mt-6 mb-2"
         style={{ letterSpacing: '0.16em' }}
       >
         PARTICIPATION

@@ -132,6 +132,20 @@ configuration, not credentials:
 | `FLOOD_REGION_CODE`           | `NG`    | CLDR region swept. One call covers the whole country.                                                                                                                                  |
 | `FLOOD_MATCH_RADIUS_KM`       | `50`    | How far a gauge can be from a community and still cover it.                                                                                                                            |
 
+### Location lookup for admins — optional
+
+`GOOGLE_GEOCODING_API_KEY`, treated exactly like the flood key: referenced
+only if the secret exists, so a missing one never fails the deploy. Enable
+the Geocoding API on the same project.
+
+It powers the "suggest a point" behaviour when an admin picks an LGA while
+creating a community. Without it the admin types coordinates by hand and
+the affordance is hidden rather than offered and broken.
+
+It produces a **suggestion, not an answer** — an LGA is a polygon and the
+geocoder returns roughly its centre, which can sit in farmland well away
+from the town or the river. The admin confirms on a map before saving.
+
 **No community gets a forecast until it has coordinates.** Everything else
 about a community is an administrative name; flood gauges are points. Set
 them per community with `PATCH /api/v1/communities/:id` as a

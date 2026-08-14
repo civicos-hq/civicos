@@ -177,6 +177,9 @@ func main() {
 	// Civic geography is admin-editable; coordinates decide who receives a
 	// flood forecast.
 	r.PATCH("/api/v1/communities/:id", authMiddleware, limitStandard, communityProxy)
+	// Location suggestion for the admin create form. Strict: it spends an
+	// upstream geocoding quota per call.
+	r.GET("/api/v1/communities/geocode", authMiddleware, limitStrict, communityProxy)
 	// Public: a flood forecast is exactly the thing someone should be able
 	// to read without an account.
 	r.GET("/api/v1/communities/:id/flood-alerts", communityProxy)

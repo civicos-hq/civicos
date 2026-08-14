@@ -66,7 +66,8 @@ func main() {
 
 	communityRepo := communities.NewRepository(db)
 	communitySvc := communities.NewService(communityRepo)
-	communityHandler := communities.NewHandler(communitySvc)
+	communityHandler := communities.NewHandler(communitySvc).
+		WithGeocoder(communities.NewGeocoder(cfg.GeocodingAPIKey))
 
 	// Shared audit writer — every service uses this Auditor to record
 	// admin actions to the identity-service-owned audit_logs table.

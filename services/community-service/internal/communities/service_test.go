@@ -391,3 +391,49 @@ func TestUpdateCoordinates(t *testing.T) {
 		t.Fatalf("expected coordinates cleared, got %v/%v", cleared.Latitude, cleared.Longitude)
 	}
 }
+
+// Coordinates supplied at creation go through the same validator as an
+// update. Two copies of these rules would drift, and the copy that drifts
+// is the one that lets a bad point in.
+func TestCreateAcceptsAndValidatesCoordinates(t *testing.T) {
+	repo := &fakeCommunityRepo{}
+	svc := NewService(repo)
+
+	created, err := svc.Create(CreateInput{
+		Name: "Makurdi", Slug: "makurdi", State: "Benue", LGA: "Makurdi",
+		Latitude: floatPtr(7.7322), Longitude: floatPtr(8.5391),
+	}, "admin-1")
+	if err != nil {
+		t.Fatalf("create with coordinates: %v", err)
+	}
+	if created.Latitude == nil || *created.Latitude != 7.7322 {
+		t.Fatalf("expected coordinates stored, got %v", created.Latitude)
+	}
+
+	// Omitting them entirely stays valid — a community can be located later.
+	if _, err := svc.Create(CreateInput{
+		Name: "Ikeja", Slug: "ikeja", State: "Lagos", LGA: "Ikeja",
+	}, "admin-1"); err != nil {
+		t.Fatalf("create without coordinates must be allowed: %v", err)
+	}
+
+	bad := []struct {
+		name string
+		in   CreateInput
+		want string
+	}{
+		{"half a pair", CreateInput{Name: "A", Slug: "a", State: "S", LGA: "L", Latitude: floatPtr(7)}, "INCOMPLETE_COORDINATES"},
+		{"null island", CreateInput{Name: "B", Slug: "b", State: "S", LGA: "L", Latitude: floatPtr(0), Longitude: floatPtr(0)}, "INVALID_COORDINATES"},
+		{"latitude range", CreateInput{Name: "C", Slug: "c", State: "S", LGA: "L", Latitude: floatPtr(91), Longitude: floatPtr(8)}, "INVALID_LATITUDE"},
+		{"longitude range", CreateInput{Name: "D", Slug: "d", State: "S", LGA: "L", Latitude: floatPtr(7), Longitude: floatPtr(181)}, "INVALID_LONGITUDE"},
+	}
+	for _, tc := range bad {
+		t.Run(tc.name, func(t *testing.T) {
+			_, err := svc.Create(tc.in, "admin-1")
+			var appErr *AppError
+			if !errorsAs(err, &appErr) || appErr.Code != tc.want {
+				t.Fatalf("expected %s, got %v", tc.want, err)
+			}
+		})
+	}
+}

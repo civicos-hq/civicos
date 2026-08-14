@@ -10,9 +10,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Handler struct{ svc *Service }
+type Handler struct {
+	svc      *Service
+	geocoder *Geocoder
+}
 
 func NewHandler(svc *Service) *Handler { return &Handler{svc: svc} }
+
+// WithGeocoder enables the location-suggestion endpoint. Optional: without
+// it the route still exists but reports that lookup is unconfigured, so
+// the admin UI can hide the affordance rather than offer a button that
+// always fails.
+func (h *Handler) WithGeocoder(g *Geocoder) *Handler {
+	h.geocoder = g
+	return h
+}
 
 // Roles permitted to create a community. Citizens browse and join; they
 // don't author. Orgs (NGO role) also don't — civic geography is not
@@ -26,6 +38,38 @@ func (h *Handler) RegisterRoutes(rg *gin.RouterGroup, auth, requireRole gin.Hand
 	// Same roles as create: civic geography is not citizen-editable, and
 	// coordinates decide who receives a flood warning.
 	rg.PATCH("/:id", auth, requireRole, h.update)
+	// Suggests a point for a state/LGA while an admin fills in the create
+	// form. Same roles as create — it spends an upstream geocoding quota
+	// and should not be an open lookup service.
+	//
+	// A static segment sharing a position with "/:id" is the shape Gin's
+	// router historically panicked on, and a panic here means the service
+	// never starts. It resolves correctly on this version; pinned by
+	// TestGeocodeRouteDoesNotConflictWithIDRoute so an upgrade cannot
+	// reintroduce it silently.
+	rg.GET("/geocode", auth, requireRole, h.geocode)
+}
+
+func (h *Handler) geocode(c *gin.Context) {
+	if h.geocoder == nil || !h.geocoder.Enabled() {
+		response.Error(c, http.StatusServiceUnavailable, "GEOCODING_UNAVAILABLE",
+			"Automatic location lookup is not configured. Enter coordinates manually.")
+		return
+	}
+	suggestion, err := h.geocoder.Lookup(c.Request.Context(), c.Query("state"), c.Query("lga"))
+	if err != nil {
+		var appErr *AppError
+		if errors.As(err, &appErr) {
+			response.Error(c, appErr.Status, appErr.Code, appErr.Message)
+			return
+		}
+		// Upstream failures are logged server-side, never echoed: the
+		// message can name the project and the key restriction.
+		response.Error(c, http.StatusBadGateway, "GEOCODING_FAILED",
+			"Location lookup failed. Enter coordinates manually.")
+		return
+	}
+	response.Success(c, http.StatusOK, gin.H{"suggestion": suggestion})
 }
 
 func (h *Handler) update(c *gin.Context) {
