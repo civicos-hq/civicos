@@ -40,6 +40,9 @@ const (
 	NotificationConsultationUpdate         NotificationType = "CONSULTATION_UPDATE"
 	NotificationAnnouncementUpdate         NotificationType = "ANNOUNCEMENT_UPDATE"
 	NotificationSystem                     NotificationType = "SYSTEM"
+	// NotificationFloodAlert carries a third-party flood forecast. Never
+	// CivicOS's own prediction — the body attributes Google Flood Hub.
+	NotificationFloodAlert NotificationType = "FLOOD_ALERT"
 
 	// ─── Community Funding (Phase 4) ───
 	//
@@ -68,13 +71,13 @@ type Notification struct {
 }
 
 type Community struct {
-	ID          string     `gorm:"type:uuid;primaryKey" json:"id"`
-	Name        string     `gorm:"not null" json:"name"`
-	Slug        string     `gorm:"uniqueIndex;not null" json:"slug"`
-	Description *string    `json:"description,omitempty"`
-	State       string     `gorm:"not null" json:"state"`
-	LGA         string     `gorm:"not null" json:"lga"`
-	Country     string     `gorm:"default:'Nigeria'" json:"country"`
+	ID          string  `gorm:"type:uuid;primaryKey" json:"id"`
+	Name        string  `gorm:"not null" json:"name"`
+	Slug        string  `gorm:"uniqueIndex;not null" json:"slug"`
+	Description *string `json:"description,omitempty"`
+	State       string  `gorm:"not null" json:"state"`
+	LGA         string  `gorm:"not null" json:"lga"`
+	Country     string  `gorm:"default:'Nigeria'" json:"country"`
 	// Latitude and Longitude locate the community as a point.
 	//
 	// Everything else here is an administrative NAME — "Lagos", "Ikeja" —
@@ -89,8 +92,8 @@ type Community struct {
 	// of a measurement.
 	//
 	// Set together or not at all — see communities.Service.Update.
-	Latitude  *float64 `gorm:"type:double precision" json:"latitude,omitempty"`
-	Longitude *float64 `gorm:"type:double precision" json:"longitude,omitempty"`
+	Latitude    *float64   `gorm:"type:double precision" json:"latitude,omitempty"`
+	Longitude   *float64   `gorm:"type:double precision" json:"longitude,omitempty"`
 	LogoURL     *string    `json:"logoUrl,omitempty"`
 	CreatedByID string     `gorm:"type:uuid;not null" json:"createdById"`
 	Issues      []Issue    `gorm:"foreignKey:CommunityID" json:"-"`
@@ -303,4 +306,63 @@ type Representative struct {
 	CreatedByID   string    `gorm:"type:uuid;not null" json:"createdById"`
 	CreatedAt     time.Time `json:"createdAt"`
 	UpdatedAt     time.Time `json:"updatedAt"`
+}
+
+// CommunityFloodAlert is the flood forecast currently attached to a
+// community, as issued by Google's Flood Forecasting API.
+//
+// Persisted rather than fetched on demand for three reasons: the upstream
+// is rate-limited (200 requests/minute for the whole platform), a citizen
+// opening the app during a flood must not depend on a third-party call
+// succeeding, and notifications fire on CHANGE — which needs a previous
+// value to compare against.
+//
+// One row per (community, gauge). A community near a confluence can be
+// covered by several gauges, and collapsing them would hide the one that
+// is rising.
+type CommunityFloodAlert struct {
+	ID          string `gorm:"type:uuid;primaryKey" json:"id"`
+	CommunityID string `gorm:"type:uuid;not null;uniqueIndex:idx_community_gauge;index" json:"communityId"`
+	GaugeID     string `gorm:"not null;uniqueIndex:idx_community_gauge" json:"gaugeId"`
+
+	// Severity and Trend are Google's values, stored verbatim. Not
+	// normalised into a CivicOS scale: a translation layer would make it
+	// our judgement rather than theirs, which is exactly the attribution
+	// this feature must not blur.
+	Severity string `gorm:"type:varchar(20);not null;index" json:"severity"`
+	Trend    string `gorm:"type:varchar(20)" json:"trend"`
+
+	// River and SiteName come from the gauge metadata and exist to make an
+	// alert legible. "The River Benue is forecast to flood" is actionable;
+	// "gauge hybas_1121455890" is not.
+	River    *string `json:"river,omitempty"`
+	SiteName *string `json:"siteName,omitempty"`
+
+	// DistanceKm is how far the gauge is from the community's point. Shown
+	// to the citizen, because a warning from a gauge 40km upstream means
+	// something different from one in town.
+	DistanceKm float64 `json:"distanceKm"`
+
+	GaugeLatitude  float64 `gorm:"type:double precision" json:"gaugeLatitude"`
+	GaugeLongitude float64 `gorm:"type:double precision" json:"gaugeLongitude"`
+
+	IssuedAt        time.Time  `json:"issuedAt"`
+	ForecastStartAt *time.Time `json:"forecastStartAt,omitempty"`
+	ForecastEndAt   *time.Time `json:"forecastEndAt,omitempty"`
+
+	// NotifiedSeverity records what citizens were last told, which is not
+	// the same as what the forecast last said. Without it an hourly poll
+	// re-notifies an unchanged SEVERE every hour until people mute CivicOS
+	// and miss the one that matters.
+	NotifiedSeverity *string    `gorm:"type:varchar(20)" json:"-"`
+	NotifiedAt       *time.Time `json:"-"`
+
+	// LastSeenAt is when the upstream last reported this pairing. A row
+	// that stops being reported is stale rather than safe — the UI hides
+	// it, but it is kept so an operator can tell "the forecast cleared"
+	// from "we stopped receiving forecasts".
+	LastSeenAt time.Time `gorm:"index" json:"lastSeenAt"`
+
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
