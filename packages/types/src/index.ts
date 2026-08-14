@@ -64,6 +64,8 @@ export enum NotificationType {
   COMMUNITY_UPDATE = 'COMMUNITY_UPDATE',
   CONSULTATION_UPDATE = 'CONSULTATION_UPDATE',
   ANNOUNCEMENT_UPDATE = 'ANNOUNCEMENT_UPDATE',
+  /** A third-party flood forecast. Never a CivicOS prediction. */
+  FLOOD_ALERT = 'FLOOD_ALERT',
   SYSTEM = 'SYSTEM',
 }
 
@@ -648,4 +650,39 @@ export interface OrgInvitationPreview {
   invitedByName: string;
   email: string;
   expiresAt: ISODateTime;
+}
+
+/** Google Flood Hub severity, stored and displayed verbatim. */
+export type FloodSeverity = 'ABOVE_NORMAL' | 'SEVERE' | 'EXTREME';
+export type FloodTrend = 'RISE' | 'FALL' | 'NO_CHANGE';
+
+/**
+ * A flood forecast attached to a community.
+ *
+ * Produced by Google's models, not CivicOS's — every surface that renders
+ * this must attribute it. `distanceKm` is shown because a warning from a
+ * gauge 40km upstream means something different from one in town.
+ */
+export interface CommunityFloodAlert {
+  id: UUID;
+  communityId: UUID;
+  gaugeId: string;
+  severity: FloodSeverity;
+  trend: FloodTrend;
+  river?: string;
+  siteName?: string;
+  distanceKm: number;
+  gaugeLatitude: number;
+  gaugeLongitude: number;
+  issuedAt: ISODateTime;
+  forecastStartAt?: ISODateTime;
+  forecastEndAt?: ISODateTime;
+  lastSeenAt: ISODateTime;
+}
+
+/** Travels with the data so any consumer carries the attribution. */
+export interface FloodAttribution {
+  source: string;
+  url: string;
+  disclaimer: string;
 }

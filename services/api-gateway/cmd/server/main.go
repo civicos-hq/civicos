@@ -174,6 +174,12 @@ func main() {
 
 	r.GET("/api/v1/communities", communityProxy)
 	r.GET("/api/v1/communities/:id", communityProxy)
+	// Civic geography is admin-editable; coordinates decide who receives a
+	// flood forecast.
+	r.PATCH("/api/v1/communities/:id", authMiddleware, limitStandard, communityProxy)
+	// Public: a flood forecast is exactly the thing someone should be able
+	// to read without an account.
+	r.GET("/api/v1/communities/:id/flood-alerts", communityProxy)
 	r.POST("/api/v1/communities", authMiddleware, limitCreate, communityProxy)
 
 	r.GET("/api/v1/issues", communityProxy)

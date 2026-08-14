@@ -1351,5 +1351,21 @@
     "gaps": "Abin da mai bayarwa bai iya sani ba tukuna",
     "badge": "Taƙaitawar AI · bisa abin da ka wallafa kaɗai",
     "error": "CivicAI bai iya taƙaita wannan kamfen a yanzu ba."
+  },
+  "floodAlert": {
+    "title": {
+      "EXTREME": "Ana hasashen haɗarin ambaliya mai tsanani kusa da kai",
+      "SEVERE": "Ana hasashen haɗarin ambaliya kusa da kai",
+      "ABOVE_NORMAL": "Ana hasashen matakin ruwa fiye da na yau da kullum"
+    },
+    "body": "Ana hasashen ruwa mai yawa a {{river}}, kimanin kilomita {{distance}} daga al'ummarka.",
+    "rising": "Ana hasashen ruwan zai ci gaba da hauhawa.",
+    "window": "Hasashen ya kai zuwa {{date}}.",
+    "aRiverNearby": "wani kogi kusa da kai",
+    "more_one": "Wata na'urar aunawa {{count}} kusa da kai ma tana bayar da rahoton ruwa mai yawa.",
+    "more_other": "Na'urorin aunawa {{count}} kusa da kai ma suna bayar da rahoton ruwa mai yawa.",
+    "attribution": "Google Flood Hub ne ya yi hasashen — ba hasashen CivicOS ba ne.",
+    "viewFloodHub": "Duba a Flood Hub",
+    "official": "Don gargaɗi na hukuma da abin da za a yi, bi NEMA da NiMet."
   }
 }

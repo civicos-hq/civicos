@@ -1351,5 +1351,21 @@
     "gaps": "Ohun tí olùrànlọ́wọ́ kò tíì lè mọ̀",
     "badge": "Àkópọ̀ AI · lórí ohun tí o ti tẹ̀jáde nìkan",
     "error": "CivicAI kò lè ṣàkópọ̀ ìpolongo yìí lọ́wọ́lọ́wọ́."
+  },
+  "floodAlert": {
+    "title": {
+      "EXTREME": "Ìkìlọ̀ ewu ìkún omi tí ó lágbára ní àyíká rẹ",
+      "SEVERE": "Ìkìlọ̀ ewu ìkún omi ní àyíká rẹ",
+      "ABOVE_NORMAL": "Ìpele omi tí ó ju àṣà lọ ní àyíká rẹ"
+    },
+    "body": "Wọ́n sọtẹ́lẹ̀ pé omi yóò ga ní {{river}}, ní nǹkan bí kìlómítà {{distance}} sí agbègbè rẹ.",
+    "rising": "Wọ́n sọtẹ́lẹ̀ pé omi yóò máa bá a lọ ní gígòkè.",
+    "window": "Àsọtẹ́lẹ̀ náà wà títí di {{date}}.",
+    "aRiverNearby": "odò kan nítòsí",
+    "more_one": "Ẹ̀rọ ìwọ̀n {{count}} mìíràn nítòsí rẹ náà ń ròyìn omi gíga.",
+    "more_other": "Àwọn ẹ̀rọ ìwọ̀n {{count}} mìíràn nítòsí rẹ náà ń ròyìn omi gíga.",
+    "attribution": "Google Flood Hub ni ó sọtẹ́lẹ̀ — kì í ṣe àsọtẹ́lẹ̀ CivicOS.",
+    "viewFloodHub": "Wò ó lórí Flood Hub",
+    "official": "Fún ìkìlọ̀ ìjọba àti ohun tí o gbọ́dọ̀ ṣe, tẹ̀lé NEMA àti NiMet."
   }
 }

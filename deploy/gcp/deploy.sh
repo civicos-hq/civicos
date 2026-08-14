@@ -5,7 +5,7 @@
 #   Cloud Run       8 services (5 Go + 3 nginx static), all scale-to-zero
 #   Cloud SQL       PostgreSQL 16, db-f1-micro / 10GB HDD / zonal
 #   GCS             uploads bucket, mounted into community-service
-#   Secret Manager  JWT, SMTP, Gemini, Paystack, DB password
+#   Secret Manager  JWT, SMTP, Gemini, Paystack, Flood Hub, DB password
 #
 # ~$10-13/month at launch traffic, nearly all of it Cloud SQL.
 #
@@ -19,6 +19,25 @@ SQL_INSTANCE="${SQL_INSTANCE:-civicos-pg}"
 CONN="${PROJECT}:${REGION}:${SQL_INSTANCE}"
 UPLOADS_BUCKET="${UPLOADS_BUCKET:-civicos-ng-prod-uploads}"
 APP_URL="${APP_URL:-https://civicos.ng}"
+
+# Flood forecasts are optional infrastructure. The secret is referenced only
+# if it actually exists, because --set-secrets against a missing secret fails
+# the whole deploy — and this feature must never be the reason a release of
+# everything else does not ship.
+#
+# Access is not self-serve: Google must add your account as a Service
+# Consumer before floodforecasting.googleapis.com can even be enabled. Until
+# then leave the secret uncreated and community-service simply runs without
+# the feature. See docs/deploy-gcp.md.
+FLOOD_SECRETS=""
+FLOOD_ENV=""
+if gcloud secrets describe GOOGLE_FLOOD_API_KEY --project="$PROJECT" >/dev/null 2>&1; then
+  FLOOD_SECRETS=",GOOGLE_FLOOD_API_KEY=GOOGLE_FLOOD_API_KEY:latest"
+  FLOOD_ENV="##FLOOD_POLL_INTERVAL_MINUTES=${FLOOD_POLL_INTERVAL_MINUTES:-60}##FLOOD_REGION_CODE=${FLOOD_REGION_CODE:-NG}##FLOOD_MATCH_RADIUS_KM=${FLOOD_MATCH_RADIUS_KM:-50}"
+  echo "==> flood forecasts: ENABLED (Google Flood Hub)"
+else
+  echo "==> flood forecasts: off (no GOOGLE_FLOOD_API_KEY secret)"
+fi
 
 # The DB password lives in Secret Manager; pull it rather than keeping a copy.
 DBPASS="$(gcloud secrets versions access latest --secret=DB_PASSWORD --project="$PROJECT")"
@@ -61,8 +80,8 @@ gcloud run deploy civicos-community --image="$REPO/community-service:latest" "${
   --add-cloudsql-instances="$CONN" \
   --add-volume=name=uploads,type=cloud-storage,bucket="$UPLOADS_BUCKET" \
   --add-volume-mount=volume=uploads,mount-path=/data \
-  --set-env-vars="${ENVSEP}DATABASE_URL=${DB_URL}" \
-  --set-secrets="JWT_SECRET=JWT_SECRET:latest" 2>&1 | tail -2
+  --set-env-vars="${ENVSEP}DATABASE_URL=${DB_URL}${FLOOD_ENV}" \
+  --set-secrets="JWT_SECRET=JWT_SECRET:latest${FLOOD_SECRETS}" 2>&1 | tail -2
 
 echo "==> organization"
 gcloud run deploy civicos-organization --image="$REPO/organization-service:latest" "${COMMON[@]}" \

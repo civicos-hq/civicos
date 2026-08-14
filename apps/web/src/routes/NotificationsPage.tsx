@@ -24,6 +24,9 @@ const TYPE_TONE: Record<NotificationType, string> = {
     'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300',
   [NotificationType.ANNOUNCEMENT_UPDATE]:
     'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300',
+  // Red, and the only notification type that gets it. A flood forecast
+  // should not look like a petition milestone in the tray.
+  [NotificationType.FLOOD_ALERT]: 'bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-300',
   [NotificationType.SYSTEM]: 'bg-slate-200 text-slate-700 dark:bg-slate-500/15 dark:text-slate-300',
 };
 

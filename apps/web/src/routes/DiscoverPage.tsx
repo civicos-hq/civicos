@@ -29,6 +29,7 @@ import { useRelativeTime } from '../hooks/useRelativeTime';
 import { PageHeader, useTodayMeta } from '../components/PageHeader';
 import { EmptyState } from '../components/EmptyState';
 import { CommunityGate, CommunityGateLink } from '../components/CommunityGate';
+import { FloodAlertBanner } from '../components/civic/FloodAlertBanner';
 
 type Tier = 'COMMUNITY' | 'LGA' | 'STATE' | 'COUNTRY';
 
@@ -196,6 +197,11 @@ export function DiscoverPage() {
 
   return (
     <section className="space-y-6">
+      {/* Above the feed on purpose. A flood forecast outranks anything
+          else on this page, and burying it under the tier filters would
+          make it something you scroll past. */}
+      <FloodAlertBanner communityId={communityId} />
+
       <PageHeader
         eyebrow={t('discoverPage.eyebrow')}
         title={t('discoverPage.title')}

@@ -2226,5 +2226,21 @@
     "gaps": "What a donor can't tell yet",
     "badge": "AI summary · based only on what you have published",
     "error": "CivicAI could not summarise this campaign right now."
+  },
+  "floodAlert": {
+    "title": {
+      "EXTREME": "Extreme flood risk forecast near you",
+      "SEVERE": "Severe flood risk forecast near you",
+      "ABOVE_NORMAL": "Above-normal water levels forecast near you"
+    },
+    "body": "High water levels are forecast on {{river}}, about {{distance}}km from your community.",
+    "rising": "Levels are forecast to keep rising.",
+    "window": "Forecast runs through {{date}}.",
+    "aRiverNearby": "a river nearby",
+    "more_one": "{{count}} other gauge near you is also reporting high water.",
+    "more_other": "{{count}} other gauges near you are also reporting high water.",
+    "attribution": "Forecast by Google Flood Hub — not a CivicOS prediction.",
+    "viewFloodHub": "View on Flood Hub",
+    "official": "For official warnings and what to do, follow NEMA and NiMet."
   }
 }

@@ -1351,5 +1351,21 @@
     "gaps": "Ihe onye nyere onyinye na-apụghị ịmata",
     "badge": "Nchịkọta AI · naanị site na ihe ị bipụtara",
     "error": "CivicAI enweghị ike ịchịkọta mkpọsa a ugbu a."
+  },
+  "floodAlert": {
+    "title": {
+      "EXTREME": "A na-atụ anya oke ihe egwu idei mmiri nso gị",
+      "SEVERE": "A na-atụ anya ihe egwu idei mmiri siri ike nso gị",
+      "ABOVE_NORMAL": "A na-atụ anya mmiri karịrị nke a na-ahụkarị nso gị"
+    },
+    "body": "A na-atụ anya mmiri dị elu na {{river}}, ihe dịka kilomita {{distance}} site na obodo gị.",
+    "rising": "A na-atụ anya na mmiri ga-anọgide na-arị elu.",
+    "window": "Amụma a na-agba ruo {{date}}.",
+    "aRiverNearby": "otu osimiri dị nso",
+    "more_one": "Igwe nlele {{count}} ọzọ dị nso gị na-akọkwa mmiri dị elu.",
+    "more_other": "Igwe nlele {{count}} ọzọ dị nso gị na-akọkwa mmiri dị elu.",
+    "attribution": "Google Flood Hub buru amụma a — ọ bụghị amụma CivicOS.",
+    "viewFloodHub": "Lee ya na Flood Hub",
+    "official": "Maka ịdọ aka ná ntị gọọmentị na ihe ị ga-eme, soro NEMA na NiMet."
   }
 }
