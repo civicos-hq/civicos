@@ -35,6 +35,47 @@ type CreateInput struct {
 	State       string  `json:"state" binding:"required"`
 	LGA         string  `json:"lga" binding:"required"`
 	Description *string `json:"description"`
+	// Optional at creation. Supplying them here saves a second trip and,
+	// more importantly, means a community can be flood-eligible from the
+	// moment it exists rather than silently excluded until someone
+	// remembers to go back and locate it.
+	Latitude  *float64 `json:"latitude"`
+	Longitude *float64 `json:"longitude"`
+}
+
+// validateCoordinates enforces the rules a stored point must satisfy.
+//
+// Shared by create and update deliberately: two copies would drift, and
+// the copy that drifts is the one that lets a bad point in. A bad point
+// here means a flood warning aimed at the wrong town.
+func validateCoordinates(lat, lng *float64) error {
+	if lat == nil && lng == nil {
+		return nil
+	}
+	if lat == nil || lng == nil {
+		return &AppError{
+			Code:    "INCOMPLETE_COORDINATES",
+			Message: "Latitude and longitude must be provided together",
+			Status:  http.StatusBadRequest,
+		}
+	}
+	if *lat < -90 || *lat > 90 {
+		return &AppError{Code: "INVALID_LATITUDE", Message: "Latitude must be between -90 and 90", Status: http.StatusBadRequest}
+	}
+	if *lng < -180 || *lng > 180 {
+		return &AppError{Code: "INVALID_LONGITUDE", Message: "Longitude must be between -180 and 180", Status: http.StatusBadRequest}
+	}
+	// 0,0 is in the Gulf of Guinea. It is what an uninitialised pair of
+	// floats looks like, and for a feature that decides who gets a flood
+	// warning, accepting it would put a community in the ocean.
+	if *lat == 0 && *lng == 0 {
+		return &AppError{
+			Code:    "INVALID_COORDINATES",
+			Message: "0, 0 is not a valid location. Leave coordinates unset if you do not have them.",
+			Status:  http.StatusBadRequest,
+		}
+	}
+	return nil
 }
 
 // ListResult carries the page plus enough metadata for the caller to page
@@ -120,28 +161,8 @@ func (s *Service) Update(id string, in UpdateInput) (*domain.Community, error) {
 		updates["latitude"] = nil
 		updates["longitude"] = nil
 	case in.Latitude != nil || in.Longitude != nil:
-		if in.Latitude == nil || in.Longitude == nil {
-			return nil, &AppError{
-				Code:    "INCOMPLETE_COORDINATES",
-				Message: "Latitude and longitude must be provided together",
-				Status:  http.StatusBadRequest,
-			}
-		}
-		if *in.Latitude < -90 || *in.Latitude > 90 {
-			return nil, &AppError{Code: "INVALID_LATITUDE", Message: "Latitude must be between -90 and 90", Status: http.StatusBadRequest}
-		}
-		if *in.Longitude < -180 || *in.Longitude > 180 {
-			return nil, &AppError{Code: "INVALID_LONGITUDE", Message: "Longitude must be between -180 and 180", Status: http.StatusBadRequest}
-		}
-		// 0,0 is in the Gulf of Guinea. It is what an uninitialised pair of
-		// floats looks like, and for a feature that decides who gets a
-		// flood warning, accepting it would put a community in the ocean.
-		if *in.Latitude == 0 && *in.Longitude == 0 {
-			return nil, &AppError{
-				Code:    "INVALID_COORDINATES",
-				Message: "0, 0 is not a valid location. Leave coordinates unset if you do not have them.",
-				Status:  http.StatusBadRequest,
-			}
+		if err := validateCoordinates(in.Latitude, in.Longitude); err != nil {
+			return nil, err
 		}
 		updates["latitude"] = *in.Latitude
 		updates["longitude"] = *in.Longitude
@@ -164,6 +185,9 @@ func (s *Service) Get(id string) (*domain.Community, error) {
 }
 
 func (s *Service) Create(input CreateInput, createdByID string) (*domain.Community, error) {
+	if err := validateCoordinates(input.Latitude, input.Longitude); err != nil {
+		return nil, err
+	}
 	c := &domain.Community{
 		ID:          uuid.New().String(),
 		Name:        input.Name,
@@ -171,6 +195,8 @@ func (s *Service) Create(input CreateInput, createdByID string) (*domain.Communi
 		State:       input.State,
 		LGA:         input.LGA,
 		Description: input.Description,
+		Latitude:    input.Latitude,
+		Longitude:   input.Longitude,
 		CreatedByID: createdByID,
 	}
 	return c, s.repo.Create(c)

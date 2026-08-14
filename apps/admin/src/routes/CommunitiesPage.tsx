@@ -11,8 +11,13 @@ interface AdminCommunity {
   state: string;
   lga: string;
   country: string;
+  latitude?: number | null;
+  longitude?: number | null;
   createdAt: string;
 }
+
+const isLocated = (c: AdminCommunity) =>
+  typeof c.latitude === 'number' && typeof c.longitude === 'number';
 
 interface ListResponse {
   communities: AdminCommunity[];
@@ -21,6 +26,10 @@ interface ListResponse {
 export function CommunitiesPage() {
   const [q, setQ] = useState('');
   const [state, setState] = useState('');
+  // "Which communities are silently receiving no flood forecasts?" is the
+  // question an operator needs to be able to ask, and there was no way to
+  // ask it — an unlocated community fails quiet by design.
+  const [onlyUnlocated, setOnlyUnlocated] = useState(false);
 
   const query = useQuery({
     queryKey: ['admin-communities', state],
@@ -31,9 +40,14 @@ export function CommunitiesPage() {
     },
   });
 
-  const rows = (query.data?.communities ?? []).filter((c) =>
-    q ? c.name.toLowerCase().includes(q.toLowerCase()) || c.slug.includes(q.toLowerCase()) : true,
-  );
+  const all = query.data?.communities ?? [];
+  const rows = all
+    .filter((c) =>
+      q ? c.name.toLowerCase().includes(q.toLowerCase()) || c.slug.includes(q.toLowerCase()) : true,
+    )
+    .filter((c) => (onlyUnlocated ? !isLocated(c) : true));
+
+  const unlocatedCount = all.filter((c) => !isLocated(c)).length;
 
   return (
     <>
@@ -69,8 +83,30 @@ export function CommunitiesPage() {
             value={state}
             onChange={(e) => setState(e.target.value)}
           />
+          <label className="flex items-center gap-1.5 text-xs text-slate-600">
+            <input
+              type="checkbox"
+              checked={onlyUnlocated}
+              onChange={(e) => setOnlyUnlocated(e.target.checked)}
+            />
+            No coordinates
+          </label>
           <span className="text-xs text-slate-500 mono">{rows.length} shown</span>
         </div>
+
+        {unlocatedCount > 0 && !onlyUnlocated && (
+          <div className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-900">
+            <strong>{unlocatedCount}</strong> of {all.length} communities have no coordinates and
+            are excluded from flood forecasts.{' '}
+            <button
+              type="button"
+              className="font-semibold underline"
+              onClick={() => setOnlyUnlocated(true)}
+            >
+              Show them
+            </button>
+          </div>
+        )}
 
         {query.isLoading ? (
           <div className="admin-empty">Loading…</div>
@@ -82,6 +118,7 @@ export function CommunitiesPage() {
               <tr>
                 <th>Name</th>
                 <th>State / LGA</th>
+                <th>Location</th>
                 <th>Slug</th>
                 <th>Created</th>
               </tr>
@@ -100,6 +137,21 @@ export function CommunitiesPage() {
                   <td>
                     <div>{c.state}</div>
                     <div className="text-xs text-slate-500">{c.lga}</div>
+                  </td>
+                  <td>
+                    {isLocated(c) ? (
+                      <span className="mono text-xs text-slate-600">
+                        {c.latitude!.toFixed(3)}, {c.longitude!.toFixed(3)}
+                      </span>
+                    ) : (
+                      <Link
+                        to={`/communities/${c.id}`}
+                        className="text-xs font-medium text-amber-700 hover:underline"
+                        title="No coordinates — excluded from flood forecasts"
+                      >
+                        Not set
+                      </Link>
+                    )}
                   </td>
                   <td className="mono text-xs text-slate-600">{c.slug}</td>
                   <td className="mono text-xs text-slate-500">

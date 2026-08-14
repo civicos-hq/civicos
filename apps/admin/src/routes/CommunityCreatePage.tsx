@@ -2,7 +2,8 @@ import { useMemo, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { ArrowLeft, MapPin, ShieldAlert } from 'lucide-react';
-import { apiPost } from '../lib/api';
+import { apiGet, apiPost } from '../lib/api';
+import { CoordinateField, type Suggestion } from '../components/CoordinateField';
 import { NIGERIAN_STATES } from '../data/nigeria';
 
 interface CommunityResponse {
@@ -29,6 +30,38 @@ export function CommunityCreatePage() {
   const [description, setDescription] = useState('');
   const [error, setError] = useState<string | null>(null);
 
+  // Coordinates decide whether this community will ever receive a flood
+  // forecast. Optional here so creating one is not blocked on knowing
+  // them, but offered up front so it is not silently forgotten.
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [suggestion, setSuggestion] = useState<Suggestion | null>(null);
+  const [suggestState, setSuggestState] = useState<'idle' | 'loading' | 'unavailable' | 'none'>(
+    'idle',
+  );
+
+  // Ask for a suggested point when the LGA is chosen. A suggestion, not an
+  // answer: an LGA is a polygon and this returns roughly its centre, which
+  // may be nowhere near the town or the river. The admin confirms on a map
+  // before it is saved.
+  async function suggestLocation(nextState: string, nextLga: string) {
+    if (!nextState || !nextLga) return;
+    setSuggestState('loading');
+    setSuggestion(null);
+    try {
+      const res = await apiGet<{ suggestion: Suggestion }>(
+        `/api/v1/communities/geocode?state=${encodeURIComponent(nextState)}&lga=${encodeURIComponent(nextLga)}`,
+      );
+      setSuggestion(res.suggestion);
+      setCoords({ lat: res.suggestion.latitude, lng: res.suggestion.longitude });
+      setSuggestState('idle');
+    } catch (err) {
+      const code = (err as { response?: { data?: { code?: string } } })?.response?.data?.code;
+      // Not configured is a different message from not found, and both are
+      // ordinary outcomes rather than errors — the admin types the point.
+      setSuggestState(code === 'GEOCODING_UNAVAILABLE' ? 'unavailable' : 'none');
+    }
+  }
+
   const lgaOptions = useMemo(
     () => NIGERIAN_STATES.find((s) => s.name === state)?.lgas ?? [],
     [state],
@@ -42,6 +75,7 @@ export function CommunityCreatePage() {
         state,
         lga,
         description: description.trim() || undefined,
+        ...(coords ? { latitude: coords.lat, longitude: coords.lng } : {}),
       }),
     onSuccess: (data) => {
       navigate(`/communities/${data.community.id}`);
@@ -164,7 +198,10 @@ export function CommunityCreatePage() {
                 id="c-lga"
                 className="admin-table-search"
                 value={lga}
-                onChange={(e) => setLga(e.target.value)}
+                onChange={(e) => {
+                  setLga(e.target.value);
+                  void suggestLocation(state, e.target.value);
+                }}
                 required
                 disabled={!state}
               >
@@ -177,6 +214,15 @@ export function CommunityCreatePage() {
               </select>
             </div>
           </div>
+
+          <CoordinateField
+            value={coords}
+            onChange={setCoords}
+            suggestion={suggestion}
+            status={suggestState}
+            onRetry={() => void suggestLocation(state, lga)}
+            canRetry={Boolean(state && lga)}
+          />
 
           <div className="flex flex-col gap-1">
             <label className="text-sm font-medium text-slate-700" htmlFor="c-desc">

@@ -22,6 +22,11 @@ type Config struct {
 	// Forecasting API is in pilot and that breaking changes should be
 	// expected, so an operator needs to stop consuming it without a
 	// deploy.
+	// GeocodingAPIKey powers the admin "suggest a location" button when
+	// creating a community. Optional — without it admins type coordinates
+	// by hand and the button is hidden.
+	GeocodingAPIKey string
+
 	FloodAPIKey        string
 	FloodPollMinutes   int
 	FloodRegionCode    string
@@ -43,6 +48,7 @@ func Load() *Config {
 		DatabaseURL: require("DATABASE_URL"),
 		JWTSecret:   require("JWT_SECRET"),
 
+		GeocodingAPIKey:    os.Getenv("GOOGLE_GEOCODING_API_KEY"),
 		FloodAPIKey:        os.Getenv("GOOGLE_FLOOD_API_KEY"),
 		FloodPollMinutes:   getInt("FLOOD_POLL_INTERVAL_MINUTES", 60),
 		FloodRegionCode:    getStr("FLOOD_REGION_CODE", "NG"),
