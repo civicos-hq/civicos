@@ -11,6 +11,7 @@ import (
 
 type CommunityStore interface {
 	Search(p SearchParams) ([]domain.Community, int64, error)
+	Update(id string, updates map[string]any) error
 	FindByID(id string) (*domain.Community, error)
 	FindByIDs(ids []string) ([]domain.Community, error)
 	Create(c *domain.Community) error
@@ -78,6 +79,80 @@ func (s *Service) Resolve(ids []string) ([]domain.Community, error) {
 		}
 	}
 	return found, nil
+}
+
+// UpdateInput is the admin-editable surface of a community.
+//
+// Coordinates are the reason this exists: flood forecasts arrive as
+// lat/lng and a community stored only as "Lagos / Ikeja" cannot be matched
+// to one. There was no update endpoint at all before — communities were
+// create-only — so an admin had no way to supply them.
+type UpdateInput struct {
+	Description *string `json:"description"`
+	LogoURL     *string `json:"logoUrl"`
+	// Latitude and Longitude must be sent together. Sending one alone is
+	// rejected rather than stored, because half a coordinate is not a
+	// location and silently keeping the stale other half would place the
+	// community somewhere nobody chose.
+	Latitude  *float64 `json:"latitude"`
+	Longitude *float64 `json:"longitude"`
+	// ClearCoordinates removes the point. Distinguishable from "not
+	// supplied" only by an explicit flag, since a nil pointer already means
+	// "leave alone" for every other field here.
+	ClearCoordinates bool `json:"clearCoordinates"`
+}
+
+func (s *Service) Update(id string, in UpdateInput) (*domain.Community, error) {
+	if _, err := s.Get(id); err != nil {
+		return nil, err
+	}
+
+	updates := map[string]any{}
+	if in.Description != nil {
+		updates["description"] = *in.Description
+	}
+	if in.LogoURL != nil {
+		updates["logo_url"] = *in.LogoURL
+	}
+
+	switch {
+	case in.ClearCoordinates:
+		updates["latitude"] = nil
+		updates["longitude"] = nil
+	case in.Latitude != nil || in.Longitude != nil:
+		if in.Latitude == nil || in.Longitude == nil {
+			return nil, &AppError{
+				Code:    "INCOMPLETE_COORDINATES",
+				Message: "Latitude and longitude must be provided together",
+				Status:  http.StatusBadRequest,
+			}
+		}
+		if *in.Latitude < -90 || *in.Latitude > 90 {
+			return nil, &AppError{Code: "INVALID_LATITUDE", Message: "Latitude must be between -90 and 90", Status: http.StatusBadRequest}
+		}
+		if *in.Longitude < -180 || *in.Longitude > 180 {
+			return nil, &AppError{Code: "INVALID_LONGITUDE", Message: "Longitude must be between -180 and 180", Status: http.StatusBadRequest}
+		}
+		// 0,0 is in the Gulf of Guinea. It is what an uninitialised pair of
+		// floats looks like, and for a feature that decides who gets a
+		// flood warning, accepting it would put a community in the ocean.
+		if *in.Latitude == 0 && *in.Longitude == 0 {
+			return nil, &AppError{
+				Code:    "INVALID_COORDINATES",
+				Message: "0, 0 is not a valid location. Leave coordinates unset if you do not have them.",
+				Status:  http.StatusBadRequest,
+			}
+		}
+		updates["latitude"] = *in.Latitude
+		updates["longitude"] = *in.Longitude
+	}
+
+	if len(updates) > 0 {
+		if err := s.repo.Update(id, updates); err != nil {
+			return nil, err
+		}
+	}
+	return s.Get(id)
 }
 
 func (s *Service) Get(id string) (*domain.Community, error) {

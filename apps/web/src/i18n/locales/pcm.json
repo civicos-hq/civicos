@@ -1580,5 +1580,21 @@
     "gaps": "Wetin donor never fit tell",
     "badge": "AI summary · na only wetin you publish e take",
     "error": "CivicAI no fit summarise dis campaign now."
+  },
+  "floodAlert": {
+    "title": {
+      "EXTREME": "Extreme flood risk dey forecast near you",
+      "SEVERE": "Serious flood risk dey forecast near you",
+      "ABOVE_NORMAL": "Water level pass normal for your area"
+    },
+    "body": "Dem forecast say water go high for {{river}}, about {{distance}}km from your community.",
+    "rising": "Dem talk say di water go still dey rise.",
+    "window": "Di forecast go run reach {{date}}.",
+    "aRiverNearby": "one river near you",
+    "more_one": "{{count}} other gauge near you dey also report high water.",
+    "more_other": "{{count}} other gauges near you dey also report high water.",
+    "attribution": "Na Google Flood Hub forecast am — no be CivicOS prediction.",
+    "viewFloodHub": "See am for Flood Hub",
+    "official": "For official warning and wetin you go do, follow NEMA and NiMet."
   }
 }

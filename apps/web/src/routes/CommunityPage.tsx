@@ -9,6 +9,7 @@ import { useCommunities, useCommunitiesByID } from '../hooks/useCommunities';
 import { useMe } from '../hooks/useMe';
 import { PageHeader, useTodayMeta } from '../components/PageHeader';
 import { EmptyState } from '../components/EmptyState';
+import { FloodAlertBanner } from '../components/civic/FloodAlertBanner';
 import { Home, Crown, Search } from 'lucide-react';
 
 // Communities are civic geography — the canonical list is managed by
@@ -116,6 +117,8 @@ export function CommunityPage() {
         }
         meta={meta}
       />
+
+      <FloodAlertBanner communityId={me?.activeCommunityId} />
 
       {/* Only the membership lookup gates the page. The browse list has
           its own loading state, so a slow search must not blank out the

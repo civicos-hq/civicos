@@ -306,3 +306,88 @@ func errorsAs(err error, target **AppError) bool {
 	}
 	return false
 }
+
+func (f *fakeCommunityRepo) Update(id string, updates map[string]any) error {
+	for i := range f.items {
+		if f.items[i].ID != id {
+			continue
+		}
+		if v, ok := updates["latitude"]; ok {
+			if v == nil {
+				f.items[i].Latitude = nil
+			} else {
+				lat := v.(float64)
+				f.items[i].Latitude = &lat
+			}
+		}
+		if v, ok := updates["longitude"]; ok {
+			if v == nil {
+				f.items[i].Longitude = nil
+			} else {
+				lng := v.(float64)
+				f.items[i].Longitude = &lng
+			}
+		}
+		return nil
+	}
+	return gorm.ErrRecordNotFound
+}
+
+func floatPtr(v float64) *float64 { return &v }
+
+// Coordinates exist so a community can be matched to a flood gauge, which
+// arrives as a point. Everything here guards against storing a location
+// nobody chose.
+func TestUpdateCoordinates(t *testing.T) {
+	repo := &fakeCommunityRepo{}
+	svc := NewService(repo)
+	c := seed(t, svc, "Makurdi", "makurdi", "Benue", "Makurdi")
+
+	got, err := svc.Update(c.ID, UpdateInput{Latitude: floatPtr(7.7322), Longitude: floatPtr(8.5391)})
+	if err != nil {
+		t.Fatalf("set coordinates: %v", err)
+	}
+	if got.Latitude == nil || *got.Latitude != 7.7322 {
+		t.Fatalf("expected latitude stored, got %v", got.Latitude)
+	}
+
+	// Half a coordinate is not a location.
+	_, err = svc.Update(c.ID, UpdateInput{Latitude: floatPtr(9.0)})
+	var appErr *AppError
+	if !errorsAs(err, &appErr) || appErr.Code != "INCOMPLETE_COORDINATES" {
+		t.Fatalf("expected INCOMPLETE_COORDINATES, got %v", err)
+	}
+
+	// 0,0 is the Gulf of Guinea and is what uninitialised floats look like.
+	_, err = svc.Update(c.ID, UpdateInput{Latitude: floatPtr(0), Longitude: floatPtr(0)})
+	if !errorsAs(err, &appErr) || appErr.Code != "INVALID_COORDINATES" {
+		t.Fatalf("expected INVALID_COORDINATES, got %v", err)
+	}
+
+	for _, bad := range []UpdateInput{
+		{Latitude: floatPtr(91), Longitude: floatPtr(8)},
+		{Latitude: floatPtr(7), Longitude: floatPtr(181)},
+	} {
+		if _, err := svc.Update(c.ID, bad); err == nil {
+			t.Fatalf("expected out-of-range coordinates to fail: %+v", bad)
+		}
+	}
+
+	// The failed attempts must not have disturbed the good value.
+	after, err := svc.Get(c.ID)
+	if err != nil {
+		t.Fatalf("get: %v", err)
+	}
+	if after.Latitude == nil || *after.Latitude != 7.7322 {
+		t.Fatalf("a rejected update must leave the stored point alone, got %v", after.Latitude)
+	}
+
+	// Clearing is explicit, because a nil pointer already means "leave it".
+	cleared, err := svc.Update(c.ID, UpdateInput{ClearCoordinates: true})
+	if err != nil {
+		t.Fatalf("clear: %v", err)
+	}
+	if cleared.Latitude != nil || cleared.Longitude != nil {
+		t.Fatalf("expected coordinates cleared, got %v/%v", cleared.Latitude, cleared.Longitude)
+	}
+}

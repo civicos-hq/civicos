@@ -81,6 +81,73 @@ Vite inlines `VITE_API_URL` at **build** time. The frontends therefore take the
 gateway URL as a Docker build arg, and **changing the gateway URL means
 rebuilding the images**, not just redeploying them.
 
+### Flood forecasts (Google Flood Hub) — optional
+
+Off unless a `GOOGLE_FLOOD_API_KEY` secret exists. The deploy script checks
+for it and, if absent, deploys `community-service` without the feature — a
+missing secret referenced by `--set-secrets` fails the whole deploy, and
+flood forecasts must never be the reason a release of everything else
+doesn't ship.
+
+**Access is not self-serve.** The Flood Forecasting API is in pilot and
+Google must add your account as a _Service Consumer_ before
+`floodforecasting.googleapis.com` can be enabled at all. If the enable page
+404s or says you lack access, that is what has not happened yet — it is not
+a project misconfiguration. Merging the code does not turn the feature on;
+Google granting access does.
+
+Once you have access:
+
+```bash
+# 1. Enable the API in the same project the rest of CivicOS runs in.
+gcloud services enable floodforecasting.googleapis.com --project=civicos-ng-prod
+
+# 2. Create a key and restrict it to that one API. An unrestricted key that
+#    leaks is a key to every API enabled on the project.
+gcloud alpha services api-keys create \
+  --display-name="CivicOS Flood Hub" \
+  --api-target=service=floodforecasting.googleapis.com \
+  --project=civicos-ng-prod
+
+# 3. Store it. The key string is in the `keyString` field of the output above.
+printf '%s' 'AIza...' | gcloud secrets create GOOGLE_FLOOD_API_KEY \
+  --data-file=- --project=civicos-ng-prod
+
+# 4. Let Cloud Run read it.
+gcloud secrets add-iam-policy-binding GOOGLE_FLOOD_API_KEY \
+  --member="serviceAccount:$(gcloud projects describe civicos-ng-prod \
+     --format='value(projectNumber)')-compute@developer.gserviceaccount.com" \
+  --role=roles/secretmanager.secretAccessor --project=civicos-ng-prod
+
+# 5. Redeploy. The script picks the secret up automatically.
+./deploy/gcp/deploy.sh
+```
+
+Three tuning variables ride along as plain env vars, not secrets — they are
+configuration, not credentials:
+
+| Variable                      | Default | What it does                                                                                                                                                                           |
+| ----------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `FLOOD_POLL_INTERVAL_MINUTES` | `60`    | Sweep cadence. **`0` is the kill switch** — the API is in pilot and Google say breaking changes should be expected, so an operator must be able to stop consuming it without a deploy. |
+| `FLOOD_REGION_CODE`           | `NG`    | CLDR region swept. One call covers the whole country.                                                                                                                                  |
+| `FLOOD_MATCH_RADIUS_KM`       | `50`    | How far a gauge can be from a community and still cover it.                                                                                                                            |
+
+**No community gets a forecast until it has coordinates.** Everything else
+about a community is an administrative name; flood gauges are points. Set
+them per community with `PATCH /api/v1/communities/:id` as a
+`GOVERNMENT_ADMIN` or `PLATFORM_ADMIN`:
+
+```bash
+curl -X PATCH https://api.civicos.ng/api/v1/communities/<id> \
+  -H "Authorization: Bearer <admin token>" \
+  -H 'Content-Type: application/json' \
+  -d '{"latitude": 7.7322, "longitude": 8.5391}'
+```
+
+A community with no coordinates is skipped rather than matched
+approximately. That is deliberate: warning the wrong town is worse than
+warning nobody.
+
 ---
 
 ## Gotchas worth knowing

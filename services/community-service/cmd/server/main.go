@@ -1,13 +1,16 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
+	"time"
 
 	"github.com/civicos/community-service/internal/audit"
 	"github.com/civicos/community-service/internal/communities"
 	"github.com/civicos/community-service/internal/discover"
 	"github.com/civicos/community-service/internal/domain"
+	"github.com/civicos/community-service/internal/floodwatch"
 	"github.com/civicos/community-service/internal/issues"
 	"github.com/civicos/community-service/internal/middleware"
 	"github.com/civicos/community-service/internal/notifications"
@@ -42,6 +45,7 @@ func main() {
 		&domain.RepresentativeAnnouncement{},
 		&domain.RepresentativeAnnouncementComment{},
 		&domain.Notification{},
+		&domain.CommunityFloodAlert{},
 	); err != nil {
 		log.Fatalf("migration failed: %v", err)
 	}
@@ -119,6 +123,27 @@ func main() {
 
 	v1 := r.Group("/v1")
 	communityHandler.RegisterRoutes(v1.Group("/communities"), authMiddleware, requireCommunityCreator)
+
+	// Flood forecasts from Google Flood Hub.
+	//
+	// Off unless GOOGLE_FLOOD_API_KEY is set: with no key nothing is
+	// fetched, no route is mounted and no surface appears. The models are
+	// Google's — CivicOS matches their output to located communities and
+	// attributes it everywhere it is shown.
+	if cfg.FloodAPIKey != "" {
+		floodSvc := floodwatch.NewService(
+			floodwatch.NewClient(cfg.FloodAPIKey),
+			floodwatch.NewRepository(db),
+			notificationSvc,
+			cfg.FloodMatchRadiusKm,
+			cfg.FloodRegionCode,
+		)
+		floodwatch.NewHandler(floodSvc).RegisterRoutes(v1.Group("/communities"))
+		floodwatch.StartPoller(context.Background(), floodSvc,
+			time.Duration(cfg.FloodPollMinutes)*time.Minute)
+	} else {
+		log.Printf("floodwatch: no GOOGLE_FLOOD_API_KEY — flood forecasts are off")
+	}
 	issueHandler.RegisterRoutes(v1.Group("/issues"), authMiddleware, requireVerified)
 	issueHandler.RegisterMeRoutes(v1.Group("/me"), authMiddleware)
 	petitionHandler.RegisterRoutes(v1.Group("/petitions"), authMiddleware, requireVerified)
