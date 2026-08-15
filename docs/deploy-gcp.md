@@ -164,6 +164,104 @@ warning nobody.
 
 ---
 
+## Pre-launch test window
+
+Two weeks of testing against the live deployment, with mock content so a
+tester who registers finds a platform in use rather than an empty one.
+
+### Before seeding
+
+**1. Switch Paystack to test keys.** A published mock campaign accepts
+donations from anyone who finds the site, and with live keys that money is
+real and settles to a real sub-account.
+
+```bash
+printf '%s' 'sk_test_…' | gcloud secrets versions add PAYSTACK_SECRET_KEY --data-file=-
+printf '%s' 'pk_test_…' | gcloud secrets versions add PAYSTACK_PUBLIC_KEY --data-file=-
+./deploy/gcp/deploy.sh
+```
+
+The seeder refuses to create campaigns against an `sk_live_` key, so this
+cannot be skipped by accident.
+
+**2. Keep the mock data out of search.** `apps/web/public/robots.txt`
+currently says `Allow: /`. Fake issues naming real Nigerian towns will be
+indexed and can outlive the test window in caches. Set `Disallow: /` for
+the duration and rebuild the web image.
+
+### Seeding
+
+```bash
+node scripts/seed-demo.mjs --dry-run          # see the plan, writes nothing
+
+node scripts/seed-demo.mjs \
+  --gateway https://api.civicos.ng \
+  --admin-email you@example.com --admin-password '…' \
+  --paystack-key "$(gcloud secrets versions access latest --secret=PAYSTACK_SECRET_KEY)"
+```
+
+It runs in two passes, on purpose. The first creates accounts and stops,
+because creating an issue or petition requires a verified email, there is
+no admin endpoint to verify one, and production email is not delivering.
+Run the `UPDATE` it prints against Cloud SQL, then re-run with
+`--verified`.
+
+```bash
+gcloud sql connect civicos-pg --user=civicos --database=civicos \
+  --project=civicos-ng-prod
+```
+
+Re-running is safe — existing accounts are detected and reused.
+
+Everything lands on one email domain (`@demo.civicos.ng` by default) so
+seeded accounts are obvious in the users table. Organizations and
+representatives are prefixed `[Demo]`, because a fictional "Hon. Someone"
+attached to a real constituency on a public site is the one part of this
+that could genuinely mislead a visitor. `--no-labels` removes the prefix.
+
+### Campaigns need one manual step
+
+`FundingEligible()` requires a connected payout account, and connecting
+one is a real Paystack call rather than a database flag. The seeder marks
+the funding org verified and bank-attested, then stops: connect a test-mode
+sub-account from the org dashboard, then submit and approve the campaign
+from the admin console. That path is worth walking by hand anyway — it is
+the one a real organization will follow.
+
+### Before launch — reset the database
+
+**None of this can be deleted through the product.** There is no DELETE
+endpoint for issues, petitions, communities or campaigns, and after two
+weeks real testers will have signed and commented on mock petitions. The
+plan of record is a full reset, not a tidy-up:
+
+```bash
+# 1. Take a final backup you can point at if anything is questioned later.
+gcloud sql backups create --instance=civicos-pg --project=civicos-ng-prod
+
+# 2. Drop and recreate the database.
+gcloud sql databases delete civicos --instance=civicos-pg --project=civicos-ng-prod
+gcloud sql databases create civicos --instance=civicos-pg --project=civicos-ng-prod
+
+# 3. Bring the services up in dependency order so migrations can run.
+#    community and organization first — identity refuses to migrate until
+#    the tables they own exist.
+./deploy/gcp/deploy.sh
+
+# 4. Recreate the PLATFORM_ADMIN account, then re-seed only the real
+#    reference data (universities, real communities).
+node scripts/seed-universities.mjs --email you@example.com --password '…'
+```
+
+Then, and only then:
+
+- Swap Paystack back to **live** keys and redeploy.
+- Restore `robots.txt` to `Allow: /` and rebuild the web image.
+- Confirm no `@demo.civicos.ng` account survives:
+  `SELECT count(*) FROM users WHERE email LIKE '%@demo.civicos.ng';`
+
+---
+
 ## Gotchas worth knowing
 
 **`--set-env-vars` and the `@` in a database URL.** The Postgres URL contains

@@ -13,6 +13,31 @@
 :root {
   color-scheme: light;
 
+  /* ── --pr-* fallbacks ────────────────────────────────────────────────
+     Every --pr-* variable is otherwise declared only inside .home-shell.
+     The fund components reuse the same classes on the campaign browse and
+     detail pages, which are NOT inside that shell, so there the variables
+     resolved to nothing.
+
+     An undefined custom property is "invalid at computed-value time",
+     which makes the whole declaration behave as `unset` — and for a
+     shorthand like `border: 1px solid var(--pr-border)` that means
+     border-style falls back to `none`. The donate form's inputs are white
+     on a white card, so losing the border made them literally invisible:
+     you could only find the email, name and message fields by clicking
+     where you guessed they were.
+
+     Values mirror the light .home-shell theme so the homepage is
+     unchanged — those rules are more specific and still win there. */
+  --pr-border: rgba(16, 40, 24, 0.14);
+  --pr-ink: #102818;
+  --pr-ink-soft: #4d6b58;
+  --pr-stamp: #0284c7;
+  --pr-cta-from: #ffffff;
+  --pr-cta-ink: #234f2c;
+  --pr-serif: 'Inter', system-ui, sans-serif;
+  --pr-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
   --bg-soft: #f4f8fb;
   --ink-900: #132539;
   --ink-700: #2f455a;
