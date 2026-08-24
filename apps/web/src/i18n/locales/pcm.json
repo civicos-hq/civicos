@@ -1608,5 +1608,83 @@
     "attribution": "Na Google Flood Hub forecast am — no be CivicOS prediction.",
     "viewFloodHub": "See am for Flood Hub",
     "official": "For official warning and wetin you go do, follow NEMA and NiMet."
+  },
+  "errors": {
+    "retry": "Try am again",
+    "codeLabel": "Reference: {{code}}",
+    "offlineBanner": {
+      "offline": "You no dey online. CivicOS go connect back by itself.",
+      "restored": "You don dey online again — we dey refresh."
+    },
+    "kinds": {
+      "offline": {
+        "title": "You no dey online",
+        "detail": "Your device no connect. Check your wifi or data — once you come back, CivicOS go continue from where you stop."
+      },
+      "unreachable": {
+        "title": "We no fit reach CivicOS",
+        "detail": "The request no go through. Most times na weak network, but e fit also mean say CivicOS dey down small. Try again soon."
+      },
+      "timeout": {
+        "title": "E take too long",
+        "detail": "The network slow reach say the request give up. Try again — for weak network e dey work the second time."
+      },
+      "rateLimited": {
+        "title": "You don try too many times",
+        "detail": "You don do that thing plenty times sharp sharp. Wait small make you try again.",
+        "detailCountdown": "You don do am plenty times sharp sharp. Try again in {{seconds}} seconds."
+      },
+      "unauthorized": {
+        "title": "Your session don expire",
+        "detail": "We sign you out for security reason. Sign in again make you continue — wetin you don post no spoil."
+      },
+      "forbidden": {
+        "title": "You no get access to this one",
+        "detail": "Your account no get permission for this. If you think say e suppose get, tell admin for your community or organization."
+      },
+      "notFound": {
+        "title": "This thing no dey here again",
+        "detail": "Dem fit don remove am, or the link no correct. Go back make you open am again."
+      },
+      "validation": {
+        "title": "Some details need correction",
+        "detail": "The information wey you send no gree pass. Check the fields for up make you try again."
+      },
+      "conflict": {
+        "title": "E change while you dey work",
+        "detail": "Person else don update am, or you don already do am. Reload make you see how e be now."
+      },
+      "tooLarge": {
+        "title": "That file too big",
+        "detail": "The upload pass the size limit. Try smaller file."
+      },
+      "upstreamDown": {
+        "title": "This part of CivicOS dey down small",
+        "detail": "The service behind this page no dey answer. Nothing wey you do loss — try again soon."
+      },
+      "serverError": {
+        "title": "Something spoil for our side",
+        "detail": "Na CivicOS fault, no be anything wey you do. Try again soon; if e continue, report am with the reference for down."
+      },
+      "unknown": {
+        "title": "Something go wrong",
+        "detail": "We no fit complete am. Try again — if e continue, report am with the reference for down."
+      }
+    },
+    "codes": {
+      "EMAIL_NOT_VERIFIED": "Verify your email first. Check your inbox for the link wey we send when you register.",
+      "COMMUNITY_MEMBERSHIP_REQUIRED": "You need join this community before you fit take part here.",
+      "PRIMARY_COMMUNITY_MISMATCH": "Na only for your own primary community you fit post this. Switch community make you try again.",
+      "FILE_TOO_LARGE": "That file pass the size limit. Try smaller one.",
+      "INVALID_FILE_TYPE": "That file type no dey work here.",
+      "TOO_MANY_VIDEOS": "One issue fit carry only one video.",
+      "INVALID_VIDEO": "That video attachment no complete. Comot am make you add am again.",
+      "ISSUE_NOT_FOUND": "This issue no dey again — dem fit don remove am.",
+      "PETITION_NOT_FOUND": "This petition no dey again — dem fit don remove am.",
+      "ALREADY_SIGNED": "You don already sign this petition.",
+      "REPRESENTATIVE_UNCLAIMED": "Nobody don claim this representative profile, so e no fit publish. Tell platform admin make dem claim am.",
+      "VALIDATION_ERROR": "Some of the details no gree pass. Check the fields for up make you try again.",
+      "UPSTREAM_ERROR": "The service behind this page no dey answer now. Try again soon."
+    }
   }
 }

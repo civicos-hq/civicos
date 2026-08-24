@@ -6,6 +6,8 @@ import { EmptyState } from '../components/EmptyState';
 import { uploadUrl } from '../lib/api';
 import { useConsultations, useMyConsultationResponses } from '../hooks/useConsultations';
 import { MessageSquare } from 'lucide-react';
+import { ErrorState } from '../components/ErrorState';
+import { queryFailure } from '../lib/apiError';
 
 const STATUS_TONE: Record<ConsultationStatus, string> = {
   [ConsultationStatus.DRAFT]: 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300',
@@ -44,6 +46,9 @@ export function ConsultationsPage() {
   const listQuery = useConsultations({
     status: statusFilter || ConsultationStatus.PUBLISHED,
   });
+  // A paused or failed query must never render as an empty list —
+  // "nothing here yet" and "we couldn't ask" are different facts.
+  const failure = queryFailure(listQuery);
 
   function setFilter(value: '' | ConsultationStatus) {
     const next = new URLSearchParams(params);
@@ -92,11 +97,15 @@ export function ConsultationsPage() {
         <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>
       )}
 
-      {listQuery.isError && (
-        <p className="text-sm text-red-600 dark:text-red-400">{t('consultationsPage.loadError')}</p>
+      {failure !== null && (
+        <ErrorState
+          error={failure}
+          context={t('consultationsPage.loadError')}
+          onRetry={() => void listQuery.refetch()}
+        />
       )}
 
-      {!listQuery.isLoading && items.length === 0 && (
+      {!listQuery.isLoading && !failure && items.length === 0 && (
         <EmptyState
           icon={<MessageSquare size={20} />}
           illustration="/designs/07_consultation_lifecycle.png?v=7"

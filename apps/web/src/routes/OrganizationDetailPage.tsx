@@ -32,6 +32,8 @@ import { EmptyState } from '../components/EmptyState';
 import { ReportButton } from '../components/civic/ReportButton';
 import { OrgCampaigns, NewCampaignButton } from '../components/OrgCampaigns';
 import { usePublicCampaigns, formatMoney } from '../hooks/useCampaigns';
+import { ErrorState } from '../components/ErrorState';
+import { useErrorText } from '../hooks/useErrorMessage';
 
 const PLATFORM_ADMIN_ROLE: UserRole = UserRole.PLATFORM_ADMIN;
 
@@ -116,9 +118,11 @@ export function OrganizationDetailPage() {
         >
           {t('organizationDetail.backToList')}
         </Link>
-        <p className="text-sm text-red-600 dark:text-red-400">
-          {t('organizationDetail.loadError')}
-        </p>
+        <ErrorState
+          error={orgQuery.error}
+          context={t('organizationDetail.loadError')}
+          onRetry={() => void orgQuery.refetch()}
+        />
       </section>
     );
   }
@@ -411,6 +415,7 @@ function NewAnnouncementButton({ orgId }: { orgId: string }) {
 
 function NewAnnouncementModal({ orgId, onClose }: { orgId: string; onClose: () => void }) {
   const { t } = useTranslation();
+  const errorText = useErrorText();
   const queryClient = useQueryClient();
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
@@ -430,7 +435,7 @@ function NewAnnouncementModal({ orgId, onClose }: { orgId: string; onClose: () =
       queryClient.invalidateQueries({ queryKey: ['organization', orgId] });
       onClose();
     },
-    onError: () => setError(t('organizationDetail.genericError')),
+    onError: (err) => setError(errorText(err, t('organizationDetail.genericError'))),
   });
 
   function submit(e: FormEvent) {
@@ -546,6 +551,7 @@ function NewProjectButton({ orgId }: { orgId: string }) {
 
 function NewProjectModal({ orgId, onClose }: { orgId: string; onClose: () => void }) {
   const { t } = useTranslation();
+  const errorText = useErrorText();
   const queryClient = useQueryClient();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -566,7 +572,7 @@ function NewProjectModal({ orgId, onClose }: { orgId: string; onClose: () => voi
       queryClient.invalidateQueries({ queryKey: ['organization', orgId] });
       onClose();
     },
-    onError: () => setError(t('organizationDetail.genericError')),
+    onError: (err) => setError(errorText(err, t('organizationDetail.genericError'))),
   });
 
   function submit(e: FormEvent) {

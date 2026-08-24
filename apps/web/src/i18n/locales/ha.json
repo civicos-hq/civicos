@@ -1381,6 +1381,50 @@
     "official": "Don gargaɗi na hukuma da abin da za a yi, bi NEMA da NiMet."
   },
   "_translationTodo": [
+    "errors.codeLabel",
+    "errors.codes.ALREADY_SIGNED",
+    "errors.codes.COMMUNITY_MEMBERSHIP_REQUIRED",
+    "errors.codes.EMAIL_NOT_VERIFIED",
+    "errors.codes.FILE_TOO_LARGE",
+    "errors.codes.INVALID_FILE_TYPE",
+    "errors.codes.INVALID_VIDEO",
+    "errors.codes.ISSUE_NOT_FOUND",
+    "errors.codes.PETITION_NOT_FOUND",
+    "errors.codes.PRIMARY_COMMUNITY_MISMATCH",
+    "errors.codes.REPRESENTATIVE_UNCLAIMED",
+    "errors.codes.TOO_MANY_VIDEOS",
+    "errors.codes.UPSTREAM_ERROR",
+    "errors.codes.VALIDATION_ERROR",
+    "errors.kinds.conflict.detail",
+    "errors.kinds.conflict.title",
+    "errors.kinds.forbidden.detail",
+    "errors.kinds.forbidden.title",
+    "errors.kinds.notFound.detail",
+    "errors.kinds.notFound.title",
+    "errors.kinds.offline.detail",
+    "errors.kinds.offline.title",
+    "errors.kinds.rateLimited.detail",
+    "errors.kinds.rateLimited.detailCountdown",
+    "errors.kinds.rateLimited.title",
+    "errors.kinds.serverError.detail",
+    "errors.kinds.serverError.title",
+    "errors.kinds.timeout.detail",
+    "errors.kinds.timeout.title",
+    "errors.kinds.tooLarge.detail",
+    "errors.kinds.tooLarge.title",
+    "errors.kinds.unauthorized.detail",
+    "errors.kinds.unauthorized.title",
+    "errors.kinds.unknown.detail",
+    "errors.kinds.unknown.title",
+    "errors.kinds.unreachable.detail",
+    "errors.kinds.unreachable.title",
+    "errors.kinds.upstreamDown.detail",
+    "errors.kinds.upstreamDown.title",
+    "errors.kinds.validation.detail",
+    "errors.kinds.validation.title",
+    "errors.offlineBanner.offline",
+    "errors.offlineBanner.restored",
+    "errors.retry",
     "issueDetail.video",
     "issueDetail.videoDataHint",
     "issueDetail.videoLabel",
@@ -1393,5 +1437,83 @@
     "issuesPage.modal.videoTooLong",
     "issuesPage.modal.videoUnreadable",
     "issuesPage.modal.videoWrongType"
-  ]
+  ],
+  "errors": {
+    "retry": "Try again",
+    "codeLabel": "Reference: {{code}}",
+    "offlineBanner": {
+      "offline": "You're offline. CivicOS will reconnect automatically.",
+      "restored": "Back online — refreshing."
+    },
+    "kinds": {
+      "offline": {
+        "title": "You're offline",
+        "detail": "Your device isn't connected. Check your wifi or mobile data — CivicOS will pick up where you left off once you're back."
+      },
+      "unreachable": {
+        "title": "Can't reach CivicOS",
+        "detail": "The request didn't get through. This is usually a weak connection, but it can also mean CivicOS is briefly down. Try again in a moment."
+      },
+      "timeout": {
+        "title": "That took too long",
+        "detail": "The connection is slow enough that the request gave up. Try again — on a weak signal it often works second time."
+      },
+      "rateLimited": {
+        "title": "Too many attempts",
+        "detail": "You've done that several times in quick succession. Wait a moment and try again.",
+        "detailCountdown": "You've done that several times in quick succession. Try again in {{seconds}} seconds."
+      },
+      "unauthorized": {
+        "title": "Your session expired",
+        "detail": "You've been signed out for security. Sign in again to continue — nothing you've already posted is affected."
+      },
+      "forbidden": {
+        "title": "You don't have access to this",
+        "detail": "Your account isn't permitted to do this. If you think it should be, ask an admin for your community or organization."
+      },
+      "notFound": {
+        "title": "This isn't here anymore",
+        "detail": "It may have been removed, or the link may be wrong. Try going back and opening it again."
+      },
+      "validation": {
+        "title": "Some details need fixing",
+        "detail": "The information sent wasn't accepted. Check the fields above and try again."
+      },
+      "conflict": {
+        "title": "This changed while you were working",
+        "detail": "Someone else updated it, or you'd already done this. Reload to see the current state."
+      },
+      "tooLarge": {
+        "title": "That file is too big",
+        "detail": "The upload exceeded the size limit. Try a smaller file."
+      },
+      "upstreamDown": {
+        "title": "This part of CivicOS is temporarily down",
+        "detail": "The service behind this page isn't responding. Nothing you've done is lost — try again shortly."
+      },
+      "serverError": {
+        "title": "Something broke on our side",
+        "detail": "This is a fault in CivicOS, not anything you did. Try again shortly; if it keeps happening, report it with the reference below."
+      },
+      "unknown": {
+        "title": "Something went wrong",
+        "detail": "We couldn't complete that. Try again — if it keeps happening, report it with the reference below."
+      }
+    },
+    "codes": {
+      "EMAIL_NOT_VERIFIED": "Verify your email address first. Check your inbox for the link we sent when you registered.",
+      "COMMUNITY_MEMBERSHIP_REQUIRED": "You need to join this community before you can take part here.",
+      "PRIMARY_COMMUNITY_MISMATCH": "You can only post this in your own primary community. Switch communities and try again.",
+      "FILE_TOO_LARGE": "That file is over the size limit. Try a smaller one.",
+      "INVALID_FILE_TYPE": "That file type isn't supported here.",
+      "TOO_MANY_VIDEOS": "An issue can only carry one video.",
+      "INVALID_VIDEO": "That video attachment is incomplete. Remove it and add it again.",
+      "ISSUE_NOT_FOUND": "This issue no longer exists — it may have been removed.",
+      "PETITION_NOT_FOUND": "This petition no longer exists — it may have been removed.",
+      "ALREADY_SIGNED": "You've already signed this petition.",
+      "REPRESENTATIVE_UNCLAIMED": "This representative profile hasn't been claimed yet, so it can't publish. Ask a platform admin to claim it.",
+      "VALIDATION_ERROR": "Some of the details weren't accepted. Check the fields above and try again.",
+      "UPSTREAM_ERROR": "The service behind this page isn't responding right now. Try again shortly."
+    }
+  }
 }

@@ -25,6 +25,7 @@ import { useEnumLabels } from '../hooks/useEnumLabels';
 import { useRelativeTime } from '../hooks/useRelativeTime';
 import { useIssueProgressUpdates } from './OrganizationDetailPage';
 import { ReportButton } from '../components/civic/ReportButton';
+import { ErrorState } from '../components/ErrorState';
 
 const STAFF_ROLES = new Set<UserRole>([
   UserRole.REPRESENTATIVE,
@@ -161,7 +162,11 @@ export function IssueDetailPage() {
         >
           {t('issueDetail.backToIssues')}
         </Link>
-        <p className="text-sm text-red-600 dark:text-red-400">{t('issueDetail.loadError')}</p>
+        <ErrorState
+          error={issueQuery.error}
+          context={t('issueDetail.loadError')}
+          onRetry={() => void issueQuery.refetch()}
+        />
       </section>
     );
   }

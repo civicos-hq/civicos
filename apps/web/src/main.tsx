@@ -18,7 +18,43 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60, // 1 minute
-      retry: 1,
+      // retry: false is load-bearing. Do not "improve" this back to a
+      // retry count without re-testing an offline page load.
+      //
+      // With ANY retry enabled (the previous `retry: 1`, or a predicate),
+      // a failed query does not end up in the error state. It ends up
+      // stranded at status 'pending' / fetchStatus 'paused' with
+      // fetchFailureCount 1 — and it stays there. Forever. Observed
+      // directly against a downed service with @tanstack/react-query 5.45:
+      // the first attempt fails, a retry is scheduled, the retryer pauses,
+      // and nothing resumes it — not a reconnect, not refetch(), not the
+      // Retry button.
+      //
+      // The user-visible result was the bug this whole change exists to fix:
+      // isLoading false AND isError false, so pages rendered neither a
+      // spinner nor an error. List pages fell through to "No projects here
+      // yet"; detail pages fell through to their generic load error. Someone
+      // whose connection dropped was told their community was empty.
+      //
+      // Failing fast is strictly better for a civic tool used on unreliable
+      // mobile data: one honest error, a working Retry button, and
+      // refetchOnReconnect below to heal automatically. A silent retry that
+      // can strand the query is not worth the one saved request.
+      retry: false,
+      // Reconnecting should heal the page by itself rather than leaving a
+      // wall of stale error panels the user has to reload past.
+      refetchOnReconnect: true,
+      // Second half of the same defence. TanStack's default networkMode is
+      // 'online', which pauses rather than fails whenever it believes there
+      // is no connection. 'always' sends the request regardless so it fails
+      // honestly and lands in the error path, where classifyError() can name
+      // the cause. One code path for every failure, no silent third state.
+      networkMode: 'always',
+    },
+    mutations: {
+      // Same reasoning: a paused mutation looks to the user like a button
+      // that did nothing at all.
+      networkMode: 'always',
     },
   },
 });

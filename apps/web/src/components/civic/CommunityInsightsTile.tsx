@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { Sparkles, RefreshCw, Users, FileText, MessageCircle } from 'lucide-react';
 import { Button } from '@civicos/ui';
 import { getCommunityInsights, type CommunityInsights } from '../../lib/civicai';
-import { getApiError } from '../../lib/api';
 import { useState } from 'react';
+import { useErrorText } from '../../hooks/useErrorMessage';
 
 // CommunityInsightsTile renders a staff-only, on-demand digest of what's
 // happening across a whole community — themes, sentiment, top asks,
@@ -22,6 +22,7 @@ interface Props {
 
 export function CommunityInsightsTile({ communityId, communityLabel }: Props) {
   const { t } = useTranslation();
+  const errorText = useErrorText();
   const [insights, setInsights] = useState<CommunityInsights | null>(null);
 
   const mutation = useMutation({
@@ -33,7 +34,7 @@ export function CommunityInsightsTile({ communityId, communityLabel }: Props) {
   });
 
   const errorMsg = mutation.isError
-    ? (getApiError(mutation.error)?.message ?? t('civicai.insights.genericError'))
+    ? errorText(mutation.error, t('civicai.insights.genericError'))
     : null;
 
   return (

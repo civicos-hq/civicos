@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Loader2 } from 'lucide-react';
+import { useErrorText } from '../hooks/useErrorMessage';
 import {
   formatMoney,
   formatMoneyExact,
@@ -22,6 +23,7 @@ const PRESETS_MAJOR = [1_000, 2_500, 5_000, 10_000];
  */
 export function DonateForm({ campaign }: { campaign: PublicCampaignDetail }) {
   const { t, i18n } = useTranslation();
+  const errorText = useErrorText();
   const [amountMajor, setAmountMajor] = useState<string>(String(PRESETS_MAJOR[1]));
   const [email, setEmail] = useState('');
   const [donorName, setDonorName] = useState('');
@@ -54,8 +56,7 @@ export function DonateForm({ campaign }: { campaign: PublicCampaignDetail }) {
       // popup blockers eat the tab and the donor thinks nothing happened.
       window.location.href = res.authorizationUrl;
     } catch (err) {
-      const res = (err as { response?: { data?: { message?: string } } }).response;
-      setError(res?.data?.message ?? t('campaigns.donate.genericError'));
+      setError(errorText(err, t('campaigns.donate.genericError')));
     }
   }
 

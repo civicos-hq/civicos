@@ -15,6 +15,7 @@ import {
 import { useMyOrganizations } from '../hooks/useConsultations';
 import { useProjectProgressUpdates } from '../hooks/useProgressUpdates';
 import { PostProgressUpdateForm } from '../components/civic/PostProgressUpdateForm';
+import { ErrorState } from '../components/ErrorState';
 
 const TONE: Record<ProjectStatus, string> = {
   [ProjectStatus.PLANNED]: 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300',
@@ -87,7 +88,11 @@ export function OrgProjectDetailPage() {
         >
           {t('orgProjectDetail.back')}
         </Link>
-        <p className="text-sm text-red-600 dark:text-red-400">{t('orgProjectDetail.loadError')}</p>
+        <ErrorState
+          error={query.error}
+          context={t('orgProjectDetail.loadError')}
+          onRetry={() => void query.refetch()}
+        />
       </section>
     );
   }

@@ -11,6 +11,7 @@ import { PageHeader, useTodayMeta } from '../components/PageHeader';
 import { EmptyState } from '../components/EmptyState';
 import { CommunityGate, CommunityGateLink } from '../components/CommunityGate';
 import { FileText } from 'lucide-react';
+import { useErrorText } from '../hooks/useErrorMessage';
 
 const MAX_IMAGES = 5;
 const MAX_IMAGE_MB = 5;
@@ -320,6 +321,7 @@ function Modal({
 
 function NewPetitionModal({ communityId, onClose }: { communityId: string; onClose: () => void }) {
   const { t } = useTranslation();
+  const errorText = useErrorText();
   const queryClient = useQueryClient();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -366,7 +368,7 @@ function NewPetitionModal({ communityId, onClose }: { communityId: string; onClo
       queryClient.invalidateQueries({ queryKey: ['petitions'] });
       onClose();
     },
-    onError: () => setError(t('petitionsPage.modal.genericError')),
+    onError: (err) => setError(errorText(err, t('petitionsPage.modal.genericError'))),
   });
 
   function handleSubmit(e: FormEvent) {

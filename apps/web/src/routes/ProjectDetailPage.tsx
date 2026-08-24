@@ -4,6 +4,7 @@ import { ProjectStatus } from '@civicos/types';
 import { PageHeader } from '../components/PageHeader';
 import { kobopToNaira, useProject } from '../hooks/useProjects';
 import { useProjectProgressUpdates } from '../hooks/useProgressUpdates';
+import { ErrorState } from '../components/ErrorState';
 
 const TONE: Record<ProjectStatus, string> = {
   [ProjectStatus.PLANNED]: 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300',
@@ -36,7 +37,11 @@ export function ProjectDetailPage() {
         >
           {t('projectDetail.back')}
         </Link>
-        <p className="text-sm text-red-600 dark:text-red-400">{t('projectDetail.loadError')}</p>
+        <ErrorState
+          error={query.error}
+          context={t('projectDetail.loadError')}
+          onRetry={() => void query.refetch()}
+        />
       </section>
     );
   }

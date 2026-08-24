@@ -9,6 +9,7 @@ import {
 } from '../hooks/useFundingAnalytics';
 import { formatMoney, progressPercent } from '../hooks/useCampaigns';
 import { EmptyState } from './EmptyState';
+import { ErrorState } from './ErrorState';
 
 /**
  * An organization's own funding analytics.
@@ -44,7 +45,11 @@ export function OrgFundingAnalytics({ orgId }: { orgId: string }) {
   }
   if (query.isError || !a) {
     return (
-      <p className="text-sm text-slate-600 dark:text-slate-300">{t('orgAnalytics.loadError')}</p>
+      <ErrorState
+        error={query.error}
+        context={t('orgAnalytics.loadError')}
+        onRetry={() => void query.refetch()}
+      />
     );
   }
 

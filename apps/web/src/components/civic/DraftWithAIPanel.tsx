@@ -9,7 +9,7 @@ import {
   type DraftAudience,
   type DraftTone,
 } from '../../lib/civicai';
-import { getApiError } from '../../lib/api';
+import { useErrorText } from '../../hooks/useErrorMessage';
 
 // DraftWithAIPanel wraps a Gemini-backed announcement drafter. The parent
 // owns the actual title + body form fields; this panel produces a draft
@@ -28,6 +28,7 @@ const MIN_BRIEF = 20;
 
 export function DraftWithAIPanel({ orgName, orgKind, onApply }: Props) {
   const { t } = useTranslation();
+  const errorText = useErrorText();
   const [brief, setBrief] = useState('');
   const [tone, setTone] = useState<DraftTone>('friendly');
   const [audience, setAudience] = useState<DraftAudience>('all');
@@ -51,7 +52,7 @@ export function DraftWithAIPanel({ orgName, orgKind, onApply }: Props) {
 
   const canGenerate = brief.trim().length >= MIN_BRIEF && !mutation.isPending;
   const errorMsg = mutation.isError
-    ? (getApiError(mutation.error)?.message ?? t('civicai.draft.genericError'))
+    ? errorText(mutation.error, t('civicai.draft.genericError'))
     : null;
 
   function apply() {

@@ -14,6 +14,7 @@ import { EmptyState } from '../components/EmptyState';
 import { CommunityGate, CommunityGateLink } from '../components/CommunityGate';
 import { VideoPicker } from '../components/VideoPicker';
 import { Megaphone, Sparkles } from 'lucide-react';
+import { useErrorText } from '../hooks/useErrorMessage';
 
 const MAX_IMAGES = 5;
 const MAX_IMAGE_MB = 5;
@@ -370,6 +371,7 @@ function Modal({
 
 function ReportIssueModal({ communityId, onClose }: { communityId: string; onClose: () => void }) {
   const { t } = useTranslation();
+  const errorText = useErrorText();
   const enums = useEnumLabels();
   const queryClient = useQueryClient();
   const [title, setTitle] = useState('');
@@ -481,7 +483,7 @@ function ReportIssueModal({ communityId, onClose }: { communityId: string; onClo
       queryClient.invalidateQueries({ queryKey: ['issues'] });
       onClose();
     },
-    onError: () => setError(t('issuesPage.modal.genericError')),
+    onError: (err) => setError(errorText(err, t('issuesPage.modal.genericError'))),
   });
 
   function handleSubmit(e: FormEvent) {

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { AnnouncementStatus } from '@civicos/types';
 import { PageHeader } from '../components/PageHeader';
 import { useAnnouncement } from '../hooks/useAnnouncements';
+import { ErrorState } from '../components/ErrorState';
 
 const STATUS_TONE: Record<AnnouncementStatus, string> = {
   [AnnouncementStatus.DRAFT]: 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300',
@@ -35,9 +36,11 @@ export function AnnouncementDetailPage() {
         >
           {t('announcementDetail.back')}
         </Link>
-        <p className="text-sm text-red-600 dark:text-red-400">
-          {t('announcementDetail.loadError')}
-        </p>
+        <ErrorState
+          error={query.error}
+          context={t('announcementDetail.loadError')}
+          onRetry={() => void query.refetch()}
+        />
       </section>
     );
   }
