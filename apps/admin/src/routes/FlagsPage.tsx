@@ -2,6 +2,7 @@ import { Fragment, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { EyeOff, Shield, Undo2 } from 'lucide-react';
 import { apiGet, apiPatch } from '../lib/api';
+import { errorText } from '../lib/errorMessage';
 
 interface AdminFlag {
   id: string;
@@ -68,8 +69,7 @@ export function FlagsPage() {
       queryClient.invalidateQueries({ queryKey: ['admin-flag-counts'] });
     },
     onError: (err) => {
-      const msg = (err as { response?: { data?: { message?: string } } }).response?.data?.message;
-      setError(msg ?? 'Could not resolve this flag.');
+      setError(errorText(err, 'Could not resolve this flag.'));
     },
   });
 

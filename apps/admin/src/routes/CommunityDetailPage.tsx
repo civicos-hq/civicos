@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft } from 'lucide-react';
 import { apiGet } from '../lib/api';
 import { CommunityLocationPanel } from '../components/CommunityLocationPanel';
+import { ErrorState } from '../components/ErrorState';
 
 interface Community {
   id: string;
@@ -48,7 +49,11 @@ export function CommunityDetailPage() {
     return (
       <>
         <BackLink />
-        <p className="text-sm text-red-700">Couldn't load this community.</p>
+        <ErrorState
+          error={communityQuery.error}
+          context="Couldn't load this community."
+          onRetry={() => void communityQuery.refetch()}
+        />
       </>
     );
   }

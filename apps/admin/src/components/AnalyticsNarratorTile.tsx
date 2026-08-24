@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { Sparkles, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 import { apiGet } from '../lib/api';
+import { errorText } from '../lib/errorMessage';
 
 // AnalyticsNarratorTile hits the CivicAI narrator endpoint and renders a
 // plain-language digest of the same metrics shown on the Overview
@@ -28,11 +29,6 @@ interface Envelope {
   narration: Narration;
 }
 
-interface ApiError {
-  code?: string;
-  message?: string;
-}
-
 export function AnalyticsNarratorTile() {
   const [narration, setNarration] = useState<Narration | null>(null);
 
@@ -43,7 +39,7 @@ export function AnalyticsNarratorTile() {
   });
 
   const errorMsg = mutation.isError
-    ? extractMessage(mutation.error) || 'CivicAI could not narrate metrics right now.'
+    ? errorText(mutation.error, 'CivicAI could not narrate metrics right now.')
     : null;
 
   return (
@@ -135,10 +131,4 @@ function NarratorList({
       </ul>
     </div>
   );
-}
-
-function extractMessage(err: unknown): string | null {
-  if (typeof err !== 'object' || err === null) return null;
-  const anyErr = err as { response?: { data?: ApiError }; message?: string };
-  return anyErr.response?.data?.message ?? anyErr.message ?? null;
 }

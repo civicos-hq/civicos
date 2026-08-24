@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api, setSession } from '../lib/api';
+import { errorText } from '../lib/errorMessage';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -43,10 +44,10 @@ export function LoginPage() {
       const redirect = searchParams.get('redirect') ?? '/';
       navigate(redirect, { replace: true });
     } catch (err) {
-      const msg =
-        (err as { response?: { data?: { message?: string } } }).response?.data?.message ??
-        'Login failed. Check your credentials and try again.';
-      setError(msg);
+      // Deliberately routed through errorText: a 401 still reads as bad
+      // credentials, but a gateway that is down now says so instead of
+      // telling an operator their password is wrong.
+      setError(errorText(err, 'Login failed.'));
     } finally {
       setLoading(false);
     }

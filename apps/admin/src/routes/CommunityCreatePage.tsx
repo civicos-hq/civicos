@@ -5,6 +5,7 @@ import { ArrowLeft, MapPin, ShieldAlert } from 'lucide-react';
 import { apiGet, apiPost } from '../lib/api';
 import { CoordinateField, type Suggestion } from '../components/CoordinateField';
 import { NIGERIAN_STATES } from '../data/nigeria';
+import { errorText } from '../lib/errorMessage';
 
 interface CommunityResponse {
   community: { id: string; name: string; slug: string };
@@ -81,9 +82,7 @@ export function CommunityCreatePage() {
       navigate(`/communities/${data.community.id}`);
     },
     onError: (err) => {
-      const msg = (err as { response?: { data?: { message?: string; code?: string } } }).response
-        ?.data;
-      setError(msg?.message ?? 'Failed to create community.');
+      setError(errorText(err, 'Failed to create community.'));
     },
   });
 

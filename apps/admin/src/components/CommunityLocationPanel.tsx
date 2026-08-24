@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { MapPin, ExternalLink, TriangleAlert } from 'lucide-react';
 import { apiPatch } from '../lib/api';
 import { looksOutsideNigeria, mapsHref, parseCoordinates } from './CoordinateField';
+import { errorText } from '../lib/errorMessage';
 
 /**
  * Sets the point a community sits at.
@@ -50,8 +51,7 @@ export function CommunityLocationPanel({
       void queryClient.invalidateQueries({ queryKey: ['admin-communities'] });
     },
     onError: (err: unknown) => {
-      const body = (err as { response?: { data?: { message?: string } } })?.response?.data;
-      setError(body?.message ?? 'Could not save. Please try again.');
+      setError(errorText(err, 'Could not save the location.'));
     },
   });
 

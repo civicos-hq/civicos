@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AlertCircle, ArrowLeft, CheckCircle2, XCircle } from 'lucide-react';
 import { apiGet, apiPatch } from '../lib/api';
+import { errorText } from '../lib/errorMessage';
 
 interface Applicant {
   id: string;
@@ -106,8 +107,7 @@ export function ApplicationDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['admin-audit'] });
     },
     onError: (err) => {
-      const msg = (err as { response?: { data?: { message?: string } } }).response?.data?.message;
-      setError(msg ?? 'Could not review this application.');
+      setError(errorText(err, 'Could not review this application.'));
     },
   });
 

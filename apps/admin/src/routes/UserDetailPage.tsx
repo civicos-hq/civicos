@@ -2,6 +2,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Ban, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { apiGet } from '../lib/api';
+import { ErrorState } from '../components/ErrorState';
 
 interface AdminUser {
   id: string;
@@ -80,7 +81,11 @@ export function UserDetailPage() {
     return (
       <>
         <BackLink />
-        <p className="text-sm text-red-700">Couldn't load this user.</p>
+        <ErrorState
+          error={userQuery.error}
+          context="Couldn't load this user."
+          onRetry={() => void userQuery.refetch()}
+        />
       </>
     );
   }

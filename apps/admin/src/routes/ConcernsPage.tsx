@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AlertTriangle, CheckCircle2, Users } from 'lucide-react';
 import { apiGet, apiPatch } from '../lib/api';
+import { errorText } from '../lib/errorMessage';
 
 /**
  * Concerns citizens have raised about funded campaigns.
@@ -78,8 +79,7 @@ export function ConcernsPage() {
       queryClient.invalidateQueries({ queryKey: ['admin-concerns'] });
     },
     onError: (err) => {
-      const msg = (err as { response?: { data?: { message?: string } } }).response?.data?.message;
-      setError(msg ?? 'Could not update this concern.');
+      setError(errorText(err, 'Could not update this concern.'));
     },
   });
 
