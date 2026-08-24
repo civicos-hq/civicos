@@ -160,7 +160,11 @@
     "upvoted": "✓ Kwadoro",
     "statusClosedNote": "Emechiri okwu a na-enweghị nkwụsị.",
     "updateStatus": "Melite ọnọdụ",
-    "updateStatusError": "Anyị enweghị ike imelite."
+    "updateStatusError": "Anyị enweghị ike imelite.",
+    "video": "Video",
+    "videoLabel": "Video attachment",
+    "videoDataHint": "Nothing downloads until you press play",
+    "videoUnsupported": "Your browser cannot play this video."
   },
   "comments": {
     "heading": "Mkparịta ụka",
@@ -371,7 +375,15 @@
       "photosFull": "A họpụtala foto {{max}}",
       "removePhoto": "Wepụ {{name}}",
       "genericError": "Anyị enweghị ike imepụta okwu. Lelee ntinye gị ma nwaa ọzọ.",
-      "submit": "Bipụta okwu"
+      "submit": "Bipụta okwu",
+      "video": "Video (optional)",
+      "addVideo": "Add a video · {{max}}MB, {{seconds}}s max",
+      "videoChecking": "Checking video…",
+      "videoTooBig": "That video is over {{max}}MB.",
+      "videoTooLong": "That video is {{seconds}} seconds — the limit is {{max}}.",
+      "videoWrongType": "Only MP4, WEBM, and MOV videos are supported.",
+      "videoUnreadable": "This video could not be read. Try a different file.",
+      "removeVideo": "Remove video"
     }
   },
   "communityPage": {
@@ -1367,5 +1379,19 @@
     "attribution": "Google Flood Hub buru amụma a — ọ bụghị amụma CivicOS.",
     "viewFloodHub": "Lee ya na Flood Hub",
     "official": "Maka ịdọ aka ná ntị gọọmentị na ihe ị ga-eme, soro NEMA na NiMet."
-  }
+  },
+  "_translationTodo": [
+    "issueDetail.video",
+    "issueDetail.videoDataHint",
+    "issueDetail.videoLabel",
+    "issueDetail.videoUnsupported",
+    "issuesPage.modal.addVideo",
+    "issuesPage.modal.removeVideo",
+    "issuesPage.modal.video",
+    "issuesPage.modal.videoChecking",
+    "issuesPage.modal.videoTooBig",
+    "issuesPage.modal.videoTooLong",
+    "issuesPage.modal.videoUnreadable",
+    "issuesPage.modal.videoWrongType"
+  ]
 }

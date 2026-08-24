@@ -42,7 +42,19 @@ type CreateInput struct {
 	CommunityID string               `json:"communityId" binding:"required"`
 	Location    *string              `json:"location"`
 	ImageURLs   []string             `json:"imageUrls"`
+	// One video per issue, with its client-generated poster frame and byte
+	// size alongside. The client uploads all three parts (video, poster,
+	// size) before it posts the issue; we validate the shape here rather
+	// than trusting the arrays to line up.
+	VideoURLs       []string `json:"videoUrls" binding:"max=1"`
+	VideoPosterURLs []string `json:"videoPosterUrls" binding:"max=1"`
+	VideoSizeBytes  []int64  `json:"videoSizeBytes" binding:"max=1"`
 }
+
+// MaxVideosPerIssue caps video attachments. Videos are heavy for both storage
+// and the reader's data plan; one clip is enough to show a pothole or a burst
+// pipe, and a text-only report stays fully first-class.
+const MaxVideosPerIssue = 1
 
 type AppError struct {
 	Code    string
@@ -69,18 +81,62 @@ func (s *Service) Create(input CreateInput, reportedByID string) (*domain.Issue,
 	if images == nil {
 		images = []string{}
 	}
+	videos, posters, sizes, err := normalizeVideos(input)
+	if err != nil {
+		return nil, err
+	}
 	issue := &domain.Issue{
-		ID:           uuid.New().String(),
-		Title:        input.Title,
-		Description:  input.Description,
-		Category:     input.Category,
-		Status:       domain.IssueStatusOpen,
-		Location:     input.Location,
-		ImageURLs:    images,
-		CommunityID:  input.CommunityID,
-		ReportedByID: reportedByID,
+		ID:              uuid.New().String(),
+		Title:           input.Title,
+		Description:     input.Description,
+		Category:        input.Category,
+		Status:          domain.IssueStatusOpen,
+		Location:        input.Location,
+		ImageURLs:       images,
+		VideoURLs:       videos,
+		VideoPosterURLs: posters,
+		VideoSizeBytes:  sizes,
+		CommunityID:     input.CommunityID,
+		ReportedByID:    reportedByID,
 	}
 	return issue, s.repo.Create(issue)
+}
+
+// normalizeVideos enforces the video cap and keeps the three positional
+// arrays the same length, so a reader can always index posters[i]/sizes[i]
+// for videos[i]. A missing poster is allowed (the player falls back to a
+// neutral placeholder) — a mismatched one is not.
+func normalizeVideos(input CreateInput) (videos, posters []string, sizes []int64, err error) {
+	videos = input.VideoURLs
+	if videos == nil {
+		videos = []string{}
+	}
+	if len(videos) > MaxVideosPerIssue {
+		return nil, nil, nil, &AppError{
+			Code:    "TOO_MANY_VIDEOS",
+			Message: "An issue can have at most one video",
+			Status:  http.StatusBadRequest,
+		}
+	}
+
+	posters = make([]string, len(videos))
+	sizes = make([]int64, len(videos))
+	for i := range videos {
+		if videos[i] == "" {
+			return nil, nil, nil, &AppError{
+				Code:    "INVALID_VIDEO",
+				Message: "Video attachment is missing its file reference",
+				Status:  http.StatusBadRequest,
+			}
+		}
+		if i < len(input.VideoPosterURLs) {
+			posters[i] = input.VideoPosterURLs[i]
+		}
+		if i < len(input.VideoSizeBytes) {
+			sizes[i] = input.VideoSizeBytes[i]
+		}
+	}
+	return videos, posters, sizes, nil
 }
 
 // ToggleUpvote flips the caller's upvote on the issue. Returns the state

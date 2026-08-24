@@ -113,8 +113,13 @@ Screen Shot*.png
 # quietly untrack material that is meant to be there.
 /docs/pitch/civicai-demo-script.md
 
+# Commercial working document — pricing, segments and margins. Local only.
+# Same exact-path scoping as above, for the same reason.
+/docs/pitch/revenue-model.md
+
 # ─── Misc ────────────────────────────────────────────────────────────────────
 *.local
 .cache/
 tmp/
 temp/
+civicai-demo-script-3min.md

@@ -160,7 +160,11 @@
     "upvoted": "✓ An ba goyon baya",
     "statusClosedNote": "An rufe wannan matsalar ba tare da warware ta ba.",
     "updateStatus": "Sabunta matsayi",
-    "updateStatusError": "Ba mu iya sabuntawa ba."
+    "updateStatusError": "Ba mu iya sabuntawa ba.",
+    "video": "Video",
+    "videoLabel": "Video attachment",
+    "videoDataHint": "Nothing downloads until you press play",
+    "videoUnsupported": "Your browser cannot play this video."
   },
   "comments": {
     "heading": "Tattaunawa",
@@ -371,7 +375,15 @@
       "photosFull": "An zaɓi hotuna {{max}}",
       "removePhoto": "Cire {{name}}",
       "genericError": "Ba mu iya ƙirƙirar matsala ba. Duba shigarwar ka kuma sake gwadawa.",
-      "submit": "Aika matsala"
+      "submit": "Aika matsala",
+      "video": "Video (optional)",
+      "addVideo": "Add a video · {{max}}MB, {{seconds}}s max",
+      "videoChecking": "Checking video…",
+      "videoTooBig": "That video is over {{max}}MB.",
+      "videoTooLong": "That video is {{seconds}} seconds — the limit is {{max}}.",
+      "videoWrongType": "Only MP4, WEBM, and MOV videos are supported.",
+      "videoUnreadable": "This video could not be read. Try a different file.",
+      "removeVideo": "Remove video"
     }
   },
   "communityPage": {
@@ -1367,5 +1379,19 @@
     "attribution": "Google Flood Hub ne ya yi hasashen — ba hasashen CivicOS ba ne.",
     "viewFloodHub": "Duba a Flood Hub",
     "official": "Don gargaɗi na hukuma da abin da za a yi, bi NEMA da NiMet."
-  }
+  },
+  "_translationTodo": [
+    "issueDetail.video",
+    "issueDetail.videoDataHint",
+    "issueDetail.videoLabel",
+    "issueDetail.videoUnsupported",
+    "issuesPage.modal.addVideo",
+    "issuesPage.modal.removeVideo",
+    "issuesPage.modal.video",
+    "issuesPage.modal.videoChecking",
+    "issuesPage.modal.videoTooBig",
+    "issuesPage.modal.videoTooLong",
+    "issuesPage.modal.videoUnreadable",
+    "issuesPage.modal.videoWrongType"
+  ]
 }

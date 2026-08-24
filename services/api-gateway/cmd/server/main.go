@@ -105,6 +105,7 @@ func main() {
 	limitCreate := middleware.Limit(limiter, middleware.Create)
 	limitRespond := middleware.Limit(limiter, middleware.Respond)
 	limitUpvote := middleware.Limit(limiter, middleware.Upvote)
+	limitVideoUpload := middleware.Limit(limiter, middleware.VideoUpload)
 
 	// --- Identity Service ---
 	identityPublic := proxy.NewReverseProxy(cfg.IdentityServiceURL, "/api")
@@ -230,8 +231,12 @@ func main() {
 	r.GET("/api/v1/me/follows/representatives", authMiddleware, communityProxy)
 	r.GET("/api/v1/me/upvotes/issues", authMiddleware, communityProxy)
 
-	// Uploads (POST is auth-protected; GET is public so images render in <img>)
+	// Uploads (POST is auth-protected; GET is public so images render in <img>
+	// and videos in <video> — including the Range requests playback issues)
 	r.POST("/api/v1/uploads", authMiddleware, limitStandard, communityProxy)
+	// Video gets its own, stricter budget: 10MB a shot is a different cost
+	// profile from every other authed write sharing limitStandard.
+	r.POST("/api/v1/uploads/video", authMiddleware, limitVideoUpload, communityProxy)
 	r.GET("/api/v1/uploads/:filename", communityProxy)
 
 	// Search

@@ -122,6 +122,26 @@ components:
         imageUrls:
           type: array
           items: { type: string }
+        videoUrls:
+          type: array
+          maxItems: 1
+          description: >-
+            At most one video per issue. `videoPosterUrls` and `videoSizeBytes`
+            are positional sidecars — index i of each describes `videoUrls[i]`,
+            and the server always returns them at the same length.
+          items: { type: string }
+        videoPosterUrls:
+          type: array
+          maxItems: 1
+          description: >-
+            Poster frame for each video, extracted in the browser and uploaded
+            through `POST /uploads`. Empty string when capture failed.
+          items: { type: string }
+        videoSizeBytes:
+          type: array
+          maxItems: 1
+          description: Byte size of each video, shown to the reader before playback.
+          items: { type: integer, format: int64 }
         upvoteCount: { type: integer }
         commentCount: { type: integer }
         communityId: { type: string, format: uuid }
@@ -422,6 +442,18 @@ paths:
                 imageUrls:
                   type: array
                   items: { type: string }
+                videoUrls:
+                  type: array
+                  maxItems: 1
+                  items: { type: string }
+                videoPosterUrls:
+                  type: array
+                  maxItems: 1
+                  items: { type: string }
+                videoSizeBytes:
+                  type: array
+                  maxItems: 1
+                  items: { type: integer, format: int64 }
             examples:
               default:
                 value:
@@ -431,9 +463,23 @@ paths:
                   communityId: 6f2a1c4d-9b3e-4a1f-8c7d-2b3e4f5a6b7c
                   location: Abakpa Road, Junction 4
                   imageUrls: [/api/v1/uploads/abc123.jpg]
+              withVideo:
+                summary: With a video attachment
+                value:
+                  title: Burst water main on Abakpa Rd
+                  description: Water has been running for three days near Junction 4.
+                  category: UTILITIES
+                  communityId: 6f2a1c4d-9b3e-4a1f-8c7d-2b3e4f5a6b7c
+                  videoUrls: [8a3f9c0b-1234-5678-9abc-def012345678.mp4]
+                  videoPosterUrls: [c1d2e3f4-5678-9abc-def0-123456789abc.jpg]
+                  videoSizeBytes: [4194304]
       responses:
         '201':
           description: Issue created.
+        '400':
+          description: >-
+            Validation failed. `TOO_MANY_VIDEOS` when more than one video is
+            attached; `INVALID_VIDEO` when a video entry has no file reference.
         '403':
           description: Caller's primary community does not match.
 
@@ -1178,6 +1224,66 @@ paths:
         '415':
           description: Invalid file type.
 
+  /uploads/video:
+    post:
+      tags: [Uploads]
+      summary: Upload a video (verified user, 10MB max, MP4/WEBM/MOV)
+      description: >-
+        Separate from `POST /uploads` because the limits, the type allowlist,
+        and the gateway's rate-limit budget all differ — video payloads are
+        ~100x an ordinary write, so the gateway caps these at 10 per hour per
+        user rather than the standard 60 per minute.
+
+
+        The server validates **size and Content-Type only**. Duration (20s max)
+        is enforced in the browser before upload, by reading
+        `HTMLVideoElement.duration`; checking it server-side would require
+        ffprobe or a container parser, and server-side media processing is out
+        of scope. The gap is accepted deliberately — the size cap already
+        bounds the real cost.
+
+
+        Poster frames are likewise generated in the browser and uploaded
+        through `POST /uploads` as ordinary images.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Filename and byte size.
+          content:
+            application/json:
+              examples:
+                default:
+                  {
+                    value:
+                      {
+                        success: true,
+                        data:
+                          {
+                            filename: 8a3f9c0b-1234-5678-9abc-def012345678.mp4,
+                            sizeBytes: 4194304,
+                          },
+                      },
+                  }
+        '400':
+          description: No `file` field in the form (`FILE_REQUIRED`).
+        '413':
+          description: File too large, >10MB (`FILE_TOO_LARGE`).
+        '415':
+          description: >-
+            Extension or Content-Type outside the allowlist
+            (`INVALID_FILE_TYPE`). Both are checked; either alone failing is a
+            rejection.
+
   /uploads/{filename}:
     parameters:
       - in: path
@@ -1187,13 +1293,22 @@ paths:
     get:
       tags: [Uploads]
       security: []
-      summary: Fetch an uploaded image
-      description: Public GET so images render in `<img>` tags without an auth header.
+      summary: Fetch an uploaded image or video
+      description: >-
+        Public GET so images render in `<img>` and videos in `<video>` without
+        an auth header. Supports HTTP Range requests, which is what lets a
+        browser seek within a video without downloading the whole file.
       responses:
         '200':
-          description: The image.
+          description: The image or video.
           content:
             image/*:
               schema: { type: string, format: binary }
+            video/*:
+              schema: { type: string, format: binary }
+        '206':
+          description: Partial content, in response to a `Range` request.
+        '404':
+          description: No such file.
         '400':
           description: Bad filename (path traversal attempt).

@@ -113,20 +113,30 @@ type Community struct {
 }
 
 type Issue struct {
-	ID           string         `gorm:"type:uuid;primaryKey" json:"id"`
-	Title        string         `gorm:"not null" json:"title"`
-	Description  string         `gorm:"not null" json:"description"`
-	Category     IssueCategory  `gorm:"type:varchar(30);default:'OTHER'" json:"category"`
-	Status       IssueStatus    `gorm:"type:varchar(30);default:'OPEN'" json:"status"`
-	Location     *string        `json:"location,omitempty"`
-	ImageURLs    []string       `gorm:"type:jsonb;serializer:json" json:"imageUrls"`
-	UpvoteCount  int            `gorm:"default:0" json:"upvoteCount"`
-	CommentCount int            `gorm:"default:0" json:"commentCount"`
-	CommunityID  string         `gorm:"type:uuid;not null;index" json:"communityId"`
-	ReportedByID string         `gorm:"type:uuid;not null" json:"reportedById"`
-	Comments     []IssueComment `gorm:"foreignKey:IssueID" json:"-"`
-	CreatedAt    time.Time      `json:"createdAt"`
-	UpdatedAt    time.Time      `json:"updatedAt"`
+	ID          string        `gorm:"type:uuid;primaryKey" json:"id"`
+	Title       string        `gorm:"not null" json:"title"`
+	Description string        `gorm:"not null" json:"description"`
+	Category    IssueCategory `gorm:"type:varchar(30);default:'OTHER'" json:"category"`
+	Status      IssueStatus   `gorm:"type:varchar(30);default:'OPEN'" json:"status"`
+	Location    *string       `json:"location,omitempty"`
+	ImageURLs   []string      `gorm:"type:jsonb;serializer:json" json:"imageUrls"`
+	// VideoURLs mirrors ImageURLs. VideoPosterURLs and VideoSizeBytes are
+	// positional sidecars: index i describes VideoURLs[i]. Parallel arrays are
+	// only tolerable because an issue carries at most ONE video (enforced in
+	// issues.Service.Create) — if that cap ever rises, collapse these three
+	// into a single jsonb array of objects rather than adding a fourth.
+	// The poster is a JPEG the browser extracted from the video before upload;
+	// the size is what lets the UI warn people on metered data before playback.
+	VideoURLs       []string       `gorm:"type:jsonb;serializer:json" json:"videoUrls"`
+	VideoPosterURLs []string       `gorm:"type:jsonb;serializer:json" json:"videoPosterUrls"`
+	VideoSizeBytes  []int64        `gorm:"type:jsonb;serializer:json" json:"videoSizeBytes"`
+	UpvoteCount     int            `gorm:"default:0" json:"upvoteCount"`
+	CommentCount    int            `gorm:"default:0" json:"commentCount"`
+	CommunityID     string         `gorm:"type:uuid;not null;index" json:"communityId"`
+	ReportedByID    string         `gorm:"type:uuid;not null" json:"reportedById"`
+	Comments        []IssueComment `gorm:"foreignKey:IssueID" json:"-"`
+	CreatedAt       time.Time      `json:"createdAt"`
+	UpdatedAt       time.Time      `json:"updatedAt"`
 }
 
 type IssueComment struct {

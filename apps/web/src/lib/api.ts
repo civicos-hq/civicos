@@ -192,3 +192,25 @@ export async function uploadImage(file: File): Promise<string> {
   });
   return res.data.data.filename;
 }
+
+export interface UploadedVideo {
+  filename: string;
+  sizeBytes: number;
+}
+
+/**
+ * Uploads a video to the dedicated endpoint. Separate from uploadImage
+ * because the server applies different limits (10MB, three container types)
+ * and the gateway applies a much stricter rate limit to these payloads.
+ *
+ * The returned sizeBytes is what the issue stores so the detail page can label
+ * the player before any of the file is fetched.
+ */
+export async function uploadVideo(file: File): Promise<UploadedVideo> {
+  const form = new FormData();
+  form.append('file', file);
+  const res = await api.post<ApiResponse<UploadedVideo>>('/api/v1/uploads/video', form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return res.data.data;
+}

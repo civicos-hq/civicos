@@ -80,6 +80,11 @@ func (h *Handler) create(c *gin.Context) {
 	userID, _ := c.Get("userID")
 	item, err := h.svc.Create(input, userID.(string))
 	if err != nil {
+		var appErr *AppError
+		if errors.As(err, &appErr) {
+			response.Error(c, appErr.Status, appErr.Code, appErr.Message)
+			return
+		}
 		response.Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Failed to create issue")
 		return
 	}

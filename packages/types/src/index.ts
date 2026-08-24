@@ -139,6 +139,15 @@ export interface Issue {
   status: IssueStatus;
   location?: string;
   imageUrls: string[];
+  /**
+   * At most one video per issue. The three arrays are positional — index i of
+   * videoPosterUrls and videoSizeBytes describes videoUrls[i]. The poster is a
+   * JPEG frame the browser extracted before upload; the size is shown next to
+   * the player so people on metered data choose knowingly.
+   */
+  videoUrls: string[];
+  videoPosterUrls: string[];
+  videoSizeBytes: number[];
   upvoteCount: number;
   commentCount: number;
   communityId: UUID;

@@ -175,7 +175,11 @@
     "upvoteMembershipRequired": "Join this community first before you fit upvote issues here.",
     "statusClosedNote": "Dem close this issue without resolve am.",
     "updateStatus": "Update status",
-    "updateStatusError": "We no fit update."
+    "updateStatusError": "We no fit update.",
+    "video": "Video",
+    "videoLabel": "Video wey dem attach",
+    "videoDataHint": "Nothing go download until you press play",
+    "videoUnsupported": "Your browser no fit play this video."
   },
   "comments": {
     "heading": "Discussion",
@@ -391,7 +395,15 @@
       "aiPending": "CivicAI dey check your report…",
       "aiSuggests": "CivicAI dey suggest:",
       "aiApply": "use am",
-      "aiBadge": "AI-generated · review"
+      "aiBadge": "AI-generated · review",
+      "video": "Video (if you get am)",
+      "addVideo": "Add video · {{max}}MB, {{seconds}}s max",
+      "videoChecking": "Dey check the video…",
+      "videoTooBig": "That video pass {{max}}MB.",
+      "videoTooLong": "That video na {{seconds}} seconds — di limit na {{max}}.",
+      "videoWrongType": "Na only MP4, WEBM and MOV video dey work.",
+      "videoUnreadable": "We no fit read this video. Try another file.",
+      "removeVideo": "Comot video"
     }
   },
   "communityPage": {

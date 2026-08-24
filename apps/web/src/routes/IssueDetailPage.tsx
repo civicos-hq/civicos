@@ -17,6 +17,7 @@ import { CommentsSection } from '../components/civic/CommentsSection';
 import { DiscussionSummaryPanel } from '../components/civic/DiscussionSummaryPanel';
 import { IssueClaimSection } from '../components/civic/IssueClaimSection';
 import { ImageGallery } from '../components/ImageLightbox';
+import { IssueVideo } from '../components/IssueVideo';
 import { ShareButton } from '../components/ShareButton';
 import { useMe } from '../hooks/useMe';
 import { useUpvotedIssues } from '../hooks/useUpvotedIssues';
@@ -257,6 +258,22 @@ export function IssueDetailPage() {
             {t('issueDetail.photos')}
           </h2>
           <ImageGallery filenames={issue.imageUrls} alt={t('issueDetail.photoAlt')} />
+        </article>
+      )}
+
+      {issue.videoUrls && issue.videoUrls.length > 0 && (
+        <article className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800/70 p-4 md:p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+            {t('issueDetail.video')}
+          </h2>
+          {/* Positional sidecars — index i of the poster and size arrays
+              describes videoUrls[i]. Older issues predate these fields, so
+              both lookups have to tolerate being absent. */}
+          <IssueVideo
+            filename={issue.videoUrls[0]}
+            posterFilename={issue.videoPosterUrls?.[0] || undefined}
+            sizeBytes={issue.videoSizeBytes?.[0]}
+          />
         </article>
       )}
 

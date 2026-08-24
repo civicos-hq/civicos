@@ -184,7 +184,11 @@
       "sub": "Updates posted by organizations responsible for this report.",
       "byAuthor": "Posted by {{name}}",
       "orgFallback": "View organization"
-    }
+    },
+    "video": "Video",
+    "videoLabel": "Video attachment",
+    "videoDataHint": "Nothing downloads until you press play",
+    "videoUnsupported": "Your browser cannot play this video."
   },
   "report": {
     "buttonLabel": "Report",
@@ -480,7 +484,15 @@
       "aiPending": "CivicAI is analyzing your report…",
       "aiSuggests": "CivicAI suggests:",
       "aiApply": "apply",
-      "aiBadge": "AI-generated · review"
+      "aiBadge": "AI-generated · review",
+      "video": "Video (optional)",
+      "addVideo": "Add a video · {{max}}MB, {{seconds}}s max",
+      "videoChecking": "Checking video…",
+      "videoTooBig": "That video is over {{max}}MB.",
+      "videoTooLong": "That video is {{seconds}} seconds — the limit is {{max}}.",
+      "videoWrongType": "Only MP4, WEBM, and MOV videos are supported.",
+      "videoUnreadable": "This video could not be read. Try a different file.",
+      "removeVideo": "Remove video"
     }
   },
   "communityPage": {
