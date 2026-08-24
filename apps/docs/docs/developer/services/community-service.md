@@ -36,8 +36,10 @@ demands it.
   funding campaigns and representative announcements.
 - **Discover feed** — personalized feed tiered by geographic proximity
   (`COMMUNITY` → `LGA` → `STATE` → `COUNTRY`).
-- **Uploads** — image upload endpoint (5 MB max, JPG/PNG/GIF/WEBP) plus
-  public serve.
+- **Uploads** — image upload (`POST /uploads`, 5 MB max,
+  JPG/PNG/GIF/WEBP), video upload for issue attachments
+  (`POST /uploads/video`, 10 MB max, MP4/WEBM/MOV), plus a shared public
+  serve route with HTTP Range support.
 
 ## Package layout
 
@@ -55,7 +57,7 @@ services/community-service/
 │   ├── petitions/                 # Petitions + signatures + comments + milestones
 │   ├── representatives/           # Reps + follows + comments
 │   ├── search/                    # Global ILIKE search
-│   └── uploads/                   # Multipart upload + static serve
+│   └── uploads/                   # Multipart upload (image + video) + serve, behind a Storage interface
 ├── migrations/
 └── pkg/…
 ```
@@ -217,6 +219,59 @@ The two queries here mirror it; they are not independent policy. The
 allow-list is deliberately an allow-list, so a status added later
 defaults to hidden — the safe direction for a surface that asks people
 for money.
+
+### Media uploads and the Storage interface
+
+`internal/uploads` sits behind a two-method `Storage` interface — `Save`
+and `Open` — with `LocalStorage` as the only implementation today. The
+handlers never touch a filesystem path, so moving to S3/R2/GCS is a new
+implementation plus a line in `main.go`, not a rewrite of the upload and
+serve paths.
+
+**Local disk is not durable.** On an ephemeral filesystem (Cloud Run, a
+plain `docker run`, most PaaS defaults) every uploaded file disappears
+when the container is replaced, while the URLs stay in the database —
+issues end up pointing at 404s. Mount a persistent volume at the uploads
+directory, or swap the implementation, before this carries real traffic.
+
+Images and videos are separate handlers on purpose:
+
+|                    | Image (`POST /uploads`) | Video (`POST /uploads/video`) |
+| ------------------ | ----------------------- | ----------------------------- |
+| Size cap           | 5 MB                    | 10 MB                         |
+| Types              | JPG, PNG, GIF, WEBP     | MP4, WEBM, MOV                |
+| Content-Type check | `image/*` prefix        | closed allowlist              |
+| Gateway budget     | `Standard` (60/min)     | `VideoUpload` (10/hour)       |
+
+Both check extension **and** Content-Type — either alone is trivially
+forged. Serving is shared: one `GET /uploads/:filename` route for both
+kinds, using `http.ServeContent` so Range requests work, which is what
+lets a browser seek within a video without downloading the whole file.
+
+#### Duration and posters are the client's job
+
+Two things the server deliberately does **not** do:
+
+- **Duration.** The 20-second cap is enforced in the browser by reading
+  `HTMLVideoElement.duration` before upload. Checking it server-side
+  would mean ffprobe or a container parser, and server-side media
+  processing is out of scope. So the split is: the server guarantees
+  **size and type**, the client guarantees **duration**. A crafted
+  request can get a long clip past us. That gap is accepted — the size
+  cap already bounds the real cost, and duration is a UX rule rather
+  than a safety one.
+- **Poster frames.** The browser seeks to ~0.1s, draws to a canvas, and
+  uploads the JPEG through the ordinary image endpoint. The server never
+  decodes a video frame.
+
+On the model, `Issue.VideoURLs`, `VideoPosterURLs`, and `VideoSizeBytes`
+are positional — index `i` of each describes video `i`. Parallel arrays
+are only tolerable because the cap is one video per issue; if that ever
+rises, collapse them into a single jsonb array of objects rather than
+adding a fourth.
+
+Video lives on **issues only**. Petitions, comments, consultations, and
+announcements are text-and-images by product decision, not oversight.
 
 ## Environment
 

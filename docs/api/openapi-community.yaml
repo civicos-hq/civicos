@@ -5,7 +5,7 @@ info:
   description: |
     Community-scoped resources: communities themselves, issues, petitions,
     representatives, comments, notifications (including SSE stream), search,
-    discover feed, and image uploads.
+    discover feed, and image + video uploads.
 
     All routes are proxied by the API gateway at `/api/v1/*`. The service
     itself mounts them under `/v1/*`.
@@ -53,7 +53,7 @@ tags:
   - name: Search
     description: Global search across communities, issues, petitions, representatives and more.
   - name: Uploads
-    description: Image uploads for issue and petition attachments.
+    description: Image and video uploads for issue and petition attachments.
 
 security:
   - bearerAuth: []
