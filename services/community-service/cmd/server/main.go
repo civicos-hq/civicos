@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"log"
-	"os"
 	"time"
 
 	"github.com/civicos/community-service/internal/audit"
@@ -96,10 +95,12 @@ func main() {
 	discoverSvc := discover.NewService(db)
 	discoverHandler := discover.NewHandler(discoverSvc)
 
-	if err := os.MkdirAll(uploadsDir, 0o755); err != nil {
+	uploadStore, err := uploads.NewLocalStorage(uploadsDir)
+	if err != nil {
 		log.Fatalf("could not create uploads dir: %v", err)
 	}
-	uploadsHandler := uploads.NewHandler(uploadsDir)
+	uploadsHandler := uploads.NewHandler(uploadStore)
+	uploadsVideoHandler := uploads.NewVideoHandler(uploadStore)
 
 	authMiddleware := middleware.JWTAuth(cfg, db)
 	requireVerified := middleware.RequireVerified()
@@ -155,6 +156,7 @@ func main() {
 	searchHandler.RegisterRoutes(v1.Group("/search"))
 	discoverHandler.RegisterRoutes(v1.Group("/discover"), authMiddleware)
 	uploadsHandler.RegisterRoutes(v1.Group("/uploads"), authMiddleware, requireVerified)
+	uploadsVideoHandler.RegisterRoutes(v1.Group("/uploads"), authMiddleware, requireVerified)
 
 	addr := ":" + cfg.Port
 	log.Printf("community-service listening on %s", addr)

@@ -17,6 +17,7 @@ import { ImageGallery } from '../components/ImageLightbox';
 import { ShareButton } from '../components/ShareButton';
 import { useEnumLabels } from '../hooks/useEnumLabels';
 import { useMe } from '../hooks/useMe';
+import { ErrorState } from '../components/ErrorState';
 
 // STAFF_ROLES gate the CivicAI summary affordance — only representatives
 // and organization staff should burn a Gemini call on a thread, and only
@@ -117,7 +118,11 @@ export function PetitionDetailPage() {
         >
           {t('petitionDetail.backToPetitions')}
         </Link>
-        <p className="text-sm text-red-600 dark:text-red-400">{t('petitionDetail.loadError')}</p>
+        <ErrorState
+          error={petitionQuery.error}
+          context={t('petitionDetail.loadError')}
+          onRetry={() => void petitionQuery.refetch()}
+        />
       </section>
     );
   }

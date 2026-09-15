@@ -8,7 +8,7 @@ import {
   type DiscussionSummary,
   type SummarizableResource,
 } from '../../lib/civicai';
-import { getApiError } from '../../lib/api';
+import { useErrorText } from '../../hooks/useErrorMessage';
 
 // DiscussionSummaryPanel renders a "Summarize discussion" affordance for
 // petition and issue detail pages. Only staff-role users should see this;
@@ -31,6 +31,7 @@ const MIN_COMMENTS_FOR_SUMMARY = 2;
 
 export function DiscussionSummaryPanel({ resource, resourceId, commentCount }: Props) {
   const { t } = useTranslation();
+  const errorText = useErrorText();
   const [summary, setSummary] = useState<DiscussionSummary | null>(null);
 
   const mutation = useMutation({
@@ -41,7 +42,7 @@ export function DiscussionSummaryPanel({ resource, resourceId, commentCount }: P
   const notEnoughComments = commentCount < MIN_COMMENTS_FOR_SUMMARY;
   const isPending = mutation.isPending;
   const errorMsg = mutation.isError
-    ? (getApiError(mutation.error)?.message ?? t('civicai.summary.genericError'))
+    ? errorText(mutation.error, t('civicai.summary.genericError'))
     : null;
 
   return (

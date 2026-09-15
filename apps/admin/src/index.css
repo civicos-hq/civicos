@@ -942,3 +942,62 @@
   white-space: pre-wrap;
   word-break: break-word;
 }
+
+/* Failed-request panel. Names the cause and the next step rather than a
+   single red sentence that reads the same for a dead gateway, an expired
+   session, and an insufficient role. */
+.admin-error-panel {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid #fecaca;
+  border-radius: 0.75rem;
+  background: #fef2f2;
+}
+.admin-error-panel-icon {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  color: #dc2626;
+}
+.admin-error-panel-context {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #7f1d1d;
+}
+.admin-error-panel-title {
+  margin-top: 0.1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #991b1b;
+}
+.admin-error-panel-detail {
+  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #b91c1c;
+}
+.admin-error-panel .admin-btn {
+  margin-top: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+/* Monospace so it can be copied straight into a log grep. */
+.admin-error-panel-code {
+  margin-top: 0.75rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  color: #b91c1c;
+  opacity: 0.85;
+}
+.admin-error-retry-inline {
+  margin-left: 0.4rem;
+  text-decoration: underline;
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Info } from 'lucide-react';
 import { apiGet } from '../lib/api';
+import { ErrorState } from '../components/ErrorState';
 
 /**
  * Platform-wide funding analytics.
@@ -133,7 +134,13 @@ export function FundingAnalyticsPage() {
       </header>
 
       {query.isLoading && <p className="admin-empty">Loading…</p>}
-      {query.isError && <p className="admin-error">Could not load analytics.</p>}
+      {query.isError && (
+        <ErrorState
+          error={query.error}
+          context="Could not load analytics."
+          onRetry={() => void query.refetch()}
+        />
+      )}
 
       {a && (
         <>

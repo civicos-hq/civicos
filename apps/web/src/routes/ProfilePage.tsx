@@ -9,6 +9,7 @@ import { api, signOut as signOutRemote } from '../lib/api';
 import { useMe } from '../hooks/useMe';
 import { useEnumLabels } from '../hooks/useEnumLabels';
 import { PageHeader, useTodayMeta } from '../components/PageHeader';
+import { ErrorState } from '../components/ErrorState';
 
 function useCommunity(id: string | undefined) {
   return useQuery({
@@ -61,7 +62,13 @@ export function ProfilePage() {
   }
 
   if (!me) {
-    return <p className="text-sm text-red-600 dark:text-red-400">{t('profilePage.loadError')}</p>;
+    return (
+      <ErrorState
+        error={meQuery.error}
+        context={t('profilePage.loadError')}
+        onRetry={() => void meQuery.refetch()}
+      />
+    );
   }
 
   const roleTone =

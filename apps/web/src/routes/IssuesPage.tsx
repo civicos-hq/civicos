@@ -4,14 +4,17 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
 import { Button, Input } from '@civicos/ui';
 import { IssueCategory, IssueStatus, type ApiResponse, type Issue } from '@civicos/types';
-import { api, uploadImage, uploadUrl } from '../lib/api';
+import { api, uploadImage, uploadVideo, uploadUrl } from '../lib/api';
+import { capturePosterFrame, posterAsFile } from '../lib/video';
 import { classifyIssue, type IssueClassification } from '../lib/civicai';
 import { useMe } from '../hooks/useMe';
 import { useEnumLabels } from '../hooks/useEnumLabels';
 import { PageHeader, useTodayMeta } from '../components/PageHeader';
 import { EmptyState } from '../components/EmptyState';
 import { CommunityGate, CommunityGateLink } from '../components/CommunityGate';
+import { VideoPicker } from '../components/VideoPicker';
 import { Megaphone, Sparkles } from 'lucide-react';
+import { useErrorText } from '../hooks/useErrorMessage';
 
 const MAX_IMAGES = 5;
 const MAX_IMAGE_MB = 5;
@@ -368,6 +371,7 @@ function Modal({
 
 function ReportIssueModal({ communityId, onClose }: { communityId: string; onClose: () => void }) {
   const { t } = useTranslation();
+  const errorText = useErrorText();
   const enums = useEnumLabels();
   const queryClient = useQueryClient();
   const [title, setTitle] = useState('');
@@ -379,6 +383,7 @@ function ReportIssueModal({ communityId, onClose }: { communityId: string; onClo
   const [categoryTouched, setCategoryTouched] = useState(false);
   const [location, setLocation] = useState('');
   const [files, setFiles] = useState<File[]>([]);
+  const [video, setVideo] = useState<File | null>(null);
   const [error, setError] = useState('');
   const [aiSuggestion, setAiSuggestion] = useState<IssueClassification | null>(null);
   const [aiPending, setAiPending] = useState(false);
@@ -442,6 +447,26 @@ function ReportIssueModal({ communityId, onClose }: { communityId: string; onClo
   const mutation = useMutation({
     mutationFn: async () => {
       const imageUrls = files.length ? await Promise.all(files.map(uploadImage)) : undefined;
+
+      // The poster frame is extracted here, in the browser, and uploaded
+      // through the ordinary image endpoint — the server never decodes video.
+      // A poster that fails to generate is not fatal: the clip still posts and
+      // the player falls back to a neutral placeholder.
+      let videoUrls: string[] | undefined;
+      let videoPosterUrls: string[] | undefined;
+      let videoSizeBytes: number[] | undefined;
+      if (video) {
+        // Video first: it is the call most likely to be refused (size, type,
+        // the stricter gateway budget), and failing it early avoids leaving an
+        // orphaned poster image behind on the server.
+        const uploaded = await uploadVideo(video);
+        const posterBlob = await capturePosterFrame(video);
+        const posterFilename = posterBlob ? await uploadImage(posterAsFile(posterBlob)) : '';
+        videoUrls = [uploaded.filename];
+        videoPosterUrls = [posterFilename];
+        videoSizeBytes = [uploaded.sizeBytes];
+      }
+
       await api.post('/api/v1/issues', {
         title,
         description,
@@ -449,13 +474,16 @@ function ReportIssueModal({ communityId, onClose }: { communityId: string; onClo
         communityId,
         location: location.trim() || undefined,
         imageUrls,
+        videoUrls,
+        videoPosterUrls,
+        videoSizeBytes,
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['issues'] });
       onClose();
     },
-    onError: () => setError(t('issuesPage.modal.genericError')),
+    onError: (err) => setError(errorText(err, t('issuesPage.modal.genericError'))),
   });
 
   function handleSubmit(e: FormEvent) {
@@ -578,6 +606,8 @@ function ReportIssueModal({ communityId, onClose }: { communityId: string; onClo
             </ul>
           )}
         </div>
+
+        <VideoPicker file={video} onChange={setVideo} disabled={mutation.isPending} />
 
         {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
 

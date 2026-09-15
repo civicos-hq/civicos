@@ -97,6 +97,15 @@ var (
 	// Sign because a legitimate citizen may respond to several
 	// consultations in one session.
 	Respond = Profile{Name: "respond", Limit: 10, Window: time.Hour}
+
+	// VideoUpload: issue video attachments. Deliberately far tighter than
+	// Standard because the payload is ~100x an API write (10MB vs ~100KB) —
+	// the cost of abuse here is bandwidth and disk, not row count, so the
+	// per-minute budget that suits JSON writes is the wrong shape entirely.
+	// One video per issue and 5 issues an hour (Create) means a legitimate
+	// reporter needs at most a handful; 10 leaves room for retries over a
+	// flaky mobile connection without leaving 600MB/min on the table.
+	VideoUpload = Profile{Name: "upload.video", Limit: 10, Window: time.Hour}
 )
 
 // Limit returns a Gin middleware that enforces the given profile.

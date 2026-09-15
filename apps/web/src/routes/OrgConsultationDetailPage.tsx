@@ -28,6 +28,7 @@ import {
 } from '@civicos/types';
 import { PageHeader } from '../components/PageHeader';
 import { getApiError, uploadUrl } from '../lib/api';
+import { ErrorState } from '../components/ErrorState';
 import {
   useAddConsultationQuestion,
   useCloseConsultation,
@@ -111,9 +112,11 @@ export function OrgConsultationDetailPage() {
         >
           {t('orgConsultationDetail.back')}
         </Link>
-        <p className="text-sm text-red-600 dark:text-red-400">
-          {t('orgConsultationDetail.loadError')}
-        </p>
+        <ErrorState
+          error={consultation.error}
+          context={t('orgConsultationDetail.loadError')}
+          onRetry={() => void consultation.refetch()}
+        />
       </section>
     );
   }

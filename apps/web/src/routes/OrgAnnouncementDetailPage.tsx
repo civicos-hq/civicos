@@ -13,6 +13,7 @@ import {
   useUpdateAnnouncement,
 } from '../hooks/useAnnouncements';
 import { useMyOrganizations } from '../hooks/useConsultations';
+import { ErrorState } from '../components/ErrorState';
 
 const TONE: Record<AnnouncementStatus, string> = {
   [AnnouncementStatus.DRAFT]: 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300',
@@ -66,9 +67,11 @@ export function OrgAnnouncementDetailPage() {
         >
           {t('orgAnnouncementDetail.back')}
         </Link>
-        <p className="text-sm text-red-600 dark:text-red-400">
-          {t('orgAnnouncementDetail.loadError')}
-        </p>
+        <ErrorState
+          error={query.error}
+          context={t('orgAnnouncementDetail.loadError')}
+          onRetry={() => void query.refetch()}
+        />
       </section>
     );
   }

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { CampaignImpactSummary } from './civicai/CampaignImpactSummary';
 import { DonorUpdateAssist } from './civicai/UpdateDraftAssist';
 import { Loader2, Trash2 } from 'lucide-react';
+import { useErrorText } from '../hooks/useErrorMessage';
 import {
   formatMoneyExact,
   useCreateFundingUpdate,
@@ -51,6 +52,7 @@ export function CampaignConsole({
 
 function SpendForm({ campaign }: { campaign: PublicCampaignDetail }) {
   const { t } = useTranslation();
+  const errorText = useErrorText();
   const [milestoneId, setMilestoneId] = useState(campaign.milestones[0]?.id ?? '');
   const [amountMajor, setAmountMajor] = useState('');
   const [description, setDescription] = useState('');
@@ -92,8 +94,7 @@ function SpendForm({ campaign }: { campaign: PublicCampaignDetail }) {
       setReceiptUrl('');
       setDone(true);
     } catch (err) {
-      const res = (err as { response?: { data?: { message?: string } } }).response;
-      setError(res?.data?.message ?? t('campaigns.console.genericError'));
+      setError(errorText(err, t('campaigns.console.genericError')));
     }
   }
 
@@ -253,6 +254,7 @@ function PublishedSpend({
 
 function UpdateForm({ campaign }: { campaign: PublicCampaignDetail }) {
   const { t } = useTranslation();
+  const errorText = useErrorText();
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [attachments, setAttachments] = useState('');
@@ -281,8 +283,7 @@ function UpdateForm({ campaign }: { campaign: PublicCampaignDetail }) {
       setAttachments('');
       setDone(true);
     } catch (err) {
-      const res = (err as { response?: { data?: { message?: string } } }).response;
-      setError(res?.data?.message ?? t('campaigns.console.genericError'));
+      setError(errorText(err, t('campaigns.console.genericError')));
     }
   }
 

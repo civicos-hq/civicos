@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { apiGet, apiPost } from '../lib/api';
+import { errorText } from '../lib/errorMessage';
 
 interface Finding {
   id: string;
@@ -100,8 +101,7 @@ export function DriftPage() {
       queryClient.invalidateQueries({ queryKey: ['admin-drift'] });
     },
     onError: (err) => {
-      const msg = (err as { response?: { data?: { message?: string } } }).response?.data?.message;
-      setError(msg ?? 'Could not resolve this finding.');
+      setError(errorText(err, 'Could not resolve this finding.'));
     },
   });
 

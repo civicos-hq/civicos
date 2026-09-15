@@ -14,6 +14,7 @@ import { UnverifiedBanner } from '../components/UnverifiedBanner';
 import { DiscussionSummaryPanel } from '../components/civic/DiscussionSummaryPanel';
 import { getApiError, uploadUrl } from '../lib/api';
 import { useMe } from '../hooks/useMe';
+import { ErrorState } from '../components/ErrorState';
 
 // Kept in sync with the same set in IssueDetailPage / PetitionDetailPage
 // and the civicai-service summarize handler. Only staff burn Gemini calls
@@ -142,9 +143,11 @@ export function ConsultationDetailPage() {
         >
           {t('consultationDetail.back')}
         </Link>
-        <p className="text-sm text-red-600 dark:text-red-400">
-          {t('consultationDetail.loadError')}
-        </p>
+        <ErrorState
+          error={consultationQuery.error}
+          context={t('consultationDetail.loadError')}
+          onRetry={() => void consultationQuery.refetch()}
+        />
       </section>
     );
   }

@@ -2,6 +2,7 @@ import { lazy } from 'react';
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { DashboardLayout } from './components/layout/DashboardLayout';
 import { RateLimitToast } from './components/RateLimitToast';
+import { OfflineBanner } from './components/OfflineBanner';
 
 // Marketing + auth surfaces stay eagerly imported: fresh visitors land on
 // one of them, so any lazy split just adds a paint delay to the first
@@ -199,6 +200,9 @@ export default function App() {
     <>
       {/* Mounted at the root so 429 toasts appear on public + authed pages. */}
       <RateLimitToast />
+      {/* Likewise for connectivity: one banner beats every panel on the page
+          separately guessing why it failed. */}
+      <OfflineBanner />
       <AppRoutes />
     </>
   );

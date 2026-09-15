@@ -12,6 +12,8 @@ import { Avatar, FollowButton, stripTitleFromName } from './RepresentativesPage'
 import { CommentsSection } from '../components/civic/CommentsSection';
 import { RepAnnouncements } from '../components/civic/RepAnnouncements';
 import { Modal } from '../components/Modal';
+import { ErrorState } from '../components/ErrorState';
+import { useErrorText } from '../hooks/useErrorMessage';
 
 const ADMIN_ROLES = new Set<UserRole>([
   UserRole.GOVERNMENT_ADMIN,
@@ -64,9 +66,11 @@ export function RepresentativeDetailPage() {
         >
           {t('representativeDetail.backToRepresentatives')}
         </Link>
-        <p className="text-sm text-red-600 dark:text-red-400">
-          {t('representativeDetail.loadError')}
-        </p>
+        <ErrorState
+          error={repQuery.error}
+          context={t('representativeDetail.loadError')}
+          onRetry={() => void repQuery.refetch()}
+        />
       </section>
     );
   }
@@ -206,6 +210,7 @@ export function RepresentativeDetailPage() {
 
 function EditRepresentativeModal({ rep, onClose }: { rep: Representative; onClose: () => void }) {
   const { t } = useTranslation();
+  const errorText = useErrorText();
   const queryClient = useQueryClient();
   const [name, setName] = useState(rep.name);
   const [title, setTitle] = useState(rep.title);
@@ -243,7 +248,7 @@ function EditRepresentativeModal({ rep, onClose }: { rep: Representative; onClos
       queryClient.invalidateQueries({ queryKey: ['representatives'] });
       onClose();
     },
-    onError: () => setError(t('representativeDetail.editModal.genericError')),
+    onError: (err) => setError(errorText(err, t('representativeDetail.editModal.genericError'))),
   });
 
   function submit(e: FormEvent) {

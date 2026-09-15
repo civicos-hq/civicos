@@ -5,6 +5,8 @@ import { PageHeader, useTodayMeta } from '../components/PageHeader';
 import { EmptyState } from '../components/EmptyState';
 import { useCitizenProjects } from '../hooks/useProjects';
 import { Briefcase } from 'lucide-react';
+import { ErrorState } from '../components/ErrorState';
+import { queryFailure } from '../lib/apiError';
 
 const STATUS_TONE: Record<ProjectStatus, string> = {
   [ProjectStatus.PLANNED]: 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300',
@@ -36,6 +38,9 @@ export function ProjectsPage() {
   const [params, setParams] = useSearchParams();
   const statusFilter = (params.get('status') as ProjectStatus | null) ?? '';
   const query = useCitizenProjects({ status: statusFilter });
+  // A paused or failed query must never render as an empty list —
+  // "nothing here yet" and "we couldn't ask" are different facts.
+  const failure = queryFailure(query);
 
   function setStatus(next: '' | ProjectStatus) {
     const p = new URLSearchParams(params);
@@ -81,11 +86,15 @@ export function ProjectsPage() {
         <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>
       )}
 
-      {query.isError && (
-        <p className="text-sm text-red-600 dark:text-red-400">{t('projectsPage.loadError')}</p>
+      {failure !== null && (
+        <ErrorState
+          error={failure}
+          context={t('projectsPage.loadError')}
+          onRetry={() => void query.refetch()}
+        />
       )}
 
-      {!query.isLoading && items.length === 0 && (
+      {!query.isLoading && !failure && items.length === 0 && (
         <EmptyState
           icon={<Briefcase size={20} />}
           title={t('projectsPage.empty.title')}

@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, ShieldCheck } from 'lucide-react';
 import { apiDelete, apiGet, apiPatch, apiPost } from '../lib/api';
+import { ErrorState } from '../components/ErrorState';
 
 const ORG_ROLES = ['OWNER', 'ADMIN', 'STAFF'] as const;
 
@@ -98,7 +99,11 @@ export function OrganizationDetailPage() {
     return (
       <>
         <BackLink />
-        <p className="text-sm text-red-700">Couldn't load this organization.</p>
+        <ErrorState
+          error={orgQuery.error}
+          context="Couldn't load this organization."
+          onRetry={() => void orgQuery.refetch()}
+        />
       </>
     );
   }

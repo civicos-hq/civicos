@@ -32,8 +32,28 @@ You need three things:
 | Category    | Infrastructure, Health, Education, Security, Environment, Utilities, Transport, or Other     |
 | Location    | Optional. A street, landmark, or coordinates — anything that helps someone find the spot     |
 | Photos      | Up to 5 images, 5 MB each. JPG, PNG, GIF, WEBP                                               |
+| Video       | Optional. One clip, 10 MB and 20 seconds max. MP4, WEBM, MOV                                 |
 
 3. Click **Submit**.
+
+### About the video attachment
+
+Everything about the video is optional. **A report with no photo and no
+video is a complete report** — text alone has always been enough, and
+nothing about how issues are ranked, routed, or responded to changes
+based on whether media is attached.
+
+If you do attach a clip:
+
+- The length limit is checked in your browser before anything uploads, so
+  an over-long video costs you no data. If your phone shot it in a format
+  we don't accept, you'll be told immediately rather than after a wait.
+- CivicOS grabs a still frame from the start of the clip and uses it as
+  the preview image.
+- **Readers never download your video automatically.** The issue page
+  shows the preview frame and the file size, and fetches nothing until
+  someone presses play. This matters on metered mobile data, which is how
+  most people read CivicOS.
 
 Your issue is created with status **OPEN** and appears in your
 community's feed immediately.

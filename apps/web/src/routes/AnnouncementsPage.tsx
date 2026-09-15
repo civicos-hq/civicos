@@ -5,6 +5,8 @@ import { PageHeader, useTodayMeta } from '../components/PageHeader';
 import { EmptyState } from '../components/EmptyState';
 import { usePublishedAnnouncements } from '../hooks/useAnnouncements';
 import { Megaphone } from 'lucide-react';
+import { ErrorState } from '../components/ErrorState';
+import { queryFailure } from '../lib/apiError';
 
 // Truncate an announcement body for the list card. The API doesn't
 // return a `summary` field the way consultations do — announcements
@@ -24,6 +26,9 @@ export function AnnouncementsPage() {
   // The API returns up to 20 by default; asking for 50 gives the citizen
   // page a bit more depth without paying for pagination scaffolding yet.
   const query = usePublishedAnnouncements(50);
+  // A paused or failed query must never render as an empty list —
+  // "nothing here yet" and "we couldn't ask" are different facts.
+  const failure = queryFailure(query);
 
   const items = (query.data ?? []).sort((a, b) => {
     const at = a.publishedAt ?? a.createdAt;
@@ -44,11 +49,15 @@ export function AnnouncementsPage() {
         <p className="text-sm text-slate-600 dark:text-slate-300">{t('common.loading')}</p>
       )}
 
-      {query.isError && (
-        <p className="text-sm text-red-600 dark:text-red-400">{t('announcementsPage.loadError')}</p>
+      {failure !== null && (
+        <ErrorState
+          error={failure}
+          context={t('announcementsPage.loadError')}
+          onRetry={() => void query.refetch()}
+        />
       )}
 
-      {!query.isLoading && items.length === 0 && (
+      {!query.isLoading && !failure && items.length === 0 && (
         <EmptyState
           icon={<Megaphone size={20} />}
           title={t('announcementsPage.empty.title')}
