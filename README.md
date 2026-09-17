@@ -386,6 +386,14 @@ MVP complete and in launch prep — not yet open to real users. GitHub Actions C
 
 Known before launch: the Gemini API key is on the free tier (20 requests/day shared across all eleven CivicAI endpoints), which is not enough for real use. Crypto donations via LinkiSwap are designed but blocked on an API spec. Source of truth for what's shipped vs. next vs. later: [`apps/docs/docs/about/roadmap.md`](./apps/docs/docs/about/roadmap.md) (also published at [docs.civicos.ng](https://docs.civicos.ng/about/roadmap)). Longer-horizon phasing is in `docs/product/CivicOS Product Roadmap.pdf`.
 
+## Who builds this
+
+CivicOS is built and maintained by **[Recoil Labs](https://recoillabs.org)** as an open-source contribution to civic infrastructure.
+
+It is released publicly so that communities — not vendors — control how their civic data works. Recoil Labs is not affiliated with any political party, campaign, or government body, and because the project is MIT-licensed, any institution is free to audit the code, fork it, or run its own instance without us.
+
+Contributions are welcome from developers, translators, and civic researchers.
+
 ## License
 
 MIT — see [`LICENSE`](./LICENSE). Free to use, modify, distribute, and sublicense; attribution required, no warranty.

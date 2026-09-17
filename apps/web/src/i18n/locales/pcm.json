@@ -712,7 +712,11 @@
     },
     "ownership": {
       "q": "Who dey run CivicOS, and e get any political party behind am?",
-      "a": "CivicOS na independent, non-partisan civic technology wey we build on open-source code. No political party or business interest own am, fund am, or control am, and the codebase dey public for anybody to audit."
+      "a": "CivicOS is an open-source project built and maintained by Recoil Labs, an independent technology company. It is not owned, funded, or directed by any political party, campaign, or government body. Because the code is public under an MIT licence, nothing about how your data is handled can be changed quietly — by Recoil Labs or anyone else — and any community is free to audit the code or run its own instance."
+    },
+    "recoil": {
+      "q": "Who is Recoil Labs, and how does the project stay free?",
+      "a": "Recoil Labs is an independent technology company. CivicOS is its open-source contribution to civic infrastructure, released publicly so communities — not vendors — control how their civic data works. Recoil Labs maintains the project and offers optional paid hosting and support to institutions. The citizen experience stays free, and the code stays open for anyone to run themselves."
     }
   },
   "stories": {
@@ -734,7 +738,7 @@
   "stewardship": {
     "marker": "Who dey behind this",
     "title": "Independent, non-partisan, and built for the open",
-    "body": "Small independent team dey steward CivicOS, no be party and no be contractor. The full codebase, database schema, and API dey public — anybody fit read how we store report, who fit see am, and wetin happen after you file am.",
+    "body": "CivicOS is built and maintained by Recoil Labs as an open-source contribution to civic infrastructure — not by a party, a campaign, or a contractor. The full codebase, database schema, and API are public: anyone can read how a report is stored, who can see it, and what happens after it is filed.",
     "openSource": {
       "title": "Anybody fit audit am",
       "body": "Every service, migration, and API route dey inside public repository under open licence. If you wan check how we handle your data, read the source."
@@ -784,7 +788,9 @@
       "privacy": "Your address dey private",
       "audit": "Non-partisan",
       "open": "Built for the open"
-    }
+    },
+    "builtBy": "Powered by",
+    "builtByOrg": "Recoil Labs"
   },
   "auth": {
     "fields": {

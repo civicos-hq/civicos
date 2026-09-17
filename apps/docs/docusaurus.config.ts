@@ -117,8 +117,18 @@ const config: Config = {
             { label: 'GitHub', href: 'https://github.com/civicos-hq/civicos' },
           ],
         },
+        {
+          title: 'Project',
+          items: [
+            { label: 'Recoil Labs', href: 'https://recoillabs.org' },
+            {
+              label: 'Licence (MIT)',
+              href: 'https://github.com/civicos-hq/civicos/blob/main/LICENSE',
+            },
+          ],
+        },
       ],
-      copyright: `© ${new Date().getFullYear()} CivicOS. Built for democratic participation.`,
+      copyright: `© ${new Date().getFullYear()} CivicOS — an open-source project by Recoil Labs.`,
     },
     prism: {
       theme: prismThemes.github,

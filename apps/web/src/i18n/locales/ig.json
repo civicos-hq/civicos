@@ -661,7 +661,11 @@
     },
     "ownership": {
       "q": "Ònye na-achịkwa CivicOS, ọ nwere njikọ na pati ndọrọ ndọrọ ọchịchị ọ bụla?",
-      "a": "CivicOS bụ teknụzụ ọha nọọrọ onwe ya nke na-adịghị n'akụkụ pati ọ bụla, e wuru ya na koodu mepere emepe. Ọ dịghị pati ndọrọ ndọrọ ọchịchị ma ọ bụ atụmatụ azụmahịa nwe ya, na-akwado ya ego, ma ọ bụ na-achịkwa ya, koodu ya dịkwa n'ihu ọha ka onye ọ bụla nyochaa."
+      "a": "CivicOS is an open-source project built and maintained by Recoil Labs, an independent technology company. It is not owned, funded, or directed by any political party, campaign, or government body. Because the code is public under an MIT licence, nothing about how your data is handled can be changed quietly — by Recoil Labs or anyone else — and any community is free to audit the code or run its own instance."
+    },
+    "recoil": {
+      "q": "Who is Recoil Labs, and how does the project stay free?",
+      "a": "Recoil Labs is an independent technology company. CivicOS is its open-source contribution to civic infrastructure, released publicly so communities — not vendors — control how their civic data works. Recoil Labs maintains the project and offers optional paid hosting and support to institutions. The citizen experience stays free, and the code stays open for anyone to run themselves."
     }
   },
   "stories": {
@@ -683,7 +687,7 @@
   "stewardship": {
     "marker": "Ndị nọ n'azụ nke a",
     "title": "Nọọrọ onwe ya, adịghị n'akụkụ pati, e wuru ya n'ìhè",
-    "body": "Obere otu nọọrọ onwe ha na-elekọta CivicOS, ọ bụghị pati ma ọ bụ onye ọrụ nkwekọrịta. Koodu niile, usoro data, na API dị n'ihu ọha — onye ọ bụla nwere ike gụọ otu a na-echekwa ozi, ònye nwere ike hụ ya, na ihe na-eme mgbe edebere ya.",
+    "body": "CivicOS is built and maintained by Recoil Labs as an open-source contribution to civic infrastructure — not by a party, a campaign, or a contractor. The full codebase, database schema, and API are public: anyone can read how a report is stored, who can see it, and what happens after it is filed.",
     "openSource": {
       "title": "Onye ọ bụla nwere ike nyochaa ya",
       "body": "Ọrụ ọ bụla, mbugharị, na ụzọ API dị n'ebe nchekwa ọha n'okpuru ikike mepere emepe. Ọ bụrụ na ị chọrọ ịlele otu a na-eji data gị eme ihe, gụọ koodu ahụ."
@@ -733,7 +737,9 @@
       "privacy": "Adreesị gị na-anọgide bụrụ nzuzo",
       "audit": "Adịghị n'akụkụ pati",
       "open": "Ewuru ya n'ìhè"
-    }
+    },
+    "builtBy": "Powered by",
+    "builtByOrg": "Recoil Labs"
   },
   "auth": {
     "fields": {

@@ -661,7 +661,11 @@
     },
     "ownership": {
       "q": "Ta ló ń darí CivicOS, ṣé ó ní ìdè pẹ̀lú ẹgbẹ́ ìṣèlú kankan?",
-      "a": "CivicOS jẹ́ ìmọ̀ ẹ̀rọ gbangba òmìnira tí kò sí nínú ẹgbẹ́ kan, tí a kọ́ lórí kóòdù gbangba. Kò sí ẹgbẹ́ ìṣèlú tàbí ọrọ̀ ajé tó ní i, tó ń fún ní owó, tàbí tó ń darí i, kóòdù rẹ̀ sì wà ní gbangba fún ẹnikẹ́ni láti ṣàyẹ̀wò."
+      "a": "CivicOS is an open-source project built and maintained by Recoil Labs, an independent technology company. It is not owned, funded, or directed by any political party, campaign, or government body. Because the code is public under an MIT licence, nothing about how your data is handled can be changed quietly — by Recoil Labs or anyone else — and any community is free to audit the code or run its own instance."
+    },
+    "recoil": {
+      "q": "Who is Recoil Labs, and how does the project stay free?",
+      "a": "Recoil Labs is an independent technology company. CivicOS is its open-source contribution to civic infrastructure, released publicly so communities — not vendors — control how their civic data works. Recoil Labs maintains the project and offers optional paid hosting and support to institutions. The citizen experience stays free, and the code stays open for anyone to run themselves."
     }
   },
   "stories": {
@@ -683,7 +687,7 @@
   "stewardship": {
     "marker": "Àwọn tí ó wà lẹ́yìn èyí",
     "title": "Òmìnira, kò sí nínú ẹgbẹ́ kan, a sì kọ́ ọ ní gbangba",
-    "body": "Ẹgbẹ́ kékeré òmìnira ni ó ń tọ́jú CivicOS, kì í ṣe ẹgbẹ́ ìṣèlú tàbí alágbàṣe. Gbogbo kóòdù, ìtòlẹ́sẹẹsẹ̀ dátà, àti API wà ní gbangba — ẹnikẹ́ni lè ka bí a ṣe ń tọ́jú ìròyìn, ta ni ó lè rí i, àti ohun tí ó ń ṣẹlẹ̀ lẹ́yìn tí a fi í sílẹ̀.",
+    "body": "CivicOS is built and maintained by Recoil Labs as an open-source contribution to civic infrastructure — not by a party, a campaign, or a contractor. The full codebase, database schema, and API are public: anyone can read how a report is stored, who can see it, and what happens after it is filed.",
     "openSource": {
       "title": "Ẹnikẹ́ni lè ṣàyẹ̀wò",
       "body": "Gbogbo iṣẹ́, ìṣípò, àti ọ̀nà API wà nínú ibi ìpamọ́ gbangba lábẹ́ àṣẹ gbangba. Tí o bá fẹ́ ṣàyẹ̀wò bí a ṣe ń mú dátà rẹ, ka kóòdù náà."
@@ -733,7 +737,9 @@
       "privacy": "Àdírẹ́sì rẹ wà ní ìkọ̀kọ̀",
       "audit": "Kò sí nínú ẹgbẹ́ kan",
       "open": "A kọ́ ọ ní gbangba"
-    }
+    },
+    "builtBy": "Powered by",
+    "builtByOrg": "Recoil Labs"
   },
   "auth": {
     "fields": {

@@ -661,7 +661,11 @@
     },
     "ownership": {
       "q": "Wa ke gudanar da CivicOS, kuma shin yana da alaƙa da wata jam'iyyar siyasa?",
-      "a": "CivicOS fasahar jama'a ce mai zaman kanta, ba ta jam'iyya ba, an gina ta a kan lambar buɗaɗɗe. Babu jam'iyyar siyasa ko sha'awar kasuwanci da ke mallaka, tallafa, ko sarrafa ta, kuma lambar tana bayyane ga kowa ya bincika."
+      "a": "CivicOS is an open-source project built and maintained by Recoil Labs, an independent technology company. It is not owned, funded, or directed by any political party, campaign, or government body. Because the code is public under an MIT licence, nothing about how your data is handled can be changed quietly — by Recoil Labs or anyone else — and any community is free to audit the code or run its own instance."
+    },
+    "recoil": {
+      "q": "Who is Recoil Labs, and how does the project stay free?",
+      "a": "Recoil Labs is an independent technology company. CivicOS is its open-source contribution to civic infrastructure, released publicly so communities — not vendors — control how their civic data works. Recoil Labs maintains the project and offers optional paid hosting and support to institutions. The citizen experience stays free, and the code stays open for anyone to run themselves."
     }
   },
   "stories": {
@@ -683,7 +687,7 @@
   "stewardship": {
     "marker": "Wanda ke bayan wannan",
     "title": "Mai zaman kansa, ba na jam'iyya ba, kuma an gina shi a bayyane",
-    "body": "Ƙungiya ƙarama mai zaman kanta ce ke kula da CivicOS, ba jam'iyya ko ɗan kwangila ba. Duk lambar, tsarin bayanai, da API suna bayyane — kowa zai iya karanta yadda ake adana rahoto, wa zai iya gani, da abin da ke faruwa bayan an shigar da shi.",
+    "body": "CivicOS is built and maintained by Recoil Labs as an open-source contribution to civic infrastructure — not by a party, a campaign, or a contractor. The full codebase, database schema, and API are public: anyone can read how a report is stored, who can see it, and what happens after it is filed.",
     "openSource": {
       "title": "Kowa zai iya bincika",
       "body": "Kowane sabis, ƙaura, da hanyar API tana zama a wurin ajiya na jama'a ƙarƙashin lasisin buɗaɗɗe. Idan kana son duba yadda ake sarrafa bayananka, karanta lambar."
@@ -733,7 +737,9 @@
       "privacy": "Adireshinka yana a kebe",
       "audit": "Ba na jam'iyya ba",
       "open": "An gina shi a bayyane"
-    }
+    },
+    "builtBy": "Powered by",
+    "builtByOrg": "Recoil Labs"
   },
   "auth": {
     "fields": {

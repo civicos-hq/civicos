@@ -1100,7 +1100,7 @@ function Stewardship() {
 
 function FAQ() {
   const { t } = useTranslation();
-  const keys = ['cost', 'privacy', 'coverage', 'reps', 'abuse', 'ownership'] as const;
+  const keys = ['cost', 'privacy', 'coverage', 'reps', 'abuse', 'ownership', 'recoil'] as const;
   return (
     <section id="faq" className="home-section reveal">
       <TypedMarker text={t('faq.marker')} />
@@ -1243,6 +1243,16 @@ export function Footer() {
           <div className="leading-tight">
             <p className="home-brand-title">CivicOS</p>
             <p className="home-brand-subtitle">{t('nav.brandSubtitle')}</p>
+            {/* Attribution to the company that builds and maintains CivicOS.
+                Split across two keys rather than embedding markup in a
+                translated string — translators get plain sentences, and the
+                organisation name stays untranslated in every locale. */}
+            <p className="home-brand-builtby">
+              {t('footer.builtBy')}{' '}
+              <a href="https://recoillabs.org" target="_blank" rel="noopener noreferrer">
+                {t('footer.builtByOrg')}
+              </a>
+            </p>
           </div>
         </div>
 
