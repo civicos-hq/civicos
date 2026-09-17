@@ -1423,6 +1423,33 @@ button {
   }
 }
 
+/* Footer-only attribution to Recoil Labs. Deliberately NOT hidden on
+   phones the way .home-brand-subtitle is: the subtitle yields because it
+   is a descriptor competing with the header's sign-in button, whereas
+   this sits in the footer where there is room, and attribution that
+   disappears on the platform's most common screen size is not
+   attribution. */
+.home-brand-builtby {
+  margin: 0.35rem 0 0;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--pr-ink-soft);
+}
+
+.home-brand-builtby a {
+  color: var(--pr-ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* --pr-stamp, matching .home-footer-col a:hover. Deliberately not
+   --pr-primary: that variable is band-sensitive and this element lives in
+   the footer's --pr-paper band. */
+.home-brand-builtby a:hover,
+.home-brand-builtby a:focus-visible {
+  color: var(--pr-stamp);
+}
+
 .home-nav-links {
   display: none;
   gap: 1.4rem;

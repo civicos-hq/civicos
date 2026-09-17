@@ -661,7 +661,11 @@
     },
     "ownership": {
       "q": "Ònye na-achịkwa CivicOS, ọ nwere njikọ na pati ndọrọ ndọrọ ọchịchị ọ bụla?",
-      "a": "CivicOS bụ teknụzụ ọha nọọrọ onwe ya nke na-adịghị n'akụkụ pati ọ bụla, e wuru ya na koodu mepere emepe. Ọ dịghị pati ndọrọ ndọrọ ọchịchị ma ọ bụ atụmatụ azụmahịa nwe ya, na-akwado ya ego, ma ọ bụ na-achịkwa ya, koodu ya dịkwa n'ihu ọha ka onye ọ bụla nyochaa."
+      "a": "CivicOS bụ ọrụ koodu mepere emepe nke Recoil Labs, ụlọ ọrụ teknụzụ nọọrọ onwe ya, wuru ma na-elekọta. Ọ dịghị pati ndọrọ ndọrọ ọchịchị, mgbasa ozi ntuli aka, ma ọ bụ ngalaba gọọmenti nwe ya, na-akwado ya ego, ma ọ bụ na-eduzi ya. Ebe ọ bụ na koodu ahụ dị n'ihu ọha n'okpuru ikike MIT, ọ dịghị ihe gbasara otu a na-eji data gị eme ihe nke enwere ike ịgbanwe na nzuzo — ma Recoil Labs ma onye ọ bụla ọzọ — obodo ọ bụla nwerekwa onwe ya ịnyocha koodu ahụ ma ọ bụ ịgba nke ya."
+    },
+    "recoil": {
+      "q": "Ònye bụ Recoil Labs, oleekwa otu ọrụ a ga-esi nọgide na-abụ n'efu?",
+      "a": "Recoil Labs bụ ụlọ ọrụ teknụzụ nọọrọ onwe ya. CivicOS bụ onyinye koodu mepere emepe ya nye akụrụngwa ọha, nke e wepụtara n'ihu ọha ka obodo — ọ bụghị ndị na-ere ahịa — chịkwaa otu data ọha ha si arụ ọrụ. Recoil Labs na-elekọta ọrụ a ma na-enye ndị ụlọ ọrụ nhọrọ ịkwụ ụgwọ maka nchekwa na nkwado. Ahụmahụ ụmụ amaala ga-adịgide n'efu, koodu ahụ ga-adịgidekwa mepere emepe ka onye ọ bụla wee nwee ike ịgba ya n'onwe ya."
     }
   },
   "stories": {
@@ -683,7 +687,7 @@
   "stewardship": {
     "marker": "Ndị nọ n'azụ nke a",
     "title": "Nọọrọ onwe ya, adịghị n'akụkụ pati, e wuru ya n'ìhè",
-    "body": "Obere otu nọọrọ onwe ha na-elekọta CivicOS, ọ bụghị pati ma ọ bụ onye ọrụ nkwekọrịta. Koodu niile, usoro data, na API dị n'ihu ọha — onye ọ bụla nwere ike gụọ otu a na-echekwa ozi, ònye nwere ike hụ ya, na ihe na-eme mgbe edebere ya.",
+    "body": "Recoil Labs wuru CivicOS ma na-elekọta ya dịka onyinye koodu mepere emepe nye akụrụngwa ọha — ọ bụghị pati, ọ bụghị mgbasa ozi ntuli aka, ọ bụghịkwa onye ọrụ nkwekọrịta. Koodu niile, usoro data, na API dị n'ihu ọha: onye ọ bụla nwere ike gụọ otu a na-echekwa ozi, ònye nwere ike hụ ya, na ihe na-eme mgbe edebere ya.",
     "openSource": {
       "title": "Onye ọ bụla nwere ike nyochaa ya",
       "body": "Ọrụ ọ bụla, mbugharị, na ụzọ API dị n'ebe nchekwa ọha n'okpuru ikike mepere emepe. Ọ bụrụ na ị chọrọ ịlele otu a na-eji data gị eme ihe, gụọ koodu ahụ."
@@ -733,7 +737,9 @@
       "privacy": "Adreesị gị na-anọgide bụrụ nzuzo",
       "audit": "Adịghị n'akụkụ pati",
       "open": "Ewuru ya n'ìhè"
-    }
+    },
+    "builtBy": "Sitere na",
+    "builtByOrg": "Recoil Labs"
   },
   "auth": {
     "fields": {
