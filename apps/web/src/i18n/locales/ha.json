@@ -661,11 +661,11 @@
     },
     "ownership": {
       "q": "Wa ke gudanar da CivicOS, kuma shin yana da alaƙa da wata jam'iyyar siyasa?",
-      "a": "CivicOS is an open-source project built and maintained by Recoil Labs, an independent technology company. It is not owned, funded, or directed by any political party, campaign, or government body. Because the code is public under an MIT licence, nothing about how your data is handled can be changed quietly — by Recoil Labs or anyone else — and any community is free to audit the code or run its own instance."
+      "a": "CivicOS aiki ne na lambar buɗaɗɗe wanda Recoil Labs, kamfanin fasaha mai zaman kansa, ya gina kuma yake kulawa da shi. Babu jam'iyyar siyasa, yaƙin neman zaɓe, ko hukumar gwamnati da ke mallakarsa, tallafa masa, ko ba shi umarni. Tun da lambar tana bayyane ƙarƙashin lasisin MIT, babu abin da za a iya canzawa a ɓoye game da yadda ake sarrafa bayananka — ko ta Recoil Labs ko ta kowa — kuma kowace al'umma tana da 'yancin bincika lambar ko gudanar da nata sigar."
     },
     "recoil": {
-      "q": "Who is Recoil Labs, and how does the project stay free?",
-      "a": "Recoil Labs is an independent technology company. CivicOS is its open-source contribution to civic infrastructure, released publicly so communities — not vendors — control how their civic data works. Recoil Labs maintains the project and offers optional paid hosting and support to institutions. The citizen experience stays free, and the code stays open for anyone to run themselves."
+      "q": "Wane ne Recoil Labs, kuma ta yaya aikin zai ci gaba da kasancewa kyauta?",
+      "a": "Recoil Labs kamfanin fasaha ne mai zaman kansa. CivicOS shi ne gudummawarsa ta lambar buɗaɗɗe ga ababen more rayuwa na jama'a, wanda aka fitar a bayyane domin al'ummomi — ba masu sayarwa ba — su sarrafa yadda bayanan jama'arsu ke aiki. Recoil Labs yana kula da aikin kuma yana ba da zaɓin biyan kuɗin karɓar baƙunci da tallafi ga cibiyoyi. Amfani ga 'yan ƙasa zai kasance kyauta, lambar kuma za ta ci gaba da kasancewa a buɗe ga duk wanda yake son gudanar da ita da kansa."
     }
   },
   "stories": {
@@ -687,7 +687,7 @@
   "stewardship": {
     "marker": "Wanda ke bayan wannan",
     "title": "Mai zaman kansa, ba na jam'iyya ba, kuma an gina shi a bayyane",
-    "body": "CivicOS is built and maintained by Recoil Labs as an open-source contribution to civic infrastructure — not by a party, a campaign, or a contractor. The full codebase, database schema, and API are public: anyone can read how a report is stored, who can see it, and what happens after it is filed.",
+    "body": "Recoil Labs ne ya gina CivicOS kuma yake kulawa da shi a matsayin gudummawar lambar buɗaɗɗe ga ababen more rayuwa na jama'a — ba jam'iyya ba, ba yaƙin neman zaɓe ba, kuma ba ɗan kwangila ba. Duk lambar, tsarin bayanai, da API suna bayyane: kowa zai iya karanta yadda ake adana rahoto, wa zai iya gani, da abin da ke faruwa bayan an shigar da shi.",
     "openSource": {
       "title": "Kowa zai iya bincika",
       "body": "Kowane sabis, ƙaura, da hanyar API tana zama a wurin ajiya na jama'a ƙarƙashin lasisin buɗaɗɗe. Idan kana son duba yadda ake sarrafa bayananka, karanta lambar."
@@ -738,7 +738,7 @@
       "audit": "Ba na jam'iyya ba",
       "open": "An gina shi a bayyane"
     },
-    "builtBy": "Powered by",
+    "builtBy": "Daga",
     "builtByOrg": "Recoil Labs"
   },
   "auth": {

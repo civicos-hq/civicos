@@ -661,11 +661,11 @@
     },
     "ownership": {
       "q": "Ta ló ń darí CivicOS, ṣé ó ní ìdè pẹ̀lú ẹgbẹ́ ìṣèlú kankan?",
-      "a": "CivicOS is an open-source project built and maintained by Recoil Labs, an independent technology company. It is not owned, funded, or directed by any political party, campaign, or government body. Because the code is public under an MIT licence, nothing about how your data is handled can be changed quietly — by Recoil Labs or anyone else — and any community is free to audit the code or run its own instance."
+      "a": "CivicOS jẹ́ iṣẹ́ kóòdù gbangba tí Recoil Labs, ilé-iṣẹ́ ìmọ̀-ẹ̀rọ òmìnira kan, kọ́ tí ó sì ń tọ́jú rẹ̀. Kò sí ẹgbẹ́ ìṣèlú, ìpolongo ìdìbò, tàbí ilé-iṣẹ́ ìjọba tó ní i, tó ń fún ní owó, tàbí tó ń darí i. Nítorí pé kóòdù náà wà ní gbangba lábẹ́ ìwé-àṣẹ MIT, kò sí ohun tí a lè yí padà ní ìkọ̀kọ̀ nípa bí a ṣe ń lo dátà rẹ — yálà Recoil Labs tàbí ẹnikẹ́ni mìíràn — agbègbè kọ̀ọ̀kan sì lómìnira láti ṣàyẹ̀wò kóòdù náà tàbí láti ṣiṣẹ́ tirẹ̀."
     },
     "recoil": {
-      "q": "Who is Recoil Labs, and how does the project stay free?",
-      "a": "Recoil Labs is an independent technology company. CivicOS is its open-source contribution to civic infrastructure, released publicly so communities — not vendors — control how their civic data works. Recoil Labs maintains the project and offers optional paid hosting and support to institutions. The citizen experience stays free, and the code stays open for anyone to run themselves."
+      "q": "Ta ni Recoil Labs, báwo ni iṣẹ́ yìí ṣe máa wà ní ọ̀fẹ́?",
+      "a": "Recoil Labs jẹ́ ilé-iṣẹ́ ìmọ̀-ẹ̀rọ òmìnira. CivicOS ni ọrẹ kóòdù gbangba rẹ̀ sí ohun-èlò gbogbogbò, tí a tú jáde ní gbangba kí àwọn agbègbè — kì í ṣe àwọn olùtajà — lè darí bí dátà gbogbogbò wọn ṣe ń ṣiṣẹ́. Recoil Labs ń tọ́jú iṣẹ́ náà ó sì ń pèsè ìgbàlejò àti ìrànlọ́wọ́ tí a lè san owó rẹ̀ fún àwọn ilé-iṣẹ́. Ìlò fún àwọn aráàlú yóò wà ní ọ̀fẹ́, kóòdù náà yóò sì wà ní gbangba fún ẹnikẹ́ni láti ṣiṣẹ́ tirẹ̀."
     }
   },
   "stories": {
@@ -687,7 +687,7 @@
   "stewardship": {
     "marker": "Àwọn tí ó wà lẹ́yìn èyí",
     "title": "Òmìnira, kò sí nínú ẹgbẹ́ kan, a sì kọ́ ọ ní gbangba",
-    "body": "CivicOS is built and maintained by Recoil Labs as an open-source contribution to civic infrastructure — not by a party, a campaign, or a contractor. The full codebase, database schema, and API are public: anyone can read how a report is stored, who can see it, and what happens after it is filed.",
+    "body": "Recoil Labs ni ó kọ́ CivicOS tí ó sì ń tọ́jú rẹ̀ gẹ́gẹ́ bí ọrẹ kóòdù gbangba sí ohun-èlò gbogbogbò — kì í ṣe ẹgbẹ́ ìṣèlú, kì í ṣe ìpolongo ìdìbò, kì í sì í ṣe alágbàṣe. Gbogbo kóòdù, ìtòlẹ́sẹẹsẹ̀ dátà, àti API wà ní gbangba: ẹnikẹ́ni lè ka bí a ṣe ń tọ́jú ìròyìn, ta ni ó lè rí i, àti ohun tí ó ń ṣẹlẹ̀ lẹ́yìn tí a fi í sílẹ̀.",
     "openSource": {
       "title": "Ẹnikẹ́ni lè ṣàyẹ̀wò",
       "body": "Gbogbo iṣẹ́, ìṣípò, àti ọ̀nà API wà nínú ibi ìpamọ́ gbangba lábẹ́ àṣẹ gbangba. Tí o bá fẹ́ ṣàyẹ̀wò bí a ṣe ń mú dátà rẹ, ka kóòdù náà."
@@ -738,7 +738,7 @@
       "audit": "Kò sí nínú ẹgbẹ́ kan",
       "open": "A kọ́ ọ ní gbangba"
     },
-    "builtBy": "Powered by",
+    "builtBy": "Láti ọwọ́",
     "builtByOrg": "Recoil Labs"
   },
   "auth": {
